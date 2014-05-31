@@ -1,3 +1,3 @@
 #! /bin/bash
 
-python -m unittest test.test_dao
+python -m unittest test.test_dao test.test_model test.scraper.test_challonge

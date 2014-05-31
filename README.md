@@ -1,2 +1,2 @@
-elo-rankings
+smash-ranks
 ============

@@ -1,44 +1,47 @@
 import requests
 import re
-import urlparse
+import os
 from model import MatchResult
 from bs4 import BeautifulSoup
 
-log_url_path = 'log'
-log_suffix_template = 'log?page=%d'
-match_regex = r'reported a .+ win for (.+) over (.+)\.'
-reset_regex = r'This tournament was reset'
-change_regex = r'changed the outcome of (.+) vs. (.+) to a .+ win for (.+)\.'
+LOG_URL_PATH = 'log'
+LOG_SUFFIX_TEMPLATE = 'log?page=%d'
+
+MATCH_REGEX = r'reported a .+ win for (.+) over (.+)\.'
+RESET_REGEX = r'This tournament was reset'
+CHANGE_REGEX = r'changed the outcome of (.+) vs. (.+) to a .+ win for (.+)\.'
 
 class ChallongeScraper(object):
     def __init__(self, url):
         self.url = url
+        self.name = None
+        self.date = None
+        self.matches = None
 
     def get_name(self):
-        return None
+        soup = self._verify_status_code(requests.get(self.url))
+        return soup.find('div', id='title').text.strip()
 
+    # TODO date
     def get_date(self):
         return None
 
     def get_matches(self):
-        full_log_url = urlparse.urljoin(self.url, log_url_path)
-        response = self._verify_status_code(requests.get(full_log_url))
-
-        html = response.text
-        soup = BeautifulSoup(html)
+        full_log_url = os.path.join(self.url, LOG_URL_PATH)
+        soup = self._verify_status_code(requests.get(full_log_url))
 
         log_paths = [li.a['href'] for li in soup.findAll('li', class_=re.compile(r'page.*'))]
         log_page_numbers = [m.group() for log_path in log_paths for m in [re.search(r'\d+$', log_path)] if m]
         max_page_number = int(max(log_page_numbers))
 
-        log_urls = [urlparse.urljoin(full_log_url, log_suffix_template % i) for i in xrange(1, max_page_number + 1)]
+        log_urls = [os.path.join(self.url, LOG_SUFFIX_TEMPLATE % i) for i in xrange(1, max_page_number + 1)]
 
         log_entries = self._get_entries_from_log_urls(log_urls)
         print 'Log size:', len(log_entries)
 
         # find the latest time the tournament was reset and ignore everything before it
         for i in reversed(xrange(len(log_entries))):
-            if re.search(reset_regex, log_entries[i]):
+            if re.search(RESET_REGEX, log_entries[i]):
                 print 'Reset detected.'
                 log_entries = log_entries[i:]
                 print 'New log size:', len(log_entries)
@@ -47,14 +50,13 @@ class ChallongeScraper(object):
         # create MatchResult objects from the log entries
         match_results = []
         for entry in log_entries:
-            m = re.search(match_regex, entry)
+            m = re.search(MATCH_REGEX, entry)
             if m:
                 match_result = MatchResult(winner=m.group(1), loser=m.group(2))
                 match_results.append(match_result)
-                print match_result
                 continue
 
-            m = re.search(change_regex, entry)
+            m = re.search(CHANGE_REGEX, entry)
             if m:
                 result_changed = False
 
@@ -79,10 +81,11 @@ class ChallongeScraper(object):
 
     @staticmethod
     def _verify_status_code(response):
+        """Returns a BeautifulSoup object from the response"""
         if response.status_code != 200:
             raise Exception('Received status code of %d' % response.status_code)
         else:
-            return response
+            return BeautifulSoup(response.text)
 
     @classmethod
     def _get_entries_from_log_urls(cls, log_urls):
@@ -91,17 +94,6 @@ class ChallongeScraper(object):
     @classmethod
     def _get_entries_from_log_url(cls, log_url):
         print 'Retrieving', log_url
-        log_response = cls._verify_status_code(requests.get(log_url))
-        log_html = log_response.text
-        log_soup = BeautifulSoup(log_html)
+        log_soup = cls._verify_status_code(requests.get(log_url))
         return [entry.text.strip() for entry in log_soup.findAll('td', class_='entry')]
 
-
-url = 'http://challonge.com/TNE_singles/'
-scraper = ChallongeScraper(url)
-
-matches = scraper.get_matches()
-
-print ''
-for match in matches:
-    print match
