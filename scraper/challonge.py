@@ -25,7 +25,7 @@ class ChallongeScraper(object):
 
         return self.name
 
-    # TODO date
+    # there's no good way to get the date from a challonge bracket (only day/month, not year)
     def get_date(self):
         return None
 
