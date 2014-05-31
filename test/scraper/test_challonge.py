@@ -34,6 +34,11 @@ class TestChallongeScraper(unittest.TestCase):
 
         mock_get.assert_called_once_with(URL)
         self.assertFalse(mock_response.called)
+        
+        # make sure we cached the response
+        self.assertEquals(self.scraper.get_name(), "The Next Episode")
+        mock_get.assert_called_once_with(URL)
+        self.assertFalse(mock_response.called)
 
     @mock.patch('scraper.challonge.requests.get')
     def test_get_matches(self, mock_get):
@@ -55,4 +60,9 @@ class TestChallongeScraper(unittest.TestCase):
         self.assertTrue(matches[-1].contains_players("Fly Amanita", "OXY_Westballz"))
         self.assertEquals(matches[-1].winner, "Fly Amanita")
 
+        self.assertEquals(mock_get.call_count, 10)
+
+        # make sure we cached the response
+        matches = self.scraper.get_matches()
+        self.assertEquals(len(matches), 126)
         self.assertEquals(mock_get.call_count, 10)

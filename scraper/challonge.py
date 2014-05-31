@@ -19,14 +19,23 @@ class ChallongeScraper(object):
         self.matches = None
 
     def get_name(self):
-        soup = self._verify_status_code(requests.get(self.url))
-        return soup.find('div', id='title').text.strip()
+        if not self.name:
+            soup = self._verify_status_code(requests.get(self.url))
+            self.name = soup.find('div', id='title').text.strip()
+
+        return self.name
 
     # TODO date
     def get_date(self):
         return None
 
     def get_matches(self):
+        if not self.matches:
+            self.matches = self._get_matches()
+
+        return self.matches
+
+    def _get_matches(self):
         full_log_url = os.path.join(self.url, LOG_URL_PATH)
         soup = self._verify_status_code(requests.get(full_log_url))
 
