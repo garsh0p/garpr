@@ -66,3 +66,11 @@ class TestChallongeScraper(unittest.TestCase):
         matches = self.scraper.get_matches()
         self.assertEquals(len(matches), 126)
         self.assertEquals(mock_get.call_count, 10)
+
+    @mock.patch('scraper.challonge.requests.get')
+    def test_non_200_response(self, mock_get):
+        mock_response = mock.Mock()
+        mock_response.status_code = 400
+        mock_get.return_value = mock_response
+
+        self.assertRaises(Exception, self.scraper.get_name)
