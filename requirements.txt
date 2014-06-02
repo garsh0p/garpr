@@ -1,6 +1,7 @@
 argparse==1.2.1
 beautifulsoup4==4.3.2
 ipython==2.1.0
+lxml==3.3.5
 mock==1.0.1
 pymongo==2.7.1
 requests==2.3.0
