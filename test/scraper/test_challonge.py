@@ -68,6 +68,22 @@ class TestChallongeScraper(unittest.TestCase):
         self.assertEquals(mock_get.call_count, 10)
 
     @mock.patch('scraper.challonge.requests.get')
+    def test_get_players(self, mock_get):
+        def get_return_values(url):
+            if url[-1].isdigit():
+                return self.create_mock_response(self.files[int(url[-1]) - 1])
+            # if we retrieve /log, return the last page
+            else:
+                return self.create_mock_response(self.files[-1])
+
+        mock_get.side_effect = get_return_values
+
+        players = self.scraper.get_players()
+
+        self.assertEquals(len(players), 64)
+        self.assertTrue('Gar' in players)
+
+    @mock.patch('scraper.challonge.requests.get')
     def test_non_200_response(self, mock_get):
         mock_response = mock.Mock()
         mock_response.status_code = 400

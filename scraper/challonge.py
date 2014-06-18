@@ -17,6 +17,7 @@ class ChallongeScraper(object):
         self.name = None
         self.date = None
         self.matches = None
+        self.players = None
 
     def get_name(self):
         if not self.name:
@@ -34,6 +35,16 @@ class ChallongeScraper(object):
             self.matches = self._get_matches()
 
         return self.matches
+
+    def get_players(self):
+        if not self.players:
+            self.players = set()
+            matches = self.get_matches()
+            for match in matches:
+                self.players.add(match.winner)
+                self.players.add(match.loser)
+
+        return self.players
 
     def _get_matches(self):
         full_log_url = os.path.join(self.url, LOG_URL_PATH)

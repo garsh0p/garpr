@@ -9,3 +9,10 @@ class MatchResult(object):
     def contains_players(self, player1, player2):
         return (self.winner == player1 and self.loser == player2) or \
                (self.winner == player2 and self.loser == player1)
+
+class Player(object):
+    pass
+
+class Tournament(object):
+    pass
+
