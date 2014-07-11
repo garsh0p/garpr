@@ -58,11 +58,3 @@ class TioScraper(object):
                 self.players.add(match.loser)
 
         return self.players
-
-#a = TioScraper('tio_files/norcal monthlies #2 03-16-14.tio', 'singles bracket')
-a = TioScraper('/drive1/Tio/2014-06-28 Bay Area Monthly #1 Press 1.tio', 'BAM Singles')
-print a.get_name()
-print a.get_date()
-print a.get_players()
-for match in a.get_matches():
-    print match

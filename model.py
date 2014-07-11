@@ -11,7 +11,13 @@ class MatchResult(object):
                (self.winner == player2 and self.loser == player1)
 
 class Player(object):
-    pass
+    def __init__(self, name, aliases, rating):
+        self.name = name
+        self.aliases = aliases
+        self.rating = rating
+
+    def __str__(self):
+        return "%s %s [%s]" % (self.name, self.rating, self.aliases)
 
 class Tournament(object):
     pass
