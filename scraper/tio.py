@@ -8,6 +8,7 @@ class TioScraper(object):
         self.name = None
         self.date = None
         self.matches = None
+        self.players = None
 
         with open(filepath) as f:
             self.text = f.read()
@@ -48,11 +49,20 @@ class TioScraper(object):
 
         return matches
 
+    def get_players(self):
+        if not self.players:
+            self.players = set()
+            matches = self.get_matches()
+            for match in matches:
+                self.players.add(match.winner)
+                self.players.add(match.loser)
 
-a = TioScraper('tio_files/norcal monthlies #2 03-16-14.tio', 'singles bracket')
+        return self.players
+
+#a = TioScraper('tio_files/norcal monthlies #2 03-16-14.tio', 'singles bracket')
+a = TioScraper('/drive1/Tio/2014-06-28 Bay Area Monthly #1 Press 1.tio', 'BAM Singles')
 print a.get_name()
 print a.get_date()
-b = a.get_matches()
-for match in b:
+print a.get_players()
+for match in a.get_matches():
     print match
-print len(b)
