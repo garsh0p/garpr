@@ -17,3 +17,7 @@ class TestTioScraper(unittest.TestCase):
     def test_get_matches(self):
         matches = self.scraper.get_matches()
         self.assertEquals(len(matches), 46)
+
+    def test_get_players(self):
+        players = self.scraper.get_players()
+        self.assertEquals(len(players), 24)
