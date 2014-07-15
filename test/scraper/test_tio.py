@@ -8,6 +8,9 @@ class TestTioScraper(unittest.TestCase):
     def setUp(self):
         self.scraper = TioScraper(FILEPATH, BRACKET_NAME)
 
+    def test_get_raw(self):
+        self.assertTrue(len(self.scraper.get_raw()) > 0)
+
     def test_get_name(self):
         self.assertEquals(self.scraper.get_name(), 'norcal monthlies #2')
 

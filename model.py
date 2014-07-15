@@ -20,5 +20,10 @@ class Player(object):
         return "%s %s [%s]" % (self.name, self.rating, self.aliases)
 
 class Tournament(object):
-    pass
+    def __init__(self, type, raw):
+        self.type = type
+        self.raw = raw
+
+        # TODO populate everything from raw
+        
 

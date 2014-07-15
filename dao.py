@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 
 mongo_client = MongoClient('localhost')
 players_col = mongo_client.players.players
+tournaments_col = mongo_client.smashranks.tournaments
 
 def get_all_players():
     return convert_player_id_list(players_col.find())

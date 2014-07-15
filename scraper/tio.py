@@ -15,6 +15,9 @@ class TioScraper(object):
 
         self.soup = BeautifulSoup(self.text, 'xml')
 
+    def get_raw(self):
+        return self.text
+
     def get_name(self):
         return self.soup.Event.Name.text
 

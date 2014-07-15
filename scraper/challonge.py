@@ -22,6 +22,20 @@ class ChallongeScraper(object):
 
         self.api_key_dict = {'api_key': self.api_key}
 
+    def get_raw(self):
+        raw_dict = {}
+
+        url = TOURNAMENT_URL % self.tournament_id
+        raw_dict['tournament'] = self._check_for_200(requests.get(url, params=self.api_key_dict)).json()
+
+        url = MATCHES_URL % self.tournament_id
+        raw_dict['matches'] = self._check_for_200(requests.get(url, params=self.api_key_dict)).json()
+
+        url = PARTICIPANTS_URL % self.tournament_id
+        raw_dict['participants'] = self._check_for_200(requests.get(url, params=self.api_key_dict)).json()
+
+        return raw_dict
+
     def get_name(self):
         url = TOURNAMENT_URL % self.tournament_id
         json_response = requests.get(url, params=self.api_key_dict).json()
@@ -60,3 +74,10 @@ class ChallongeScraper(object):
         json_response = requests.get(url, params=self.api_key_dict).json()
 
         return [p['participant']['name'] for p in json_response]
+
+    def _check_for_200(self, response):
+        if response.status_code != 200:
+            raise Exception('Received status code of %d' % response.status_code)
+
+        return response
+
