@@ -22,7 +22,7 @@ class TioScraper(object):
     def get_date(self):
         return self.soup.Event.StartDate.text
 
-    # TODO this doesn't return matches in chronological order
+    # TODO verify that match order is correct for 2 set grand finals
     def get_matches(self):
         player_map = dict((p.ID.text, p.Nickname.text) for p in self.soup.find_all('Player'))
 
