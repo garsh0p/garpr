@@ -1,8 +1,10 @@
 import click
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
-from model import Tournament
+from model import Tournament, Player
 import dao
+
+DEFAULT_RATING = 1200
 
 @click.command()
 @click.option('--type', '-t', help='tio or challonge', type=click.Choice(['challonge', 'tio']), prompt=True)
@@ -17,8 +19,40 @@ def import_tournament(type, path, bracket):
         click.echo("Illegal type")
 
     tournament = Tournament(type, scraper)
+    print 'before get players'
+    players = scraper.get_players()
+    print 'after get players'
 
-    dao.insert_tournament(tournament.get_json_dict())
+    #dao.insert_tournament(tournament.get_json_dict())
+
+    click.echo(players)
+
+    for player in players:
+        db_player = dao.get_player_by_alias(player)
+        print db_player
+        if db_player == None:
+            click.echo("%s does not exist in the database." % player)
+
+            add_new = click.confirm("Add this player as a new player?", default=True)
+            if add_new:
+                name = click.prompt("Enter name")
+                alias_set = set()
+                alias_set.add(name.lower())
+                alias_set.add(player.lower())
+
+                # TODO check for alias uniqueness in db here?
+
+                player_to_add = Player(name, list(alias_set), DEFAULT_RATING)
+                dao.add_player(player_to_add)
+            else:
+                player_to_add_alias_to = None
+                while not player_to_add_alias_to:
+                    alias = click.prompt("Enter a player who is referred to by this alias")
+                    player_to_add_alias_to = dao.get_player_by_alias(alias)
+
+                dao.add_alias_to_player(player_to_add_alias_to, player)
+        else:
+            click.echo("Found player: %s" % db_player)
 
 if __name__ == '__main__':
     import_tournament()

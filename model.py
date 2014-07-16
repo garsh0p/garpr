@@ -14,13 +14,33 @@ class MatchResult(object):
                (self.winner == player2 and self.loser == player1)
 
 class Player(object):
-    def __init__(self, name, aliases, rating):
+    def __init__(self, name, aliases, rating, id=None):
+        self.id = id
         self.name = name
         self.aliases = aliases
         self.rating = rating
 
     def __str__(self):
-        return "%s %s [%s]" % (self.name, self.rating, self.aliases)
+        return "%s %s %s [%s]" % (self.id, self.name, self.rating, self.aliases)
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        if self.id:
+            json_dict['_id'] = self.id
+
+        json_dict['name'] = self.name
+        json_dict['aliases'] = self.aliases
+        json_dict['rating'] = self.rating
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(json_dict['name'], json_dict['aliases'], json_dict['rating'], id=json_dict['_id'])
 
 class Tournament(object):
     def __init__(self, type, scraper):
