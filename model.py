@@ -1,3 +1,6 @@
+from bson import json_util
+import json
+
 class MatchResult(object):
     def __init__(self, winner=None, loser=None):
         self.winner = winner;
@@ -20,10 +23,22 @@ class Player(object):
         return "%s %s [%s]" % (self.name, self.rating, self.aliases)
 
 class Tournament(object):
-    def __init__(self, type, raw):
+    def __init__(self, type, scraper):
         self.type = type
-        self.raw = raw
+        self.raw = scraper.get_raw()
+        self.date = scraper.get_date()
+        self.name = scraper.get_name()
 
-        # TODO populate everything from raw
+        # TODO populate matches/players
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['type'] = self.type
+        json_dict['raw'] = self.raw
+        json_dict['date'] = self.date
+        json_dict['name'] = self.name
+
+        return json_dict
         
 

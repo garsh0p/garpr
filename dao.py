@@ -29,3 +29,6 @@ def convert_player_id(player):
 
 def convert_player_id_list(players):
     return [convert_player_id(player) for player in players]
+
+def insert_tournament(tournament):
+    return tournaments_col.insert(tournament)
