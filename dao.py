@@ -11,6 +11,9 @@ def get_player_by_alias(alias):
     '''Converts alias to lowercase'''
     return Player.from_json(players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
 
+def get_all_players():
+    return [Player.from_json(p) for p in players_col.find().sort([('name', 1)])]
+
 def add_player(player):
     return players_col.insert(player.get_json_dict())
 
