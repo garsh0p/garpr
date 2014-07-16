@@ -19,28 +19,27 @@ def import_tournament(type, path, bracket):
         click.echo("Illegal type")
 
     tournament = Tournament(type, scraper)
-    print 'before get players'
     players = scraper.get_players()
-    print 'after get players'
 
     #dao.insert_tournament(tournament.get_json_dict())
 
-    click.echo(players)
-
     for player in players:
         db_player = dao.get_player_by_alias(player)
-        print db_player
         if db_player == None:
             click.echo("%s does not exist in the database." % player)
 
             add_new = click.confirm("Add this player as a new player?", default=True)
             if add_new:
-                name = click.prompt("Enter name")
+                name = click.prompt("Enter name", default=player)
                 alias_set = set()
                 alias_set.add(name.lower())
                 alias_set.add(player.lower())
 
-                # TODO check for alias uniqueness in db here?
+                db_player = dao.get_player_by_alias(name)
+                if db_player:
+                    click.echo("%s already exists, adding %s as an alias." % (name, player))
+                    dao.add_alias_to_player(db_player, player)
+                    continue
 
                 player_to_add = Player(name, list(alias_set), DEFAULT_RATING)
                 dao.add_player(player_to_add)
