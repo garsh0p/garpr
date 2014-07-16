@@ -1,5 +1,6 @@
 import unittest
 from scraper.tio import TioScraper
+from dateutil import parser
 
 FILEPATH = "test/scraper/data/1.tio"
 BRACKET_NAME = "singles bracket"
@@ -15,7 +16,7 @@ class TestTioScraper(unittest.TestCase):
         self.assertEquals(self.scraper.get_name(), 'norcal monthlies #2')
 
     def test_get_date(self):
-        self.assertTrue(self.scraper.get_date().startswith('03/16/2014'))
+        self.assertEquals(self.scraper.get_date(), parser.parse('2014-03-16 00:00:00'))
 
     def test_get_matches(self):
         matches = self.scraper.get_matches()

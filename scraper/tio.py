@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from model import MatchResult
+from dateutil import parser
 
 class TioScraper(object):
     def __init__(self, filepath, bracket_name):
@@ -21,9 +22,8 @@ class TioScraper(object):
     def get_name(self):
         return self.soup.Event.Name.text
 
-    # TODO figure out what format to return date in
     def get_date(self):
-        return self.soup.Event.StartDate.text
+        return parser.parse(self.soup.Event.StartDate.text)
 
     # TODO verify that match order is correct for 2 set grand finals
     def get_matches(self):
