@@ -58,8 +58,9 @@ class Player(object):
         return cls(json_dict['name'], json_dict['aliases'], json_dict['rating'], id=json_dict['_id'])
 
 class Tournament(object):
-    def __init__(self, type, scraper=None):
+    def __init__(self, type, scraper=None, id=None):
         self.type = type
+        self.id = id
 
         if scraper != None:
             self.raw = scraper.get_raw()
@@ -68,8 +69,25 @@ class Tournament(object):
             self.players = scraper.get_players()
             self.matches = scraper.get_matches()
 
+    def replace_player(self, player_to_remove, player_to_add):
+        if not player_to_remove in self.players:
+            raise Exception("Player %s is not in this tournament" % player_to_remove)
+
+        self.players.remove(player_to_remove)
+        self.players.append(player_to_add)
+
+        for match in self.matches:
+            if match.winner == player_to_remove:
+                match.winner = player_to_add
+
+            if match.loser == player_to_remove:
+                match.loser = player_to_add
+
     def get_json_dict(self):
         json_dict = {}
+
+        if self.id:
+            json_dict['_id'] = self.id
 
         json_dict['type'] = self.type
         json_dict['raw'] = self.raw
@@ -82,7 +100,7 @@ class Tournament(object):
 
     @classmethod
     def from_json(cls, json_dict):
-        tournament = cls(json_dict['type'])
+        tournament = cls(json_dict['type'], id=json_dict['_id'])
 
         tournament.raw = json_dict['raw']
         tournament.date = json_dict['date']

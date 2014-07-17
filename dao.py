@@ -23,10 +23,16 @@ def get_all_players():
     return [Player.from_json(p) for p in players_col.find().sort([('name', 1)])]
 
 def get_all_players_by_rating():
-    return [Player.from_json(p) for p in players_col.find().sort([('rating', -1)])]
+    return [Player.from_json(p) for p in players_col.find({'exclude': {'$exists': False}}).sort([('rating', -1)])]
 
 def add_player(player):
     return players_col.insert(player.get_json_dict())
+
+def exclude_player(player):
+    return players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
+
+def include_player(player):
+    return players_col.update({'_id': player.id}, {'$unset': {'exclude': ""}})
 
 # TODO use $addToSet
 def add_alias_to_player(player, alias):
@@ -71,6 +77,10 @@ def insert_tournament(tournament):
 
 def get_all_tournaments():
     return [Tournament.from_json(t) for t in tournaments_col.find().sort([('date', 1)])]
+
+def replace_player_in_tournament(tournament, player_to_remove, player_to_add):
+    tournament.replace_player(player_to_remove, player_to_add)
+    return tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
 def reset_all_player_ratings():
     return players_col.update({}, {'$set': {'rating': DEFAULT_RATING}}, multi=True)
