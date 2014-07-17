@@ -18,10 +18,7 @@ def import_tournament(type, path, bracket):
     else:
         click.echo("Illegal type")
 
-    tournament = Tournament(type, scraper)
     players = scraper.get_players()
-
-    #dao.insert_tournament(tournament.get_json_dict())
 
     for player in players:
         db_player = dao.get_player_by_alias(player)
@@ -52,6 +49,9 @@ def import_tournament(type, path, bracket):
                 dao.add_alias_to_player(player_to_add_alias_to, player)
         else:
             click.echo("Found player: %s" % db_player)
+
+    tournament = Tournament(type, scraper)
+    dao.insert_tournament(tournament.get_json_dict())
 
 if __name__ == '__main__':
     import_tournament()
