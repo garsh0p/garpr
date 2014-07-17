@@ -60,4 +60,4 @@ class TioScraper(object):
                 self.players.add(match.winner)
                 self.players.add(match.loser)
 
-        return self.players
+        return list(self.players)
