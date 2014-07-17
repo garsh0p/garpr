@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from pymongo.son_manipulator import SONManipulator
 from bson.objectid import ObjectId
-from model import Player, MatchResult
+from model import Player, MatchResult, Tournament
 
 mongo_client = MongoClient('localhost')
 players_col = mongo_client.smashranks.players
@@ -60,7 +60,7 @@ def insert_tournament(tournament):
     return tournaments_col.insert(tournament)
 
 def get_all_tournaments():
-    return [t for t in tournaments_col.find().sort([('date', 1)])]
+    return [Tournament.from_json(t) for t in tournaments_col.find().sort([('date', 1)])]
 
 def check_alias_uniqueness():
     '''Makes sure that each alias only refers to 1 player'''

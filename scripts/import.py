@@ -50,7 +50,7 @@ def import_tournament(type, path, bracket):
         else:
             click.echo("Found player: %s" % db_player)
 
-    tournament = Tournament(type, scraper)
+    tournament = Tournament(type, scraper=scraper)
     dao.insert_tournament(tournament.get_json_dict())
 
 if __name__ == '__main__':

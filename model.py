@@ -58,13 +58,15 @@ class Player(object):
         return cls(json_dict['name'], json_dict['aliases'], json_dict['rating'], id=json_dict['_id'])
 
 class Tournament(object):
-    def __init__(self, type, scraper):
+    def __init__(self, type, scraper=None):
         self.type = type
-        self.raw = scraper.get_raw()
-        self.date = scraper.get_date()
-        self.name = scraper.get_name()
-        self.players = scraper.get_players()
-        self.matches = scraper.get_matches()
+
+        if scraper != None:
+            self.raw = scraper.get_raw()
+            self.date = scraper.get_date()
+            self.name = scraper.get_name()
+            self.players = scraper.get_players()
+            self.matches = scraper.get_matches()
 
     def get_json_dict(self):
         json_dict = {}
@@ -78,3 +80,14 @@ class Tournament(object):
 
         return json_dict
 
+    @classmethod
+    def from_json(cls, json_dict):
+        tournament = cls(json_dict['type'])
+
+        tournament.raw = json_dict['raw']
+        tournament.date = json_dict['date']
+        tournament.name = json_dict['name']
+        tournament.players = json_dict['players']
+        tournament.matches = [MatchResult.from_json(m) for m in json_dict['matches']]
+
+        return tournament
