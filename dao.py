@@ -3,6 +3,8 @@ from pymongo.son_manipulator import SONManipulator
 from bson.objectid import ObjectId
 from model import Player, MatchResult, Tournament
 
+DEFAULT_RATING = 1200
+
 mongo_client = MongoClient('localhost')
 players_col = mongo_client.smashranks.players
 tournaments_col = mongo_client.smashranks.tournaments
@@ -61,6 +63,9 @@ def insert_tournament(tournament):
 
 def get_all_tournaments():
     return [Tournament.from_json(t) for t in tournaments_col.find().sort([('date', 1)])]
+
+def reset_all_player_ratings():
+    return players_col.update({}, {'$set': {'rating': DEFAULT_RATING}}, multi=True)
 
 def check_alias_uniqueness():
     '''Makes sure that each alias only refers to 1 player'''
