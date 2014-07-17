@@ -9,6 +9,8 @@ mongo_client = MongoClient('localhost')
 players_col = mongo_client.smashranks.players
 tournaments_col = mongo_client.smashranks.tournaments
 
+# TODO update passed in model objects when doing an update?
+
 def get_player_by_alias(alias):
     '''Converts alias to lowercase'''
     return Player.from_json(players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
@@ -19,6 +21,9 @@ def get_players_by_alias(alias):
 
 def get_all_players():
     return [Player.from_json(p) for p in players_col.find().sort([('name', 1)])]
+
+def get_all_players_by_rating():
+    return [Player.from_json(p) for p in players_col.find().sort([('rating', -1)])]
 
 def add_player(player):
     return players_col.insert(player.get_json_dict())
@@ -37,6 +42,9 @@ def update_player_name(player, name):
 
     player.name = name
     return players_col.update({'_id': player.id}, {'$set': {'name': player.name}})
+
+def update_player_rating(player, rating):
+    return players_col.update({'_id': player.id}, {'$set': {'rating': rating}})
 
 def merge_players_with_aliases(aliases, alias_to_merge_to):
     check_alias_uniqueness()
