@@ -2,19 +2,7 @@ import unittest
 import dao
 from bson.objectid import ObjectId
 
-player1 = {
-    'normalized_name': 'gar',
-    'name': 'gaR',
-    'aliases': ['gaR', 'garrR', 'garsh0p']
-} 
-
-player2 = {
-    'normalized_name': 'sfat',
-    'name': 'SFAT',
-    'aliases': ['SFAT', 'MIOM | SFAT', 'MIOM|SFAT']
-} 
-
-class TestPlayerDAO(unittest.TestCase):
+class TestDAO(unittest.TestCase):
     def setUp(self):
         dao.players_col = dao.mongo_client.test.players
         dao.players_col.drop()

@@ -28,6 +28,9 @@ def get_all_players_by_rating():
 def add_player(player):
     return players_col.insert(player.get_json_dict())
 
+def get_excluded_players():
+    return [Player.from_json(p) for p in players_col.find({'exclude': {'$exists': True}})]
+
 def exclude_player(player):
     return players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
 
