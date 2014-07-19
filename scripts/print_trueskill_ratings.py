@@ -37,5 +37,5 @@ for rating in sorted_ratings:
     if player_last_active_date == None or player_last_active_date < sixty_days_before or player in excluded_players:
         pass # do nothing, skip this player
     else:
-        print i, rating_player_map[rating], trueskill.expose(rating)
+        print "%s\t%s\t%s" % (i, rating_player_map[rating], trueskill.expose(rating))
         i += 1
