@@ -1,15 +1,20 @@
 from pymongo import MongoClient
 from pymongo.son_manipulator import SONManipulator
 from bson.objectid import ObjectId
-from model import Player, MatchResult, Tournament
+from model import *
+import trueskill
 
-DEFAULT_RATING = 1200
+DEFAULT_RATING = TrueskillRating()
 
 mongo_client = MongoClient('localhost')
 players_col = mongo_client.smashranks.players
 tournaments_col = mongo_client.smashranks.tournaments
 
 # TODO update passed in model objects when doing an update?
+
+def get_player_by_id(id):
+    '''id must be an ObjectId'''
+    return Player.from_json(players_col.find_one({'_id': id}))
 
 def get_player_by_alias(alias):
     '''Converts alias to lowercase'''
@@ -22,27 +27,33 @@ def get_players_by_alias(alias):
 def get_all_players():
     return [Player.from_json(p) for p in players_col.find().sort([('name', 1)])]
 
-def get_all_players_by_rating():
+def get_all_players_sorted_by_rating():
     return [Player.from_json(p) for p in players_col.find({'exclude': {'$exists': False}}).sort([('rating', -1)])]
 
 def add_player(player):
     return players_col.insert(player.get_json_dict())
 
+def delete_player(player):
+    return players_col.remove({'_id': player.id})
+
+def update_player(player):
+    return players_col.update({'_id': player.id}, player.get_json_dict())
+
 def get_excluded_players():
-    return [Player.from_json(p) for p in players_col.find({'exclude': {'$exists': True}})]
+    return [Player.from_json(p) for p in players_col.find({'exclude': True})]
 
 def exclude_player(player):
     return players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
 
 def include_player(player):
-    return players_col.update({'_id': player.id}, {'$unset': {'exclude': ""}})
+    return players_col.update({'_id': player.id}, {'$set': {'exclude': False}})
 
-# TODO use $addToSet
 def add_alias_to_player(player, alias):
-    return players_col.update({'_id': player.id}, {'$push': {'aliases': alias.lower()}})
+    lowercase_alias = alias.lower()
+    if not lowercase_alias in player.aliases:
+        player.aliases.append(lowercase_alias)
 
-def delete_player(player):
-    return players_col.remove({'_id': player.id})
+    return update_player(player)
 
 def update_player_name(player, name):
     # ensure this name is already an alias
@@ -50,8 +61,9 @@ def update_player_name(player, name):
         raise Exception('Player %s does not have %s as an alias already, cannot change name.' % (player, name))
 
     player.name = name
-    return players_col.update({'_id': player.id}, {'$set': {'name': player.name}})
+    return update_player(player)
 
+# TODO fix how ratings are stored
 def update_player_rating(player, rating):
     return players_col.update({'_id': player.id}, {'$set': {'rating': rating}})
 
@@ -62,6 +74,7 @@ def merge_players_with_aliases(aliases, alias_to_merge_to):
         raise Exception("Cannot merge a player with itself! Alias to merge into: %s. Aliases to merge: %s." 
                         % (alias_to_merge_to, aliases))
 
+    # TODO get a list of players here
     aliases_to_add = set()
     for alias in aliases:
         player = get_player_by_alias(alias)
@@ -86,7 +99,7 @@ def replace_player_in_tournament(tournament, player_to_remove, player_to_add):
     return tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
 def reset_all_player_ratings():
-    return players_col.update({}, {'$set': {'rating': DEFAULT_RATING}}, multi=True)
+    return players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
 
 def check_alias_uniqueness():
     '''Makes sure that each alias only refers to 1 player'''

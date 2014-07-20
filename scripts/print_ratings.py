@@ -17,7 +17,7 @@ player_date_map = get_player_active_dates()
 now = datetime.now()
 sixty_days_before = now - timedelta(days=60)
 
-players = dao.get_all_players_by_rating()
+players = dao.get_all_players_sorted_by_rating()
 rank = 1
 for player in players:
     player_last_active_date = player_date_map.get(player.name)

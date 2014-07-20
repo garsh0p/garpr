@@ -38,7 +38,7 @@ def import_tournament(type, path, bracket):
                     dao.add_alias_to_player(db_player, player)
                     continue
 
-                player_to_add = Player(name, list(alias_set), DEFAULT_RATING)
+                player_to_add = Player(name, list(alias_set), DEFAULT_RATING, False)
                 dao.add_player(player_to_add)
             else:
                 player_to_add_alias_to = None
