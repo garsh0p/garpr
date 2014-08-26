@@ -20,15 +20,9 @@ def get_player_by_alias(alias):
     '''Converts alias to lowercase'''
     return Player.from_json(players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
 
-def get_players_by_alias(alias):
-    '''Converts alias to lowercase'''
-    return [Player.from_json(p) for p in players_col.find({'aliases': {'$in': [alias.lower()]}})]
-
 def get_all_players():
+    '''Sorts by lexographical order'''
     return [Player.from_json(p) for p in players_col.find().sort([('name', 1)])]
-
-def get_all_players_sorted_by_rating():
-    return [Player.from_json(p) for p in players_col.find({'exclude': {'$exists': False}}).sort([('rating', -1)])]
 
 def add_player(player):
     return players_col.insert(player.get_json_dict())
@@ -63,10 +57,6 @@ def update_player_name(player, name):
     player.name = name
     return update_player(player)
 
-# TODO fix how ratings are stored
-def update_player_rating(player, rating):
-    return players_col.update({'_id': player.id}, {'$set': {'rating': rating}})
-
 def merge_players_with_aliases(aliases, alias_to_merge_to):
     check_alias_uniqueness()
     
@@ -88,18 +78,21 @@ def merge_players_with_aliases(aliases, alias_to_merge_to):
     # sanity check after merging
     check_alias_uniqueness()
 
+def reset_all_player_ratings():
+    return players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
+
 def insert_tournament(tournament):
     return tournaments_col.insert(tournament)
+
+def update_tournament(tournament):
+    return tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
 def get_all_tournaments():
     return [Tournament.from_json(t) for t in tournaments_col.find().sort([('date', 1)])]
 
 def replace_player_in_tournament(tournament, player_to_remove, player_to_add):
     tournament.replace_player(player_to_remove, player_to_add)
-    return tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
-
-def reset_all_player_ratings():
-    return players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
+    update_tournament(tournament)
 
 def check_alias_uniqueness():
     '''Makes sure that each alias only refers to 1 player'''
@@ -107,7 +100,10 @@ def check_alias_uniqueness():
     for player in players:
         for alias in player.aliases:
             print "Checking %s" % alias
-            players_matching_alias = get_players_by_alias(alias)
+            players_matching_alias = _get_players_by_alias(alias)
             if len(players_matching_alias) > 1:
                 raise Exception("%s matches the following players: %s" % (alias, players_matching_alias))
             
+def _get_players_by_alias(alias):
+    '''Converts alias to lowercase'''
+    return [Player.from_json(p) for p in players_col.find({'aliases': {'$in': [alias.lower()]}})]

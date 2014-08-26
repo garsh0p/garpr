@@ -1,10 +1,10 @@
 import click
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
-from model import Tournament, Player
+from model import Tournament, Player, TrueskillRating
 import dao
 
-DEFAULT_RATING = 1200
+DEFAULT_RATING = TrueskillRating()
 
 @click.command()
 @click.option('--type', '-t', help='tio or challonge', type=click.Choice(['challonge', 'tio']), prompt=True)

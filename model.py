@@ -9,6 +9,10 @@ class TrueskillRating(object):
         else:
             self.trueskill_rating = trueskill.Rating()
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and \
+                self.trueskill_rating == other.trueskill_rating
+
     def get_json_dict(self):
         json_dict = {}
 
@@ -61,6 +65,14 @@ class Player(object):
 
     def __str__(self):
         return "%s %s %s [%s]" % (self.id, self.name, self.rating, self.aliases)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and \
+                self.id == other.id and \
+                self.name == other.name and \
+                set(self.aliases) == set(other.aliases) and \
+                self.rating == other.rating and \
+                self.exclude == other.exclude
 
     def get_json_dict(self):
         json_dict = {}
