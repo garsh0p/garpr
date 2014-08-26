@@ -2,15 +2,16 @@ import click
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
 from model import Tournament, Player, TrueskillRating
-import dao
+from dao import Dao
 
 DEFAULT_RATING = TrueskillRating()
 
 @click.command()
 @click.option('--type', '-t', help='tio or challonge', type=click.Choice(['challonge', 'tio']), prompt=True)
 @click.option('--bracket', '-b', help='Bracket name (for tio)')
+@click.option('--region', '-r', help='Region name', prompt=True)
 @click.argument('path')
-def import_tournament(type, path, bracket):
+def import_tournament(type, path, bracket, region):
     if type == 'tio':
         scraper = TioScraper(path, bracket)
     elif type =='challonge':
@@ -19,6 +20,7 @@ def import_tournament(type, path, bracket):
         click.echo("Illegal type")
 
     players = scraper.get_players()
+    dao = Dao(region)
 
     for player in players:
         db_player = dao.get_player_by_alias(player)

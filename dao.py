@@ -7,103 +7,109 @@ import trueskill
 DEFAULT_RATING = TrueskillRating()
 
 mongo_client = MongoClient('localhost')
-players_col = mongo_client.smashranks.players
-tournaments_col = mongo_client.smashranks.tournaments
 
 # TODO update passed in model objects when doing an update?
 
-def get_player_by_id(id):
-    '''id must be an ObjectId'''
-    return Player.from_json(players_col.find_one({'_id': id}))
+class Dao(object):
+    def __init__(self, region):
+        self.players_col = mongo_client['smashranks_%s' % region].players
+        self.tournaments_col = mongo_client['smashranks_%s' % region].tournaments
 
-def get_player_by_alias(alias):
-    '''Converts alias to lowercase'''
-    return Player.from_json(players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
+    def get_player_by_id(self, id):
+        '''id must be an ObjectId'''
+        return Player.from_json(self.players_col.find_one({'_id': id}))
 
-def get_all_players():
-    '''Sorts by lexographical order'''
-    return [Player.from_json(p) for p in players_col.find().sort([('name', 1)])]
+    def get_player_by_alias(self, alias):
+        '''Converts alias to lowercase'''
+        return Player.from_json(self.players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
 
-def add_player(player):
-    return players_col.insert(player.get_json_dict())
+    def get_all_players(self):
+        '''Sorts by lexographical order'''
+        return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
 
-def delete_player(player):
-    return players_col.remove({'_id': player.id})
+    def add_player(self, player):
+        return self.players_col.insert(player.get_json_dict())
 
-def update_player(player):
-    return players_col.update({'_id': player.id}, player.get_json_dict())
+    def delete_player(self, player):
+        return self.players_col.remove({'_id': player.id})
 
-def get_excluded_players():
-    return [Player.from_json(p) for p in players_col.find({'exclude': True})]
+    def update_player(self, player):
+        return self.players_col.update({'_id': player.id}, player.get_json_dict())
 
-def exclude_player(player):
-    return players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
+    def get_excluded_players(self):
+        return [Player.from_json(p) for p in self.players_col.find({'exclude': True})]
 
-def include_player(player):
-    return players_col.update({'_id': player.id}, {'$set': {'exclude': False}})
+    def exclude_player(self, player):
+        return self.players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
 
-def add_alias_to_player(player, alias):
-    lowercase_alias = alias.lower()
-    if not lowercase_alias in player.aliases:
-        player.aliases.append(lowercase_alias)
+    def include_player(self, player):
+        return self.players_col.update({'_id': player.id}, {'$set': {'exclude': False}})
 
-    return update_player(player)
+    def add_alias_to_player(self, player, alias):
+        lowercase_alias = alias.lower()
+        if not lowercase_alias in player.aliases:
+            player.aliases.append(lowercase_alias)
 
-def update_player_name(player, name):
-    # ensure this name is already an alias
-    if not name.lower() in player.aliases:
-        raise Exception('Player %s does not have %s as an alias already, cannot change name.' % (player, name))
+        return self.update_player(player)
 
-    player.name = name
-    return update_player(player)
+    def update_player_name(self, player, name):
+        # ensure this name is already an alias
+        if not name.lower() in player.aliases:
+            raise Exception('Player %s does not have %s as an alias already, cannot change name.' % (player, name))
 
-def merge_players_with_aliases(aliases, alias_to_merge_to):
-    check_alias_uniqueness()
-    
-    if alias_to_merge_to in aliases:
-        raise Exception("Cannot merge a player with itself! Alias to merge into: %s. Aliases to merge: %s." 
-                        % (alias_to_merge_to, aliases))
+        player.name = name
+        return self.update_player(player)
 
-    # TODO get a list of players here
-    aliases_to_add = set()
-    for alias in aliases:
-        player = get_player_by_alias(alias)
-        aliases_to_add.update(set(player.aliases))
-        delete_player(player)
+    def merge_players_with_aliases(self, aliases, alias_to_merge_to):
+        self.check_alias_uniqueness()
 
-    player_to_update = get_player_by_alias(alias_to_merge_to)
-    for alias in aliases_to_add:
-        add_alias_to_player(player_to_update, alias)
+        if not self.get_player_by_alias(alias_to_merge_to):
+            raise Exception("Player %s was not found" % alias_to_merge_to)
+        
+        if alias_to_merge_to in aliases:
+            raise Exception("Cannot merge a player with itself! Alias to merge into: %s. Aliases to merge: %s." 
+                            % (alias_to_merge_to, aliases))
 
-    # sanity check after merging
-    check_alias_uniqueness()
+        # TODO get a list of players here
+        aliases_to_add = set()
+        for alias in aliases:
+            player = self.get_player_by_alias(alias)
+            aliases_to_add.update(set(player.aliases))
+            self.delete_player(player)
 
-def reset_all_player_ratings():
-    return players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
+        player_to_update = self.get_player_by_alias(alias_to_merge_to)
+        for alias in aliases_to_add:
+            self.add_alias_to_player(player_to_update, alias)
 
-def insert_tournament(tournament):
-    return tournaments_col.insert(tournament)
+        # sanity check after merging
+        self.check_alias_uniqueness()
 
-def update_tournament(tournament):
-    return tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+    def reset_all_player_ratings(self):
+        return self.players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
 
-def get_all_tournaments():
-    return [Tournament.from_json(t) for t in tournaments_col.find().sort([('date', 1)])]
+    def insert_tournament(self, tournament):
+        return self.tournaments_col.insert(tournament)
 
-def replace_player_in_tournament(tournament, player_to_remove, player_to_add):
-    tournament.replace_player(player_to_remove, player_to_add)
-    update_tournament(tournament)
+    def update_tournament(self, tournament):
+        return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-def check_alias_uniqueness():
-    '''Makes sure that each alias only refers to 1 player'''
-    players = get_all_players()
-    for player in players:
-        for alias in player.aliases:
-            print "Checking %s" % alias
-            players_matching_alias = _get_players_by_alias(alias)
-            if len(players_matching_alias) > 1:
-                raise Exception("%s matches the following players: %s" % (alias, players_matching_alias))
-            
-def _get_players_by_alias(alias):
-    '''Converts alias to lowercase'''
-    return [Player.from_json(p) for p in players_col.find({'aliases': {'$in': [alias.lower()]}})]
+    def get_all_tournaments(self):
+        return [Tournament.from_json(t) for t in self.tournaments_col.find().sort([('date', 1)])]
+
+    def replace_player_in_tournament(self, tournament, player_to_remove, player_to_add):
+        tournament.replace_player(player_to_remove, player_to_add)
+        self.update_tournament(tournament)
+
+    def check_alias_uniqueness(self):
+        '''Makes sure that each alias only refers to 1 player'''
+        players = self.get_all_players()
+        for player in players:
+            for alias in player.aliases:
+                print "Checking %s" % alias
+                players_matching_alias = self._get_players_by_alias(alias)
+                if len(players_matching_alias) > 1:
+                    raise Exception("%s matches the following players: %s" % (alias, players_matching_alias))
+                
+    def _get_players_by_alias(self, alias):
+        '''Converts alias to lowercase'''
+        return [Player.from_json(p) for p in self.players_col.find({'aliases': {'$in': [alias.lower()]}})]

@@ -1,7 +1,10 @@
 import trueskill
-import dao
+from dao import Dao
 import rating_calculators
 from datetime import datetime, timedelta
+import sys
+
+dao = Dao(sys.argv[1])
 
 dao.reset_all_player_ratings()
 
@@ -9,7 +12,9 @@ tournaments = dao.get_all_tournaments()
 
 player_date_map = {}
 now = datetime.now()
-sixty_days_before = now - timedelta(days=60)
+#sixty_days_before = now - timedelta(days=60)
+sixty_days_before = now - timedelta(days=1000)
+# TODO CHANGE THIS
 
 for tournament in dao.get_all_tournaments():
     for player in tournament.players:
