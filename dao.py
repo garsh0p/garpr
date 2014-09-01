@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 from pymongo.son_manipulator import SONManipulator
 from bson.objectid import ObjectId
 from model import *
@@ -14,6 +14,7 @@ class Dao(object):
     def __init__(self, region):
         self.players_col = mongo_client['smashranks_%s' % region].players
         self.tournaments_col = mongo_client['smashranks_%s' % region].tournaments
+        self.rankings_col = mongo_client['smashranks_%s' % region].rankings
 
     def get_player_by_id(self, id):
         '''id must be an ObjectId'''
@@ -109,6 +110,12 @@ class Dao(object):
                 players_matching_alias = self._get_players_by_alias(alias)
                 if len(players_matching_alias) > 1:
                     raise Exception("%s matches the following players: %s" % (alias, players_matching_alias))
+
+    def insert_ranking(self, ranking):
+        return self.rankings_col.insert(ranking.get_json_dict())
+
+    def get_latest_ranking(self):
+        return Ranking.from_json(self.rankings_col.find().sort('time', DESCENDING)[0])
                 
     def _get_players_by_alias(self, alias):
         '''Converts alias to lowercase'''

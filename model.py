@@ -151,3 +151,58 @@ class Tournament(object):
         tournament.matches = [MatchResult.from_json(m) for m in json_dict['matches']]
 
         return tournament
+
+class Ranking(object):
+    def __init__(self, time, tournaments, ranking, id=None):
+        self.id = id
+        self.time = time
+        self.tournaments = tournaments
+        self.ranking = ranking
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        if self.id:
+            json_dict['_id'] = self.id
+
+        json_dict['time'] = self.time
+        json_dict['tournaments'] = self.tournaments
+        json_dict['ranking'] = [r.get_json_dict() for r in self.ranking]
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['time'], 
+                json_dict['tournaments'], 
+                [RankingEntry.from_json(r) for r in json_dict['ranking']],
+                id=json_dict['_id'])
+
+class RankingEntry(object):
+    def __init__(self, rank, player, rating):
+        self.rank = rank
+        self.player = player
+        self.rating = rating
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['rank'] = self.rank
+        json_dict['player'] = self.player
+        json_dict['rating'] = self.rating
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['rank'],
+                json_dict['player'],
+                json_dict['rating'])
