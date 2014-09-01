@@ -46,9 +46,9 @@ class RankingsResource(restful.Resource):
 
         return return_dict
 
-api.add_resource(PlayersResource, '/players/<string:region>')
-api.add_resource(TournamentsResource, '/tournaments/<string:region>')
-api.add_resource(RankingsResource, '/rankings/<string:region>')
+api.add_resource(PlayersResource, '/<string:region>/players')
+api.add_resource(TournamentsResource, '/<string:region>/tournaments')
+api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5100, debug=True)
