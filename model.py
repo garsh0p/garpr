@@ -100,30 +100,28 @@ class Player(object):
                 id=json_dict['_id'])
 
 class Tournament(object):
-    def __init__(self, type, scraper=None, id=None):
-        self.type = type
+    def __init__(self, type, raw, date, name, players, matches, id=None):
         self.id = id
+        self.type = type
+        self.raw = raw
+        self.date = date
+        self.name = name
+        self.players = players
+        self.matches = matches
 
-        if scraper != None:
-            self.raw = scraper.get_raw()
-            self.date = scraper.get_date()
-            self.name = scraper.get_name()
-            self.players = scraper.get_players()
-            self.matches = scraper.get_matches()
+    def replace_player(self, player_id_to_remove, player_id_to_add):
+        if not player_id_to_remove in self.players:
+            raise Exception("Player %s is not in this tournament" % player_id_to_remove)
 
-    def replace_player(self, player_to_remove, player_to_add):
-        if not player_to_remove in self.players:
-            raise Exception("Player %s is not in this tournament" % player_to_remove)
-
-        self.players.remove(player_to_remove)
-        self.players.append(player_to_add)
+        self.players.remove(player_id_to_remove)
+        self.players.append(player_id_to_add)
 
         for match in self.matches:
-            if match.winner == player_to_remove:
-                match.winner = player_to_add
+            if match.winner == player_id_to_remove:
+                match.winner = player_id_to_add
 
-            if match.loser == player_to_remove:
-                match.loser = player_to_add
+            if match.loser == player_id_to_remove:
+                match.loser = player_id_to_add
 
     def get_json_dict(self):
         json_dict = {}
@@ -142,15 +140,37 @@ class Tournament(object):
 
     @classmethod
     def from_json(cls, json_dict):
-        tournament = cls(json_dict['type'], id=json_dict['_id'])
+        if json_dict == None:
+            return None
 
-        tournament.raw = json_dict['raw']
-        tournament.date = json_dict['date']
-        tournament.name = json_dict['name']
-        tournament.players = json_dict['players']
-        tournament.matches = [MatchResult.from_json(m) for m in json_dict['matches']]
+        return cls(
+                json_dict['type'], 
+                json_dict['raw'], 
+                json_dict['date'], 
+                json_dict['name'], 
+                json_dict['players'], 
+                [MatchResult.from_json(m) for m in json_dict['matches']], 
+                id=json_dict['_id'])
 
-        return tournament
+    @classmethod
+    def from_scraper(cls, type, scraper, dao):
+        players = scraper.get_players()
+        matches = scraper.get_matches()
+
+        # the players and matches returned from the scraper use player aliases
+        # we need to convert these to player IDs
+        players = [dao.get_player_by_alias(p).id for p in players]
+        for m in matches:
+            m.winner = dao.get_player_by_alias(m.winner).id
+            m.loser = dao.get_player_by_alias(m.loser).id
+
+        return cls(
+                type,
+                scraper.get_raw(),
+                scraper.get_date(),
+                scraper.get_name(),
+                players,
+                matches)
 
 class Ranking(object):
     def __init__(self, time, tournaments, ranking, id=None):
