@@ -2,6 +2,7 @@ from flask import Flask
 from flask.ext import restful
 from dao import Dao
 from bson.json_util import dumps
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 api = restful.Api(app)
@@ -28,10 +29,16 @@ class TournamentsResource(restful.Resource):
         return_dict['tournaments'] = [t.get_json_dict() for t in dao.get_all_tournaments()]
         convert_object_id_list(return_dict['tournaments'])
 
-        # remove all raw file dumps and convert datetimes to string
         for t in return_dict['tournaments']:
+            # remove all raw file dumps and convert datetimes to string
             del t['raw']
             t['date'] = str(t['date'])
+
+            # TODO remove this
+            # remove players and matches
+            del t['matches']
+            del t['players']
+            del t['type']
 
         return return_dict
 
@@ -43,6 +50,10 @@ class RankingsResource(restful.Resource):
         del return_dict['_id']
         return_dict['time'] = str(return_dict['time'])
         return_dict['tournaments'] = [str(t) for t in return_dict['tournaments']]
+
+        for r in return_dict['ranking']:
+            r['name'] = dao.get_player_by_id(r['player']).name
+            r['player'] = str(r['player'])
 
         return return_dict
 
