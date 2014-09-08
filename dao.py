@@ -61,26 +61,23 @@ class Dao(object):
         player.name = name
         return self.update_player(player)
 
-    def merge_players_with_aliases(self, aliases, alias_to_merge_to):
+    def merge_players(self, source=None, target=None):
         self.check_alias_uniqueness()
 
-        if not self.get_player_by_alias(alias_to_merge_to):
-            raise Exception("Player %s was not found" % alias_to_merge_to)
-        
-        if alias_to_merge_to in aliases:
-            raise Exception("Cannot merge a player with itself! Alias to merge into: %s. Aliases to merge: %s." 
-                            % (alias_to_merge_to, aliases))
+        if source is None or target is None:
+            raise TypeError("source or target can't be none!");
 
-        # TODO get a list of players here
-        aliases_to_add = set()
-        for alias in aliases:
-            player = self.get_player_by_alias(alias)
-            aliases_to_add.update(set(player.aliases))
-            self.delete_player(player)
+        if source == target:
+            raise ValueError("source and target can't be the same!")
 
-        player_to_update = self.get_player_by_alias(alias_to_merge_to)
-        for alias in aliases_to_add:
-            self.add_alias_to_player(player_to_update, alias)
+        target.merge_aliases_from(source)
+        self.update_player(target)
+
+        for tournament in self.get_all_tournaments():
+            tournament.replace_player(player_to_remove=source, player_to_add=target)
+            self.update_tournament(tournament)
+
+        self.delete_player(source)
 
         # sanity check after merging
         self.check_alias_uniqueness()
@@ -96,10 +93,6 @@ class Dao(object):
 
     def get_all_tournaments(self):
         return [Tournament.from_json(t) for t in self.tournaments_col.find().sort([('date', 1)])]
-
-    def replace_player_in_tournament(self, tournament, player_to_remove, player_to_add):
-        tournament.replace_player(player_to_remove, player_to_add)
-        self.update_tournament(tournament)
 
     def check_alias_uniqueness(self):
         '''Makes sure that each alias only refers to 1 player'''

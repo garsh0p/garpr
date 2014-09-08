@@ -63,6 +63,9 @@ class Player(object):
         self.rating = rating
         self.exclude = exclude
 
+    def merge_aliases_from(self, player):
+        self.aliases.extend(player.aliases)
+
     def __str__(self):
         return "%s %s %s [%s]" % (self.id, self.name, self.rating, self.aliases)
 
@@ -109,19 +112,26 @@ class Tournament(object):
         self.players = players
         self.matches = matches
 
-    def replace_player(self, player_id_to_remove, player_id_to_add):
-        if not player_id_to_remove in self.players:
-            raise Exception("Player %s is not in this tournament" % player_id_to_remove)
+    def replace_player(self, player_to_remove=None, player_to_add=None):
+        if player_to_remove is None or player_to_add is None:
+            raise TypeError("player_to_remove and player_to_add cannot be None!")
 
-        self.players.remove(player_id_to_remove)
-        self.players.append(player_id_to_add)
+        player_to_remove_id = player_to_remove.id
+        player_to_add_id = player_to_add.id
+
+        if not player_to_remove_id in self.players:
+            print "Player with id %s is not in this tournament. Ignoring." % player_to_remove.id
+            return
+
+        self.players.remove(player_to_remove_id)
+        self.players.append(player_to_add_id)
 
         for match in self.matches:
-            if match.winner == player_id_to_remove:
-                match.winner = player_id_to_add
+            if match.winner == player_to_remove_id:
+                match.winner = player_to_add_id
 
-            if match.loser == player_id_to_remove:
-                match.loser = player_id_to_add
+            if match.loser == player_to_remove_id:
+                match.loser = player_to_add_id
 
     def get_json_dict(self):
         json_dict = {}
