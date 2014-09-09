@@ -3,6 +3,7 @@ from flask.ext import restful
 from dao import Dao
 from bson.json_util import dumps
 from bson.objectid import ObjectId
+import sys
 
 app = Flask(__name__)
 api = restful.Api(app)
@@ -62,5 +63,5 @@ api.add_resource(TournamentsResource, '/<string:region>/tournaments')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5100, debug=True)
+    app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=True)
 
