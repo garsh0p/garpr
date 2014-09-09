@@ -91,8 +91,17 @@ class Dao(object):
     def update_tournament(self, tournament):
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-    def get_all_tournaments(self):
-        return [Tournament.from_json(t) for t in self.tournaments_col.find().sort([('date', 1)])]
+    def get_all_tournaments(self, players=None):
+        '''players is a list of Players'''
+        query_dict = {}
+
+        if players:
+            query_list = []
+            for player in players:
+                query_list.append({'players': {'$in': [player.id]}})
+            query_dict['$and'] = query_list
+
+        return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
 
     def check_alias_uniqueness(self):
         '''Makes sure that each alias only refers to 1 player'''

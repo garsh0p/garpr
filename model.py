@@ -40,6 +40,20 @@ class MatchResult(object):
         return (self.winner == player1 and self.loser == player2) or \
                (self.winner == player2 and self.loser == player1)
 
+    def contains_player(self, player_id):
+        return self.winner == player_id or self.loser == player_id
+
+    def did_player_win(self, player_id):
+        return self.winner == player_id
+
+    def get_opposing_player_id(self, player_id):
+        if self.winner == player_id:
+            return self.loser
+        elif self.loser == player_id:
+            return self.winner
+        else:
+            return None
+
     def get_json_dict(self):
         json_dict = {}
 
