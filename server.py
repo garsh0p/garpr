@@ -26,6 +26,13 @@ class PlayerListResource(restful.Resource):
         return_dict = {}
         return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
         convert_object_id_list(return_dict['players'])
+
+        # remove extra fields
+        for player in return_dict['players']:
+            del player['exclude']
+            del player['aliases']
+            del player['rating']
+
         return return_dict
 
 class PlayerResource(restful.Resource):
@@ -38,7 +45,7 @@ class PlayerResource(restful.Resource):
 
         return return_dict
 
-class TournamentsResource(restful.Resource):
+class TournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region)
         return_dict = {}
@@ -46,15 +53,40 @@ class TournamentsResource(restful.Resource):
         convert_object_id_list(return_dict['tournaments'])
 
         for t in return_dict['tournaments']:
-            # remove all raw file dumps and convert datetimes to string
-            del t['raw']
             t['date'] = str(t['date'])
 
-            # TODO remove this
-            # remove players and matches
+            # remove extra fields
+            del t['raw']
             del t['matches']
             del t['players']
             del t['type']
+
+        return return_dict
+
+class TournamentResource(restful.Resource):
+    def get(self, region, id):
+        dao = Dao(region)
+        tournament = dao.get_tournament_by_id(ObjectId(id))
+
+        return_dict = tournament.get_json_dict()
+        convert_object_id(return_dict)
+
+        return_dict['date'] = str(return_dict['date'])
+
+        return_dict['players'] = [{
+                'id': str(p), 
+                'name': dao.get_player_by_id(p).name
+            } for p in return_dict['players']]
+
+        return_dict['matches'] = [{
+                'winner_id': str(m['winner']), 
+                'loser_id': str(m['loser']), 
+                'winner_name': dao.get_player_by_id(m['winner']).name, 
+                'loser_name': dao.get_player_by_id(m['loser']).name
+            } for m in return_dict['matches']]
+
+        # remove extra fields
+        del return_dict['raw']
 
         return return_dict
 
@@ -113,10 +145,11 @@ class MatchesResource(restful.Resource):
 
 api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
-api.add_resource(TournamentsResource, '/<string:region>/tournaments')
+api.add_resource(TournamentListResource, '/<string:region>/tournaments')
+api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 api.add_resource(MatchesResource, '/<string:region>/matches')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=True)
+    app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))
 

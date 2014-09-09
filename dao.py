@@ -103,6 +103,10 @@ class Dao(object):
 
         return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
 
+    def get_tournament_by_id(self, id):
+        '''id must be an ObjectId'''
+        return Tournament.from_json(self.tournaments_col.find_one({'_id': id}))
+
     def check_alias_uniqueness(self):
         '''Makes sure that each alias only refers to 1 player'''
         players = self.get_all_players()
