@@ -101,7 +101,7 @@ class RankingsResource(restful.Resource):
 
         for r in return_dict['ranking']:
             r['name'] = dao.get_player_by_id(r['player']).name
-            r['player'] = str(r['player'])
+            r['id'] = str(r.pop('player'))
 
         return return_dict
 
