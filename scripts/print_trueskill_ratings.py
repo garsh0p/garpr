@@ -6,4 +6,4 @@ r = requests.get(RANKINGS_URL)
 ranking = r.json()['ranking']
 
 for line in ranking:
-    print "%s\t%s\t%s" % (line['rank'], line['name'], round(line['rating'], 3))
+    print "%s\t%s\t%.3f" % (line['rank'], line['name'], line['rating'])
