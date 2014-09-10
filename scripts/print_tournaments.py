@@ -1,7 +1,9 @@
-import sys
-from dao import Dao
+import requests
 
-dao = Dao(sys.argv[1])
+TOURNAMENTS_URL = "http://garsh0p.no-ip.biz:5100/norcal/tournaments"
 
-for tournament in dao.get_all_tournaments():
-    print "%s-%s-%s\t%s" % (tournament.date.year, tournament.date.month, tournament.date.day, tournament.name)
+r = requests.get(TOURNAMENTS_URL)
+tournaments = r.json()['tournaments']
+
+for tournament in tournaments:
+    print "%s\t%s" % (tournament['date'], tournament['name'])

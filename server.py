@@ -53,7 +53,7 @@ class TournamentListResource(restful.Resource):
         convert_object_id_list(return_dict['tournaments'])
 
         for t in return_dict['tournaments']:
-            t['date'] = str(t['date'])
+            t['date'] = t['date'].strftime("%x")
 
             # remove extra fields
             del t['raw']
