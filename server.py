@@ -5,6 +5,7 @@ from dao import Dao
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 import sys
+import rankings
 
 app = Flask(__name__)
 api = restful.Api(app)
@@ -12,6 +13,9 @@ api = restful.Api(app)
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('player', type=str)
 matches_get_parser.add_argument('opponent', type=str)
+
+rankings_get_parser = reqparse.RequestParser()
+rankings_get_parser.add_argument('generateNew', type=str)
 
 def convert_object_id(json_dict):
     json_dict['_id'] = str(json_dict['_id'])
@@ -93,6 +97,10 @@ class TournamentResource(restful.Resource):
 class RankingsResource(restful.Resource):
     def get(self, region):
         dao = Dao(region)
+        args = rankings_get_parser.parse_args()
+
+        if args['generateNew'] is not None and args['generateNew'] == 'true':
+            rankings.generate_ranking(dao)
 
         return_dict = dao.get_latest_ranking().get_json_dict()
         del return_dict['_id']
