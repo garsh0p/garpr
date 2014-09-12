@@ -8,18 +8,32 @@
 <script src="script.js"></script>
 
 <html ng-app="myApp">
-    <div ng-controller="Controller">
-        <table class="table table-striped">
-            <tr>
-                <td>Rank</td>
-                <td>Name</td>
-                <td>Rating</td>
-            </tr>
-            <tr ng-repeat="line in data.ranking">
-                <td>{{line.rank}}</td>
-                <td>{{line.name}}</td>
-                <td>{{line.rating}}</td>
-            </tr>
-        </table>
-    </div>
+    <body>
+        <div class="navbar navbar-inverse" role="navigation">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">GAR PR</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Rankings</a></li>
+                    <li><a href="#">Players</a></li>
+                    <li><a href="#">Tournaments</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+        <div class="container">
+            <table class="table table-striped" ng-controller="Controller">
+                <tr>
+                    <td>Rank</td>
+                    <td>Name</td>
+                    <td>Rating</td>
+                </tr>
+                <tr ng-repeat="line in data.ranking">
+                    <td>{{line.rank}}</td>
+                    <td>{{line.name}}</td>
+                    <td>{{line.rating | number:3}}</td>
+                </tr>
+            </table>
+        </div>
+    </body>
 </html>
