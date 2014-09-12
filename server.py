@@ -1,6 +1,7 @@
 from flask import Flask
 from flask.ext import restful
 from flask.ext.restful import reqparse
+from flask.ext.cors import CORS
 from dao import Dao
 from bson.json_util import dumps
 from bson.objectid import ObjectId
@@ -8,6 +9,7 @@ import sys
 import rankings
 
 app = Flask(__name__)
+cors = CORS(app)
 api = restful.Api(app)
 
 matches_get_parser = reqparse.RequestParser()
