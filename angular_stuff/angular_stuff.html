@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html ng-app="gemStore">
+	<head>
+		<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+	</head>
+
+	<body>
+	   <script type="text/javascript" 
+		src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+	    <script type="text/javascript" src="app.js"></script>
+	     <div ng-controller="StoreController as store">
+		<h1> {{store.product.name}} </h1>
+		<h2> ${{store.product.price}}</h2>
+		<p> {{store.product.description}} </p>	
+	     </div>
+	</body>
+</html>

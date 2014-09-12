@@ -21,7 +21,7 @@
             $scope.myData = {};
             $scope.myData.doClick = function(item, event) {
 
-                var responsePromise = $http.get("https://garsh0p.no-ip.biz:5100/texas/rankings");
+                var responsePromise = $http.get("localhost:3000");
 
                 responsePromise.success(function(data, status, headers, config) {
                     $scope.myData.fromServer = data.title;
