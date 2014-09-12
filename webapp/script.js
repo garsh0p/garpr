@@ -1,5 +1,7 @@
-var app = angular.module('myApp', []);
-app.controller("Controller", function($scope, $http) {
+var app = angular.module('app', []);
+
+// Norcal Controller 
+app.controller("norcalController", function($scope, $http) {
     $http.get('http://garsh0p.no-ip.biz:5100/norcal/rankings').
         success(function(data) {
             $scope.data = data;
@@ -7,18 +9,18 @@ app.controller("Controller", function($scope, $http) {
 
 });
 
-var moduleA = angular.module('MyModuleA', []);
-moduleA.controller("MyControllerA", function($scope, $http) {
-    $http.get('http://garsh0p.no-ip.biz:5100/austin/rankings').
+// Austin Controller 
+app.controller("austinController", function($scope, $http) {
+    $http.get('http://garsh0p.no-ip.biz:5100/norcal/rankings').
         success(function(data) {
             $scope.data = data;
         });
 
 });
 
-var moduleT = angular.module('MyModuleT', []);
-moduleT.controller("MyControllerT", function($scope, $http) {
-    $http.get('http://garsh0p.no-ip.biz:5100/texas/rankings').
+// Texas Controller 
+app.controller("texasController", function($scope, $http) {
+    $http.get('http://garsh0p.no-ip.biz:5100/norcal/rankings').
         success(function(data) {
             $scope.data = data;
         });
