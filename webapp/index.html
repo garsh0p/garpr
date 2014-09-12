@@ -1,0 +1,25 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+<script src="script.js"></script>
+
+<html ng-app="myApp">
+    <div ng-controller="Controller">
+        <table class="table table-striped">
+            <tr>
+                <td>Rank</td>
+                <td>Name</td>
+                <td>Rating</td>
+            </tr>
+            <tr ng-repeat="line in data.ranking">
+                <td>{{line.rank}}</td>
+                <td>{{line.name}}</td>
+                <td>{{line.rating}}</td>
+            </tr>
+        </table>
+    </div>
+</html>
