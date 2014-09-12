@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+ 
+<html lang="en"> 
+<head> 
+	<title> Hello World, AngularJS</title> 
+	<script	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+</head>
+<body ng-app="myapp">	
+	<div ng-controller="MyController">
+		<button ng-click="mydata.doClick(item, $event)"> Send AJAX Request</button>
+	<br/>
+	Data from server: {{myData.fromServer}}
+	</div>
+
+	<script>
+		angular.module("myapp", [])
+		.controller("MyController", function($scope, $http){
+			$scope.myData = {};
+			$scope.myData.doClick = function(item, event){
+				var responsePromise = $http.get("http://garsh0p.no-ip.biz:5100/texas/rankings");
+				responsePromise.success(function(data, status, headers, config){
+					$scope.myData.fromServer = data.title;	
+				});
+				
+				responsePromise.error(function(data, status, headers, config) {
+					alert("AJAX failed!");
+				}); 
+			}
+		});
+	</script>
+</body>
+</html> 
