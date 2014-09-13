@@ -3,6 +3,7 @@ Flask-Cors==1.8.0
 Flask-RESTful==0.2.12
 Jinja2==2.7.3
 MarkupSafe==0.23
+Twisted==14.0.0
 Werkzeug==0.9.6
 aniso8601==0.83
 argparse==1.2.1
@@ -22,3 +23,4 @@ six==1.7.3
 skills==0.1.0
 trueskill==0.4.2
 wsgiref==0.1.2
+zope.interface==4.1.1
