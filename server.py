@@ -26,6 +26,10 @@ def convert_object_id_list(json_dict_list):
     for j in json_dict_list:
         convert_object_id(j)
 
+class RegionListResource(restful.Resource):
+    def get(self):
+        return {'regions': Dao.get_all_regions()}
+
 class PlayerListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region)
@@ -153,6 +157,7 @@ class MatchesResource(restful.Resource):
 
         return return_dict
 
+api.add_resource(RegionListResource, '/regions')
 api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')

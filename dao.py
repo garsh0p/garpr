@@ -1,5 +1,4 @@
 from pymongo import MongoClient, DESCENDING
-from pymongo.son_manipulator import SONManipulator
 from bson.objectid import ObjectId
 from model import *
 import trueskill
@@ -15,6 +14,13 @@ class Dao(object):
         self.players_col = mongo_client['smashranks_%s' % region].players
         self.tournaments_col = mongo_client['smashranks_%s' % region].tournaments
         self.rankings_col = mongo_client['smashranks_%s' % region].rankings
+
+    @staticmethod
+    def get_all_regions():
+        regions = mongo_client.database_names()
+        regions = [r.split('_')[1] for r in regions if r.startswith('smashranks_')]
+        regions = sorted([r for r in regions if not r.startswith('test')])
+        return regions
 
     def get_player_by_id(self, id):
         '''id must be an ObjectId'''
