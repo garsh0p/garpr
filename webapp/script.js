@@ -47,10 +47,9 @@ app.controller("RegionDropdownController", function($scope, RegionService) {
 
 app.controller("RankingsController", function($scope, $http, $routeParams, RegionService) {
     RegionService.setRegion($routeParams.region);
-    if (RegionService.getRegions().indexOf(RegionService.getRegion()) >= 0) {
-        $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/rankings').
-            success(function(data) {
-                $scope.data = data;
-            });
-    }
+
+    $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/rankings').
+        success(function(data) {
+            $scope.data = data;
+        });
 });
