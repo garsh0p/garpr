@@ -7,8 +7,6 @@ DEFAULT_RATING = TrueskillRating()
 
 mongo_client = MongoClient('localhost')
 
-# TODO update passed in model objects when doing an update?
-
 class Dao(object):
     def __init__(self, region):
         self.players_col = mongo_client['smashranks_%s' % region].players
