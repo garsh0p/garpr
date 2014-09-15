@@ -1,0 +1,14 @@
+<div class="container">
+    <table class="table table-striped">
+        <tr>
+            <td>Rank</td>
+            <td>Name</td>
+            <td>Rating</td>
+        </tr>
+        <tr ng-repeat="line in data.ranking">
+            <td>{{line.rank}}</td>
+            <td>{{line.name}}</td>
+            <td>{{line.rating | number:3}}</td>
+        </tr>
+    </table>
+</div>
