@@ -7,7 +7,7 @@
         </tr>
         <tr ng-repeat="line in data.ranking">
             <td>{{line.rank}}</td>
-            <td>{{line.name}}</td>
+            <td><a href="#/{{region}}/players/{{line.id}}">{{line.name}}</a></td>
             <td>{{line.rating | number:3}}</td>
         </tr>
     </table>

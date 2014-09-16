@@ -20,7 +20,8 @@ rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
 def convert_object_id(json_dict):
-    json_dict['_id'] = str(json_dict['_id'])
+    json_dict['id'] = str(json_dict['_id'])
+    del json_dict['_id']
 
 def convert_object_id_list(json_dict_list):
     for j in json_dict_list:

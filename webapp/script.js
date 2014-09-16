@@ -26,6 +26,11 @@ app.config(['$routeProvider', function($routeProvider) {
         controller: 'PlayersController',
         activeTab: 'players'
     }).
+    when('/:region/players/:playerId', {
+        templateUrl: 'player_detail.html',
+        controller: 'PlayerDetailController',
+        activeTab: 'players'
+    }).
     when('/:region/tournaments', {
         templateUrl: 'tournaments.html',
         controller: 'TournamentsController',
@@ -43,6 +48,7 @@ app.controller("RegionDropdownController", function($scope, $route, RegionServic
 
 app.controller("RankingsController", function($scope, $http, $routeParams, RegionService) {
     RegionService.region = $routeParams.region;
+    $scope.region = $routeParams.region;
 
     $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/rankings').
         success(function(data) {
@@ -61,9 +67,26 @@ app.controller("TournamentsController", function($scope, $http, $routeParams, Re
 
 app.controller("PlayersController", function($scope, $http, $routeParams, RegionService) {
     RegionService.region = $routeParams.region;
+    $scope.region = $routeParams.region;
 
     $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/players').
         success(function(data) {
             $scope.data = data;
         });
+});
+
+app.controller("PlayerDetailController", function($scope, $http, $routeParams, RegionService) {
+    RegionService.region = $routeParams.region;
+    $scope.playerId = $routeParams.playerId;
+
+    $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/players/' + $routeParams.playerId).
+        success(function(data) {
+            $scope.playerData = data;
+        });
+
+    $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/matches?player=' + $routeParams.playerId).
+        success(function(data) {
+            $scope.matches = data;
+        });
+
 });
