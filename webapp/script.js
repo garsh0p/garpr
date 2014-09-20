@@ -77,6 +77,7 @@ app.controller("PlayersController", function($scope, $http, $routeParams, Region
 
 app.controller("PlayerDetailController", function($scope, $http, $routeParams, RegionService) {
     RegionService.region = $routeParams.region;
+    $scope.region = $routeParams.region;
     $scope.playerId = $routeParams.playerId;
 
     $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/players/' + $routeParams.playerId).

@@ -10,7 +10,7 @@
         <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches.matches.reverse()">
             <td>{{match.tournament_date}}</td>
             <td>{{match.tournament_name}}</td>
-            <td>{{match.opponent_name}}</td>
+            <td><a href="#/{{region}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
             <td>{{match.result}}</td>
         </tr>
     </table>
