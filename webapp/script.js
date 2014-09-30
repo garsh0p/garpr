@@ -1,5 +1,9 @@
 var app = angular.module('myApp', ['ngRoute']);
 
+var toTitleCase = function(str){
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
 app.service('RegionService', function ($http) {
     var service = {
         regions: [],
@@ -82,6 +86,7 @@ app.controller("PlayersController", function($scope, $http, $routeParams, Region
 app.controller("PlayerDetailController", function($scope, $http, $routeParams, RegionService) {
     RegionService.region = $routeParams.region;
     $scope.region = $routeParams.region;
+    $scope.prettyRegionName = toTitleCase($scope.region);
     $scope.playerId = $routeParams.playerId;
 
     $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/players/' + $routeParams.playerId).
