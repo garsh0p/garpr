@@ -27,9 +27,12 @@
                     <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
                         <a ng-href="#/{{regionService.region}}/tournaments">Tournaments</a>
                     </li>
+                    <li ng-class="{active: $route.current.activeTab == 'about'}">
+                        <a ng-href="#/about">About</a>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
+                    <li class="dropdown" ng-hide="$route.current.activeTab == 'about'">
                         <a class="dropdown-toggle" data-toggle="dropdown" style="text-transform: capitalize">
                             {{regionService.region}} 
                             <span class="caret"></span>

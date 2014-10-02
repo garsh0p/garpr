@@ -36,6 +36,10 @@ app.config(['$routeProvider', function($routeProvider) {
         controller: 'TournamentsController',
         activeTab: 'tournaments'
     }).
+    when('/about', {
+        templateUrl: 'about.html',
+        activeTab: 'about'
+    }).
     otherwise({
         redirectTo: '/norcal/rankings'
     });
