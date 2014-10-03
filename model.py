@@ -243,6 +243,7 @@ class Ranking(object):
                 [RankingEntry.from_json(r) for r in json_dict['ranking']],
                 id=json_dict['_id'])
 
+# TODO be explicit about this being a player_id
 class RankingEntry(object):
     def __init__(self, rank, player, rating):
         self.rank = rank

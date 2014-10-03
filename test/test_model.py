@@ -163,3 +163,32 @@ class TestPlayer(unittest.TestCase):
 
     def test_from_json_none(self):
         self.assertIsNone(Player.from_json(None))
+
+class TestTournament(unittest.TestCase):
+    pass
+
+class TestRanking(unittest.TestCase):
+    def test_get_json_dict(self):
+        pass
+
+    def test_get_json_dict_missing_id(self):
+        pass
+
+    def test_from_json(self):
+        pass
+
+    def test_from_json_missing_id(self):
+        pass
+
+    def test_from_json_none(self):
+        pass
+
+class TestRankingEntry(unittest.TestCase):
+    def test_get_json_dict(self):
+        pass
+
+    def test_from_json(self):
+        pass
+
+    def test_from_json_none(self):
+        pass
