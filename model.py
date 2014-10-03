@@ -9,6 +9,9 @@ class TrueskillRating(object):
         else:
             self.trueskill_rating = trueskill.Rating()
 
+    def __str__(self):
+        return "(%.3f, %.3f)" % (self.trueskill_rating.mu, self.trueskill_rating.sigma)
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
                 self.trueskill_rating == other.trueskill_rating
@@ -88,11 +91,8 @@ class Player(object):
         self.rating = rating
         self.exclude = exclude
 
-    def merge_aliases_from(self, player):
-        self.aliases.extend(player.aliases)
-
     def __str__(self):
-        return "%s %s %s [%s]" % (self.id, self.name, self.rating, self.aliases)
+        return "%s %s %s %s Excluded: %s" % (self.id, self.name, self.rating, self.aliases, self.exclude)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
@@ -101,6 +101,12 @@ class Player(object):
                 set(self.aliases) == set(other.aliases) and \
                 self.rating == other.rating and \
                 self.exclude == other.exclude
+
+    def __ne__(self, other):
+        return not self == other
+
+    def merge_aliases_from(self, player):
+        self.aliases.extend(player.aliases)
 
     def get_json_dict(self):
         json_dict = {}
@@ -125,7 +131,7 @@ class Player(object):
                 json_dict['aliases'], 
                 TrueskillRating.from_json(json_dict['rating']), 
                 json_dict['exclude'], 
-                id=json_dict['_id'])
+                id=json_dict['_id'] if '_id' in json_dict else None)
 
 class Tournament(object):
     def __init__(self, type, raw, date, name, players, matches, id=None):
