@@ -1,6 +1,7 @@
 import unittest
 from model import *
 import trueskill
+from bson.objectid import ObjectId
 
 class TestTrueskillRating(unittest.TestCase):
     def setUp(self):
@@ -41,16 +42,44 @@ class TestTrueskillRating(unittest.TestCase):
 
 class TestMatchResult(unittest.TestCase):
     def setUp(self):
-        self.winner = 'player1'
-        self.loser = 'player2'
+        self.winner = ObjectId()
+        self.loser = ObjectId()
+        self.other_player = ObjectId()
 
         self.match_result = MatchResult(winner=self.winner, loser=self.loser)
+
+        self.match_result_json_dict = {
+                'winner': self.winner,
+                'loser': self.loser
+        }
+
     def test_to_string(self):
-        self.assertEquals(str(self.match_result), 'player1 > player2')
+        self.assertEquals(str(self.match_result), '%s > %s' % (self.winner, self.loser))
+
+    def test_equal(self):
+        self.assertEquals(self.match_result, MatchResult(winner=self.winner, loser=self.loser))
+
+    def test_not_equal(self):
+        self.assertNotEquals(self.match_result, MatchResult(winner=self.winner, loser=self.other_player))
 
     def test_contains_players(self):
         self.assertTrue(self.match_result.contains_players(self.winner, self.loser))
         self.assertTrue(self.match_result.contains_players(self.loser, self.winner))
 
         self.assertFalse(self.match_result.contains_players(self.loser, self.loser))
-        self.assertFalse(self.match_result.contains_players(self.loser, 'asdfasdf'))
+        self.assertFalse(self.match_result.contains_players(self.loser, self.other_player))
+
+    def test_did_player_win(self):
+        self.assertTrue(self.match_result.did_player_win(self.winner))
+        self.assertFalse(self.match_result.did_player_win(self.loser))
+
+    def test_get_opposing_player_id(self):
+        self.assertEquals(self.match_result.get_opposing_player_id(self.winner), self.loser)
+        self.assertEquals(self.match_result.get_opposing_player_id(self.loser), self.winner)
+        self.assertIsNone(self.match_result.get_opposing_player_id(self.other_player))
+
+    def test_get_json_dict(self):
+        self.assertEquals(self.match_result.get_json_dict(), self.match_result_json_dict)
+
+    def test_from_json(self):
+        self.assertEquals(self.match_result, MatchResult.from_json(self.match_result_json_dict))

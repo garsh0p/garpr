@@ -39,6 +39,14 @@ class MatchResult(object):
     def __str__(self):
         return "%s > %s" % (self.winner, self.loser)
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and \
+                self.winner == other.winner and \
+                self.loser == other.loser
+
+    def __ne__(self, other):
+        return not self == other
+
     def contains_players(self, player1, player2):
         return (self.winner == player1 and self.loser == player2) or \
                (self.winner == player2 and self.loser == player1)
