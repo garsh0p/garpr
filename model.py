@@ -13,6 +13,9 @@ class TrueskillRating(object):
         return isinstance(other, self.__class__) and \
                 self.trueskill_rating == other.trueskill_rating
 
+    def __ne__(self, other):
+        return not self == other
+
     def get_json_dict(self):
         json_dict = {}
 
