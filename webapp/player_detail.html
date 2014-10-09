@@ -1,5 +1,12 @@
 <div class="container">
-    <h1>{{playerData.name}}</h1>
+    <div class="row">
+        <div class="player-name col-md-9">
+            <h1>{{playerData.name}}</h1>
+        </div>
+        <div class="player-rating col-md-3">
+            <h1><small>Rating: {{playerData.rating.mu - 3*playerData.rating.sigma | number:3}}</small></h1>
+        </div>
+    </div>
     <table class="table">
         <tr>
             <td>Date</td>
