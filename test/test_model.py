@@ -2,6 +2,7 @@ import unittest
 from model import *
 import trueskill
 from bson.objectid import ObjectId
+from datetime import datetime
 
 class TestTrueskillRating(unittest.TestCase):
     def setUp(self):
@@ -168,27 +169,62 @@ class TestTournament(unittest.TestCase):
     pass
 
 class TestRanking(unittest.TestCase):
+    def setUp(self):
+        self.ranking_id = ObjectId()
+        self.time = datetime.now()
+        self.tournaments = [ObjectId(), ObjectId()]
+        self.ranking_entry_1 = RankingEntry(1, ObjectId(), 20.5)
+        self.ranking_entry_2 = RankingEntry(2, ObjectId(), 19.3)
+        self.rankings = [self.ranking_entry_1, self.ranking_entry_2]
+        self.ranking = Ranking(self.time, self.tournaments, self.rankings, id=self.ranking_id)
+
+        self.ranking_json_dict = {
+                '_id': self.ranking_id,
+                'time': self.time,
+                'tournaments': self.tournaments,
+                'ranking': [r.get_json_dict() for r in self.rankings]
+        }
+
     def test_get_json_dict(self):
-        pass
+        self.assertEquals(self.ranking.get_json_dict(), self.ranking_json_dict)
 
     def test_get_json_dict_missing_id(self):
-        pass
+        self.ranking = Ranking(self.time, self.tournaments, self.rankings)
+        del self.ranking_json_dict['_id']
+
+        self.assertEquals(self.ranking.get_json_dict(), self.ranking_json_dict)
 
     def test_from_json(self):
-        pass
+        ranking = Ranking.from_json(self.ranking_json_dict)
+        self.assertEquals(ranking.id, self.ranking.id)
+        self.assertEquals(ranking.time, self.ranking.time)
+        self.assertEquals(ranking.tournaments, self.ranking.tournaments)
+        self.assertEquals(ranking.ranking, self.ranking.ranking)
 
     def test_from_json_missing_id(self):
         pass
 
     def test_from_json_none(self):
-        pass
+        self.assertIsNone(Ranking.from_json(None))
 
 class TestRankingEntry(unittest.TestCase):
+    def setUp(self):
+        self.id_1 = ObjectId()
+        self.ranking_entry = RankingEntry(1, self.id_1, 20.5)
+        self.ranking_entry_json_dict = {
+                'rank': 1,
+                'player': self.id_1,
+                'rating': 20.5
+        }
+
     def test_get_json_dict(self):
-        pass
+        self.assertEquals(self.ranking_entry.get_json_dict(), self.ranking_entry_json_dict)
 
     def test_from_json(self):
-        pass
+        ranking_entry = RankingEntry.from_json(self.ranking_entry_json_dict)
+        self.assertEquals(ranking_entry.rank, self.ranking_entry.rank)
+        self.assertEquals(ranking_entry.player, self.ranking_entry.player)
+        self.assertEquals(ranking_entry.rating, self.ranking_entry.rating)
 
     def test_from_json_none(self):
-        pass
+        self.assertIsNone(RankingEntry.from_json(None))
