@@ -202,7 +202,15 @@ class TestRanking(unittest.TestCase):
         self.assertEquals(ranking.ranking, self.ranking.ranking)
 
     def test_from_json_missing_id(self):
-        pass
+        self.ranking = Ranking(self.time, self.tournaments, self.rankings)
+        del self.ranking_json_dict['_id']
+
+        ranking = Ranking.from_json(self.ranking_json_dict)
+
+        self.assertEquals(ranking.id, self.ranking.id)
+        self.assertEquals(ranking.time, self.ranking.time)
+        self.assertEquals(ranking.tournaments, self.ranking.tournaments)
+        self.assertEquals(ranking.ranking, self.ranking.ranking)
 
     def test_from_json_none(self):
         self.assertIsNone(Ranking.from_json(None))
@@ -216,6 +224,14 @@ class TestRankingEntry(unittest.TestCase):
                 'player': self.id_1,
                 'rating': 20.5
         }
+
+    def test_equals(self):
+        self.assertTrue(RankingEntry.from_json(self.ranking_entry_json_dict) == 
+                        RankingEntry.from_json(self.ranking_entry_json_dict))
+
+    def test_not_equals(self):
+        self.assertFalse(RankingEntry.from_json(self.ranking_entry_json_dict) !=
+                         RankingEntry.from_json(self.ranking_entry_json_dict))
 
     def test_get_json_dict(self):
         self.assertEquals(self.ranking_entry.get_json_dict(), self.ranking_entry_json_dict)

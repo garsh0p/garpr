@@ -191,7 +191,7 @@ class Tournament(object):
                 json_dict['name'], 
                 json_dict['players'], 
                 [MatchResult.from_json(m) for m in json_dict['matches']], 
-                id=json_dict['_id'])
+                id=json_dict['_id'] if '_id' in json_dict else None)
 
     @classmethod
     def from_scraper(cls, type, scraper, dao):
@@ -241,7 +241,7 @@ class Ranking(object):
                 json_dict['time'], 
                 json_dict['tournaments'], 
                 [RankingEntry.from_json(r) for r in json_dict['ranking']],
-                id=json_dict['_id'])
+                id=json_dict['_id'] if '_id' in json_dict else None)
 
 # TODO be explicit about this being a player_id
 class RankingEntry(object):
@@ -249,6 +249,15 @@ class RankingEntry(object):
         self.rank = rank
         self.player = player
         self.rating = rating
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and \
+                self.rank == other.rank and \
+                self.player == other.player and \
+                self.rating == other.rating
+
+    def __ne__(self, other):
+        return not self == other
 
     def get_json_dict(self):
         json_dict = {}
