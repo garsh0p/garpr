@@ -166,8 +166,126 @@ class TestPlayer(unittest.TestCase):
         self.assertIsNone(Player.from_json(None))
 
 class TestTournament(unittest.TestCase):
-    pass
+    def setUp(self):
+        self.player_1_id = ObjectId()
+        self.player_2_id = ObjectId()
+        self.player_3_id = ObjectId()
+        self.player_4_id = ObjectId()
+        self.player_5_id = ObjectId()
+        self.player_6_id = ObjectId()
+        self.player_1 = Player('gar', ['gar'], TrueskillRating(), False, id=self.player_1_id)
+        self.player_2 = Player('sfat', ['sfat'], TrueskillRating(), False, id=self.player_2_id)
+        self.player_3 = Player('shroomed', ['shroomed'], TrueskillRating(), False, id=self.player_3_id)
+        self.player_4 = Player('ppu', ['ppu'], TrueskillRating(), False, id=self.player_4_id)
+        self.player_5 = Player('ss', ['ss'], TrueskillRating(), False, id=self.player_5_id)
+        self.player_6 = Player('hmw', ['hmw'], TrueskillRating(), False, id=self.player_5_id)
+        self.match_1 = MatchResult(winner=self.player_1_id, loser=self.player_2_id)
+        self.match_2 = MatchResult(winner=self.player_3_id, loser=self.player_4_id)
 
+        self.id = ObjectId()
+        self.type = 'tio'
+        self.raw = 'raw'
+        self.date = datetime.now()
+        self.name = 'tournament'
+        self.players = [self.player_1_id, self.player_2_id, self.player_3_id, self.player_4_id]
+        self.matches = [self.match_1, self.match_2]
+
+        self.tournament_json_dict = {
+                '_id': self.id,
+                'type': self.type,
+                'raw': self.raw,
+                'date': self.date,
+                'name': self.name,
+                'players': self.players,
+                'matches': [m.get_json_dict() for m in self.matches]
+        }
+        self.tournament = Tournament(
+                self.type, self.raw, self.date, self.name, self.players, self.matches, id=self.id)
+
+    def test_replace_player(self):
+        self.assertTrue(self.player_3_id in self.tournament.players)
+        self.assertTrue(self.tournament.matches[1].contains_player(self.player_3_id))
+
+        self.assertFalse(self.player_5_id in self.tournament.players)
+        for match in self.tournament.matches:
+            self.assertFalse(match.contains_player(self.player_5_id))
+
+        self.assertEquals(len(self.tournament.players), 4)
+        
+        self.tournament.replace_player(player_to_remove=self.player_3, player_to_add=self.player_5)
+
+        self.assertFalse(self.player_3_id in self.tournament.players)
+        for match in self.tournament.matches:
+            self.assertFalse(match.contains_player(self.player_3_id))
+
+        self.assertTrue(self.player_5_id in self.tournament.players)
+        self.assertTrue(self.tournament.matches[1].contains_player(self.player_5_id))
+
+        self.assertEquals(len(self.tournament.players), 4)
+
+    def test_replace_player_none(self):
+        with self.assertRaises(TypeError):
+            self.tournament.replace_player(player_to_add=self.player_1)
+
+        with self.assertRaises(TypeError):
+            self.tournament.replace_player(player_to_remove=self.player_1)
+
+    def test_replace_player_invalid_player_to_remove(self):
+        self.assertTrue(self.player_1_id in self.tournament.players)
+        self.assertTrue(self.player_2_id in self.tournament.players)
+        self.assertTrue(self.player_3_id in self.tournament.players)
+        self.assertTrue(self.player_4_id in self.tournament.players)
+        self.assertEquals(len(self.tournament.players), 4)
+
+        self.tournament.replace_player(player_to_remove=self.player_5, player_to_add=self.player_6)
+
+        self.assertTrue(self.player_1_id in self.tournament.players)
+        self.assertTrue(self.player_2_id in self.tournament.players)
+        self.assertTrue(self.player_3_id in self.tournament.players)
+        self.assertTrue(self.player_4_id in self.tournament.players)
+        self.assertEquals(len(self.tournament.players), 4)
+
+    def test_get_json_dict(self):
+        self.assertEquals(self.tournament.get_json_dict(), self.tournament_json_dict)
+
+    def test_get_json_dict_missing_id(self):
+        self.tournament = Tournament(
+                self.type, self.raw, self.date, self.name, self.players, self.matches)
+        del self.tournament_json_dict['_id']
+
+        self.assertEquals(self.tournament.get_json_dict(), self.tournament_json_dict)
+
+    def test_from_json(self):
+        tournament = Tournament.from_json(self.tournament_json_dict)
+        self.assertEquals(tournament.id, self.id)
+        self.assertEquals(tournament.type, self.type)
+        self.assertEquals(tournament.raw, self.raw)
+        self.assertEquals(tournament.date, self.date)
+        self.assertEquals(tournament.name, self.name)
+        self.assertEquals(tournament.matches, self.matches)
+        self.assertEquals(tournament.players, self.players)
+
+    def test_from_json_missing_id(self):
+        self.tournament = Tournament(
+                self.type, self.raw, self.date, self.name, self.players, self.matches)
+        del self.tournament_json_dict['_id']
+
+        tournament = Tournament.from_json(self.tournament_json_dict)
+        self.assertIsNone(tournament.id)
+        self.assertEquals(tournament.type, self.type)
+        self.assertEquals(tournament.raw, self.raw)
+        self.assertEquals(tournament.date, self.date)
+        self.assertEquals(tournament.name, self.name)
+        self.assertEquals(tournament.matches, self.matches)
+        self.assertEquals(tournament.players, self.players)
+
+    def test_from_json_none(self):
+        self.assertIsNone(Tournament.from_json(None))
+
+    def test_from_scraper(self):
+        # TODO
+        pass
+        
 class TestRanking(unittest.TestCase):
     def setUp(self):
         self.ranking_id = ObjectId()

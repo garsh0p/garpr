@@ -36,6 +36,7 @@ class TrueskillRating(object):
 
 class MatchResult(object):
     def __init__(self, winner=None, loser=None):
+        # player IDs
         self.winner = winner;
         self.loser = loser;
 
@@ -140,10 +141,13 @@ class Tournament(object):
         self.raw = raw
         self.date = date
         self.name = name
-        self.players = players
         self.matches = matches
 
+        # player IDs
+        self.players = players
+
     def replace_player(self, player_to_remove=None, player_to_add=None):
+        # TODO edge cases with this
         if player_to_remove is None or player_to_add is None:
             raise TypeError("player_to_remove and player_to_add cannot be None!")
 
