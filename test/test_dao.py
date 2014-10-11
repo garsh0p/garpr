@@ -1,8 +1,9 @@
 import unittest
-from dao import Dao, RegionNotFoundException
+from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException
 from bson.objectid import ObjectId
 from model import *
 from ming import mim
+import trueskill
 
 class TestDAO(unittest.TestCase):
     def setUp(self):
@@ -13,9 +14,11 @@ class TestDAO(unittest.TestCase):
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
         self.player_3_id = ObjectId()
-        self.player_1 = Player('gar', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
+        self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
         self.player_2 = Player('sfat', ['sfat', 'miom | sfat'], TrueskillRating(), False, id=self.player_2_id)
-        self.player_3 = Player('mango', ['mango'], TrueskillRating(), True, id=self.player_3_id)
+        self.player_3 = Player(
+                'mango', ['mango'], TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3)), 
+                True, id=self.player_3_id)
         self.players = [self.player_1, self.player_2, self.player_3]
 
         for player in self.players:
@@ -121,3 +124,42 @@ class TestDAO(unittest.TestCase):
         self.assertFalse(self.player_3.exclude)
 
         self.assertEquals(self.dao.get_excluded_players(), [])
+
+    def test_add_alias_to_player(self):
+        new_alias = 'gaRRR'
+        lowercase_alias = 'garrr'
+        old_expected_aliases = ['gar', 'garr']
+        new_expected_aliases = ['gar', 'garr', 'garrr']
+
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).aliases, old_expected_aliases)
+        self.assertEquals(self.player_1.aliases, old_expected_aliases)
+        self.dao.add_alias_to_player(self.player_1, new_alias)
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).aliases, new_expected_aliases)
+        self.assertEquals(self.player_1.aliases, new_expected_aliases)
+
+    def test_add_alias_to_player_duplicate(self):
+        with self.assertRaises(DuplicateAliasException):
+            self.dao.add_alias_to_player(self.player_1, 'garr')
+
+    def test_update_player_name(self):
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).name, 'gaR')
+        self.assertEquals(self.player_1.name, 'gaR')
+        self.dao.update_player_name(self.player_1, 'gaRR')
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).name, 'gaRR')
+        self.assertEquals(self.player_1.name, 'gaRR')
+
+    def test_update_player_name_non_alias(self):
+        with self.assertRaises(InvalidNameException):
+            self.dao.update_player_name(self.player_1, 'asdf')
+
+    def test_reset_all_player_ratings(self):
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).rating, TrueskillRating())
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id).rating, TrueskillRating())
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id).rating, 
+                          TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3)))
+
+        self.dao.reset_all_player_ratings()
+
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).rating, TrueskillRating())
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id).rating, TrueskillRating())
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id).rating, TrueskillRating())

@@ -8,6 +8,12 @@ DEFAULT_RATING = TrueskillRating()
 class RegionNotFoundException(Exception):
     pass
 
+class DuplicateAliasException(Exception):
+    pass
+
+class InvalidNameException(Exception):
+    pass
+
 class Dao(object):
     def __init__(self, region, mongo_client=MongoClient('localhost'), new=False):
         self.mongo_client = mongo_client
@@ -51,47 +57,31 @@ class Dao(object):
 
     def exclude_player(self, player):
         player.exclude = True
-        return self.players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
+        return self.update_player(player)
 
     def include_player(self, player):
         player.exclude = False
-        return self.players_col.update({'_id': player.id}, {'$set': {'exclude': False}})
+        return self.update_player(player)
 
     def add_alias_to_player(self, player, alias):
         lowercase_alias = alias.lower()
-        if not lowercase_alias in player.aliases:
-            player.aliases.append(lowercase_alias)
+
+        if lowercase_alias in player.aliases:
+            raise DuplicateAliasException('%s is already an alias for %s!' % (alias, player.name))
+
+        player.aliases.append(lowercase_alias)
 
         return self.update_player(player)
 
     def update_player_name(self, player, name):
         # ensure this name is already an alias
         if not name.lower() in player.aliases:
-            raise Exception('Player %s does not have %s as an alias already, cannot change name.' % (player, name))
+            raise InvalidNameException(
+                    'Player %s does not have %s as an alias already, cannot change name.' 
+                    % (player, name))
 
         player.name = name
         return self.update_player(player)
-
-    def merge_players(self, source=None, target=None):
-        self.check_alias_uniqueness()
-
-        if source is None or target is None:
-            raise TypeError("source or target can't be none!");
-
-        if source == target:
-            raise ValueError("source and target can't be the same!")
-
-        target.merge_aliases_from(source)
-        self.update_player(target)
-
-        for tournament in self.get_all_tournaments():
-            tournament.replace_player(player_to_remove=source, player_to_add=target)
-            self.update_tournament(tournament)
-
-        self.delete_player(source)
-
-        # sanity check after merging
-        self.check_alias_uniqueness()
 
     def reset_all_player_ratings(self):
         return self.players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
@@ -117,6 +107,27 @@ class Dao(object):
     def get_tournament_by_id(self, id):
         '''id must be an ObjectId'''
         return Tournament.from_json(self.tournaments_col.find_one({'_id': id}))
+
+    def merge_players(self, source=None, target=None):
+        self.check_alias_uniqueness()
+
+        if source is None or target is None:
+            raise TypeError("source or target can't be none!");
+
+        if source == target:
+            raise ValueError("source and target can't be the same!")
+
+        target.merge_aliases_from(source)
+        self.update_player(target)
+
+        for tournament in self.get_all_tournaments():
+            tournament.replace_player(player_to_remove=source, player_to_add=target)
+            self.update_tournament(tournament)
+
+        self.delete_player(source)
+
+        # sanity check after merging
+        self.check_alias_uniqueness()
 
     def check_alias_uniqueness(self):
         '''Makes sure that each alias only refers to 1 player'''
