@@ -5,22 +5,24 @@ import trueskill
 
 DEFAULT_RATING = TrueskillRating()
 
-mongo_client = MongoClient('localhost')
+class RegionNotFoundException(Exception):
+    pass
 
 class Dao(object):
-    def __init__(self, region, new=False):
+    def __init__(self, region, mongo_client=MongoClient('localhost'), new=False):
+        self.mongo_client = mongo_client
         if not new and not region in self.get_all_regions():
-            raise Exception("%s is not a valid region!" % region)
+            raise RegionNotFoundException("%s is not a valid region! Set new=True to create a new region." 
+                                          % region)
 
-        self.players_col = mongo_client['smashranks_%s' % region].players
-        self.tournaments_col = mongo_client['smashranks_%s' % region].tournaments
-        self.rankings_col = mongo_client['smashranks_%s' % region].rankings
+        database_name = 'smashranks_%s' % region       
+        self.players_col = mongo_client[database_name].players
+        self.tournaments_col = mongo_client[database_name].tournaments
+        self.rankings_col = mongo_client[database_name].rankings
 
-    @staticmethod
-    def get_all_regions():
-        regions = mongo_client.database_names()
+    def get_all_regions(self):
+        regions = self.mongo_client.database_names()
         regions = [r.split('_')[1] for r in regions if r.startswith('smashranks_')]
-        regions = sorted([r for r in regions if not r.startswith('test')])
         return regions
 
     def get_player_by_id(self, id):
@@ -32,7 +34,7 @@ class Dao(object):
         return Player.from_json(self.players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
 
     def get_all_players(self):
-        '''Sorts by lexographical order'''
+        '''Sorts by name in lexographical order'''
         return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
 
     def add_player(self, player):
@@ -48,9 +50,11 @@ class Dao(object):
         return [Player.from_json(p) for p in self.players_col.find({'exclude': True})]
 
     def exclude_player(self, player):
+        player.exclude = True
         return self.players_col.update({'_id': player.id}, {'$set': {'exclude': True}})
 
     def include_player(self, player):
+        player.exclude = False
         return self.players_col.update({'_id': player.id}, {'$set': {'exclude': False}})
 
     def add_alias_to_player(self, player, alias):

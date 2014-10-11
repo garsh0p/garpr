@@ -1,59 +1,123 @@
 import unittest
-import dao
+from dao import Dao, RegionNotFoundException
 from bson.objectid import ObjectId
 from model import *
-
-PLAYER_1 = Player('gaR', ['gar', 'garr', 'garrr'], TrueskillRating(), False, id=ObjectId('000000000000000000000001'))
-PLAYER_2 = Player('SFAT', ['miom | sfat', 'sfat'], TrueskillRating(), False, id=ObjectId('000000000000000000000002'))
-PLAYER_3 = Player('Zac', ['zac'], TrueskillRating(), False, id=ObjectId('000000000000000000000003'))
-PLAYER_4 = Player('Mango', ['mango', 'miom|mango', 'mang0', 'c9 mango'], TrueskillRating(), True, id=ObjectId('000000000000000000000004'))
-ALL_PLAYERS = [PLAYER_1, PLAYER_2, PLAYER_3, PLAYER_4]
-
-NEW_PLAYER = Player('Shroomed', ['shroomed', 'mmg|shroomed'], TrueskillRating(), True, id=ObjectId('000000000000000000000005'))
+from ming import mim
 
 class TestDAO(unittest.TestCase):
     def setUp(self):
-        dao.players_col = dao.mongo_client.test.players
-        dao.players_col.drop()
+        self.region = 'test'
+        self.mongo_client = mim.Connection()
+        self.dao = Dao(self.region, mongo_client=self.mongo_client, new=True)
 
-        dao.tournaments_col = dao.mongo_client.test.tournaments
-        dao.tournaments_col.drop()
+        self.player_1_id = ObjectId()
+        self.player_2_id = ObjectId()
+        self.player_3_id = ObjectId()
+        self.player_1 = Player('gar', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
+        self.player_2 = Player('sfat', ['sfat', 'miom | sfat'], TrueskillRating(), False, id=self.player_2_id)
+        self.player_3 = Player('mango', ['mango'], TrueskillRating(), True, id=self.player_3_id)
+        self.players = [self.player_1, self.player_2, self.player_3]
 
-        for player in ALL_PLAYERS:
-            dao.add_player(player)
+        for player in self.players:
+            self.dao.add_player(player)
+
+    def test_init_with_invalid_region(self):
+        # create a dao with an existing region
+        Dao(self.region, mongo_client=self.mongo_client, new=False)
+
+        # create a dao with a new region
+        with self.assertRaises(RegionNotFoundException):
+            Dao('newregion', mongo_client=self.mongo_client, new=False)
+
+    def test_get_all_regions(self):
+        # add another region
+        region = 'newregion'
+        Dao(region, mongo_client=self.mongo_client, new=True)
+
+        self.assertEquals(set(self.dao.get_all_regions()), set([self.region, region]))
 
     def test_get_player_by_id(self):
-        self.assertEquals(dao.get_player_by_id(PLAYER_1.id), PLAYER_1)
-        self.assertEquals(dao.get_player_by_id(PLAYER_2.id), PLAYER_2)
-        self.assertEquals(dao.get_player_by_id(PLAYER_3.id), PLAYER_3)
-        self.assertEquals(dao.get_player_by_id(PLAYER_4.id), PLAYER_4)
-        self.assertIsNone(dao.get_player_by_id(ObjectId()))
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id), self.player_2)
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id), self.player_3)
+        self.assertIsNone(self.dao.get_player_by_id(ObjectId()))
 
-    def test_get_player_by_alias(self):
-        self.assertEquals(dao.get_player_by_alias('gar'), PLAYER_1)
-        self.assertEquals(dao.get_player_by_alias('GAR'), PLAYER_1)
-        self.assertEquals(dao.get_player_by_alias('garrr'), PLAYER_1)
-        self.assertEquals(dao.get_player_by_alias('mango'), PLAYER_4)
-        self.assertIsNone(dao.get_player_by_alias('asdfasdf'))
+    def test_get_player_by_id(self):
+        self.assertEquals(self.dao.get_player_by_alias('gar'), self.player_1)
+        self.assertEquals(self.dao.get_player_by_alias('GAR'), self.player_1)
+        self.assertEquals(self.dao.get_player_by_alias('garr'), self.player_1)
+        self.assertEquals(self.dao.get_player_by_alias('sfat'), self.player_2)
+        self.assertEquals(self.dao.get_player_by_alias('miom | sfat'), self.player_2)
+        self.assertEquals(self.dao.get_player_by_alias('mango'), self.player_3)
+
+        self.assertIsNone(self.dao.get_player_by_alias('miom|sfat'))
+        self.assertIsNone(self.dao.get_player_by_alias(''))
 
     def test_get_all_players(self):
-        '''Ensure its sorted alphabetically'''
-        players = dao.get_all_players()
-        self.assertEquals(len(players), 4)
-        self.assertEquals(players[0], PLAYER_4)
-        self.assertEquals(players[1], PLAYER_2)
-        self.assertEquals(players[2], PLAYER_3)
-        self.assertEquals(players[3], PLAYER_1)
+        self.assertEquals(self.dao.get_all_players(), [self.player_1, self.player_3, self.player_2])
 
-    def test_add_player(self):
-        players = dao.get_all_players()
-        self.assertEquals(len(players), 4)
-        self.assertIsNone(dao.get_player_by_alias('shroomed'))
-
-        dao.add_player(NEW_PLAYER)
-        players = dao.get_all_players()
-        self.assertEquals(len(players), 5)
-        self.assertEquals(dao.get_player_by_alias('shroomed'), NEW_PLAYER)
-
-    def test_add_player_duplicate_key(self):
+    # TODO this can't be tested with MIM right now
+    def test_add_player_duplicate(self):
         pass
+
+    def test_delete_player(self):
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id), self.player_2)
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id), self.player_3)
+
+        self.dao.delete_player(self.player_2)
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
+        self.assertIsNone(self.dao.get_player_by_id(self.player_2_id))
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id), self.player_3)
+
+        self.dao.delete_player(self.player_3)
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
+        self.assertIsNone(self.dao.get_player_by_id(self.player_2_id))
+        self.assertIsNone(self.dao.get_player_by_id(self.player_3_id))
+
+        self.dao.delete_player(self.player_1)
+        self.assertIsNone(self.dao.get_player_by_id(self.player_1_id))
+        self.assertIsNone(self.dao.get_player_by_id(self.player_2_id))
+        self.assertIsNone(self.dao.get_player_by_id(self.player_3_id))
+
+    def test_update_player(self):
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id), self.player_2)
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id), self.player_3)
+
+        player_1_clone = Player('gar', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
+        player_1_clone.name = 'garrr'
+        player_1_clone.aliases.append('garrr')
+        player_1_clone.exclude = True
+        self.assertNotEquals(self.dao.get_player_by_id(self.player_1_id), player_1_clone)
+
+        self.dao.update_player(player_1_clone)
+
+        self.assertNotEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id), self.player_2)
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id), self.player_3)
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id), player_1_clone)
+
+    def test_get_excluded_players(self):
+        self.assertEquals(self.dao.get_excluded_players(), [self.player_3])
+
+    def test_exclude_player(self):
+        self.assertEquals(self.dao.get_excluded_players(), [self.player_3])
+
+        self.assertFalse(self.player_1.exclude)
+        self.dao.exclude_player(self.player_1)
+        self.assertTrue(self.player_1.exclude)
+
+        excluded_players = sorted(self.dao.get_excluded_players(), key=lambda p: p.name)
+        self.assertEquals(len(excluded_players), 2)
+        self.assertEquals(excluded_players[0], self.player_1)
+        self.assertEquals(excluded_players[1], self.player_3)
+
+    def test_include_player(self):
+        self.assertEquals(self.dao.get_excluded_players(), [self.player_3])
+
+        self.assertTrue(self.player_3.exclude)
+        self.dao.include_player(self.player_3)
+        self.assertFalse(self.player_3.exclude)
+
+        self.assertEquals(self.dao.get_excluded_players(), [])
