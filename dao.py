@@ -8,8 +8,8 @@ DEFAULT_RATING = TrueskillRating()
 mongo_client = MongoClient('localhost')
 
 class Dao(object):
-    def __init__(self, region):
-        if not region in self.get_all_regions():
+    def __init__(self, region, new=False):
+        if not new and not region in self.get_all_regions():
             raise Exception("%s is not a valid region!" % region)
 
         self.players_col = mongo_client['smashranks_%s' % region].players

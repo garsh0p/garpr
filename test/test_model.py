@@ -3,6 +3,9 @@ from model import *
 import trueskill
 from bson.objectid import ObjectId
 from datetime import datetime
+import mock
+from scraper.challonge import ChallongeScraper
+from dao import Dao
 
 class TestTrueskillRating(unittest.TestCase):
     def setUp(self):
@@ -187,7 +190,8 @@ class TestTournament(unittest.TestCase):
         self.raw = 'raw'
         self.date = datetime.now()
         self.name = 'tournament'
-        self.players = [self.player_1_id, self.player_2_id, self.player_3_id, self.player_4_id]
+        self.player_ids = [self.player_1_id, self.player_2_id, self.player_3_id, self.player_4_id]
+        self.players = [self.player_1, self.player_2, self.player_3, self.player_4]
         self.matches = [self.match_1, self.match_2]
 
         self.tournament_json_dict = {
@@ -196,11 +200,11 @@ class TestTournament(unittest.TestCase):
                 'raw': self.raw,
                 'date': self.date,
                 'name': self.name,
-                'players': self.players,
+                'players': self.player_ids,
                 'matches': [m.get_json_dict() for m in self.matches]
         }
         self.tournament = Tournament(
-                self.type, self.raw, self.date, self.name, self.players, self.matches, id=self.id)
+                self.type, self.raw, self.date, self.name, self.player_ids, self.matches, id=self.id)
 
     def test_replace_player(self):
         self.assertTrue(self.player_3_id in self.tournament.players)
@@ -250,7 +254,7 @@ class TestTournament(unittest.TestCase):
 
     def test_get_json_dict_missing_id(self):
         self.tournament = Tournament(
-                self.type, self.raw, self.date, self.name, self.players, self.matches)
+                self.type, self.raw, self.date, self.name, self.player_ids, self.matches)
         del self.tournament_json_dict['_id']
 
         self.assertEquals(self.tournament.get_json_dict(), self.tournament_json_dict)
@@ -263,11 +267,11 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.date, self.date)
         self.assertEquals(tournament.name, self.name)
         self.assertEquals(tournament.matches, self.matches)
-        self.assertEquals(tournament.players, self.players)
+        self.assertEquals(tournament.players, self.player_ids)
 
     def test_from_json_missing_id(self):
         self.tournament = Tournament(
-                self.type, self.raw, self.date, self.name, self.players, self.matches)
+                self.type, self.raw, self.date, self.name, self.player_ids, self.matches)
         del self.tournament_json_dict['_id']
 
         tournament = Tournament.from_json(self.tournament_json_dict)
@@ -277,14 +281,38 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.date, self.date)
         self.assertEquals(tournament.name, self.name)
         self.assertEquals(tournament.matches, self.matches)
-        self.assertEquals(tournament.players, self.players)
+        self.assertEquals(tournament.players, self.player_ids)
 
     def test_from_json_none(self):
         self.assertIsNone(Tournament.from_json(None))
 
     def test_from_scraper(self):
-        # TODO
-        pass
+        # the scraper returns matches that use player aliases instead of player ids
+        match_1 = MatchResult(winner=self.player_1.name, loser=self.player_2.name)
+        match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
+
+        mock_scraper = mock.Mock(spec=ChallongeScraper)
+        mock_dao = mock.Mock(spec=Dao)
+
+        mock_scraper.get_players.return_value = [p.name for p in self.players]
+        mock_scraper.get_matches.return_value = [match_1, match_2]
+        mock_scraper.get_raw.return_value = self.raw
+        mock_scraper.get_date.return_value = self.date
+        mock_scraper.get_name.return_value = self.name
+
+        # dictionary that maps player alias to player object
+        mock_dao_return_values = dict(((p.name,), p) for p in self.players)
+        mock_dao.get_player_by_alias.side_effect = lambda *args: mock_dao_return_values[args]
+
+        tournament = Tournament.from_scraper(self.type, mock_scraper, mock_dao)
+
+        self.assertIsNone(tournament.id)
+        self.assertEquals(tournament.type, self.type)
+        self.assertEquals(tournament.raw, self.raw)
+        self.assertEquals(tournament.date, self.date)
+        self.assertEquals(tournament.name, self.name)
+        self.assertEquals(tournament.matches, self.matches)
+        self.assertEquals(tournament.players, self.player_ids)
         
 class TestRanking(unittest.TestCase):
     def setUp(self):
