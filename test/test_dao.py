@@ -14,12 +14,24 @@ class TestDAO(unittest.TestCase):
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
         self.player_3_id = ObjectId()
+        self.player_4_id = ObjectId()
+        self.player_5_id = ObjectId()
         self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
         self.player_2 = Player('sfat', ['sfat', 'miom | sfat'], TrueskillRating(), False, id=self.player_2_id)
         self.player_3 = Player(
                 'mango', ['mango'], TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3)), 
                 True, id=self.player_3_id)
+        self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
+        self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
+
+        # only includes players 1-3
         self.players = [self.player_1, self.player_2, self.player_3]
+
+        self.tournament_id_1 = ObjectId()
+        self.tournament_type_1 = 'tio'
+        self.tournament_raw_1 = 'raw'
+        self.tournament_date_1 = datetime.now()
+        self.tournament_name_1 = 'tournament'
 
         for player in self.players:
             self.dao.add_player(player)
