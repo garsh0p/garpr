@@ -55,10 +55,11 @@ class ChallongeScraper(object):
             m = m['match']
             winner_id = m['winner_id']
             loser_id = m['loser_id']
-            winner = player_map[winner_id]
-            loser = player_map[loser_id]
-            match_result = MatchResult(winner=winner, loser=loser)
-            matches.append(match_result)
+            if winner_id is not None and loser_id is not None:
+                winner = player_map[winner_id]
+                loser = player_map[loser_id]
+                match_result = MatchResult(winner=winner, loser=loser)
+                matches.append(match_result)
 
         return matches
 
