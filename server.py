@@ -29,7 +29,8 @@ def convert_object_id_list(json_dict_list):
 
 class RegionListResource(restful.Resource):
     def get(self):
-        return {'regions': Dao.get_all_regions()}
+        dao = Dao('norcal') # TODO change this hardcode?
+        return {'regions': dao.get_all_regions()}
 
 class PlayerListResource(restful.Resource):
     def get(self, region):
@@ -60,7 +61,7 @@ class TournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region)
         return_dict = {}
-        return_dict['tournaments'] = [t.get_json_dict() for t in dao.get_all_tournaments()]
+        return_dict['tournaments'] = [t.get_json_dict() for t in dao.get_all_tournaments()] #
         convert_object_id_list(return_dict['tournaments'])
 
         for t in return_dict['tournaments']:
