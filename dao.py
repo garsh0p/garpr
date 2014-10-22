@@ -29,7 +29,7 @@ class Dao(object):
     def get_all_regions(self):
         regions = self.mongo_client.database_names()
         regions = [r.split('_')[1] for r in regions if r.startswith('smashranks_')]
-        return regions
+        return sorted(regions)
 
     def get_player_by_id(self, id):
         '''id must be an ObjectId'''
