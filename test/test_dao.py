@@ -6,6 +6,7 @@ from ming import mim
 import trueskill
 from datetime import datetime
 import mongomock
+from pymongo.errors import DuplicateKeyError
 
 class TestDAO(unittest.TestCase):
     def setUp(self):
@@ -98,7 +99,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(self.dao.get_player_by_id(self.player_3_id), self.player_3)
         self.assertIsNone(self.dao.get_player_by_id(ObjectId()))
 
-    def test_get_player_by_id(self):
+    def test_get_player_by_alias(self):
         self.assertEquals(self.dao.get_player_by_alias('gar'), self.player_1)
         self.assertEquals(self.dao.get_player_by_alias('GAR'), self.player_1)
         self.assertEquals(self.dao.get_player_by_alias('garr'), self.player_1)
@@ -112,9 +113,9 @@ class TestDAO(unittest.TestCase):
     def test_get_all_players(self):
         self.assertEquals(self.dao.get_all_players(), [self.player_1, self.player_3, self.player_2])
 
-    # TODO this can't be tested with MIM right now
     def test_add_player_duplicate(self):
-        pass
+        with self.assertRaises(DuplicateKeyError):
+            self.dao.add_player(self.player_1)
 
     def test_delete_player(self):
         self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)
@@ -301,3 +302,72 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament.matches, self.tournament_matches_2)
         self.assertEquals(tournament.players, self.tournament_players_2)
 
+    def test_get_tournament_by_id(self):
+        tournament_1 = self.dao.get_tournament_by_id(self.tournament_id_1)
+        self.assertEquals(tournament_1.id, self.tournament_id_1)
+        self.assertEquals(tournament_1.type, self.tournament_type_1)
+        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
+        self.assertEquals(tournament_1.date, self.tournament_date_1)
+        self.assertEquals(tournament_1.name, self.tournament_name_1)
+        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
+        self.assertEquals(tournament_1.players, self.tournament_players_1)
+
+        tournament_2 = self.dao.get_tournament_by_id(self.tournament_id_2)
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, self.tournament_name_2)
+        self.assertEquals(tournament_2.matches, self.tournament_matches_2)
+        self.assertEquals(tournament_2.players, self.tournament_players_2)
+
+        self.assertIsNone(self.dao.get_tournament_by_id(ObjectId()))
+
+    def test_merge_players(self):
+        self.dao.merge_players(source=self.player_5, target=self.player_1)
+
+        tournament_1 = self.dao.get_tournament_by_id(self.tournament_id_1)
+        self.assertEquals(tournament_1.id, self.tournament_id_1)
+        self.assertEquals(tournament_1.type, self.tournament_type_1)
+        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
+        self.assertEquals(tournament_1.date, self.tournament_date_1)
+        self.assertEquals(tournament_1.name, self.tournament_name_1)
+        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
+        self.assertEquals(tournament_1.players, self.tournament_players_1)
+
+        tournament_2 = self.dao.get_tournament_by_id(self.tournament_id_2)
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, self.tournament_name_2)
+        self.assertEquals(set(tournament_2.players), set(self.tournament_players_1))
+        self.assertEquals(len(tournament_2.matches), len(self.tournament_matches_1))
+        self.assertEquals(tournament_2.matches[0], self.tournament_matches_1[0])
+        self.assertEquals(tournament_2.matches[1], self.tournament_matches_1[1])
+
+        merged_player_aliases = ['gar', 'garr', 'pewpewu']
+        merged_player = self.dao.get_player_by_id(self.player_1_id)
+        self.assertEquals(merged_player.id, self.player_1_id)
+        self.assertEquals(merged_player.name, self.player_1.name)
+        self.assertEquals(merged_player.aliases, merged_player_aliases)
+
+        self.assertIsNone(self.dao.get_player_by_id(self.player_5_id))
+
+    def test_merge_players_none(self):
+        with self.assertRaises(TypeError):
+            self.dao.merge_players()
+
+        with self.assertRaises(TypeError):
+            self.dao.merge_players(source=self.player_1)
+
+        with self.assertRaises(TypeError):
+            self.dao.merge_players(target=self.player_1)
+    
+    def test_merge_players_same_player(self):
+        with self.assertRaises(ValueError):
+            self.dao.merge_players(source=self.player_1, target=self.player_1)
+
+    # TODO
+    def test_merge_players_same_player_in_single_match(self):
+        pass

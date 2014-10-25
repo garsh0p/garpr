@@ -148,6 +148,7 @@ class Tournament(object):
 
     def replace_player(self, player_to_remove=None, player_to_add=None):
         # TODO edge cases with this
+        # TODO the player being added cannot play himself in any match
         if player_to_remove is None or player_to_add is None:
             raise TypeError("player_to_remove and player_to_add cannot be None!")
 

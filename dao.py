@@ -109,8 +109,6 @@ class Dao(object):
         return Tournament.from_json(self.tournaments_col.find_one({'_id': id}))
 
     def merge_players(self, source=None, target=None):
-        self.check_alias_uniqueness()
-
         if source is None or target is None:
             raise TypeError("source or target can't be none!");
 
@@ -126,25 +124,9 @@ class Dao(object):
 
         self.delete_player(source)
 
-        # sanity check after merging
-        self.check_alias_uniqueness()
-
-    def check_alias_uniqueness(self):
-        '''Makes sure that each alias only refers to 1 player'''
-        players = self.get_all_players()
-        for player in players:
-            for alias in player.aliases:
-                print "Checking %s" % alias
-                players_matching_alias = self._get_players_by_alias(alias)
-                if len(players_matching_alias) > 1:
-                    raise Exception("%s matches the following players: %s" % (alias, players_matching_alias))
-
     def insert_ranking(self, ranking):
         return self.rankings_col.insert(ranking.get_json_dict())
 
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find().sort('time', DESCENDING)[0])
-                
-    def _get_players_by_alias(self, alias):
-        '''Converts alias to lowercase'''
-        return [Player.from_json(p) for p in self.players_col.find({'aliases': {'$in': [alias.lower()]}})]
+
