@@ -5,12 +5,12 @@ from model import *
 from ming import mim
 import trueskill
 from datetime import datetime
-from pymongo import MongoClient
+import mongomock
 
 class TestDAO(unittest.TestCase):
     def setUp(self):
         self.region = 'test'
-        self.mongo_client = mim.Connection()
+        self.mongo_client = mongomock.MongoClient()
         self.dao = Dao(self.region, mongo_client=self.mongo_client, new=True)
 
         self.player_1_id = ObjectId()

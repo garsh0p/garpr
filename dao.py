@@ -102,8 +102,6 @@ class Dao(object):
                 query_list.append({'players': {'$in': [player.id]}})
             query_dict['$and'] = query_list
 
-        print query_dict
-
         return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
 
     def get_tournament_by_id(self, id):
