@@ -222,8 +222,11 @@ class Ranking(object):
     def __init__(self, time, tournaments, ranking, id=None):
         self.id = id
         self.time = time
-        self.tournaments = tournaments
         self.ranking = ranking
+
+        # object ids
+        self.tournaments = tournaments
+
 
     def get_json_dict(self):
         json_dict = {}

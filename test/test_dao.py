@@ -69,14 +69,31 @@ class TestDAO(unittest.TestCase):
                                        self.tournament_matches_2,
                                        id=self.tournament_id_2)
 
+        self.tournament_ids = [self.tournament_id_1, self.tournament_id_2]
         self.tournaments = [self.tournament_1, self.tournament_2]
 
+        self.ranking_entry_1 = RankingEntry(1, self.player_1_id, 20)
+        self.ranking_entry_2 = RankingEntry(2, self.player_2_id, 19)
+        self.ranking_entry_3 = RankingEntry(3, self.player_3_id, 17.5)
+        self.ranking_entry_4 = RankingEntry(3, self.player_4_id, 16.5)
+
+        self.ranking_time_1 = datetime(2013, 4, 20)
+        self.ranking_time_2 = datetime(2013, 4, 21)
+        self.ranking_1 = Ranking(self.ranking_time_1, self.tournament_ids, 
+                                 [self.ranking_entry_1, self.ranking_entry_2, self.ranking_entry_3])
+        self.ranking_2 = Ranking(self.ranking_time_2, self.tournament_ids, 
+                                 [self.ranking_entry_1, self.ranking_entry_2, self.ranking_entry_4])
+
+        self.rankings = [self.ranking_1, self.ranking_2]
 
         for player in self.players:
             self.dao.add_player(player)
 
         for tournament in self.tournaments:
             self.dao.insert_tournament(tournament)
+
+        for ranking in self.rankings:
+            self.dao.insert_ranking(ranking)
 
     def test_init_with_invalid_region(self):
         # create a dao with an existing region
@@ -371,3 +388,16 @@ class TestDAO(unittest.TestCase):
     # TODO
     def test_merge_players_same_player_in_single_match(self):
         pass
+
+    def test_get_latest_ranking(self):
+        latest_ranking = self.dao.get_latest_ranking()
+
+        self.assertEquals(latest_ranking.time, self.ranking_time_2)
+        self.assertEquals(latest_ranking.tournaments, self.tournament_ids)
+
+        rankings = latest_ranking.ranking
+        
+        self.assertEquals(len(rankings), 3)
+        self.assertEquals(rankings[0], self.ranking_entry_1)
+        self.assertEquals(rankings[1], self.ranking_entry_2)
+        self.assertEquals(rankings[2], self.ranking_entry_4)
