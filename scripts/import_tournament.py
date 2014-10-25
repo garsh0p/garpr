@@ -25,7 +25,7 @@ def import_tournament(type, path, bracket, region):
     import_players(scraper, dao)
 
     tournament = Tournament.from_scraper(type, scraper, dao)
-    dao.insert_tournament(tournament.get_json_dict())
+    dao.insert_tournament(tournament)
 
     click.echo("Generating new ranking...")
     rankings.generate_ranking(dao)

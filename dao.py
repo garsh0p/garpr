@@ -87,7 +87,7 @@ class Dao(object):
         return self.players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
 
     def insert_tournament(self, tournament):
-        return self.tournaments_col.insert(tournament)
+        return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
@@ -101,6 +101,8 @@ class Dao(object):
             for player in players:
                 query_list.append({'players': {'$in': [player.id]}})
             query_dict['$and'] = query_list
+
+        print query_dict
 
         return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
 

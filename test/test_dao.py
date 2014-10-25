@@ -4,6 +4,8 @@ from bson.objectid import ObjectId
 from model import *
 from ming import mim
 import trueskill
+from datetime import datetime
+from pymongo import MongoClient
 
 class TestDAO(unittest.TestCase):
     def setUp(self):
@@ -18,23 +20,62 @@ class TestDAO(unittest.TestCase):
         self.player_5_id = ObjectId()
         self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
         self.player_2 = Player('sfat', ['sfat', 'miom | sfat'], TrueskillRating(), False, id=self.player_2_id)
-        self.player_3 = Player(
-                'mango', ['mango'], TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3)), 
-                True, id=self.player_3_id)
-        self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
-        self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
+        self.player_3 = Player('mango', ['mango'], 
+                               TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3)), 
+                               True, id=self.player_3_id)
+        self.player_4 = Player('shroomed', ['shroomed'], TrueskillRating(), False, id=self.player_4_id)
+        self.player_5 = Player('pewpewu', ['pewpewu'], TrueskillRating(), False, id=self.player_5_id)
 
         # only includes players 1-3
         self.players = [self.player_1, self.player_2, self.player_3]
 
         self.tournament_id_1 = ObjectId()
         self.tournament_type_1 = 'tio'
-        self.tournament_raw_1 = 'raw'
-        self.tournament_date_1 = datetime.now()
-        self.tournament_name_1 = 'tournament'
+        self.tournament_raw_1 = 'raw1'
+        self.tournament_date_1 = datetime(2013, 10, 16)
+        self.tournament_name_1 = 'tournament 1'
+        self.tournament_players_1 = [self.player_1_id, self.player_2_id, self.player_3_id, self.player_4_id]
+        self.tournament_matches_1 = [
+                MatchResult(winner=self.player_1_id, loser=self.player_2_id),
+                MatchResult(winner=self.player_3_id, loser=self.player_4_id)
+        ]
+
+        # tournament 2 is earlier than tournament 1, but inserted after
+        self.tournament_id_2 = ObjectId()
+        self.tournament_type_2 = 'challonge'
+        self.tournament_raw_2 = 'raw2'
+        self.tournament_date_2 = datetime(2013, 10, 10)
+        self.tournament_name_2 = 'tournament 2'
+        self.tournament_players_2 = [self.player_5_id, self.player_2_id, self.player_3_id, self.player_4_id]
+        self.tournament_matches_2 = [
+                MatchResult(winner=self.player_5_id, loser=self.player_2_id),
+                MatchResult(winner=self.player_3_id, loser=self.player_4_id)
+        ]
+
+        self.tournament_1 = Tournament(self.tournament_type_1,
+                                       self.tournament_raw_1,
+                                       self.tournament_date_1, 
+                                       self.tournament_name_1,
+                                       self.tournament_players_1,
+                                       self.tournament_matches_1,
+                                       id=self.tournament_id_1)
+
+        self.tournament_2 = Tournament(self.tournament_type_2,
+                                       self.tournament_raw_2,
+                                       self.tournament_date_2, 
+                                       self.tournament_name_2,
+                                       self.tournament_players_2,
+                                       self.tournament_matches_2,
+                                       id=self.tournament_id_2)
+
+        self.tournaments = [self.tournament_1, self.tournament_2]
+
 
         for player in self.players:
             self.dao.add_player(player)
+
+        for tournament in self.tournaments:
+            self.dao.insert_tournament(tournament)
 
     def test_init_with_invalid_region(self):
         # create a dao with an existing region
@@ -175,3 +216,88 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(self.dao.get_player_by_id(self.player_1_id).rating, TrueskillRating())
         self.assertEquals(self.dao.get_player_by_id(self.player_2_id).rating, TrueskillRating())
         self.assertEquals(self.dao.get_player_by_id(self.player_3_id).rating, TrueskillRating())
+
+    def test_update_tournament(self):
+        tournament_1 = self.dao.get_tournament_by_id(self.tournament_id_1)
+        self.assertEquals(tournament_1.id, self.tournament_id_1)
+        self.assertEquals(tournament_1.type, self.tournament_type_1)
+        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
+        self.assertEquals(tournament_1.date, self.tournament_date_1)
+        self.assertEquals(tournament_1.name, self.tournament_name_1)
+        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
+        self.assertEquals(tournament_1.players, self.tournament_players_1)
+
+        tournament_2 = self.dao.get_tournament_by_id(self.tournament_id_2)
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, self.tournament_name_2)
+        self.assertEquals(tournament_2.matches, self.tournament_matches_2)
+        self.assertEquals(tournament_2.players, self.tournament_players_2)
+
+        tournament_2_raw_new = 'asdfasdf'
+        tournament_2_name_new = 'new tournament 2 name'
+
+        tournament_2.raw = tournament_2_raw_new
+        tournament_2.name = tournament_2_name_new
+
+        self.dao.update_tournament(tournament_2)
+
+        tournament_1 = self.dao.get_tournament_by_id(self.tournament_id_1)
+        self.assertEquals(tournament_1.id, self.tournament_id_1)
+        self.assertEquals(tournament_1.type, self.tournament_type_1)
+        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
+        self.assertEquals(tournament_1.date, self.tournament_date_1)
+        self.assertEquals(tournament_1.name, self.tournament_name_1)
+        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
+        self.assertEquals(tournament_1.players, self.tournament_players_1)
+
+        tournament_2 = self.dao.get_tournament_by_id(self.tournament_id_2)
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, tournament_2_raw_new)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, tournament_2_name_new)
+        self.assertEquals(tournament_2.matches, self.tournament_matches_2)
+        self.assertEquals(tournament_2.players, self.tournament_players_2)
+
+    def test_get_all_tournaments(self):
+        tournaments = self.dao.get_all_tournaments()
+
+        self.assertEquals(len(tournaments), 2)
+
+        # tournament 1 is last in the list because it occurs later than tournament 2
+        tournament_1 = tournaments[1]
+        self.assertEquals(tournament_1.id, self.tournament_id_1)
+        self.assertEquals(tournament_1.type, self.tournament_type_1)
+        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
+        self.assertEquals(tournament_1.date, self.tournament_date_1)
+        self.assertEquals(tournament_1.name, self.tournament_name_1)
+        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
+        self.assertEquals(tournament_1.players, self.tournament_players_1)
+
+        tournament_2 = tournaments[0]
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, self.tournament_name_2)
+        self.assertEquals(tournament_2.matches, self.tournament_matches_2)
+        self.assertEquals(tournament_2.players, self.tournament_players_2)
+        
+    def test_get_all_tournaments_containing_players(self):
+        players = [self.player_5]
+
+        tournaments = self.dao.get_all_tournaments(players=players)
+        self.assertEquals(len(tournaments), 1)
+
+        tournament = tournaments[0]
+        self.assertEquals(tournament.id, self.tournament_id_2)
+        self.assertEquals(tournament.type, self.tournament_type_2)
+        self.assertEquals(tournament.raw, self.tournament_raw_2)
+        self.assertEquals(tournament.date, self.tournament_date_2)
+        self.assertEquals(tournament.name, self.tournament_name_2)
+        self.assertEquals(tournament.matches, self.tournament_matches_2)
+        self.assertEquals(tournament.players, self.tournament_players_2)
+
