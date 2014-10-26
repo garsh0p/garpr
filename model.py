@@ -227,7 +227,6 @@ class Ranking(object):
         # object ids
         self.tournaments = tournaments
 
-
     def get_json_dict(self):
         json_dict = {}
 

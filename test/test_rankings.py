@@ -115,5 +115,59 @@ class TestRankings(unittest.TestCase):
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_5_id).rating.trueskill_rating.sigma, 
                                 7.171, delta=delta)
 
-        # 
+        ranking = self.dao.get_latest_ranking()
+        self.assertEquals(ranking.time, now)
+        self.assertEquals(set(ranking.tournaments), set(self.tournament_ids))
+
+        ranking_list = ranking.ranking
         
+        # the ranking should not have any excluded players
+        self.assertEquals(len(ranking_list), 4)
+        
+        entry = ranking_list[0]
+        self.assertEquals(entry.rank, 1)
+        self.assertEquals(entry.player, self.player_5_id)
+        self.assertAlmostEquals(entry.rating, 7.881, delta=delta)
+
+        entry = ranking_list[1]
+        self.assertEquals(entry.rank, 2)
+        self.assertEquals(entry.player, self.player_1_id)
+        self.assertAlmostEquals(entry.rating, 6.857, delta=delta)
+
+        entry = ranking_list[2]
+        self.assertEquals(entry.rank, 3)
+        self.assertEquals(entry.player, self.player_4_id)
+        self.assertAlmostEquals(entry.rating, -.800, delta=delta)
+
+        entry = ranking_list[3]
+        self.assertEquals(entry.rank, 4)
+        self.assertEquals(entry.player, self.player_2_id)
+        self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
+
+    # players that only played in the first tournament will be excluded for inactivity
+    @patch('rankings.datetime', spec=True)
+    def test_generate_rankings_excluded_for_inactivity(self, mock_datetime):
+        now = datetime(2013, 11, 25)
+        mock_datetime.now.return_value = now
+
+        rankings.generate_ranking(self.dao)
+
+        ranking = self.dao.get_latest_ranking()
+
+        ranking_list = ranking.ranking
+        self.assertEquals(len(ranking_list), 3)
+
+        entry = ranking_list[0]
+        self.assertEquals(entry.rank, 1)
+        self.assertEquals(entry.player, self.player_1_id)
+        self.assertAlmostEquals(entry.rating, 6.857, delta=delta)
+
+        entry = ranking_list[1]
+        self.assertEquals(entry.rank, 2)
+        self.assertEquals(entry.player, self.player_4_id)
+        self.assertAlmostEquals(entry.rating, -.800, delta=delta)
+
+        entry = ranking_list[2]
+        self.assertEquals(entry.rank, 3)
+        self.assertEquals(entry.player, self.player_2_id)
+        self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
