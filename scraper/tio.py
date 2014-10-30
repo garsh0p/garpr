@@ -25,7 +25,6 @@ class TioScraper(object):
     def get_date(self):
         return parser.parse(self.soup.Event.StartDate.text)
 
-    # TODO verify that match order is correct for 2 set grand finals
     def get_matches(self):
         player_map = dict((p.ID.text, p.Nickname.text.strip()) for p in self.soup.find_all('Player'))
 
@@ -35,7 +34,12 @@ class TioScraper(object):
                 bracket = b
                 break
 
+        if bracket is None:
+            raise ValueError('Bracket name %s not found!' % self.bracket_name)
+
         matches = []
+        grand_finals_first_set = None
+        grand_finals_second_set = None
         for match in bracket.find_all('Match'):
             player_1_id = match.Player1.text
             player_2_id = match.Player2.text
@@ -45,10 +49,22 @@ class TioScraper(object):
             try:
                 winner = player_map[winner_id]
                 loser = player_map[loser_id]
+                match_result = MatchResult(winner=winner, loser=loser)
 
-                matches.append(MatchResult(winner=winner, loser=loser))
+                if match.IsChampionship.text == 'True':
+                    grand_finals_first_set = match_result
+                elif match.IsSecondChampionship.text == 'True':
+                    grand_finals_second_set = match_result
+                else: 
+                    matches.append(match_result)
             except KeyError:
                 print 'Could not find player for ids', player_1_id, player_2_id
+
+        if grand_finals_first_set is not None:
+            matches.append(grand_finals_first_set)
+
+        if grand_finals_second_set is not None:
+            matches.append(grand_finals_second_set)
 
         return matches
 
@@ -57,7 +73,9 @@ class TioScraper(object):
             self.players = set()
             matches = self.get_matches()
             for match in matches:
-                self.players.add(match.winner.strip())
-                self.players.add(match.loser.strip())
+                self.players.add(match.winner)
+                self.players.add(match.loser)
+            
+            self.players = list(self.players)
 
-        return list(self.players)
+        return self.players
