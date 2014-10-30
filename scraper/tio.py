@@ -27,7 +27,7 @@ class TioScraper(object):
 
     # TODO verify that match order is correct for 2 set grand finals
     def get_matches(self):
-        player_map = dict((p.ID.text, p.Nickname.text) for p in self.soup.find_all('Player'))
+        player_map = dict((p.ID.text, p.Nickname.text.strip()) for p in self.soup.find_all('Player'))
 
         bracket = None
         for b in self.soup.find_all('Game'):
@@ -57,7 +57,7 @@ class TioScraper(object):
             self.players = set()
             matches = self.get_matches()
             for match in matches:
-                self.players.add(match.winner)
-                self.players.add(match.loser)
+                self.players.add(match.winner.strip())
+                self.players.add(match.loser.strip())
 
         return list(self.players)

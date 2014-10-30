@@ -11,8 +11,9 @@ DEFAULT_RATING = TrueskillRating()
 @click.option('--type', '-t', help='tio or challonge', type=click.Choice(['challonge', 'tio']), prompt=True)
 @click.option('--bracket', '-b', help='Bracket name (for tio)')
 @click.option('--region', '-r', help='Region name', prompt=True)
+@click.option('--name', '-n', help='Tournament name (override)')
 @click.argument('path')
-def import_tournament(type, path, bracket, region):
+def import_tournament(type, path, bracket, region, name):
     if type == 'tio':
         scraper = TioScraper(path, bracket)
     elif type =='challonge':
@@ -25,6 +26,9 @@ def import_tournament(type, path, bracket, region):
     import_players(scraper, dao)
 
     tournament = Tournament.from_scraper(type, scraper, dao)
+    if name:
+        tournament.name = name
+
     dao.insert_tournament(tournament)
 
     click.echo("Generating new ranking...")
