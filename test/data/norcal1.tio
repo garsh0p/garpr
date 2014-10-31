@@ -1,0 +1,4608 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AppData>
+	<Culture>
+	</Culture>
+	<Version>2.1.2.0</Version>
+	<EventList>
+		<Event>
+			<ID>73ad992f-e00a-4be3-876c-a92d3a2078cd</ID>
+			<Name>BAM: i got 5 on it</Name>
+			<StartDate>10/18/2014 00:00:00</StartDate>
+			<Location>San Carlos</Location>
+			<Organizer>Jackie</Organizer>
+			<InProgress>False</InProgress>
+			<Games>
+				<Game>
+					<ID>78c2a69a-03ac-49b6-86f6-ff70f14c13d4</ID>
+					<Name>Doubles</Name>
+					<PreviousEventID>00000000-0000-0000-0000-000000000000</PreviousEventID>
+					<Date>10/18/2014 00:00:00</Date>
+					<BracketType>DoubleElim</BracketType>
+					<EntryFee>10</EntryFee>
+					<BasePotSize>0</BasePotSize>
+					<Entrants>
+						<Entrant>
+							<PlayerID>cddd5495-ba17-45a9-8c4d-d242c9332771</PlayerID>
+							<Seed>2</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</PlayerID>
+							<Seed>7</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>86b6b0d1-e646-427d-9049-74f8c1f42e73</PlayerID>
+							<Seed>3</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>f6c36e25-9795-45e9-9454-1322aa48b2a1</PlayerID>
+							<Seed>8</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</PlayerID>
+							<Seed>1</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>80df76cf-fe80-4000-a4af-4d8b79a2a614</PlayerID>
+							<Seed>0</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</PlayerID>
+							<Seed>9</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</PlayerID>
+							<Seed>4</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>3a4b96c4-447b-4fc1-9b18-4ac08496c606</PlayerID>
+							<Seed>5</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>23dc2796-dfea-4643-a460-68101330f648</PlayerID>
+							<Seed>6</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>5f645757-aeff-4878-ad9b-d3b7dcf4a358</PlayerID>
+							<Seed>-1</Seed>
+							<AmountPaid>10</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+					</Entrants>
+					<GameType>Teams</GameType>
+					<HouseCut>0</HouseCut>
+					<HouseCutType>Percent</HouseCutType>
+					<Payouts removeabsolute="False">
+						<Payout placing="1" amount="60" type="Percent" />
+						<Payout placing="2" amount="30" type="Percent" />
+						<Payout placing="3" amount="10" type="Percent" />
+					</Payouts>
+					<InProgress>False</InProgress>
+					<SeedType>Skill</SeedType>
+					<SeparateByLocation>False</SeparateByLocation>
+					<Seeds name="Skill">
+						<PlayerID>cddd5495-ba17-45a9-8c4d-d242c9332771</PlayerID>
+						<PlayerID>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</PlayerID>
+						<PlayerID>86b6b0d1-e646-427d-9049-74f8c1f42e73</PlayerID>
+						<PlayerID>f6c36e25-9795-45e9-9454-1322aa48b2a1</PlayerID>
+						<PlayerID>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</PlayerID>
+						<PlayerID>80df76cf-fe80-4000-a4af-4d8b79a2a614</PlayerID>
+						<PlayerID>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</PlayerID>
+						<PlayerID>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</PlayerID>
+						<PlayerID>3a4b96c4-447b-4fc1-9b18-4ac08496c606</PlayerID>
+						<PlayerID>23dc2796-dfea-4643-a460-68101330f648</PlayerID>
+						<PlayerID>5f645757-aeff-4878-ad9b-d3b7dcf4a358</PlayerID>
+					</Seeds>
+					<GameName>Super Smash Bros. Melee</GameName>
+					<Metrics>
+						<BracketStart>10/18/2014 14:38:07</BracketStart>
+						<BracketEnd>10/18/2014 17:49:14</BracketEnd>
+						<OriginalEstimate>10/18/2014 16:38:07</OriginalEstimate>
+						<OriginalPhases>8</OriginalPhases>
+						<Milestones />
+					</Metrics>
+					<Bracket>
+						<Size>16</Size>
+						<Ties />
+						<Matches>
+							<Match>
+								<Number>0</Number>
+								<Player1>80df76cf-fe80-4000-a4af-4d8b79a2a614</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>80df76cf-fe80-4000-a4af-4d8b79a2a614</Winner>
+								<WinnerNextMatch>8</WinnerNextMatch>
+								<LoserNextMatch>16</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>1</Number>
+								<Player1>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</Player1>
+								<Player2>f6c36e25-9795-45e9-9454-1322aa48b2a1</Player2>
+								<Winner>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</Winner>
+								<WinnerNextMatch>8</WinnerNextMatch>
+								<LoserNextMatch>16</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>2</NextSiblingMatch>
+								<PrevSiblingMatch>0</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>2</Number>
+								<Player1>86b6b0d1-e646-427d-9049-74f8c1f42e73</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>86b6b0d1-e646-427d-9049-74f8c1f42e73</Winner>
+								<WinnerNextMatch>9</WinnerNextMatch>
+								<LoserNextMatch>17</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>3</NextSiblingMatch>
+								<PrevSiblingMatch>1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>3</Number>
+								<Player1>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Winner>
+								<WinnerNextMatch>9</WinnerNextMatch>
+								<LoserNextMatch>17</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>4</NextSiblingMatch>
+								<PrevSiblingMatch>2</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>4</Number>
+								<Player1>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Winner>
+								<WinnerNextMatch>10</WinnerNextMatch>
+								<LoserNextMatch>18</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>5</NextSiblingMatch>
+								<PrevSiblingMatch>3</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>5</Number>
+								<Player1>23dc2796-dfea-4643-a460-68101330f648</Player1>
+								<Player2>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</Player2>
+								<Winner>23dc2796-dfea-4643-a460-68101330f648</Winner>
+								<WinnerNextMatch>10</WinnerNextMatch>
+								<LoserNextMatch>18</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>6</NextSiblingMatch>
+								<PrevSiblingMatch>4</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>6</Number>
+								<Player1>cddd5495-ba17-45a9-8c4d-d242c9332771</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>cddd5495-ba17-45a9-8c4d-d242c9332771</Winner>
+								<WinnerNextMatch>11</WinnerNextMatch>
+								<LoserNextMatch>19</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>7</NextSiblingMatch>
+								<PrevSiblingMatch>5</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>7</Number>
+								<Player1>3a4b96c4-447b-4fc1-9b18-4ac08496c606</Player1>
+								<Player2>5f645757-aeff-4878-ad9b-d3b7dcf4a358</Player2>
+								<Winner>3a4b96c4-447b-4fc1-9b18-4ac08496c606</Winner>
+								<WinnerNextMatch>11</WinnerNextMatch>
+								<LoserNextMatch>19</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>6</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>8</Number>
+								<Player1>80df76cf-fe80-4000-a4af-4d8b79a2a614</Player1>
+								<Player2>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</Player2>
+								<Winner>80df76cf-fe80-4000-a4af-4d8b79a2a614</Winner>
+								<WinnerNextMatch>12</WinnerNextMatch>
+								<LoserNextMatch>22</LoserNextMatch>
+								<Player1PrevMatch>0</Player1PrevMatch>
+								<Player2PrevMatch>1</Player2PrevMatch>
+								<NextSiblingMatch>9</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> A</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>9</Number>
+								<Player1>86b6b0d1-e646-427d-9049-74f8c1f42e73</Player1>
+								<Player2>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Player2>
+								<Winner>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Winner>
+								<WinnerNextMatch>12</WinnerNextMatch>
+								<LoserNextMatch>23</LoserNextMatch>
+								<Player1PrevMatch>2</Player1PrevMatch>
+								<Player2PrevMatch>3</Player2PrevMatch>
+								<NextSiblingMatch>10</NextSiblingMatch>
+								<PrevSiblingMatch>8</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> B</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>10</Number>
+								<Player1>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player1>
+								<Player2>23dc2796-dfea-4643-a460-68101330f648</Player2>
+								<Winner>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Winner>
+								<WinnerNextMatch>13</WinnerNextMatch>
+								<LoserNextMatch>20</LoserNextMatch>
+								<Player1PrevMatch>4</Player1PrevMatch>
+								<Player2PrevMatch>5</Player2PrevMatch>
+								<NextSiblingMatch>11</NextSiblingMatch>
+								<PrevSiblingMatch>9</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> C</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>11</Number>
+								<Player1>cddd5495-ba17-45a9-8c4d-d242c9332771</Player1>
+								<Player2>3a4b96c4-447b-4fc1-9b18-4ac08496c606</Player2>
+								<Winner>cddd5495-ba17-45a9-8c4d-d242c9332771</Winner>
+								<WinnerNextMatch>13</WinnerNextMatch>
+								<LoserNextMatch>21</LoserNextMatch>
+								<Player1PrevMatch>6</Player1PrevMatch>
+								<Player2PrevMatch>7</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>10</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> D</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>12</Number>
+								<Player1>80df76cf-fe80-4000-a4af-4d8b79a2a614</Player1>
+								<Player2>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Player2>
+								<Winner>80df76cf-fe80-4000-a4af-4d8b79a2a614</Winner>
+								<WinnerNextMatch>14</WinnerNextMatch>
+								<LoserNextMatch>26</LoserNextMatch>
+								<Player1PrevMatch>8</Player1PrevMatch>
+								<Player2PrevMatch>9</Player2PrevMatch>
+								<NextSiblingMatch>13</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> E</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>13</Number>
+								<Player1>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player1>
+								<Player2>cddd5495-ba17-45a9-8c4d-d242c9332771</Player2>
+								<Winner>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Winner>
+								<WinnerNextMatch>14</WinnerNextMatch>
+								<LoserNextMatch>27</LoserNextMatch>
+								<Player1PrevMatch>10</Player1PrevMatch>
+								<Player2PrevMatch>11</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>12</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> F</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>14</Number>
+								<Player1>80df76cf-fe80-4000-a4af-4d8b79a2a614</Player1>
+								<Player2>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player2>
+								<Winner>80df76cf-fe80-4000-a4af-4d8b79a2a614</Winner>
+								<WinnerNextMatch>15</WinnerNextMatch>
+								<LoserNextMatch>29</LoserNextMatch>
+								<Player1PrevMatch>12</Player1PrevMatch>
+								<Player2PrevMatch>13</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> G</Label>
+								<Round>4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>15</Number>
+								<Player1>80df76cf-fe80-4000-a4af-4d8b79a2a614</Player1>
+								<Player2>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player2>
+								<Winner>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Winner>
+								<WinnerNextMatch>30</WinnerNextMatch>
+								<LoserNextMatch>30</LoserNextMatch>
+								<Player1PrevMatch>14</Player1PrevMatch>
+								<Player2PrevMatch>29</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>True</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> H</Label>
+								<Round>5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>16</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>f6c36e25-9795-45e9-9454-1322aa48b2a1</Player2>
+								<Winner>f6c36e25-9795-45e9-9454-1322aa48b2a1</Winner>
+								<WinnerNextMatch>20</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>0</Player1PrevMatch>
+								<Player2PrevMatch>1</Player2PrevMatch>
+								<NextSiblingMatch>17</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>17</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>00000001-0001-0001-0101-010101010101</Winner>
+								<WinnerNextMatch>21</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>2</Player1PrevMatch>
+								<Player2PrevMatch>3</Player2PrevMatch>
+								<NextSiblingMatch>18</NextSiblingMatch>
+								<PrevSiblingMatch>16</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>18</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</Player2>
+								<Winner>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</Winner>
+								<WinnerNextMatch>22</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>4</Player1PrevMatch>
+								<Player2PrevMatch>5</Player2PrevMatch>
+								<NextSiblingMatch>19</NextSiblingMatch>
+								<PrevSiblingMatch>17</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>19</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>5f645757-aeff-4878-ad9b-d3b7dcf4a358</Player2>
+								<Winner>5f645757-aeff-4878-ad9b-d3b7dcf4a358</Winner>
+								<WinnerNextMatch>23</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>6</Player1PrevMatch>
+								<Player2PrevMatch>7</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>18</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>20</Number>
+								<Player1>f6c36e25-9795-45e9-9454-1322aa48b2a1</Player1>
+								<Player2>23dc2796-dfea-4643-a460-68101330f648</Player2>
+								<Winner>23dc2796-dfea-4643-a460-68101330f648</Winner>
+								<WinnerNextMatch>24</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>16</Player1PrevMatch>
+								<Player2PrevMatch>10</Player2PrevMatch>
+								<NextSiblingMatch>21</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> C</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>21</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>3a4b96c4-447b-4fc1-9b18-4ac08496c606</Player2>
+								<Winner>3a4b96c4-447b-4fc1-9b18-4ac08496c606</Winner>
+								<WinnerNextMatch>24</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>17</Player1PrevMatch>
+								<Player2PrevMatch>11</Player2PrevMatch>
+								<NextSiblingMatch>22</NextSiblingMatch>
+								<PrevSiblingMatch>20</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> D</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>22</Number>
+								<Player1>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</Player1>
+								<Player2>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</Player2>
+								<Winner>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</Winner>
+								<WinnerNextMatch>25</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>18</Player1PrevMatch>
+								<Player2PrevMatch>8</Player2PrevMatch>
+								<NextSiblingMatch>23</NextSiblingMatch>
+								<PrevSiblingMatch>21</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> A</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>23</Number>
+								<Player1>5f645757-aeff-4878-ad9b-d3b7dcf4a358</Player1>
+								<Player2>86b6b0d1-e646-427d-9049-74f8c1f42e73</Player2>
+								<Winner>86b6b0d1-e646-427d-9049-74f8c1f42e73</Winner>
+								<WinnerNextMatch>25</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>19</Player1PrevMatch>
+								<Player2PrevMatch>9</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>22</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> B</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>24</Number>
+								<Player1>23dc2796-dfea-4643-a460-68101330f648</Player1>
+								<Player2>3a4b96c4-447b-4fc1-9b18-4ac08496c606</Player2>
+								<Winner>23dc2796-dfea-4643-a460-68101330f648</Winner>
+								<WinnerNextMatch>26</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>20</Player1PrevMatch>
+								<Player2PrevMatch>21</Player2PrevMatch>
+								<NextSiblingMatch>25</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>25</Number>
+								<Player1>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</Player1>
+								<Player2>86b6b0d1-e646-427d-9049-74f8c1f42e73</Player2>
+								<Winner>86b6b0d1-e646-427d-9049-74f8c1f42e73</Winner>
+								<WinnerNextMatch>27</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>22</Player1PrevMatch>
+								<Player2PrevMatch>23</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>24</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>26</Number>
+								<Player1>23dc2796-dfea-4643-a460-68101330f648</Player1>
+								<Player2>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Player2>
+								<Winner>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Winner>
+								<WinnerNextMatch>28</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>24</Player1PrevMatch>
+								<Player2PrevMatch>12</Player2PrevMatch>
+								<NextSiblingMatch>27</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> E</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>27</Number>
+								<Player1>86b6b0d1-e646-427d-9049-74f8c1f42e73</Player1>
+								<Player2>cddd5495-ba17-45a9-8c4d-d242c9332771</Player2>
+								<Winner>86b6b0d1-e646-427d-9049-74f8c1f42e73</Winner>
+								<WinnerNextMatch>28</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>25</Player1PrevMatch>
+								<Player2PrevMatch>13</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>26</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> F</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>28</Number>
+								<Player1>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Player1>
+								<Player2>86b6b0d1-e646-427d-9049-74f8c1f42e73</Player2>
+								<Winner>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Winner>
+								<WinnerNextMatch>29</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>26</Player1PrevMatch>
+								<Player2PrevMatch>27</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>29</Number>
+								<Player1>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</Player1>
+								<Player2>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player2>
+								<Winner>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Winner>
+								<WinnerNextMatch>15</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>28</Player1PrevMatch>
+								<Player2PrevMatch>14</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> G</Label>
+								<Round>-6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>30</Number>
+								<Player1>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</Player1>
+								<Player2>80df76cf-fe80-4000-a4af-4d8b79a2a614</Player2>
+								<Winner>80df76cf-fe80-4000-a4af-4d8b79a2a614</Winner>
+								<WinnerNextMatch>-1</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>15</Player1PrevMatch>
+								<Player2PrevMatch>15</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>True</IsSecondChampionship>
+								<Label> H</Label>
+								<Round>6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+						</Matches>
+						<Scoring name="WinnerLoser" />
+					</Bracket>
+				</Game>
+				<Game>
+					<ID>2074c420-4cec-4876-96f9-a7e6d85722a0</ID>
+					<Name>Singles</Name>
+					<PreviousEventID>00000000-0000-0000-0000-000000000000</PreviousEventID>
+					<Date>10/18/2014 00:00:00</Date>
+					<BracketType>DoubleElim</BracketType>
+					<EntryFee>5</EntryFee>
+					<BasePotSize>0</BasePotSize>
+					<Entrants>
+						<Entrant>
+							<PlayerID>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</PlayerID>
+							<Seed>2</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>48af4f7b-8584-4766-8fec-782d0d2362bf</PlayerID>
+							<Seed>10</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>5f15fb0e-f384-4e6a-bb04-852ee8d45607</PlayerID>
+							<Seed>24</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>dc0140d2-813a-4549-b078-398cabc09c6a</PlayerID>
+							<Seed>6</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>ef465a40-d176-434f-9644-07b65aba9f58</PlayerID>
+							<Seed>34</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>42a5cb0a-c372-4101-bdc8-cefee4092277</PlayerID>
+							<Seed>7</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>084352fa-8055-4e70-bf66-72993f41c26a</PlayerID>
+							<Seed>25</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>f27bd16f-f777-426d-89b4-66f12ef6e133</PlayerID>
+							<Seed>19</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>5c32b92d-5cd6-4cb6-ac31-ed03ca83671c</PlayerID>
+							<Seed>58</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>d2bcca18-1d6e-49f0-ac60-ad0b9b8c4491</PlayerID>
+							<Seed>55</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>ce16ea64-cedf-41e8-9568-2beca5a84721</PlayerID>
+							<Seed>44</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>aba36e6c-214a-4fae-bab6-1dea857d6788</PlayerID>
+							<Seed>20</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>3b0a4e87-e740-4c70-98fc-53898f361029</PlayerID>
+							<Seed>11</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>7bf3a50b-ff5b-4ae6-81db-14ed389f71b9</PlayerID>
+							<Seed>48</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>8b41f1d6-d19b-4a22-a7a1-8009112ef452</PlayerID>
+							<Seed>9</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>ad0f53de-cb96-4e43-bdcb-02be29e914ac</PlayerID>
+							<Seed>49</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>fdffa843-ace9-4fb4-95b3-41275c308821</PlayerID>
+							<Seed>46</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</PlayerID>
+							<Seed>47</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>2ac51f6e-07b4-4e9e-af87-b107aaae5861</PlayerID>
+							<Seed>43</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</PlayerID>
+							<Seed>36</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>68762a4c-6a83-4e72-b20d-705103446488</PlayerID>
+							<Seed>31</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>8ce06ee4-909b-41ea-b850-f30baf0d2e20</PlayerID>
+							<Seed>52</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>ffafc292-ad70-4c9d-9abd-b936967df1a4</PlayerID>
+							<Seed>57</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>2ce4d696-1684-4d60-a1ff-b73c3cf2f5f1</PlayerID>
+							<Seed>56</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>c8e1658d-47f7-429f-b050-50dc811a7dd6</PlayerID>
+							<Seed>8</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>29262903-bec5-48b0-bc20-af1f856501b7</PlayerID>
+							<Seed>3</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>493b9959-f814-4b7e-acaf-e0af46e8415f</PlayerID>
+							<Seed>4</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>11e1a270-0064-4056-b742-52f3a48e57ed</PlayerID>
+							<Seed>1</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>055aa7e0-87e9-4ad6-8077-a48a97edd295</PlayerID>
+							<Seed>17</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>104be717-a21a-44d4-87cf-0c32a8bf2588</PlayerID>
+							<Seed>18</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>e24bb018-fcf3-441b-89b5-e1db5ae11169</PlayerID>
+							<Seed>42</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>a6e085d0-c63c-47ed-a512-d6f4c38c3576</PlayerID>
+							<Seed>45</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>4a4d0309-4eec-487d-bacc-64b2d7d470a2</PlayerID>
+							<Seed>16</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</PlayerID>
+							<Seed>50</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>2b3c6fae-0f42-44d3-aa50-989e011bed41</PlayerID>
+							<Seed>21</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>604f94de-95f9-4af5-ab6f-c79822ae095f</PlayerID>
+							<Seed>5</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>6cc4045c-50a7-412d-85cc-be78bae59f44</PlayerID>
+							<Seed>0</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>b659efdf-1f19-4ea6-9d75-4243c17b1251</PlayerID>
+							<Seed>15</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>49f48be3-8914-4911-96ed-537e1c0bdc46</PlayerID>
+							<Seed>14</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>9015537e-8ab8-44f2-928a-c4795fc76b32</PlayerID>
+							<Seed>51</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>f09b453c-381e-42ea-b1aa-499dc2d707d3</PlayerID>
+							<Seed>54</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</PlayerID>
+							<Seed>53</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</PlayerID>
+							<Seed>30</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>12932a05-a9ef-4c8f-89ed-3f36c49660dc</PlayerID>
+							<Seed>29</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>d6eaf93b-5f7f-4f57-b665-70e58de81674</PlayerID>
+							<Seed>32</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</PlayerID>
+							<Seed>23</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>216c2212-aaa8-43c8-8a6c-11f90a06e268</PlayerID>
+							<Seed>26</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>cd614adf-e667-4e91-b87e-c0e1567056ff</PlayerID>
+							<Seed>27</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>508daa05-43b5-458b-bab5-14655aa7dcc8</PlayerID>
+							<Seed>22</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>c9c3dbec-c552-4c80-8768-b0870ce6867e</PlayerID>
+							<Seed>28</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>14af7630-35f5-4d50-bc8d-02d4327bfec5</PlayerID>
+							<Seed>33</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>81ad4426-e7ce-411a-a014-35774e149c3f</PlayerID>
+							<Seed>39</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>73842cc3-1e05-4088-84b8-6486fe5b3c1a</PlayerID>
+							<Seed>38</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>af735186-e3b8-4c3d-b69c-45ca0b536830</PlayerID>
+							<Seed>41</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>9d140ed1-6032-4528-9be3-7c979044af4c</PlayerID>
+							<Seed>40</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>2020dafc-925d-422e-95a0-f51a58dd3985</PlayerID>
+							<Seed>35</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</PlayerID>
+							<Seed>12</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>09bf5645-e2b0-4751-b127-b4545dc5993d</PlayerID>
+							<Seed>37</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+						<Entrant>
+							<PlayerID>879b22aa-c0a3-4db5-85f2-340b72820844</PlayerID>
+							<Seed>13</Seed>
+							<AmountPaid>5</AmountPaid>
+							<Status name="Ready" />
+						</Entrant>
+					</Entrants>
+					<GameType>Singles</GameType>
+					<HouseCut>0</HouseCut>
+					<HouseCutType>Percent</HouseCutType>
+					<Payouts removeabsolute="False">
+						<Payout placing="1" amount="60" type="Percent" />
+						<Payout placing="2" amount="30" type="Percent" />
+						<Payout placing="3" amount="10" type="Percent" />
+					</Payouts>
+					<InProgress>False</InProgress>
+					<SeedType>Skill</SeedType>
+					<SeparateByLocation>False</SeparateByLocation>
+					<Seeds name="Skill">
+						<PlayerID>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</PlayerID>
+						<PlayerID>48af4f7b-8584-4766-8fec-782d0d2362bf</PlayerID>
+						<PlayerID>5f15fb0e-f384-4e6a-bb04-852ee8d45607</PlayerID>
+						<PlayerID>dc0140d2-813a-4549-b078-398cabc09c6a</PlayerID>
+						<PlayerID>ef465a40-d176-434f-9644-07b65aba9f58</PlayerID>
+						<PlayerID>42a5cb0a-c372-4101-bdc8-cefee4092277</PlayerID>
+						<PlayerID>084352fa-8055-4e70-bf66-72993f41c26a</PlayerID>
+						<PlayerID>f27bd16f-f777-426d-89b4-66f12ef6e133</PlayerID>
+						<PlayerID>5c32b92d-5cd6-4cb6-ac31-ed03ca83671c</PlayerID>
+						<PlayerID>d2bcca18-1d6e-49f0-ac60-ad0b9b8c4491</PlayerID>
+						<PlayerID>ce16ea64-cedf-41e8-9568-2beca5a84721</PlayerID>
+						<PlayerID>aba36e6c-214a-4fae-bab6-1dea857d6788</PlayerID>
+						<PlayerID>3b0a4e87-e740-4c70-98fc-53898f361029</PlayerID>
+						<PlayerID>7bf3a50b-ff5b-4ae6-81db-14ed389f71b9</PlayerID>
+						<PlayerID>8b41f1d6-d19b-4a22-a7a1-8009112ef452</PlayerID>
+						<PlayerID>ad0f53de-cb96-4e43-bdcb-02be29e914ac</PlayerID>
+						<PlayerID>fdffa843-ace9-4fb4-95b3-41275c308821</PlayerID>
+						<PlayerID>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</PlayerID>
+						<PlayerID>2ac51f6e-07b4-4e9e-af87-b107aaae5861</PlayerID>
+						<PlayerID>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</PlayerID>
+						<PlayerID>68762a4c-6a83-4e72-b20d-705103446488</PlayerID>
+						<PlayerID>8ce06ee4-909b-41ea-b850-f30baf0d2e20</PlayerID>
+						<PlayerID>ffafc292-ad70-4c9d-9abd-b936967df1a4</PlayerID>
+						<PlayerID>2ce4d696-1684-4d60-a1ff-b73c3cf2f5f1</PlayerID>
+						<PlayerID>c8e1658d-47f7-429f-b050-50dc811a7dd6</PlayerID>
+						<PlayerID>29262903-bec5-48b0-bc20-af1f856501b7</PlayerID>
+						<PlayerID>493b9959-f814-4b7e-acaf-e0af46e8415f</PlayerID>
+						<PlayerID>11e1a270-0064-4056-b742-52f3a48e57ed</PlayerID>
+						<PlayerID>055aa7e0-87e9-4ad6-8077-a48a97edd295</PlayerID>
+						<PlayerID>104be717-a21a-44d4-87cf-0c32a8bf2588</PlayerID>
+						<PlayerID>e24bb018-fcf3-441b-89b5-e1db5ae11169</PlayerID>
+						<PlayerID>a6e085d0-c63c-47ed-a512-d6f4c38c3576</PlayerID>
+						<PlayerID>4a4d0309-4eec-487d-bacc-64b2d7d470a2</PlayerID>
+						<PlayerID>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</PlayerID>
+						<PlayerID>2b3c6fae-0f42-44d3-aa50-989e011bed41</PlayerID>
+						<PlayerID>604f94de-95f9-4af5-ab6f-c79822ae095f</PlayerID>
+						<PlayerID>6cc4045c-50a7-412d-85cc-be78bae59f44</PlayerID>
+						<PlayerID>b659efdf-1f19-4ea6-9d75-4243c17b1251</PlayerID>
+						<PlayerID>49f48be3-8914-4911-96ed-537e1c0bdc46</PlayerID>
+						<PlayerID>9015537e-8ab8-44f2-928a-c4795fc76b32</PlayerID>
+						<PlayerID>f09b453c-381e-42ea-b1aa-499dc2d707d3</PlayerID>
+						<PlayerID>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</PlayerID>
+						<PlayerID>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</PlayerID>
+						<PlayerID>12932a05-a9ef-4c8f-89ed-3f36c49660dc</PlayerID>
+						<PlayerID>d6eaf93b-5f7f-4f57-b665-70e58de81674</PlayerID>
+						<PlayerID>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</PlayerID>
+						<PlayerID>216c2212-aaa8-43c8-8a6c-11f90a06e268</PlayerID>
+						<PlayerID>cd614adf-e667-4e91-b87e-c0e1567056ff</PlayerID>
+						<PlayerID>508daa05-43b5-458b-bab5-14655aa7dcc8</PlayerID>
+						<PlayerID>c9c3dbec-c552-4c80-8768-b0870ce6867e</PlayerID>
+						<PlayerID>14af7630-35f5-4d50-bc8d-02d4327bfec5</PlayerID>
+						<PlayerID>81ad4426-e7ce-411a-a014-35774e149c3f</PlayerID>
+						<PlayerID>73842cc3-1e05-4088-84b8-6486fe5b3c1a</PlayerID>
+						<PlayerID>af735186-e3b8-4c3d-b69c-45ca0b536830</PlayerID>
+						<PlayerID>9d140ed1-6032-4528-9be3-7c979044af4c</PlayerID>
+						<PlayerID>2020dafc-925d-422e-95a0-f51a58dd3985</PlayerID>
+						<PlayerID>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</PlayerID>
+						<PlayerID>09bf5645-e2b0-4751-b127-b4545dc5993d</PlayerID>
+						<PlayerID>879b22aa-c0a3-4db5-85f2-340b72820844</PlayerID>
+					</Seeds>
+					<GameName>Super Smash Bros. Melee</GameName>
+					<Metrics>
+						<BracketStart>10/18/2014 16:56:27</BracketStart>
+						<BracketEnd>12/31/9999 23:59:59</BracketEnd>
+						<OriginalEstimate>10/18/2014 20:56:27</OriginalEstimate>
+						<OriginalPhases>16</OriginalPhases>
+						<Milestones />
+					</Metrics>
+					<Bracket>
+						<Size>64</Size>
+						<Ties />
+						<Matches>
+							<Match>
+								<Number>0</Number>
+								<Player1>6cc4045c-50a7-412d-85cc-be78bae59f44</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>6cc4045c-50a7-412d-85cc-be78bae59f44</Winner>
+								<WinnerNextMatch>32</WinnerNextMatch>
+								<LoserNextMatch>64</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>1</Number>
+								<Player1>68762a4c-6a83-4e72-b20d-705103446488</Player1>
+								<Player2>d6eaf93b-5f7f-4f57-b665-70e58de81674</Player2>
+								<Winner>68762a4c-6a83-4e72-b20d-705103446488</Winner>
+								<WinnerNextMatch>32</WinnerNextMatch>
+								<LoserNextMatch>64</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>2</NextSiblingMatch>
+								<PrevSiblingMatch>0</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>2</Number>
+								<Player1>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player1>
+								<Player2>7bf3a50b-ff5b-4ae6-81db-14ed389f71b9</Player2>
+								<Winner>b659efdf-1f19-4ea6-9d75-4243c17b1251</Winner>
+								<WinnerNextMatch>33</WinnerNextMatch>
+								<LoserNextMatch>65</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>3</NextSiblingMatch>
+								<PrevSiblingMatch>1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>3</Number>
+								<Player1>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Player1>
+								<Player2>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</Player2>
+								<Winner>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Winner>
+								<WinnerNextMatch>33</WinnerNextMatch>
+								<LoserNextMatch>65</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>4</NextSiblingMatch>
+								<PrevSiblingMatch>2</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>4</Number>
+								<Player1>42a5cb0a-c372-4101-bdc8-cefee4092277</Player1>
+								<Player2>2ce4d696-1684-4d60-a1ff-b73c3cf2f5f1</Player2>
+								<Winner>42a5cb0a-c372-4101-bdc8-cefee4092277</Winner>
+								<WinnerNextMatch>34</WinnerNextMatch>
+								<LoserNextMatch>66</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>5</NextSiblingMatch>
+								<PrevSiblingMatch>3</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>5</Number>
+								<Player1>5f15fb0e-f384-4e6a-bb04-852ee8d45607</Player1>
+								<Player2>81ad4426-e7ce-411a-a014-35774e149c3f</Player2>
+								<Winner>5f15fb0e-f384-4e6a-bb04-852ee8d45607</Winner>
+								<WinnerNextMatch>34</WinnerNextMatch>
+								<LoserNextMatch>66</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>6</NextSiblingMatch>
+								<PrevSiblingMatch>4</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>6</Number>
+								<Player1>c8e1658d-47f7-429f-b050-50dc811a7dd6</Player1>
+								<Player2>d2bcca18-1d6e-49f0-ac60-ad0b9b8c4491</Player2>
+								<Winner>c8e1658d-47f7-429f-b050-50dc811a7dd6</Winner>
+								<WinnerNextMatch>35</WinnerNextMatch>
+								<LoserNextMatch>67</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>7</NextSiblingMatch>
+								<PrevSiblingMatch>5</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>7</Number>
+								<Player1>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</Player1>
+								<Player2>9d140ed1-6032-4528-9be3-7c979044af4c</Player2>
+								<Winner>9d140ed1-6032-4528-9be3-7c979044af4c</Winner>
+								<WinnerNextMatch>35</WinnerNextMatch>
+								<LoserNextMatch>67</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>8</NextSiblingMatch>
+								<PrevSiblingMatch>6</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>8</Number>
+								<Player1>29262903-bec5-48b0-bc20-af1f856501b7</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>29262903-bec5-48b0-bc20-af1f856501b7</Winner>
+								<WinnerNextMatch>36</WinnerNextMatch>
+								<LoserNextMatch>68</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>9</NextSiblingMatch>
+								<PrevSiblingMatch>7</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>9</Number>
+								<Player1>c9c3dbec-c552-4c80-8768-b0870ce6867e</Player1>
+								<Player2>2020dafc-925d-422e-95a0-f51a58dd3985</Player2>
+								<Winner>2020dafc-925d-422e-95a0-f51a58dd3985</Winner>
+								<WinnerNextMatch>36</WinnerNextMatch>
+								<LoserNextMatch>68</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>10</NextSiblingMatch>
+								<PrevSiblingMatch>8</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>10</Number>
+								<Player1>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</Player1>
+								<Player2>9015537e-8ab8-44f2-928a-c4795fc76b32</Player2>
+								<Winner>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</Winner>
+								<WinnerNextMatch>37</WinnerNextMatch>
+								<LoserNextMatch>69</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>11</NextSiblingMatch>
+								<PrevSiblingMatch>9</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>11</Number>
+								<Player1>f27bd16f-f777-426d-89b4-66f12ef6e133</Player1>
+								<Player2>ce16ea64-cedf-41e8-9568-2beca5a84721</Player2>
+								<Winner>f27bd16f-f777-426d-89b4-66f12ef6e133</Winner>
+								<WinnerNextMatch>37</WinnerNextMatch>
+								<LoserNextMatch>69</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>12</NextSiblingMatch>
+								<PrevSiblingMatch>10</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>12</Number>
+								<Player1>493b9959-f814-4b7e-acaf-e0af46e8415f</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>493b9959-f814-4b7e-acaf-e0af46e8415f</Winner>
+								<WinnerNextMatch>38</WinnerNextMatch>
+								<LoserNextMatch>70</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>13</NextSiblingMatch>
+								<PrevSiblingMatch>11</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>13</Number>
+								<Player1>cd614adf-e667-4e91-b87e-c0e1567056ff</Player1>
+								<Player2>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</Player2>
+								<Winner>cd614adf-e667-4e91-b87e-c0e1567056ff</Winner>
+								<WinnerNextMatch>38</WinnerNextMatch>
+								<LoserNextMatch>70</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>14</NextSiblingMatch>
+								<PrevSiblingMatch>12</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>14</Number>
+								<Player1>3b0a4e87-e740-4c70-98fc-53898f361029</Player1>
+								<Player2>8ce06ee4-909b-41ea-b850-f30baf0d2e20</Player2>
+								<Winner>3b0a4e87-e740-4c70-98fc-53898f361029</Winner>
+								<WinnerNextMatch>39</WinnerNextMatch>
+								<LoserNextMatch>71</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>15</NextSiblingMatch>
+								<PrevSiblingMatch>13</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>15</Number>
+								<Player1>216c2212-aaa8-43c8-8a6c-11f90a06e268</Player1>
+								<Player2>2ac51f6e-07b4-4e9e-af87-b107aaae5861</Player2>
+								<Winner>216c2212-aaa8-43c8-8a6c-11f90a06e268</Winner>
+								<WinnerNextMatch>39</WinnerNextMatch>
+								<LoserNextMatch>71</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>16</NextSiblingMatch>
+								<PrevSiblingMatch>14</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>16</Number>
+								<Player1>11e1a270-0064-4056-b742-52f3a48e57ed</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>11e1a270-0064-4056-b742-52f3a48e57ed</Winner>
+								<WinnerNextMatch>40</WinnerNextMatch>
+								<LoserNextMatch>72</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>17</NextSiblingMatch>
+								<PrevSiblingMatch>15</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>17</Number>
+								<Player1>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</Player1>
+								<Player2>14af7630-35f5-4d50-bc8d-02d4327bfec5</Player2>
+								<Winner>14af7630-35f5-4d50-bc8d-02d4327bfec5</Winner>
+								<WinnerNextMatch>40</WinnerNextMatch>
+								<LoserNextMatch>72</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>18</NextSiblingMatch>
+								<PrevSiblingMatch>16</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>18</Number>
+								<Player1>49f48be3-8914-4911-96ed-537e1c0bdc46</Player1>
+								<Player2>ad0f53de-cb96-4e43-bdcb-02be29e914ac</Player2>
+								<Winner>49f48be3-8914-4911-96ed-537e1c0bdc46</Winner>
+								<WinnerNextMatch>41</WinnerNextMatch>
+								<LoserNextMatch>73</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>19</NextSiblingMatch>
+								<PrevSiblingMatch>17</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>19</Number>
+								<Player1>055aa7e0-87e9-4ad6-8077-a48a97edd295</Player1>
+								<Player2>fdffa843-ace9-4fb4-95b3-41275c308821</Player2>
+								<Winner>055aa7e0-87e9-4ad6-8077-a48a97edd295</Winner>
+								<WinnerNextMatch>41</WinnerNextMatch>
+								<LoserNextMatch>73</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>20</NextSiblingMatch>
+								<PrevSiblingMatch>18</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>20</Number>
+								<Player1>dc0140d2-813a-4549-b078-398cabc09c6a</Player1>
+								<Player2>ffafc292-ad70-4c9d-9abd-b936967df1a4</Player2>
+								<Winner>dc0140d2-813a-4549-b078-398cabc09c6a</Winner>
+								<WinnerNextMatch>42</WinnerNextMatch>
+								<LoserNextMatch>74</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>21</NextSiblingMatch>
+								<PrevSiblingMatch>19</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>21</Number>
+								<Player1>084352fa-8055-4e70-bf66-72993f41c26a</Player1>
+								<Player2>73842cc3-1e05-4088-84b8-6486fe5b3c1a</Player2>
+								<Winner>73842cc3-1e05-4088-84b8-6486fe5b3c1a</Winner>
+								<WinnerNextMatch>42</WinnerNextMatch>
+								<LoserNextMatch>74</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>22</NextSiblingMatch>
+								<PrevSiblingMatch>20</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>22</Number>
+								<Player1>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Player1>
+								<Player2>f09b453c-381e-42ea-b1aa-499dc2d707d3</Player2>
+								<Winner>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Winner>
+								<WinnerNextMatch>43</WinnerNextMatch>
+								<LoserNextMatch>75</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>23</NextSiblingMatch>
+								<PrevSiblingMatch>21</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>23</Number>
+								<Player1>508daa05-43b5-458b-bab5-14655aa7dcc8</Player1>
+								<Player2>af735186-e3b8-4c3d-b69c-45ca0b536830</Player2>
+								<Winner>508daa05-43b5-458b-bab5-14655aa7dcc8</Winner>
+								<WinnerNextMatch>43</WinnerNextMatch>
+								<LoserNextMatch>75</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>24</NextSiblingMatch>
+								<PrevSiblingMatch>22</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>24</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>00000001-0001-0001-0101-010101010101</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>44</WinnerNextMatch>
+								<LoserNextMatch>76</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>25</NextSiblingMatch>
+								<PrevSiblingMatch>23</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>25</Number>
+								<Player1>12932a05-a9ef-4c8f-89ed-3f36c49660dc</Player1>
+								<Player2>ef465a40-d176-434f-9644-07b65aba9f58</Player2>
+								<Winner>ef465a40-d176-434f-9644-07b65aba9f58</Winner>
+								<WinnerNextMatch>44</WinnerNextMatch>
+								<LoserNextMatch>76</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>26</NextSiblingMatch>
+								<PrevSiblingMatch>24</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>26</Number>
+								<Player1>879b22aa-c0a3-4db5-85f2-340b72820844</Player1>
+								<Player2>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Player2>
+								<Winner>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Winner>
+								<WinnerNextMatch>45</WinnerNextMatch>
+								<LoserNextMatch>77</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>27</NextSiblingMatch>
+								<PrevSiblingMatch>25</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>27</Number>
+								<Player1>104be717-a21a-44d4-87cf-0c32a8bf2588</Player1>
+								<Player2>a6e085d0-c63c-47ed-a512-d6f4c38c3576</Player2>
+								<Winner>104be717-a21a-44d4-87cf-0c32a8bf2588</Winner>
+								<WinnerNextMatch>45</WinnerNextMatch>
+								<LoserNextMatch>77</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>28</NextSiblingMatch>
+								<PrevSiblingMatch>26</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>28</Number>
+								<Player1>604f94de-95f9-4af5-ab6f-c79822ae095f</Player1>
+								<Player2>5c32b92d-5cd6-4cb6-ac31-ed03ca83671c</Player2>
+								<Winner>604f94de-95f9-4af5-ab6f-c79822ae095f</Winner>
+								<WinnerNextMatch>46</WinnerNextMatch>
+								<LoserNextMatch>78</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>29</NextSiblingMatch>
+								<PrevSiblingMatch>27</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>29</Number>
+								<Player1>aba36e6c-214a-4fae-bab6-1dea857d6788</Player1>
+								<Player2>09bf5645-e2b0-4751-b127-b4545dc5993d</Player2>
+								<Winner>aba36e6c-214a-4fae-bab6-1dea857d6788</Winner>
+								<WinnerNextMatch>46</WinnerNextMatch>
+								<LoserNextMatch>78</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>30</NextSiblingMatch>
+								<PrevSiblingMatch>28</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>30</Number>
+								<Player1>48af4f7b-8584-4766-8fec-782d0d2362bf</Player1>
+								<Player2>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</Player2>
+								<Winner>48af4f7b-8584-4766-8fec-782d0d2362bf</Winner>
+								<WinnerNextMatch>47</WinnerNextMatch>
+								<LoserNextMatch>79</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>31</NextSiblingMatch>
+								<PrevSiblingMatch>29</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>31</Number>
+								<Player1>2b3c6fae-0f42-44d3-aa50-989e011bed41</Player1>
+								<Player2>e24bb018-fcf3-441b-89b5-e1db5ae11169</Player2>
+								<Winner>2b3c6fae-0f42-44d3-aa50-989e011bed41</Winner>
+								<WinnerNextMatch>47</WinnerNextMatch>
+								<LoserNextMatch>79</LoserNextMatch>
+								<Player1PrevMatch>-1</Player1PrevMatch>
+								<Player2PrevMatch>-1</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>30</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>32</Number>
+								<Player1>6cc4045c-50a7-412d-85cc-be78bae59f44</Player1>
+								<Player2>68762a4c-6a83-4e72-b20d-705103446488</Player2>
+								<Winner>6cc4045c-50a7-412d-85cc-be78bae59f44</Winner>
+								<WinnerNextMatch>48</WinnerNextMatch>
+								<LoserNextMatch>84</LoserNextMatch>
+								<Player1PrevMatch>0</Player1PrevMatch>
+								<Player2PrevMatch>1</Player2PrevMatch>
+								<NextSiblingMatch>33</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> A</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>33</Number>
+								<Player1>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player1>
+								<Player2>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Player2>
+								<Winner>b659efdf-1f19-4ea6-9d75-4243c17b1251</Winner>
+								<WinnerNextMatch>48</WinnerNextMatch>
+								<LoserNextMatch>85</LoserNextMatch>
+								<Player1PrevMatch>2</Player1PrevMatch>
+								<Player2PrevMatch>3</Player2PrevMatch>
+								<NextSiblingMatch>34</NextSiblingMatch>
+								<PrevSiblingMatch>32</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> B</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>34</Number>
+								<Player1>42a5cb0a-c372-4101-bdc8-cefee4092277</Player1>
+								<Player2>5f15fb0e-f384-4e6a-bb04-852ee8d45607</Player2>
+								<Winner>42a5cb0a-c372-4101-bdc8-cefee4092277</Winner>
+								<WinnerNextMatch>49</WinnerNextMatch>
+								<LoserNextMatch>86</LoserNextMatch>
+								<Player1PrevMatch>4</Player1PrevMatch>
+								<Player2PrevMatch>5</Player2PrevMatch>
+								<NextSiblingMatch>35</NextSiblingMatch>
+								<PrevSiblingMatch>33</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> C</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>35</Number>
+								<Player1>c8e1658d-47f7-429f-b050-50dc811a7dd6</Player1>
+								<Player2>9d140ed1-6032-4528-9be3-7c979044af4c</Player2>
+								<Winner>c8e1658d-47f7-429f-b050-50dc811a7dd6</Winner>
+								<WinnerNextMatch>49</WinnerNextMatch>
+								<LoserNextMatch>87</LoserNextMatch>
+								<Player1PrevMatch>6</Player1PrevMatch>
+								<Player2PrevMatch>7</Player2PrevMatch>
+								<NextSiblingMatch>36</NextSiblingMatch>
+								<PrevSiblingMatch>34</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> D</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>36</Number>
+								<Player1>29262903-bec5-48b0-bc20-af1f856501b7</Player1>
+								<Player2>2020dafc-925d-422e-95a0-f51a58dd3985</Player2>
+								<Winner>29262903-bec5-48b0-bc20-af1f856501b7</Winner>
+								<WinnerNextMatch>50</WinnerNextMatch>
+								<LoserNextMatch>80</LoserNextMatch>
+								<Player1PrevMatch>8</Player1PrevMatch>
+								<Player2PrevMatch>9</Player2PrevMatch>
+								<NextSiblingMatch>37</NextSiblingMatch>
+								<PrevSiblingMatch>35</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> E</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>37</Number>
+								<Player1>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</Player1>
+								<Player2>f27bd16f-f777-426d-89b4-66f12ef6e133</Player2>
+								<Winner>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</Winner>
+								<WinnerNextMatch>50</WinnerNextMatch>
+								<LoserNextMatch>81</LoserNextMatch>
+								<Player1PrevMatch>10</Player1PrevMatch>
+								<Player2PrevMatch>11</Player2PrevMatch>
+								<NextSiblingMatch>38</NextSiblingMatch>
+								<PrevSiblingMatch>36</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> F</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>38</Number>
+								<Player1>493b9959-f814-4b7e-acaf-e0af46e8415f</Player1>
+								<Player2>cd614adf-e667-4e91-b87e-c0e1567056ff</Player2>
+								<Winner>493b9959-f814-4b7e-acaf-e0af46e8415f</Winner>
+								<WinnerNextMatch>51</WinnerNextMatch>
+								<LoserNextMatch>82</LoserNextMatch>
+								<Player1PrevMatch>12</Player1PrevMatch>
+								<Player2PrevMatch>13</Player2PrevMatch>
+								<NextSiblingMatch>39</NextSiblingMatch>
+								<PrevSiblingMatch>37</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> G</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>39</Number>
+								<Player1>3b0a4e87-e740-4c70-98fc-53898f361029</Player1>
+								<Player2>216c2212-aaa8-43c8-8a6c-11f90a06e268</Player2>
+								<Winner>3b0a4e87-e740-4c70-98fc-53898f361029</Winner>
+								<WinnerNextMatch>51</WinnerNextMatch>
+								<LoserNextMatch>83</LoserNextMatch>
+								<Player1PrevMatch>14</Player1PrevMatch>
+								<Player2PrevMatch>15</Player2PrevMatch>
+								<NextSiblingMatch>40</NextSiblingMatch>
+								<PrevSiblingMatch>38</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> H</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>40</Number>
+								<Player1>11e1a270-0064-4056-b742-52f3a48e57ed</Player1>
+								<Player2>14af7630-35f5-4d50-bc8d-02d4327bfec5</Player2>
+								<Winner>11e1a270-0064-4056-b742-52f3a48e57ed</Winner>
+								<WinnerNextMatch>52</WinnerNextMatch>
+								<LoserNextMatch>92</LoserNextMatch>
+								<Player1PrevMatch>16</Player1PrevMatch>
+								<Player2PrevMatch>17</Player2PrevMatch>
+								<NextSiblingMatch>41</NextSiblingMatch>
+								<PrevSiblingMatch>39</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> I</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>41</Number>
+								<Player1>49f48be3-8914-4911-96ed-537e1c0bdc46</Player1>
+								<Player2>055aa7e0-87e9-4ad6-8077-a48a97edd295</Player2>
+								<Winner>055aa7e0-87e9-4ad6-8077-a48a97edd295</Winner>
+								<WinnerNextMatch>52</WinnerNextMatch>
+								<LoserNextMatch>93</LoserNextMatch>
+								<Player1PrevMatch>18</Player1PrevMatch>
+								<Player2PrevMatch>19</Player2PrevMatch>
+								<NextSiblingMatch>42</NextSiblingMatch>
+								<PrevSiblingMatch>40</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> J</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>42</Number>
+								<Player1>dc0140d2-813a-4549-b078-398cabc09c6a</Player1>
+								<Player2>73842cc3-1e05-4088-84b8-6486fe5b3c1a</Player2>
+								<Winner>dc0140d2-813a-4549-b078-398cabc09c6a</Winner>
+								<WinnerNextMatch>53</WinnerNextMatch>
+								<LoserNextMatch>94</LoserNextMatch>
+								<Player1PrevMatch>20</Player1PrevMatch>
+								<Player2PrevMatch>21</Player2PrevMatch>
+								<NextSiblingMatch>43</NextSiblingMatch>
+								<PrevSiblingMatch>41</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> K</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>43</Number>
+								<Player1>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Player1>
+								<Player2>508daa05-43b5-458b-bab5-14655aa7dcc8</Player2>
+								<Winner>508daa05-43b5-458b-bab5-14655aa7dcc8</Winner>
+								<WinnerNextMatch>53</WinnerNextMatch>
+								<LoserNextMatch>95</LoserNextMatch>
+								<Player1PrevMatch>22</Player1PrevMatch>
+								<Player2PrevMatch>23</Player2PrevMatch>
+								<NextSiblingMatch>44</NextSiblingMatch>
+								<PrevSiblingMatch>42</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> L</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>44</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>ef465a40-d176-434f-9644-07b65aba9f58</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>54</WinnerNextMatch>
+								<LoserNextMatch>88</LoserNextMatch>
+								<Player1PrevMatch>24</Player1PrevMatch>
+								<Player2PrevMatch>25</Player2PrevMatch>
+								<NextSiblingMatch>45</NextSiblingMatch>
+								<PrevSiblingMatch>43</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> M</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>45</Number>
+								<Player1>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Player1>
+								<Player2>104be717-a21a-44d4-87cf-0c32a8bf2588</Player2>
+								<Winner>104be717-a21a-44d4-87cf-0c32a8bf2588</Winner>
+								<WinnerNextMatch>54</WinnerNextMatch>
+								<LoserNextMatch>89</LoserNextMatch>
+								<Player1PrevMatch>26</Player1PrevMatch>
+								<Player2PrevMatch>27</Player2PrevMatch>
+								<NextSiblingMatch>46</NextSiblingMatch>
+								<PrevSiblingMatch>44</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> N</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>46</Number>
+								<Player1>604f94de-95f9-4af5-ab6f-c79822ae095f</Player1>
+								<Player2>aba36e6c-214a-4fae-bab6-1dea857d6788</Player2>
+								<Winner>604f94de-95f9-4af5-ab6f-c79822ae095f</Winner>
+								<WinnerNextMatch>55</WinnerNextMatch>
+								<LoserNextMatch>90</LoserNextMatch>
+								<Player1PrevMatch>28</Player1PrevMatch>
+								<Player2PrevMatch>29</Player2PrevMatch>
+								<NextSiblingMatch>47</NextSiblingMatch>
+								<PrevSiblingMatch>45</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> O</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>47</Number>
+								<Player1>48af4f7b-8584-4766-8fec-782d0d2362bf</Player1>
+								<Player2>2b3c6fae-0f42-44d3-aa50-989e011bed41</Player2>
+								<Winner>48af4f7b-8584-4766-8fec-782d0d2362bf</Winner>
+								<WinnerNextMatch>55</WinnerNextMatch>
+								<LoserNextMatch>91</LoserNextMatch>
+								<Player1PrevMatch>30</Player1PrevMatch>
+								<Player2PrevMatch>31</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>46</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> P</Label>
+								<Round>2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>48</Number>
+								<Player1>6cc4045c-50a7-412d-85cc-be78bae59f44</Player1>
+								<Player2>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player2>
+								<Winner>b659efdf-1f19-4ea6-9d75-4243c17b1251</Winner>
+								<WinnerNextMatch>56</WinnerNextMatch>
+								<LoserNextMatch>109</LoserNextMatch>
+								<Player1PrevMatch>32</Player1PrevMatch>
+								<Player2PrevMatch>33</Player2PrevMatch>
+								<NextSiblingMatch>49</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> Q</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>49</Number>
+								<Player1>42a5cb0a-c372-4101-bdc8-cefee4092277</Player1>
+								<Player2>c8e1658d-47f7-429f-b050-50dc811a7dd6</Player2>
+								<Winner>42a5cb0a-c372-4101-bdc8-cefee4092277</Winner>
+								<WinnerNextMatch>56</WinnerNextMatch>
+								<LoserNextMatch>108</LoserNextMatch>
+								<Player1PrevMatch>34</Player1PrevMatch>
+								<Player2PrevMatch>35</Player2PrevMatch>
+								<NextSiblingMatch>50</NextSiblingMatch>
+								<PrevSiblingMatch>48</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> R</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>50</Number>
+								<Player1>29262903-bec5-48b0-bc20-af1f856501b7</Player1>
+								<Player2>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</Player2>
+								<Winner>29262903-bec5-48b0-bc20-af1f856501b7</Winner>
+								<WinnerNextMatch>57</WinnerNextMatch>
+								<LoserNextMatch>111</LoserNextMatch>
+								<Player1PrevMatch>36</Player1PrevMatch>
+								<Player2PrevMatch>37</Player2PrevMatch>
+								<NextSiblingMatch>51</NextSiblingMatch>
+								<PrevSiblingMatch>49</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> S</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>51</Number>
+								<Player1>493b9959-f814-4b7e-acaf-e0af46e8415f</Player1>
+								<Player2>3b0a4e87-e740-4c70-98fc-53898f361029</Player2>
+								<Winner>3b0a4e87-e740-4c70-98fc-53898f361029</Winner>
+								<WinnerNextMatch>57</WinnerNextMatch>
+								<LoserNextMatch>110</LoserNextMatch>
+								<Player1PrevMatch>38</Player1PrevMatch>
+								<Player2PrevMatch>39</Player2PrevMatch>
+								<NextSiblingMatch>52</NextSiblingMatch>
+								<PrevSiblingMatch>50</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> T</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>52</Number>
+								<Player1>11e1a270-0064-4056-b742-52f3a48e57ed</Player1>
+								<Player2>055aa7e0-87e9-4ad6-8077-a48a97edd295</Player2>
+								<Winner>11e1a270-0064-4056-b742-52f3a48e57ed</Winner>
+								<WinnerNextMatch>58</WinnerNextMatch>
+								<LoserNextMatch>105</LoserNextMatch>
+								<Player1PrevMatch>40</Player1PrevMatch>
+								<Player2PrevMatch>41</Player2PrevMatch>
+								<NextSiblingMatch>53</NextSiblingMatch>
+								<PrevSiblingMatch>51</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> U</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>53</Number>
+								<Player1>dc0140d2-813a-4549-b078-398cabc09c6a</Player1>
+								<Player2>508daa05-43b5-458b-bab5-14655aa7dcc8</Player2>
+								<Winner>dc0140d2-813a-4549-b078-398cabc09c6a</Winner>
+								<WinnerNextMatch>58</WinnerNextMatch>
+								<LoserNextMatch>104</LoserNextMatch>
+								<Player1PrevMatch>42</Player1PrevMatch>
+								<Player2PrevMatch>43</Player2PrevMatch>
+								<NextSiblingMatch>54</NextSiblingMatch>
+								<PrevSiblingMatch>52</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> V</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>54</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>104be717-a21a-44d4-87cf-0c32a8bf2588</Player2>
+								<Winner>104be717-a21a-44d4-87cf-0c32a8bf2588</Winner>
+								<WinnerNextMatch>59</WinnerNextMatch>
+								<LoserNextMatch>107</LoserNextMatch>
+								<Player1PrevMatch>44</Player1PrevMatch>
+								<Player2PrevMatch>45</Player2PrevMatch>
+								<NextSiblingMatch>55</NextSiblingMatch>
+								<PrevSiblingMatch>53</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> W</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>55</Number>
+								<Player1>604f94de-95f9-4af5-ab6f-c79822ae095f</Player1>
+								<Player2>48af4f7b-8584-4766-8fec-782d0d2362bf</Player2>
+								<Winner>604f94de-95f9-4af5-ab6f-c79822ae095f</Winner>
+								<WinnerNextMatch>59</WinnerNextMatch>
+								<LoserNextMatch>106</LoserNextMatch>
+								<Player1PrevMatch>46</Player1PrevMatch>
+								<Player2PrevMatch>47</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>54</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> X</Label>
+								<Round>3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>56</Number>
+								<Player1>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player1>
+								<Player2>42a5cb0a-c372-4101-bdc8-cefee4092277</Player2>
+								<Winner>b659efdf-1f19-4ea6-9d75-4243c17b1251</Winner>
+								<WinnerNextMatch>60</WinnerNextMatch>
+								<LoserNextMatch>117</LoserNextMatch>
+								<Player1PrevMatch>48</Player1PrevMatch>
+								<Player2PrevMatch>49</Player2PrevMatch>
+								<NextSiblingMatch>57</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> Y</Label>
+								<Round>4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>57</Number>
+								<Player1>29262903-bec5-48b0-bc20-af1f856501b7</Player1>
+								<Player2>3b0a4e87-e740-4c70-98fc-53898f361029</Player2>
+								<Winner>29262903-bec5-48b0-bc20-af1f856501b7</Winner>
+								<WinnerNextMatch>60</WinnerNextMatch>
+								<LoserNextMatch>116</LoserNextMatch>
+								<Player1PrevMatch>50</Player1PrevMatch>
+								<Player2PrevMatch>51</Player2PrevMatch>
+								<NextSiblingMatch>58</NextSiblingMatch>
+								<PrevSiblingMatch>56</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> Z</Label>
+								<Round>4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>58</Number>
+								<Player1>11e1a270-0064-4056-b742-52f3a48e57ed</Player1>
+								<Player2>dc0140d2-813a-4549-b078-398cabc09c6a</Player2>
+								<Winner>11e1a270-0064-4056-b742-52f3a48e57ed</Winner>
+								<WinnerNextMatch>61</WinnerNextMatch>
+								<LoserNextMatch>119</LoserNextMatch>
+								<Player1PrevMatch>52</Player1PrevMatch>
+								<Player2PrevMatch>53</Player2PrevMatch>
+								<NextSiblingMatch>59</NextSiblingMatch>
+								<PrevSiblingMatch>57</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AA</Label>
+								<Round>4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>59</Number>
+								<Player1>104be717-a21a-44d4-87cf-0c32a8bf2588</Player1>
+								<Player2>604f94de-95f9-4af5-ab6f-c79822ae095f</Player2>
+								<Winner>604f94de-95f9-4af5-ab6f-c79822ae095f</Winner>
+								<WinnerNextMatch>61</WinnerNextMatch>
+								<LoserNextMatch>118</LoserNextMatch>
+								<Player1PrevMatch>54</Player1PrevMatch>
+								<Player2PrevMatch>55</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>58</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AB</Label>
+								<Round>4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>60</Number>
+								<Player1>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player1>
+								<Player2>29262903-bec5-48b0-bc20-af1f856501b7</Player2>
+								<Winner>29262903-bec5-48b0-bc20-af1f856501b7</Winner>
+								<WinnerNextMatch>62</WinnerNextMatch>
+								<LoserNextMatch>123</LoserNextMatch>
+								<Player1PrevMatch>56</Player1PrevMatch>
+								<Player2PrevMatch>57</Player2PrevMatch>
+								<NextSiblingMatch>61</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AC</Label>
+								<Round>5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>61</Number>
+								<Player1>11e1a270-0064-4056-b742-52f3a48e57ed</Player1>
+								<Player2>604f94de-95f9-4af5-ab6f-c79822ae095f</Player2>
+								<Winner>11e1a270-0064-4056-b742-52f3a48e57ed</Winner>
+								<WinnerNextMatch>62</WinnerNextMatch>
+								<LoserNextMatch>122</LoserNextMatch>
+								<Player1PrevMatch>58</Player1PrevMatch>
+								<Player2PrevMatch>59</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>60</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AD</Label>
+								<Round>5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>62</Number>
+								<Player1>29262903-bec5-48b0-bc20-af1f856501b7</Player1>
+								<Player2>11e1a270-0064-4056-b742-52f3a48e57ed</Player2>
+								<Winner>11e1a270-0064-4056-b742-52f3a48e57ed</Winner>
+								<WinnerNextMatch>63</WinnerNextMatch>
+								<LoserNextMatch>125</LoserNextMatch>
+								<Player1PrevMatch>60</Player1PrevMatch>
+								<Player2PrevMatch>61</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AE</Label>
+								<Round>6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>63</Number>
+								<Player1>11e1a270-0064-4056-b742-52f3a48e57ed</Player1>
+								<Player2>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>126</WinnerNextMatch>
+								<LoserNextMatch>126</LoserNextMatch>
+								<Player1PrevMatch>62</Player1PrevMatch>
+								<Player2PrevMatch>125</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>True</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AF</Label>
+								<Round>7</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>64</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>d6eaf93b-5f7f-4f57-b665-70e58de81674</Player2>
+								<Winner>d6eaf93b-5f7f-4f57-b665-70e58de81674</Winner>
+								<WinnerNextMatch>80</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>0</Player1PrevMatch>
+								<Player2PrevMatch>1</Player2PrevMatch>
+								<NextSiblingMatch>65</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>65</Number>
+								<Player1>7bf3a50b-ff5b-4ae6-81db-14ed389f71b9</Player1>
+								<Player2>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</Player2>
+								<Winner>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</Winner>
+								<WinnerNextMatch>81</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>2</Player1PrevMatch>
+								<Player2PrevMatch>3</Player2PrevMatch>
+								<NextSiblingMatch>66</NextSiblingMatch>
+								<PrevSiblingMatch>64</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>66</Number>
+								<Player1>2ce4d696-1684-4d60-a1ff-b73c3cf2f5f1</Player1>
+								<Player2>81ad4426-e7ce-411a-a014-35774e149c3f</Player2>
+								<Winner>81ad4426-e7ce-411a-a014-35774e149c3f</Winner>
+								<WinnerNextMatch>82</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>4</Player1PrevMatch>
+								<Player2PrevMatch>5</Player2PrevMatch>
+								<NextSiblingMatch>67</NextSiblingMatch>
+								<PrevSiblingMatch>65</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>67</Number>
+								<Player1>d2bcca18-1d6e-49f0-ac60-ad0b9b8c4491</Player1>
+								<Player2>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</Player2>
+								<Winner>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</Winner>
+								<WinnerNextMatch>83</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>6</Player1PrevMatch>
+								<Player2PrevMatch>7</Player2PrevMatch>
+								<NextSiblingMatch>68</NextSiblingMatch>
+								<PrevSiblingMatch>66</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>68</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>c9c3dbec-c552-4c80-8768-b0870ce6867e</Player2>
+								<Winner>c9c3dbec-c552-4c80-8768-b0870ce6867e</Winner>
+								<WinnerNextMatch>84</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>8</Player1PrevMatch>
+								<Player2PrevMatch>9</Player2PrevMatch>
+								<NextSiblingMatch>69</NextSiblingMatch>
+								<PrevSiblingMatch>67</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>69</Number>
+								<Player1>9015537e-8ab8-44f2-928a-c4795fc76b32</Player1>
+								<Player2>ce16ea64-cedf-41e8-9568-2beca5a84721</Player2>
+								<Winner>ce16ea64-cedf-41e8-9568-2beca5a84721</Winner>
+								<WinnerNextMatch>85</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>10</Player1PrevMatch>
+								<Player2PrevMatch>11</Player2PrevMatch>
+								<NextSiblingMatch>70</NextSiblingMatch>
+								<PrevSiblingMatch>68</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>70</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</Player2>
+								<Winner>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</Winner>
+								<WinnerNextMatch>86</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>12</Player1PrevMatch>
+								<Player2PrevMatch>13</Player2PrevMatch>
+								<NextSiblingMatch>71</NextSiblingMatch>
+								<PrevSiblingMatch>69</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>71</Number>
+								<Player1>8ce06ee4-909b-41ea-b850-f30baf0d2e20</Player1>
+								<Player2>2ac51f6e-07b4-4e9e-af87-b107aaae5861</Player2>
+								<Winner>8ce06ee4-909b-41ea-b850-f30baf0d2e20</Winner>
+								<WinnerNextMatch>87</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>14</Player1PrevMatch>
+								<Player2PrevMatch>15</Player2PrevMatch>
+								<NextSiblingMatch>72</NextSiblingMatch>
+								<PrevSiblingMatch>70</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>72</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</Player2>
+								<Winner>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</Winner>
+								<WinnerNextMatch>88</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>16</Player1PrevMatch>
+								<Player2PrevMatch>17</Player2PrevMatch>
+								<NextSiblingMatch>73</NextSiblingMatch>
+								<PrevSiblingMatch>71</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>73</Number>
+								<Player1>ad0f53de-cb96-4e43-bdcb-02be29e914ac</Player1>
+								<Player2>fdffa843-ace9-4fb4-95b3-41275c308821</Player2>
+								<Winner>fdffa843-ace9-4fb4-95b3-41275c308821</Winner>
+								<WinnerNextMatch>89</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>18</Player1PrevMatch>
+								<Player2PrevMatch>19</Player2PrevMatch>
+								<NextSiblingMatch>74</NextSiblingMatch>
+								<PrevSiblingMatch>72</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>74</Number>
+								<Player1>ffafc292-ad70-4c9d-9abd-b936967df1a4</Player1>
+								<Player2>084352fa-8055-4e70-bf66-72993f41c26a</Player2>
+								<Winner>084352fa-8055-4e70-bf66-72993f41c26a</Winner>
+								<WinnerNextMatch>90</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>20</Player1PrevMatch>
+								<Player2PrevMatch>21</Player2PrevMatch>
+								<NextSiblingMatch>75</NextSiblingMatch>
+								<PrevSiblingMatch>73</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>75</Number>
+								<Player1>f09b453c-381e-42ea-b1aa-499dc2d707d3</Player1>
+								<Player2>af735186-e3b8-4c3d-b69c-45ca0b536830</Player2>
+								<Winner>af735186-e3b8-4c3d-b69c-45ca0b536830</Winner>
+								<WinnerNextMatch>91</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>22</Player1PrevMatch>
+								<Player2PrevMatch>23</Player2PrevMatch>
+								<NextSiblingMatch>76</NextSiblingMatch>
+								<PrevSiblingMatch>74</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>76</Number>
+								<Player1>00000001-0001-0001-0101-010101010101</Player1>
+								<Player2>12932a05-a9ef-4c8f-89ed-3f36c49660dc</Player2>
+								<Winner>12932a05-a9ef-4c8f-89ed-3f36c49660dc</Winner>
+								<WinnerNextMatch>92</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>24</Player1PrevMatch>
+								<Player2PrevMatch>25</Player2PrevMatch>
+								<NextSiblingMatch>77</NextSiblingMatch>
+								<PrevSiblingMatch>75</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+							</Match>
+							<Match>
+								<Number>77</Number>
+								<Player1>879b22aa-c0a3-4db5-85f2-340b72820844</Player1>
+								<Player2>a6e085d0-c63c-47ed-a512-d6f4c38c3576</Player2>
+								<Winner>879b22aa-c0a3-4db5-85f2-340b72820844</Winner>
+								<WinnerNextMatch>93</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>26</Player1PrevMatch>
+								<Player2PrevMatch>27</Player2PrevMatch>
+								<NextSiblingMatch>78</NextSiblingMatch>
+								<PrevSiblingMatch>76</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>78</Number>
+								<Player1>5c32b92d-5cd6-4cb6-ac31-ed03ca83671c</Player1>
+								<Player2>09bf5645-e2b0-4751-b127-b4545dc5993d</Player2>
+								<Winner>09bf5645-e2b0-4751-b127-b4545dc5993d</Winner>
+								<WinnerNextMatch>94</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>28</Player1PrevMatch>
+								<Player2PrevMatch>29</Player2PrevMatch>
+								<NextSiblingMatch>79</NextSiblingMatch>
+								<PrevSiblingMatch>77</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>79</Number>
+								<Player1>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</Player1>
+								<Player2>e24bb018-fcf3-441b-89b5-e1db5ae11169</Player2>
+								<Winner>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</Winner>
+								<WinnerNextMatch>95</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>30</Player1PrevMatch>
+								<Player2PrevMatch>31</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>78</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-1</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>80</Number>
+								<Player1>d6eaf93b-5f7f-4f57-b665-70e58de81674</Player1>
+								<Player2>2020dafc-925d-422e-95a0-f51a58dd3985</Player2>
+								<Winner>2020dafc-925d-422e-95a0-f51a58dd3985</Winner>
+								<WinnerNextMatch>96</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>64</Player1PrevMatch>
+								<Player2PrevMatch>36</Player2PrevMatch>
+								<NextSiblingMatch>81</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> E</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>81</Number>
+								<Player1>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</Player1>
+								<Player2>f27bd16f-f777-426d-89b4-66f12ef6e133</Player2>
+								<Winner>f27bd16f-f777-426d-89b4-66f12ef6e133</Winner>
+								<WinnerNextMatch>96</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>65</Player1PrevMatch>
+								<Player2PrevMatch>37</Player2PrevMatch>
+								<NextSiblingMatch>82</NextSiblingMatch>
+								<PrevSiblingMatch>80</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> F</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>82</Number>
+								<Player1>81ad4426-e7ce-411a-a014-35774e149c3f</Player1>
+								<Player2>cd614adf-e667-4e91-b87e-c0e1567056ff</Player2>
+								<Winner>cd614adf-e667-4e91-b87e-c0e1567056ff</Winner>
+								<WinnerNextMatch>97</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>66</Player1PrevMatch>
+								<Player2PrevMatch>38</Player2PrevMatch>
+								<NextSiblingMatch>83</NextSiblingMatch>
+								<PrevSiblingMatch>81</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> G</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>83</Number>
+								<Player1>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</Player1>
+								<Player2>216c2212-aaa8-43c8-8a6c-11f90a06e268</Player2>
+								<Winner>216c2212-aaa8-43c8-8a6c-11f90a06e268</Winner>
+								<WinnerNextMatch>97</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>67</Player1PrevMatch>
+								<Player2PrevMatch>39</Player2PrevMatch>
+								<NextSiblingMatch>84</NextSiblingMatch>
+								<PrevSiblingMatch>82</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> H</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>84</Number>
+								<Player1>c9c3dbec-c552-4c80-8768-b0870ce6867e</Player1>
+								<Player2>68762a4c-6a83-4e72-b20d-705103446488</Player2>
+								<Winner>68762a4c-6a83-4e72-b20d-705103446488</Winner>
+								<WinnerNextMatch>98</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>68</Player1PrevMatch>
+								<Player2PrevMatch>32</Player2PrevMatch>
+								<NextSiblingMatch>85</NextSiblingMatch>
+								<PrevSiblingMatch>83</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> A</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>85</Number>
+								<Player1>ce16ea64-cedf-41e8-9568-2beca5a84721</Player1>
+								<Player2>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Player2>
+								<Winner>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Winner>
+								<WinnerNextMatch>98</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>69</Player1PrevMatch>
+								<Player2PrevMatch>33</Player2PrevMatch>
+								<NextSiblingMatch>86</NextSiblingMatch>
+								<PrevSiblingMatch>84</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> B</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>86</Number>
+								<Player1>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</Player1>
+								<Player2>5f15fb0e-f384-4e6a-bb04-852ee8d45607</Player2>
+								<Winner>5f15fb0e-f384-4e6a-bb04-852ee8d45607</Winner>
+								<WinnerNextMatch>99</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>70</Player1PrevMatch>
+								<Player2PrevMatch>34</Player2PrevMatch>
+								<NextSiblingMatch>87</NextSiblingMatch>
+								<PrevSiblingMatch>85</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> C</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>87</Number>
+								<Player1>8ce06ee4-909b-41ea-b850-f30baf0d2e20</Player1>
+								<Player2>9d140ed1-6032-4528-9be3-7c979044af4c</Player2>
+								<Winner>9d140ed1-6032-4528-9be3-7c979044af4c</Winner>
+								<WinnerNextMatch>99</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>71</Player1PrevMatch>
+								<Player2PrevMatch>35</Player2PrevMatch>
+								<NextSiblingMatch>88</NextSiblingMatch>
+								<PrevSiblingMatch>86</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> D</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>88</Number>
+								<Player1>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</Player1>
+								<Player2>ef465a40-d176-434f-9644-07b65aba9f58</Player2>
+								<Winner>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</Winner>
+								<WinnerNextMatch>100</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>72</Player1PrevMatch>
+								<Player2PrevMatch>44</Player2PrevMatch>
+								<NextSiblingMatch>89</NextSiblingMatch>
+								<PrevSiblingMatch>87</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> M</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>89</Number>
+								<Player1>fdffa843-ace9-4fb4-95b3-41275c308821</Player1>
+								<Player2>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Player2>
+								<Winner>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Winner>
+								<WinnerNextMatch>100</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>73</Player1PrevMatch>
+								<Player2PrevMatch>45</Player2PrevMatch>
+								<NextSiblingMatch>90</NextSiblingMatch>
+								<PrevSiblingMatch>88</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> N</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>90</Number>
+								<Player1>084352fa-8055-4e70-bf66-72993f41c26a</Player1>
+								<Player2>aba36e6c-214a-4fae-bab6-1dea857d6788</Player2>
+								<Winner>084352fa-8055-4e70-bf66-72993f41c26a</Winner>
+								<WinnerNextMatch>101</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>74</Player1PrevMatch>
+								<Player2PrevMatch>46</Player2PrevMatch>
+								<NextSiblingMatch>91</NextSiblingMatch>
+								<PrevSiblingMatch>89</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> O</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>91</Number>
+								<Player1>af735186-e3b8-4c3d-b69c-45ca0b536830</Player1>
+								<Player2>2b3c6fae-0f42-44d3-aa50-989e011bed41</Player2>
+								<Winner>2b3c6fae-0f42-44d3-aa50-989e011bed41</Winner>
+								<WinnerNextMatch>101</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>75</Player1PrevMatch>
+								<Player2PrevMatch>47</Player2PrevMatch>
+								<NextSiblingMatch>92</NextSiblingMatch>
+								<PrevSiblingMatch>90</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> P</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>92</Number>
+								<Player1>12932a05-a9ef-4c8f-89ed-3f36c49660dc</Player1>
+								<Player2>14af7630-35f5-4d50-bc8d-02d4327bfec5</Player2>
+								<Winner>14af7630-35f5-4d50-bc8d-02d4327bfec5</Winner>
+								<WinnerNextMatch>102</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>76</Player1PrevMatch>
+								<Player2PrevMatch>40</Player2PrevMatch>
+								<NextSiblingMatch>93</NextSiblingMatch>
+								<PrevSiblingMatch>91</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> I</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>93</Number>
+								<Player1>879b22aa-c0a3-4db5-85f2-340b72820844</Player1>
+								<Player2>49f48be3-8914-4911-96ed-537e1c0bdc46</Player2>
+								<Winner>879b22aa-c0a3-4db5-85f2-340b72820844</Winner>
+								<WinnerNextMatch>102</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>77</Player1PrevMatch>
+								<Player2PrevMatch>41</Player2PrevMatch>
+								<NextSiblingMatch>94</NextSiblingMatch>
+								<PrevSiblingMatch>92</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> J</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>94</Number>
+								<Player1>09bf5645-e2b0-4751-b127-b4545dc5993d</Player1>
+								<Player2>73842cc3-1e05-4088-84b8-6486fe5b3c1a</Player2>
+								<Winner>73842cc3-1e05-4088-84b8-6486fe5b3c1a</Winner>
+								<WinnerNextMatch>103</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>78</Player1PrevMatch>
+								<Player2PrevMatch>42</Player2PrevMatch>
+								<NextSiblingMatch>95</NextSiblingMatch>
+								<PrevSiblingMatch>93</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> K</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>95</Number>
+								<Player1>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</Player1>
+								<Player2>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Player2>
+								<Winner>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Winner>
+								<WinnerNextMatch>103</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>79</Player1PrevMatch>
+								<Player2PrevMatch>43</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>94</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> L</Label>
+								<Round>-2</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>96</Number>
+								<Player1>2020dafc-925d-422e-95a0-f51a58dd3985</Player1>
+								<Player2>f27bd16f-f777-426d-89b4-66f12ef6e133</Player2>
+								<Winner>2020dafc-925d-422e-95a0-f51a58dd3985</Winner>
+								<WinnerNextMatch>104</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>80</Player1PrevMatch>
+								<Player2PrevMatch>81</Player2PrevMatch>
+								<NextSiblingMatch>97</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>97</Number>
+								<Player1>cd614adf-e667-4e91-b87e-c0e1567056ff</Player1>
+								<Player2>216c2212-aaa8-43c8-8a6c-11f90a06e268</Player2>
+								<Winner>216c2212-aaa8-43c8-8a6c-11f90a06e268</Winner>
+								<WinnerNextMatch>105</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>82</Player1PrevMatch>
+								<Player2PrevMatch>83</Player2PrevMatch>
+								<NextSiblingMatch>98</NextSiblingMatch>
+								<PrevSiblingMatch>96</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>98</Number>
+								<Player1>68762a4c-6a83-4e72-b20d-705103446488</Player1>
+								<Player2>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Player2>
+								<Winner>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Winner>
+								<WinnerNextMatch>106</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>84</Player1PrevMatch>
+								<Player2PrevMatch>85</Player2PrevMatch>
+								<NextSiblingMatch>99</NextSiblingMatch>
+								<PrevSiblingMatch>97</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>99</Number>
+								<Player1>5f15fb0e-f384-4e6a-bb04-852ee8d45607</Player1>
+								<Player2>9d140ed1-6032-4528-9be3-7c979044af4c</Player2>
+								<Winner>9d140ed1-6032-4528-9be3-7c979044af4c</Winner>
+								<WinnerNextMatch>107</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>86</Player1PrevMatch>
+								<Player2PrevMatch>87</Player2PrevMatch>
+								<NextSiblingMatch>100</NextSiblingMatch>
+								<PrevSiblingMatch>98</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>100</Number>
+								<Player1>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</Player1>
+								<Player2>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Player2>
+								<Winner>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Winner>
+								<WinnerNextMatch>108</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>88</Player1PrevMatch>
+								<Player2PrevMatch>89</Player2PrevMatch>
+								<NextSiblingMatch>101</NextSiblingMatch>
+								<PrevSiblingMatch>99</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>101</Number>
+								<Player1>084352fa-8055-4e70-bf66-72993f41c26a</Player1>
+								<Player2>2b3c6fae-0f42-44d3-aa50-989e011bed41</Player2>
+								<Winner>2b3c6fae-0f42-44d3-aa50-989e011bed41</Winner>
+								<WinnerNextMatch>109</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>90</Player1PrevMatch>
+								<Player2PrevMatch>91</Player2PrevMatch>
+								<NextSiblingMatch>102</NextSiblingMatch>
+								<PrevSiblingMatch>100</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>102</Number>
+								<Player1>14af7630-35f5-4d50-bc8d-02d4327bfec5</Player1>
+								<Player2>879b22aa-c0a3-4db5-85f2-340b72820844</Player2>
+								<Winner>14af7630-35f5-4d50-bc8d-02d4327bfec5</Winner>
+								<WinnerNextMatch>110</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>92</Player1PrevMatch>
+								<Player2PrevMatch>93</Player2PrevMatch>
+								<NextSiblingMatch>103</NextSiblingMatch>
+								<PrevSiblingMatch>101</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>103</Number>
+								<Player1>73842cc3-1e05-4088-84b8-6486fe5b3c1a</Player1>
+								<Player2>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Player2>
+								<Winner>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Winner>
+								<WinnerNextMatch>111</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>94</Player1PrevMatch>
+								<Player2PrevMatch>95</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>102</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-3</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>104</Number>
+								<Player1>2020dafc-925d-422e-95a0-f51a58dd3985</Player1>
+								<Player2>508daa05-43b5-458b-bab5-14655aa7dcc8</Player2>
+								<Winner>508daa05-43b5-458b-bab5-14655aa7dcc8</Winner>
+								<WinnerNextMatch>112</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>96</Player1PrevMatch>
+								<Player2PrevMatch>53</Player2PrevMatch>
+								<NextSiblingMatch>105</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> V</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>105</Number>
+								<Player1>216c2212-aaa8-43c8-8a6c-11f90a06e268</Player1>
+								<Player2>055aa7e0-87e9-4ad6-8077-a48a97edd295</Player2>
+								<Winner>055aa7e0-87e9-4ad6-8077-a48a97edd295</Winner>
+								<WinnerNextMatch>112</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>97</Player1PrevMatch>
+								<Player2PrevMatch>52</Player2PrevMatch>
+								<NextSiblingMatch>106</NextSiblingMatch>
+								<PrevSiblingMatch>104</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> U</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>106</Number>
+								<Player1>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Player1>
+								<Player2>48af4f7b-8584-4766-8fec-782d0d2362bf</Player2>
+								<Winner>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Winner>
+								<WinnerNextMatch>113</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>98</Player1PrevMatch>
+								<Player2PrevMatch>55</Player2PrevMatch>
+								<NextSiblingMatch>107</NextSiblingMatch>
+								<PrevSiblingMatch>105</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> X</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>107</Number>
+								<Player1>9d140ed1-6032-4528-9be3-7c979044af4c</Player1>
+								<Player2>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>113</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>99</Player1PrevMatch>
+								<Player2PrevMatch>54</Player2PrevMatch>
+								<NextSiblingMatch>108</NextSiblingMatch>
+								<PrevSiblingMatch>106</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> W</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>108</Number>
+								<Player1>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</Player1>
+								<Player2>c8e1658d-47f7-429f-b050-50dc811a7dd6</Player2>
+								<Winner>c8e1658d-47f7-429f-b050-50dc811a7dd6</Winner>
+								<WinnerNextMatch>114</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>100</Player1PrevMatch>
+								<Player2PrevMatch>49</Player2PrevMatch>
+								<NextSiblingMatch>109</NextSiblingMatch>
+								<PrevSiblingMatch>107</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> R</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>109</Number>
+								<Player1>2b3c6fae-0f42-44d3-aa50-989e011bed41</Player1>
+								<Player2>6cc4045c-50a7-412d-85cc-be78bae59f44</Player2>
+								<Winner>6cc4045c-50a7-412d-85cc-be78bae59f44</Winner>
+								<WinnerNextMatch>114</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>101</Player1PrevMatch>
+								<Player2PrevMatch>48</Player2PrevMatch>
+								<NextSiblingMatch>110</NextSiblingMatch>
+								<PrevSiblingMatch>108</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> Q</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>110</Number>
+								<Player1>14af7630-35f5-4d50-bc8d-02d4327bfec5</Player1>
+								<Player2>493b9959-f814-4b7e-acaf-e0af46e8415f</Player2>
+								<Winner>493b9959-f814-4b7e-acaf-e0af46e8415f</Winner>
+								<WinnerNextMatch>115</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>102</Player1PrevMatch>
+								<Player2PrevMatch>51</Player2PrevMatch>
+								<NextSiblingMatch>111</NextSiblingMatch>
+								<PrevSiblingMatch>109</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> T</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>111</Number>
+								<Player1>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Player1>
+								<Player2>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</Player2>
+								<Winner>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Winner>
+								<WinnerNextMatch>115</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>103</Player1PrevMatch>
+								<Player2PrevMatch>50</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>110</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> S</Label>
+								<Round>-4</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>112</Number>
+								<Player1>508daa05-43b5-458b-bab5-14655aa7dcc8</Player1>
+								<Player2>055aa7e0-87e9-4ad6-8077-a48a97edd295</Player2>
+								<Winner>055aa7e0-87e9-4ad6-8077-a48a97edd295</Winner>
+								<WinnerNextMatch>116</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>104</Player1PrevMatch>
+								<Player2PrevMatch>105</Player2PrevMatch>
+								<NextSiblingMatch>113</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>113</Number>
+								<Player1>4a4d0309-4eec-487d-bacc-64b2d7d470a2</Player1>
+								<Player2>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>117</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>106</Player1PrevMatch>
+								<Player2PrevMatch>107</Player2PrevMatch>
+								<NextSiblingMatch>114</NextSiblingMatch>
+								<PrevSiblingMatch>112</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>114</Number>
+								<Player1>c8e1658d-47f7-429f-b050-50dc811a7dd6</Player1>
+								<Player2>6cc4045c-50a7-412d-85cc-be78bae59f44</Player2>
+								<Winner>6cc4045c-50a7-412d-85cc-be78bae59f44</Winner>
+								<WinnerNextMatch>118</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>108</Player1PrevMatch>
+								<Player2PrevMatch>109</Player2PrevMatch>
+								<NextSiblingMatch>115</NextSiblingMatch>
+								<PrevSiblingMatch>113</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>115</Number>
+								<Player1>493b9959-f814-4b7e-acaf-e0af46e8415f</Player1>
+								<Player2>8b41f1d6-d19b-4a22-a7a1-8009112ef452</Player2>
+								<Winner>493b9959-f814-4b7e-acaf-e0af46e8415f</Winner>
+								<WinnerNextMatch>119</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>110</Player1PrevMatch>
+								<Player2PrevMatch>111</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>114</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-5</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>116</Number>
+								<Player1>055aa7e0-87e9-4ad6-8077-a48a97edd295</Player1>
+								<Player2>3b0a4e87-e740-4c70-98fc-53898f361029</Player2>
+								<Winner>3b0a4e87-e740-4c70-98fc-53898f361029</Winner>
+								<WinnerNextMatch>120</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>112</Player1PrevMatch>
+								<Player2PrevMatch>57</Player2PrevMatch>
+								<NextSiblingMatch>117</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> Z</Label>
+								<Round>-6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>117</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>42a5cb0a-c372-4101-bdc8-cefee4092277</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>120</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>113</Player1PrevMatch>
+								<Player2PrevMatch>56</Player2PrevMatch>
+								<NextSiblingMatch>118</NextSiblingMatch>
+								<PrevSiblingMatch>116</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label> Y</Label>
+								<Round>-6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>118</Number>
+								<Player1>6cc4045c-50a7-412d-85cc-be78bae59f44</Player1>
+								<Player2>104be717-a21a-44d4-87cf-0c32a8bf2588</Player2>
+								<Winner>104be717-a21a-44d4-87cf-0c32a8bf2588</Winner>
+								<WinnerNextMatch>121</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>114</Player1PrevMatch>
+								<Player2PrevMatch>59</Player2PrevMatch>
+								<NextSiblingMatch>119</NextSiblingMatch>
+								<PrevSiblingMatch>117</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AB</Label>
+								<Round>-6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>119</Number>
+								<Player1>493b9959-f814-4b7e-acaf-e0af46e8415f</Player1>
+								<Player2>dc0140d2-813a-4549-b078-398cabc09c6a</Player2>
+								<Winner>dc0140d2-813a-4549-b078-398cabc09c6a</Winner>
+								<WinnerNextMatch>121</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>115</Player1PrevMatch>
+								<Player2PrevMatch>58</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>118</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AA</Label>
+								<Round>-6</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>120</Number>
+								<Player1>3b0a4e87-e740-4c70-98fc-53898f361029</Player1>
+								<Player2>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>122</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>116</Player1PrevMatch>
+								<Player2PrevMatch>117</Player2PrevMatch>
+								<NextSiblingMatch>121</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-7</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>121</Number>
+								<Player1>104be717-a21a-44d4-87cf-0c32a8bf2588</Player1>
+								<Player2>dc0140d2-813a-4549-b078-398cabc09c6a</Player2>
+								<Winner>104be717-a21a-44d4-87cf-0c32a8bf2588</Winner>
+								<WinnerNextMatch>123</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>118</Player1PrevMatch>
+								<Player2PrevMatch>119</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>120</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-7</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>122</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>604f94de-95f9-4af5-ab6f-c79822ae095f</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>124</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>120</Player1PrevMatch>
+								<Player2PrevMatch>61</Player2PrevMatch>
+								<NextSiblingMatch>123</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AD</Label>
+								<Round>-8</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>123</Number>
+								<Player1>104be717-a21a-44d4-87cf-0c32a8bf2588</Player1>
+								<Player2>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player2>
+								<Winner>b659efdf-1f19-4ea6-9d75-4243c17b1251</Winner>
+								<WinnerNextMatch>124</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>121</Player1PrevMatch>
+								<Player2PrevMatch>60</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>122</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AC</Label>
+								<Round>-8</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>124</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>b659efdf-1f19-4ea6-9d75-4243c17b1251</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>125</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>122</Player1PrevMatch>
+								<Player2PrevMatch>123</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label />
+								<Round>-9</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>125</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>29262903-bec5-48b0-bc20-af1f856501b7</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>63</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>124</Player1PrevMatch>
+								<Player2PrevMatch>62</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>False</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>False</IsSecondChampionship>
+								<Label>AE</Label>
+								<Round>-10</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+							<Match>
+								<Number>126</Number>
+								<Player1>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Player1>
+								<Player2>11e1a270-0064-4056-b742-52f3a48e57ed</Player2>
+								<Winner>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</Winner>
+								<WinnerNextMatch>-1</WinnerNextMatch>
+								<LoserNextMatch>-1</LoserNextMatch>
+								<Player1PrevMatch>63</Player1PrevMatch>
+								<Player2PrevMatch>63</Player2PrevMatch>
+								<NextSiblingMatch>-1</NextSiblingMatch>
+								<PrevSiblingMatch>-1</PrevSiblingMatch>
+								<IsWinners>True</IsWinners>
+								<IsChampionship>False</IsChampionship>
+								<IsSecondChampionship>True</IsSecondChampionship>
+								<Label>AF</Label>
+								<Round>8</Round>
+								<Note />
+								<InProgress>False</InProgress>
+								<Score />
+							</Match>
+						</Matches>
+						<Scoring name="WinnerLoser" />
+					</Bracket>
+				</Game>
+			</Games>
+			<Stations />
+		</Event>
+	</EventList>
+	<PlayerList>
+		<Players>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>MIOM|SFAT</Nickname>
+				<Skill>10</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>6577ea0e-d5d8-47b5-8b7b-52a0776b2856</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>Ky</Nickname>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>48af4f7b-8584-4766-8fec-782d0d2362bf</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>fribjits</Nickname>
+				<Skill>6</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>5f15fb0e-f384-4e6a-bb04-852ee8d45607</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>OGslamminfresh</Nickname>
+				<Skill>9</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>dc0140d2-813a-4549-b078-398cabc09c6a</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>DC</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ef465a40-d176-434f-9644-07b65aba9f58</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>laudandus</Nickname>
+				<Skill>9</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>42a5cb0a-c372-4101-bdc8-cefee4092277</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>myko</Nickname>
+				<Skill>6</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>084352fa-8055-4e70-bf66-72993f41c26a</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>IMYT</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>f27bd16f-f777-426d-89b4-66f12ef6e133</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>Glee</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>5c32b92d-5cd6-4cb6-ac31-ed03ca83671c</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>eric</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>d2bcca18-1d6e-49f0-ac60-ad0b9b8c4491</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>bell</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ce16ea64-cedf-41e8-9568-2beca5a84721</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>isis</Nickname>
+				<Skill>6</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>aba36e6c-214a-4fae-bab6-1dea857d6788</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>aephi</Nickname>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>3b0a4e87-e740-4c70-98fc-53898f361029</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>stingray</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>7bf3a50b-ff5b-4ae6-81db-14ed389f71b9</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>dr.z</Nickname>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>8b41f1d6-d19b-4a22-a7a1-8009112ef452</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>E.T.</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ad0f53de-cb96-4e43-bdcb-02be29e914ac</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>urbanlime</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>fdffa843-ace9-4fb4-95b3-41275c308821</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>mooki</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>4c6f6a25-51a1-4172-b78f-72fb8c53b3c1</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>groovy</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>2ac51f6e-07b4-4e9e-af87-b107aaae5861</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>speavak</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>dd5949c5-822f-4e23-b7ff-182b8a5ff4c7</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>spookyman</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>68762a4c-6a83-4e72-b20d-705103446488</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>berble</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>8ce06ee4-909b-41ea-b850-f30baf0d2e20</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>ewc</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ffafc292-ad70-4c9d-9abd-b936967df1a4</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>marthmaster69</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>2ce4d696-1684-4d60-a1ff-b73c3cf2f5f1</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>gar</Nickname>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>c8e1658d-47f7-429f-b050-50dc811a7dd6</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>shroomed</Nickname>
+				<Skill>10</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>29262903-bec5-48b0-bc20-af1f856501b7</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>toph</Nickname>
+				<Skill>9</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>493b9959-f814-4b7e-acaf-e0af46e8415f</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>GC|silent wolf</Nickname>
+				<Skill>10</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>11e1a270-0064-4056-b742-52f3a48e57ed</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>mikkuz</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>055aa7e0-87e9-4ad6-8077-a48a97edd295</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>tang</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>104be717-a21a-44d4-87cf-0c32a8bf2588</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>khale</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>e24bb018-fcf3-441b-89b5-e1db5ae11169</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>nachoguy</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>a6e085d0-c63c-47ed-a512-d6f4c38c3576</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>ycz6</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>4a4d0309-4eec-487d-bacc-64b2d7d470a2</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>343</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>2a0090d3-df16-4cfa-9bff-4e1a230d03a8</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>luis</Nickname>
+				<Skill>6</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>2b3c6fae-0f42-44d3-aa50-989e011bed41</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>darrell</Nickname>
+				<Skill>9</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>604f94de-95f9-4af5-ab6f-c79822ae095f</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>nemo hoes</Nickname>
+				<Skill>10</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>6cc4045c-50a7-412d-85cc-be78bae59f44</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>nima</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>b659efdf-1f19-4ea6-9d75-4243c17b1251</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>NicholasMotherfuckingWhittier</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>49f48be3-8914-4911-96ed-537e1c0bdc46</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>nimzo</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>9015537e-8ab8-44f2-928a-c4795fc76b32</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>irish</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>f09b453c-381e-42ea-b1aa-499dc2d707d3</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>blueguy</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>7d7d66d3-975c-4c53-80e2-04a5aa626d8c</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>kz</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ef5c01d7-0b4b-4367-ab1b-6f9955b1ef4b</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>chowder</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>12932a05-a9ef-4c8f-89ed-3f36c49660dc</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>razr</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>d6eaf93b-5f7f-4f57-b665-70e58de81674</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>engdrew</Nickname>
+				<Skill>6</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>bdcedd6a-f7e3-41fc-bc8d-a7495930948d</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>smiles</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>216c2212-aaa8-43c8-8a6c-11f90a06e268</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>viray</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>cd614adf-e667-4e91-b87e-c0e1567056ff</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>baise</Nickname>
+				<Skill>6</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>508daa05-43b5-458b-bab5-14655aa7dcc8</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>maverick</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>c9c3dbec-c552-4c80-8768-b0870ce6867e</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>arcadia</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>14af7630-35f5-4d50-bc8d-02d4327bfec5</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>smish</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>81ad4426-e7ce-411a-a014-35774e149c3f</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>rocky</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>73842cc3-1e05-4088-84b8-6486fe5b3c1a</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>miles</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>af735186-e3b8-4c3d-b69c-45ca0b536830</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>bob</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>9d140ed1-6032-4528-9be3-7c979044af4c</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>broges</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>2020dafc-925d-422e-95a0-f51a58dd3985</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>ralph</Nickname>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>296fe42e-a5c2-4c1d-9d06-6776bd4d0093</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>glitter</Nickname>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>09bf5645-e2b0-4751-b127-b4545dc5993d</ID>
+			</Player>
+			<Player>
+				<Name>
+				</Name>
+				<Nickname>PikminButDeadly</Nickname>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>879b22aa-c0a3-4db5-85f2-340b72820844</ID>
+			</Player>
+		</Players>
+		<Teams>
+			<Player>
+				<Nickname>silentspectre &amp; tang</Nickname>
+				<Players>
+				</Players>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ce8bdfaf-9f86-46b1-9031-5795bd80d1a0</ID>
+			</Player>
+			<Player>
+				<Nickname>alan &amp; brandon</Nickname>
+				<Players>
+				</Players>
+				<Skill>9</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>cddd5495-ba17-45a9-8c4d-d242c9332771</ID>
+			</Player>
+			<Player>
+				<Nickname>fribjits &amp; imyt</Nickname>
+				<Players>
+				</Players>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>ad52a157-4795-4c2f-85d1-d413d5d51d98</ID>
+			</Player>
+			<Player>
+				<Nickname>ycz6 &amp; 343</Nickname>
+				<Players>
+				</Players>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>9c136e4d-72c8-4148-9661-5f1f16d1d9e8</ID>
+			</Player>
+			<Player>
+				<Nickname>dr.z &amp; darrell</Nickname>
+				<Players>
+				</Players>
+				<Skill>9</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>86b6b0d1-e646-427d-9049-74f8c1f42e73</ID>
+			</Player>
+			<Player>
+				<Nickname>chowder &amp; razr</Nickname>
+				<Players>
+				</Players>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>f6c36e25-9795-45e9-9454-1322aa48b2a1</ID>
+			</Player>
+			<Player>
+				<Nickname>toph &amp; GC|silent wolf</Nickname>
+				<Players>
+				</Players>
+				<Skill>10</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>8b4d5140-e3cf-46ea-acaf-cd3a5bce7d8d</ID>
+			</Player>
+			<Player>
+				<Nickname>shroomed &amp; laudandus</Nickname>
+				<Players>
+				</Players>
+				<Skill>10</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>80df76cf-fe80-4000-a4af-4d8b79a2a614</ID>
+			</Player>
+			<Player>
+				<Nickname>team glitter master</Nickname>
+				<Players>ralph &amp; glitter</Players>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>f763a3ac-ef99-48aa-9c79-9e22e9bf0181</ID>
+			</Player>
+			<Player>
+				<Nickname>isis &amp; aephi</Nickname>
+				<Players>
+				</Players>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>0787a32b-c3a0-49e8-bcca-1a6821d1fc4e</ID>
+			</Player>
+			<Player>
+				<Nickname>nima &amp; nmw</Nickname>
+				<Players>
+				</Players>
+				<Skill>8</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>3a4b96c4-447b-4fc1-9b18-4ac08496c606</ID>
+			</Player>
+			<Player>
+				<Nickname>tang &amp; mikkuz</Nickname>
+				<Players>
+				</Players>
+				<Skill>7</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>23dc2796-dfea-4643-a460-68101330f648</ID>
+			</Player>
+			<Player>
+				<Nickname>blueguy &amp; irish</Nickname>
+				<Players>
+				</Players>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>5f645757-aeff-4878-ad9b-d3b7dcf4a358</ID>
+			</Player>
+			<Player>
+				<Nickname>myko &amp; berble</Nickname>
+				<Players>
+				</Players>
+				<Skill>5</Skill>
+				<Location>
+				</Location>
+				<EmailAddress>
+				</EmailAddress>
+				<IsBye>False</IsBye>
+				<ID>72da9861-06a0-463d-b0d3-d685bde10be6</ID>
+			</Player>
+		</Teams>
+	</PlayerList>
+</AppData>
