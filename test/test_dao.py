@@ -96,6 +96,7 @@ class TestDAO(unittest.TestCase):
             self.dao.insert_ranking(ranking)
 
     def test_init_with_invalid_region(self):
+        print Dao.get_all_regions(mongo_client=self.mongo_client)
         # create a dao with an existing region
         Dao(self.region, mongo_client=self.mongo_client, new=False)
 
@@ -108,7 +109,7 @@ class TestDAO(unittest.TestCase):
         region = 'newregion'
         Dao(region, mongo_client=self.mongo_client, new=True)
 
-        self.assertEquals(set(self.dao.get_all_regions()), set([self.region, region]))
+        self.assertEquals(set(Dao.get_all_regions(mongo_client=self.mongo_client)), set([self.region, region]))
 
     def test_get_player_by_id(self):
         self.assertEquals(self.dao.get_player_by_id(self.player_1_id), self.player_1)

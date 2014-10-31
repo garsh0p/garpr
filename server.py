@@ -7,6 +7,9 @@ from bson.json_util import dumps
 from bson.objectid import ObjectId
 import sys
 import rankings
+from pymongo import MongoClient
+
+mongo_client = MongoClient('localhost')
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -29,12 +32,11 @@ def convert_object_id_list(json_dict_list):
 
 class RegionListResource(restful.Resource):
     def get(self):
-        dao = Dao('norcal') # TODO change this hardcode?
-        return {'regions': dao.get_all_regions()}
+        return {'regions': Dao.get_all_regions(mongo_client=mongo_client)}
 
 class PlayerListResource(restful.Resource):
     def get(self, region):
-        dao = Dao(region)
+        dao = Dao(region, mongo_client=mongo_client)
         return_dict = {}
         return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
         convert_object_id_list(return_dict['players'])
@@ -49,7 +51,7 @@ class PlayerListResource(restful.Resource):
 
 class PlayerResource(restful.Resource):
     def get(self, region, id):
-        dao = Dao(region)
+        dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))
 
         return_dict = player.get_json_dict()
@@ -59,7 +61,7 @@ class PlayerResource(restful.Resource):
 
 class TournamentListResource(restful.Resource):
     def get(self, region):
-        dao = Dao(region)
+        dao = Dao(region, mongo_client=mongo_client)
         return_dict = {}
         return_dict['tournaments'] = [t.get_json_dict() for t in dao.get_all_tournaments()] #
         convert_object_id_list(return_dict['tournaments'])
@@ -77,7 +79,7 @@ class TournamentListResource(restful.Resource):
 
 class TournamentResource(restful.Resource):
     def get(self, region, id):
-        dao = Dao(region)
+        dao = Dao(region, mongo_client=mongo_client)
         tournament = dao.get_tournament_by_id(ObjectId(id))
 
         return_dict = tournament.get_json_dict()
@@ -104,7 +106,7 @@ class TournamentResource(restful.Resource):
 
 class RankingsResource(restful.Resource):
     def get(self, region):
-        dao = Dao(region)
+        dao = Dao(region, mongo_client=mongo_client)
         args = rankings_get_parser.parse_args()
 
         if args['generateNew'] is not None and args['generateNew'] == 'true':
@@ -123,7 +125,7 @@ class RankingsResource(restful.Resource):
 
 class MatchesResource(restful.Resource):
     def get(self, region):
-        dao = Dao(region)
+        dao = Dao(region, mongo_client=mongo_client)
         args = matches_get_parser.parse_args()
         return_dict = {}
 

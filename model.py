@@ -86,6 +86,7 @@ class MatchResult(object):
 
 class Player(object):
     def __init__(self, name, aliases, rating, exclude, id=None):
+        # TODO force aliases to lowercase
         self.id = id
         self.name = name
         self.aliases = aliases

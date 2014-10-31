@@ -17,7 +17,7 @@ class InvalidNameException(Exception):
 class Dao(object):
     def __init__(self, region, mongo_client=MongoClient('localhost'), new=False):
         self.mongo_client = mongo_client
-        if not new and not region in self.get_all_regions():
+        if not new and not region in Dao.get_all_regions(mongo_client=self.mongo_client):
             raise RegionNotFoundException("%s is not a valid region! Set new=True to create a new region." 
                                           % region)
 
@@ -26,8 +26,9 @@ class Dao(object):
         self.tournaments_col = mongo_client[database_name].tournaments
         self.rankings_col = mongo_client[database_name].rankings
 
-    def get_all_regions(self):
-        regions = self.mongo_client.database_names()
+    @classmethod
+    def get_all_regions(cls, mongo_client=MongoClient('localhost')):
+        regions = mongo_client.database_names()
         regions = [r.split('_')[1] for r in regions if r.startswith('smashranks_')]
         return sorted(regions)
 
