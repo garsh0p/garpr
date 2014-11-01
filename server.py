@@ -16,7 +16,6 @@ cors = CORS(app)
 api = restful.Api(app)
 
 matches_get_parser = reqparse.RequestParser()
-matches_get_parser.add_argument('player', type=str)
 matches_get_parser.add_argument('opponent', type=str)
 
 rankings_get_parser = reqparse.RequestParser()
@@ -124,12 +123,12 @@ class RankingsResource(restful.Resource):
         return return_dict
 
 class MatchesResource(restful.Resource):
-    def get(self, region):
+    def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         args = matches_get_parser.parse_args()
         return_dict = {}
 
-        player = dao.get_player_by_id(ObjectId(args['player']))
+        player = dao.get_player_by_id(ObjectId(id))
         return_dict['player'] = {'id': str(player.id), 'name': player.name}
         player_list = [player]
 
@@ -152,12 +151,9 @@ class MatchesResource(restful.Resource):
                     match_dict['tournament_name'] = tournament.name
                     match_dict['tournament_date'] = tournament.date.strftime("%x")
                     match_dict['result'] = 'win' if match.did_player_win(player.id) else 'lose'
-                    match_list.append(match_dict)
-
-                # if we're looking up all matches for a player, we need to add the opponent's info to each match
-                if opponent_id is None and match.contains_player(player.id):
                     match_dict['opponent_id'] = str(match.get_opposing_player_id(player.id))
                     match_dict['opponent_name'] = dao.get_player_by_id(ObjectId(match_dict['opponent_id'])).name
+                    match_list.append(match_dict)
 
         return return_dict
 
@@ -167,7 +163,7 @@ api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
-api.add_resource(MatchesResource, '/<string:region>/matches')
+api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))
