@@ -7,6 +7,7 @@ from scraper.tio import TioScraper
 from model import Player, Tournament, TrueskillRating
 import json
 import rankings
+from bson.objectid import ObjectId
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -52,5 +53,47 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json.loads(data), {'regions': ['norcal', 'texas']})
 
     def test_get_player_list(self):
+        def for_region(data, dao):
+            json_data = json.loads(data)
+
+            self.assertEquals(json_data.keys(), ['players'])
+            players_list = json_data['players']
+            players_from_db = dao.get_all_players()
+            self.assertEquals(len(players_list), len(players_from_db))
+
+            # make sure all the IDs in the response match the db
+            for player in players_list:
+                expected_keys = set(['id', 'name'])
+                self.assertEquals(set(player.keys()), expected_keys)
+                self.assertEquals(ObjectId(player['id']), dao.get_player_by_alias(player['name']).id)
+
         data = self.app.get('/norcal/players').data
-        print json.loads(data)
+        for_region(data, self.norcal_dao)
+
+        data = self.app.get('/texas/players').data
+        for_region(data, self.texas_dao)
+
+    def test_get_player(self):
+        player = self.norcal_dao.get_player_by_alias('gar')
+        data = self.app.get('/norcal/players/' + str(player.id)).data
+        json_data = json.loads(data)
+
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['id'], str(player.id))
+        self.assertEquals(json_data['name'], 'gar')
+        self.assertEquals(json_data['aliases'], ['gar'])
+        self.assertEquals(json_data['exclude'], False)
+        self.assertTrue(json_data['rating']['mu'] > 25.9)
+        self.assertTrue(json_data['rating']['sigma'] > 3.89)
+
+        player = self.texas_dao.get_player_by_alias('wobbles')
+        data = self.app.get('/texas/players/' + str(player.id)).data
+        json_data = json.loads(data)
+
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['id'], str(player.id))
+        self.assertEquals(json_data['name'], 'Wobbles')
+        self.assertEquals(json_data['aliases'], ['wobbles'])
+        self.assertEquals(json_data['exclude'], False)
+        self.assertTrue(json_data['rating']['mu'] > 44.5)
+        self.assertTrue(json_data['rating']['sigma'] > 3.53)
