@@ -147,16 +147,18 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
     $scope.regionService = RegionService;
     $scope.playerService = PlayerService;
     $scope.player1 = null;
-    $scope.player2 = null
-    $scope.data = null;
+    $scope.player2 = null;
 
     $scope.onChange = function() {
         if ($scope.player1 != null && $scope.player2 != null) {
             $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + 
                 '/matches/' + $scope.player1.id + '?opponent=' + $scope.player2.id).
                 success(function(data) {
-                    $scope.data = data;
-                    console.log($scope.data);
+                    $scope.playerName = $scope.player1.name;
+                    $scope.opponentName = $scope.player2.name;
+                    $scope.matches = data.matches.reverse();
+                    $scope.wins = data.wins;
+                    $scope.losses = data.losses;
                 });
         }
     };
