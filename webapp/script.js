@@ -11,17 +11,17 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
                 TournamentService.tournamentList = null;
                 RankingsService.rankingsList = null;
 
-                $http.get('http://garsh0p.no-ip.biz:5100/' + this.region + '/players').
+                $http.get('http://www.garpr.com/api/' + this.region + '/players').
                     success(function(data) {
                         PlayerService.playerList = data;
                     });
 
-                $http.get('http://garsh0p.no-ip.biz:5100/' + this.region + '/tournaments').
+                $http.get('http://www.garpr.com/api/' + this.region + '/tournaments').
                     success(function(data) {
                         TournamentService.tournamentList = data.tournaments.reverse();
                     });
 
-                $http.get('http://garsh0p.no-ip.biz:5100/' + this.region + '/rankings').
+                $http.get('http://www.garpr.com/api/' + this.region + '/rankings').
                     success(function(data) {
                         RankingsService.rankingsList = data;
                     });
@@ -29,7 +29,7 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
         }
     };
 
-    $http.get('http://garsh0p.no-ip.biz:5100/regions').
+    $http.get('http://www.garpr.com/api/regions').
         success(function(data) {
             service.regions = data.regions;
         });
@@ -130,12 +130,12 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, R
     $scope.regionService = RegionService;
     $scope.playerId = $routeParams.playerId;
 
-    $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/players/' + $routeParams.playerId).
+    $http.get('http://www.garpr.com/api/' + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
             $scope.playerData = data;
         });
 
-    $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + '/matches/' + $routeParams.playerId).
+    $http.get('http://www.garpr.com/api/' + $routeParams.region + '/matches/' + $routeParams.playerId).
         success(function(data) {
             $scope.matches = data.matches.reverse();
         });
@@ -151,7 +151,7 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
 
     $scope.onChange = function() {
         if ($scope.player1 != null && $scope.player2 != null) {
-            $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + 
+            $http.get('http://www.garpr.com/api/' + $routeParams.region + 
                 '/matches/' + $scope.player1.id + '?opponent=' + $scope.player2.id).
                 success(function(data) {
                     $scope.playerName = $scope.player1.name;
