@@ -18,7 +18,7 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
 
                 $http.get('http://garsh0p.no-ip.biz:5100/' + this.region + '/tournaments').
                     success(function(data) {
-                        TournamentService.tournamentList = data;
+                        TournamentService.tournamentList = data.tournaments.reverse();
                     });
 
                 $http.get('http://garsh0p.no-ip.biz:5100/' + this.region + '/rankings').
