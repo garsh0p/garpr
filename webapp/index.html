@@ -11,6 +11,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
         <script src="https://code.angularjs.org/1.2.24/angular-route.min.js"></script>
+        <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.11.2.js"></script>
         <script src="script.js"></script>
     </head>
     <body>
@@ -28,6 +29,9 @@
                     </li>
                     <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
                         <a ng-href="#/{{regionService.region}}/tournaments">Tournaments</a>
+                    </li>
+                    <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
+                        <a ng-href="#/{{regionService.region}}/headtohead">Head-to-Head</a>
                     </li>
                     <li ng-class="{active: $route.current.activeTab == 'about'}">
                         <a ng-href="#/about">About</a>

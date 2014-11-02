@@ -203,13 +203,13 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/matches/' + str(player.id)).data
         json_data = json.loads(data)
 
-        print json.dumps(json_data, indent=2)
-
-        self.assertEquals(len(json_data.keys()), 2)
+        self.assertEquals(len(json_data.keys()), 4)
 
         self.assertEquals(len(json_data['player'].keys()), 2)
         self.assertEquals(json_data['player']['id'], str(player.id))
         self.assertEquals(json_data['player']['name'], player.name)
+        self.assertEquals(json_data['wins'], 3)
+        self.assertEquals(json_data['losses'], 4)
 
         matches = json_data['matches']
         self.assertEquals(len(matches), 7)
@@ -243,9 +243,9 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/matches/' + str(player.id) + "?opponent=" + str(opponent.id)).data
         json_data = json.loads(data)
 
-        print json.dumps(json_data, indent=2)
-
-        self.assertEquals(len(json_data.keys()), 3)
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['wins'], 0)
+        self.assertEquals(json_data['losses'], 1)
 
         self.assertEquals(len(json_data['player'].keys()), 2)
         self.assertEquals(json_data['player']['id'], str(player.id))

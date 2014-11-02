@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['ngRoute']);
+var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap']);
 
 app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService) {
     var service = {
@@ -39,7 +39,16 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
 
 app.service('PlayerService', function ($http) {
     var service = {
-        playerList: null
+        playerList: null,
+        getPlayerIdFromName: function (name) {
+            for (i = 0; i < this.playerList.players.length; i++) {
+                p = this.playerList.players[i]
+                if (p.name == name) {
+                    return p.id;
+                }
+            }
+            return null;
+        }
     };
     return service;
 });
@@ -78,6 +87,11 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'tournaments.html',
         controller: 'TournamentsController',
         activeTab: 'tournaments'
+    }).
+    when('/:region/headtohead', {
+        templateUrl: 'headtohead.html',
+        controller: 'HeadToHeadController',
+        activeTab: 'headtohead'
     }).
     when('/about', {
         templateUrl: 'about.html',
@@ -126,4 +140,24 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, R
             $scope.matches = data.matches.reverse();
         });
 
+});
+
+app.controller("HeadToHeadController", function($scope, $http, $routeParams, RegionService, PlayerService) {
+    RegionService.setRegion($routeParams.region);
+    $scope.regionService = RegionService;
+    $scope.playerService = PlayerService;
+    $scope.player1 = null;
+    $scope.player2 = null
+    $scope.data = null;
+
+    $scope.onChange = function() {
+        if ($scope.player1 != null && $scope.player2 != null) {
+            $http.get('http://garsh0p.no-ip.biz:5100/' + $routeParams.region + 
+                '/matches/' + $scope.player1.id + '?opponent=' + $scope.player2.id).
+                success(function(data) {
+                    $scope.data = data;
+                    console.log($scope.data);
+                });
+        }
+    };
 });

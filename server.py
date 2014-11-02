@@ -140,6 +140,8 @@ class MatchesResource(restful.Resource):
 
         match_list = []
         return_dict['matches'] = match_list
+        return_dict['wins'] = 0
+        return_dict['losses'] = 0
 
         tournaments = dao.get_all_tournaments(players=player_list)
         for tournament in tournaments:
@@ -150,9 +152,16 @@ class MatchesResource(restful.Resource):
                     match_dict['tournament_id'] = str(tournament.id)
                     match_dict['tournament_name'] = tournament.name
                     match_dict['tournament_date'] = tournament.date.strftime("%x")
-                    match_dict['result'] = 'win' if match.did_player_win(player.id) else 'lose'
                     match_dict['opponent_id'] = str(match.get_opposing_player_id(player.id))
                     match_dict['opponent_name'] = dao.get_player_by_id(ObjectId(match_dict['opponent_id'])).name
+
+                    if match.did_player_win(player.id):
+                        match_dict['result'] = 'win'
+                        return_dict['wins'] += 1
+                    else:
+                        match_dict['result'] = 'lose'
+                        return_dict['losses'] += 1
+
                     match_list.append(match_dict)
 
         return return_dict
