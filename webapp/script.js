@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap']);
+var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics']);
 
 app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService) {
     var service = {
