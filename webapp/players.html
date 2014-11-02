@@ -3,8 +3,8 @@
         <tr>
             <td>Name</td>
         </tr>
-        <tr ng-repeat="line in data.players">
-            <td><a href="#/{{region}}/players/{{line.id}}">{{line.name}}</a></td>
+        <tr ng-repeat="line in playerService.playerList.players">
+            <td><a href="#/{{regionService.region}}/players/{{line.id}}">{{line.name}}</a></td>
         </tr>
     </table>
 </div>

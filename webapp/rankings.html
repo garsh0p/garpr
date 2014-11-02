@@ -5,9 +5,9 @@
             <td>Name</td>
             <td>Rating</td>
         </tr>
-        <tr ng-repeat="line in data.ranking">
+        <tr ng-repeat="line in rankingsService.rankingsList.ranking">
             <td>{{line.rank}}</td>
-            <td><a href="#/{{region}}/players/{{line.id}}">{{line.name}}</a></td>
+            <td><a href="#/{{regionService.region}}/players/{{line.id}}">{{line.name}}</a></td>
             <td>{{line.rating | number:3}}</td>
         </tr>
     </table>
