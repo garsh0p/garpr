@@ -148,6 +148,8 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
     $scope.playerService = PlayerService;
     $scope.player1 = null;
     $scope.player2 = null;
+    $scope.wins = 0;
+    $scope.losses = 0;
 
     $scope.onChange = function() {
         if ($scope.player1 != null && $scope.player2 != null) {
