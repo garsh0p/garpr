@@ -7,7 +7,7 @@
 <div class="container">
     <div class="form-group row">
         <div class="col-md-5 col-xs-5">
-            <input type="text" placeholder="Player name" class="form-control input-lg" ng-model="player1" typeahead="player as player.name for player in playerService.playerList.players | filter:$viewValue | limitTo:8" typeahead-on-select="onChange()">
+            <input type="text" placeholder="Player name" class="form-control input-lg" ng-model="player1" typeahead="player as player.name for player in playerService.playerList.players | filter:$viewValue:typeaheadFilter | limitTo:20" typeahead-on-select="onChange()">
         </div>
 
         <div class="col-md-2 col-xs-2">
@@ -15,7 +15,7 @@
         </div>
 
         <div class="col-md-5 col-xs-5">
-            <input type="text" placeholder="Player name" class="form-control input-lg input-right" ng-model="player2" typeahead="player as player.name for player in playerService.playerList.players | filter:$viewValue | limitTo:8" typeahead-on-select="onChange()">
+            <input type="text" placeholder="Player name" class="form-control input-lg input-right" ng-model="player2" typeahead="player as player.name for player in playerService.playerList.players | filter:$viewValue:typeaheadFilter | limitTo:20" typeahead-on-select="onChange()">
         </div>
     </div>
     <table class="table">
