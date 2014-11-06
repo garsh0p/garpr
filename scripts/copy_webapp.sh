@@ -1,4 +1,5 @@
 rm -rf /var/www/*
 mkdir /var/www/api
-cp -r webapp/* /var/www
+mkdir /var/www/webapp
+cp -r webapp/* /var/www/webapp/*
 cp garpr.wsgi /var/www/api
