@@ -53,6 +53,10 @@ class Dao(object):
     def update_player(self, player):
         return self.players_col.update({'_id': player.id}, player.get_json_dict())
 
+    # TODO bulk update
+    def update_players(self, players):
+        pass
+
     def get_excluded_players(self):
         return [Player.from_json(p) for p in self.players_col.find({'exclude': True})]
 
