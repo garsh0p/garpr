@@ -3,31 +3,32 @@ from model import *
 import rating_calculators
 import trueskill
 
+DEFAULT_RATING = TrueskillRating()
+
 def generate_ranking(dao):
     dao.reset_all_player_ratings()
-
-    tournaments = dao.get_all_tournaments()
 
     player_date_map = {}
     now = datetime.now()
     inactivity_threshold = now - timedelta(days=45)
+    player_id_to_player_map = dict((p.id, p) for p in dao.get_all_players())
 
-    for tournament in dao.get_all_tournaments():
+    tournaments = dao.get_all_tournaments()
+    for tournament in tournaments:
+        print 'Processing:', tournament.name
+
         for player_id in tournament.players:
             player_date_map[player_id] = tournament.date
 
         for match in tournament.matches:
-            winner = dao.get_player_by_id(match.winner)
-            loser = dao.get_player_by_id(match.loser)
+            winner = player_id_to_player_map[match.winner]
+            loser = player_id_to_player_map[match.loser]
 
             rating_calculators.update_trueskill_ratings(winner=winner, loser=loser)
 
-            dao.update_player(winner)
-            dao.update_player(loser)
-
     excluded_players = set([p.id for p in dao.get_excluded_players()])
     i = 1
-    players = dao.get_all_players()
+    players = player_id_to_player_map.values()
     sorted_players = sorted(players, key=lambda player: trueskill.expose(player.rating.trueskill_rating), reverse=True)
     ranking = []
     for player in sorted_players:
@@ -38,4 +39,11 @@ def generate_ranking(dao):
             ranking.append(RankingEntry(i, player.id, trueskill.expose(player.rating.trueskill_rating)))
             i += 1
 
-    dao.insert_ranking(Ranking(now, [t.id for t in dao.get_all_tournaments()], ranking))
+    print 'Updating players...'
+    for p in players:
+        dao.update_player(p)
+
+    print 'Inserting new ranking...'
+    dao.insert_ranking(Ranking(now, [t.id for t in tournaments], ranking))
+
+    print 'Done!'
