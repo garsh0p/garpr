@@ -4,8 +4,16 @@ from scraper.challonge import ChallongeScraper
 from model import *
 from dao import Dao
 import rankings
+from ConfigParser import ConfigParser
+from pymongo import MongoClient
+import getpass
 
 DEFAULT_RATING = TrueskillRating()
+
+def parse_config():
+    config = ConfigParser()
+    config.read('config/config.ini')
+    return config
 
 @click.command()
 @click.option('--type', '-t', help='tio or challonge', type=click.Choice(['challonge', 'tio']), prompt=True)
@@ -14,6 +22,14 @@ DEFAULT_RATING = TrueskillRating()
 @click.option('--name', '-n', help='Tournament name (override)')
 @click.argument('path')
 def import_tournament(type, path, bracket, region, name):
+    config = parse_config()
+    username = config.get('database', 'user')
+    host = config.get('database', 'host')
+    auth_db = config.get('database', 'auth_db')
+    password = getpass.getpass()
+
+    mongo_client = MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
+
     if type == 'tio':
         scraper = TioScraper(path, bracket)
     elif type =='challonge':
@@ -21,7 +37,7 @@ def import_tournament(type, path, bracket, region, name):
     else:
         click.echo("Illegal type")
 
-    dao = Dao(region)
+    dao = Dao(region, mongo_client=mongo_client)
 
     import_players(scraper, dao)
 

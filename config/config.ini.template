@@ -1,0 +1,7 @@
+[database]
+host=HOSTNAME
+auth_db=AUTH_DB
+user=USER
+
+[challonge]
+api_key=API_KEY

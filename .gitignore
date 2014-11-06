@@ -56,3 +56,4 @@ coverage.xml
 docs/_build/
 
 challonge_api_key.txt
+config/config.ini

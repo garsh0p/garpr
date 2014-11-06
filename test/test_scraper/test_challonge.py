@@ -8,9 +8,9 @@ from datetime import datetime
 import pytz
 from model import MatchResult
 
+TEMPLATE_CONFIG_FILE_PATH = 'config/config.ini.template'
+TEMPLATE_API_KEY = 'API_KEY'
 TOURNAMENT_ID = 'faketournament'
-FAKE_CHALLONGE_API_KEY_FILE = 'test/test_scraper/fake_challonge_api_key.txt'
-FAKE_API_KEY = 'fake_key'
 
 TOURNAMENT_JSON_FILE = 'test/test_scraper/data/tournament.json'
 
@@ -23,7 +23,7 @@ MATCHES_JSON_FILE = 'test/test_scraper/data/matches.json'
 PARTICIPANTS_JSON_FILE = 'test/test_scraper/data/participants.json'
 
 class TestChallongeScraper(unittest.TestCase):
-    @patch('scraper.challonge.CHALLONGE_API_KEY_PATH', FAKE_CHALLONGE_API_KEY_FILE)
+    @patch('scraper.challonge.CONFIG_FILE_PATH', TEMPLATE_CONFIG_FILE_PATH)
     @patch('scraper.challonge.requests', spec=requests)
     def setUp(self, mock_requests):
         mock_tournament_response = Mock(spec=requests.Response)
@@ -52,9 +52,9 @@ class TestChallongeScraper(unittest.TestCase):
         expected_participants_url = scraper.challonge.PARTICIPANTS_URL % TOURNAMENT_ID;
     
         mock_requests_return_values = {
-                (expected_tournament_url, FAKE_API_KEY): mock_tournament_response,
-                (expected_matches_url, FAKE_API_KEY): mock_matches_response,
-                (expected_participants_url, FAKE_API_KEY): mock_participants_response
+                (expected_tournament_url, TEMPLATE_API_KEY): mock_tournament_response,
+                (expected_matches_url, TEMPLATE_API_KEY): mock_matches_response,
+                (expected_participants_url, TEMPLATE_API_KEY): mock_participants_response
         }
         mock_requests.get.side_effect = lambda url, **kwargs: mock_requests_return_values[(url, kwargs['params']['api_key'])]
 
