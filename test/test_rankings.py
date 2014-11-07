@@ -195,4 +195,3 @@ class TestRankings(unittest.TestCase):
         self.assertEquals(entry.rank, 3)
         self.assertEquals(entry.player, self.player_2_id)
         self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
-
