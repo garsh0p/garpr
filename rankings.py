@@ -12,8 +12,6 @@ def generate_ranking(dao):
 
     player_date_map = {}
     now = datetime.now()
-    # @author hectohertz
-   # inactivity_threshold = now - timedelta(days=45)
     player_id_to_player_map = dict((p.id, p) for p in dao.get_all_players())
 
     tournaments = dao.get_all_tournaments()
