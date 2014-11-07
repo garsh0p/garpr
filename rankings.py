@@ -10,7 +10,6 @@ def generate_ranking(dao):
 
     player_date_map = {}
     now = datetime.now()
-    inactivity_threshold = now - timedelta(days=45)
     player_id_to_player_map = dict((p.id, p) for p in dao.get_all_players())
 
     tournaments = dao.get_all_tournaments()
@@ -33,7 +32,7 @@ def generate_ranking(dao):
     ranking = []
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
-        if player_last_active_date == None or player_last_active_date < inactivity_threshold or player.id in excluded_players:
+        if player_last_active_date == None or dao.is_inactive(player, now) or player.id in excluded_players:
             pass # do nothing, skip this player
         else:
             ranking.append(RankingEntry(i, player.id, trueskill.expose(player.rating.trueskill_rating)))

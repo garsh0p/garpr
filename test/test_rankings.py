@@ -171,3 +171,48 @@ class TestRankings(unittest.TestCase):
         self.assertEquals(entry.rank, 3)
         self.assertEquals(entry.player, self.player_2_id)
         self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
+
+    # test if it continues to work in the NYC case
+    @patch('rankings.datetime', spec=True)
+    def test_generate_rankings_excluded_for_inactivity_nyc(self, mock_datetime):
+        self.dao.region_name = "nyc" #setup for testing nyc
+
+        now = datetime(2013, 10, 25)
+        mock_datetime.now.return_value = now
+
+        rankings.generate_ranking(self.dao)
+        ranking = self.dao.get_latest_ranking()
+        ranking_list = ranking.ranking
+
+        # 2 3 and 4 went to both tournaments, 3 is excluded, so only 2 players should be part of this ranking
+        self.assertEquals(len(ranking_list), 2)
+
+        entry = ranking_list[0]
+        self.assertEquals(entry.rank, 1)
+        self.assertEquals(entry.player, self.player_4_id)
+        self.assertAlmostEquals(entry.rating, -.800, delta=delta)
+
+        entry = ranking_list[1]
+        self.assertEquals(entry.rank, 2)
+        self.assertEquals(entry.player, self.player_2_id)
+        self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
+
+        now = datetime(2014, 10, 25)
+        mock_datetime.now.return_value = now
+
+        rankings.generate_ranking(self.dao)
+        ranking = self.dao.get_latest_ranking()
+        ranking_list = ranking.ranking
+
+        #on this one, no one should be active, since no ones attended anything in a year
+        self.assertEquals(len(ranking_list), 0)
+
+        now = datetime(2014, 1, 12)
+        mock_datetime.now.return_value = now
+
+        rankings.generate_ranking(self.dao)
+        ranking = self.dao.get_latest_ranking()
+        ranking_list = ranking.ranking
+
+        #on this one, no one should be active, since its been more than 3 months since tourney 1
+        self.assertEquals(len(ranking_list), 0)

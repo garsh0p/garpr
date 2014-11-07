@@ -1,5 +1,6 @@
 from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
+from datetime import datetime, timedelta
 from model import *
 import trueskill
 
@@ -25,6 +26,7 @@ class Dao(object):
         self.players_col = mongo_client[database_name].players
         self.tournaments_col = mongo_client[database_name].tournaments
         self.rankings_col = mongo_client[database_name].rankings
+        self.region_name = region
 
     @classmethod
     def get_all_regions(cls, mongo_client=MongoClient('localhost')):
@@ -136,3 +138,18 @@ class Dao(object):
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find().sort('time', DESCENDING)[0])
 
+    def is_inactive(self, player, now):
+        # default rules
+        day_limit = 45
+        num_tourneys = 1
+
+        # special case for NYC
+        # TODO this goes away once regions become a db collection
+        if self.region_name == "nyc":
+            day_limit = 90
+            num_tourneys = 2
+
+        qualifying_tournaments = [x for x in self.get_all_tournaments([player]) if x.date >= (now - timedelta(days=day_limit))]
+        if len(qualifying_tournaments) >= num_tourneys:
+            return False
+        return True
