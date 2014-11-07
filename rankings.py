@@ -5,8 +5,6 @@ import trueskill
 
 DEFAULT_RATING = TrueskillRating()
 
-
-
 def generate_ranking(dao):
     dao.reset_all_player_ratings()
 

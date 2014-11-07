@@ -140,7 +140,7 @@ class Dao(object):
 
     def is_inactive(self, player):
         now = datetime.now()
-        #deault rules
+        #default rules
         day_limit = 45
         num_tourneys = 1
         if self.region == "nyc":
