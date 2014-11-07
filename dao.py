@@ -113,6 +113,7 @@ class Dao(object):
         '''id must be an ObjectId'''
         return Tournament.from_json(self.tournaments_col.find_one({'_id': id}))
 
+    # TODO reduce db calls for this
     def merge_players(self, source=None, target=None):
         if source is None or target is None:
             raise TypeError("source or target can't be none!");
