@@ -12,6 +12,10 @@ import requests
 import os
 from config.config import Config
 import facebook
+from datetime import datetime
+from model import MatchResult, TrueskillRating
+import trueskill
+
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
@@ -34,8 +38,23 @@ matches_get_parser.add_argument('opponent', type=str)
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
+
+
+player_put_parser = reqparse.RequestParser()
+player_put_parser.add_argument('name', type=str)
+player_put_parser.add_argument('aliases', type=list)
+player_put_parser.add_argument('regions', type=list)
+
+tournament_put_parser = reqparse.RequestParser()
+tournament_put_parser.add_argument('name', type=str)
+tournament_put_parser.add_argument('date', type=int)
+tournament_put_parser.add_argument('players', type=list)
+tournament_put_parser.add_argument('matches', type=list)
+tournament_put_parser.add_argument('regions', type=list)
+
 class InvalidAccessToken(Exception):
     pass
+
 
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
@@ -109,11 +128,41 @@ class PlayerResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))
-
         return_dict = player.get_json_dict()
         convert_object_id(return_dict)
 
         return return_dict
+
+<<<<<<< HEAD
+    def put(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        player = dao.get_player_by_id(ObjectId(id))
+        args = player_put_parser.parse_arguments()
+
+
+        if not player:
+            return "No player found with that region/id.", 400
+        args = player_put_parser.parse_args()
+
+        if args['name']:
+            player.name = args['name']
+        if args['aliases']:
+            for a in args['aliases']:
+                if not isinstance(a, unicode):
+                    return "each alias must be a string", 400
+            #TODO: should we validate that all aliases are lowercase? or force them all to lowercase?
+            if player.name.lower() not in args['aliases']:
+                return "aliases must contain the players name!", 400
+            player.aliases = args['aliases']
+        if args['regions']:
+            for a in args['regions']:
+                if not isinstance(a, unicode):
+                    return "each region must be a string", 400
+            player.regions = args['regions']
+
+
+        dao.update_player(player)
+
 
 class TournamentListResource(restful.Resource):
     def get(self, region):
@@ -159,6 +208,40 @@ class TournamentResource(restful.Resource):
         del return_dict['raw']
 
         return return_dict
+
+    def put(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        tournament = dao.get_tournament_by_id(ObjectId(id))
+        if not tournament:
+            return "No tournament found with that id.", 400
+        args = tournament_put_parser.parse_args()
+
+        #TODO: convert these asserts into error returns
+        #TODO: should we do validation that matches and players are compatible here?
+        if args['name']:
+            tournament.name = args['name']
+        if args['date']:
+            tournament.date = datetime.fromordinal(args['date'])
+        if args['players']:
+            for p in args['players']:
+                if not isinstance(p, unicode):
+                    return 400, "each player must be a string"
+            tournament.players = [ObjectId(i) for i in args['players']]
+        if args['matches']:
+            for d in args['matches']:
+                if not (isinstance(d['winner'], unicode)) or not (isinstance(d['loser'], unicode)):
+                    return 400, "winner and loser must be strings"
+            #turn the list of dicts into list of matchresults
+            matches = [MatchResult(winner=ObjectId(m['winner']), loser=ObjectId(m['loser'])) for m in args['matches']]
+            tournament.matches = matches
+        if args['regions']:
+            for p in args['players']:
+                if not isinstance(p, unicode):
+                    return 400, "each region must be a string"
+            tournament.regions = args['regions']
+
+        dao.update_tournament(tournament)
+
 
 class RankingsResource(restful.Resource):
     def get(self, region):

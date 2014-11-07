@@ -197,7 +197,7 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
-        # default rules
+
         day_limit = 45
         num_tourneys = 1
 

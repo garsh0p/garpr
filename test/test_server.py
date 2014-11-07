@@ -11,6 +11,8 @@ from bson.objectid import ObjectId
 import requests
 from datetime import datetime
 import facebook
+import datetime
+
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -489,4 +491,135 @@ class TestServer(unittest.TestCase):
         }
 
         self.assertEquals(json_data, expected_data)
+
+    def test_put_tournament(self):
+        #initial setup
+        dao = self.norcal_dao
+        #pick a tournament
+        tournaments_from_db = dao.get_all_tournaments(regions="norcal")
+        the_tourney = tournaments_from_db[0]
+
+        #save info about it
+        tourney_id = the_tourney.id
+        old_date = the_tourney.date
+        old_matches = the_tourney.matches
+        old_players = the_tourney.players
+        old_raw = the_tourney.raw
+        old_regions = the_tourney.regions
+        old_type = the_tourney.type
+
+        #construct info for first test
+        new_tourney_name = "jessesGodlikeTourney"
+        raw_dict = {'name': new_tourney_name}
+        test_data = json.dumps(raw_dict)
+
+        #try overwriting an existing tournament and changing just its name, make sure all the other attributes are fine
+        rv = self.app.put('/norcal/tournaments/' + str(tourney_id), data=test_data, content_type='application/json')
+        self.assertEqual(rv.status, '200 OK')
+        the_tourney = dao.get_tournament_by_id(tourney_id)
+        self.assertEquals(the_tourney.name, new_tourney_name)
+        self.assertEquals(old_date, the_tourney.date)
+        self.assertEquals(old_matches, the_tourney.matches)
+        self.assertEquals(old_players, the_tourney.players)
+        self.assertEquals(old_raw, the_tourney.raw)
+        self.assertEquals(old_regions, the_tourney.regions)
+        self.assertEquals(old_type, the_tourney.type)
+
+        #setup for test 2
+        player1 = ObjectId()
+        player2 = ObjectId()
+        new_players = (player1, player2)
+        new_matches = (MatchResult(player1, player2), MatchResult(player2, player1))
+
+        new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
+        new_date = datetime.datetime.now()
+        new_regions = ("norcal", "socal")
+        raw_dict = {'name': new_tourney_name, 'date': new_date.toordinal(), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
+        test_data = json.dumps(raw_dict)
+
+        # try overwriting all its writeable attributes: date players matches regions
+        rv = self.app.put('/norcal/tournaments/' + str(tourney_id), data=test_data, content_type='application/json')
+        self.assertEqual(rv.status, '200 OK')
+        the_tourney = dao.get_tournament_by_id(tourney_id)
+        self.assertEquals(the_tourney.name, new_tourney_name)
+        self.assertEquals(new_date.toordinal(), the_tourney.date.toordinal())
+        for m1,m2 in zip(new_matches, the_tourney.matches):
+            self.assertEqual(m1.winner, m2.winner)
+            self.assertEqual(m1.loser, m2.loser)
+
+        self.assertEquals(set(new_players), set(the_tourney.players))
+        self.assertEquals(old_raw, the_tourney.raw)
+        self.assertEquals(set(new_regions), set(the_tourney.regions))
+        self.assertEquals(old_type, the_tourney.type)
+
+        # try sending one with an invalid tourney ID
+        rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
+
+    def test_put_player(self):
+        #setup
+        dao = self.norcal_dao
+        players = dao.get_all_players()
+        the_player = players[0]
+        player_id = the_player.id
+        old_regions = the_player.regions
+        old_aliases = the_player.aliases
+        old_ratings = the_player.ratings
+
+        #construct info for first test
+        new_name = 'someone'
+        raw_dict = {'name': new_name}
+        test_data = json.dumps(raw_dict)
+
+        #test updating name
+        rv = self.app.put('/norcal/players/' + str(the_player.id), data=test_data, content_type='application/json')
+        self.assertEqual(rv.status, '200 OK')
+        the_player = dao.get_player_by_id(player_id)
+        self.assertEqual(the_player.ratings, old_ratings)
+        self.assertEqual(set(the_player.aliases), set(old_aliases))
+        self.assertEqual(set(the_player.regions), set(old_regions))
+        self.assertEqual(the_player.name, new_name)
+
+        #construct info for second test
+        new_aliases = ('someone', 'someoneelse', 'unknowndude')
+        raw_dict = {'aliases': new_aliases}
+        test_data = json.dumps(raw_dict)
+
+        #test updating aliases
+        rv = self.app.put('/norcal/players/' + str(the_player.id), data=test_data, content_type='application/json')
+        self.assertEqual(rv.status, '200 OK')
+        the_player = dao.get_player_by_id(player_id)
+        self.assertEqual(set(the_player.aliases), set(new_aliases))
+        self.assertEqual(the_player.ratings, old_ratings)
+        self.assertEqual(set(the_player.regions), set(old_regions))
+        self.assertEqual(the_player.name, new_name)
+
+        #construct info for third test
+        valid_aliases = new_aliases
+
+        new_aliases = ('nope', 'someoneelse', 'unknowndude')
+        raw_dict = {'aliases': new_aliases}
+        test_data = json.dumps(raw_dict)
+
+        #test updating aliases with invalid aliases list
+        rv = self.app.put('/norcal/players/' + str(the_player.id), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
+
+        #construct info for fourth test
+        new_regions = ('norcal', 'nyc')
+        raw_dict = {'regions': new_regions}
+        test_data = json.dumps(raw_dict)
+
+        #test updating regions
+        rv = self.app.put('/norcal/players/' + str(the_player.id), data=test_data, content_type='application/json')
+        self.assertEqual(rv.status, '200 OK', msg=rv.data)
+        the_player = dao.get_player_by_id(player_id)
+        self.assertEqual(the_player.ratings, old_ratings)
+        self.assertEqual(set(the_player.aliases), set(valid_aliases))
+        self.assertEqual(set(the_player.regions), set(new_regions))
+        self.assertEqual(the_player.name, new_name)
+
+        #test player not found
+        rv = self.app.put('/norcal/players/' + str(ObjectId()), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
 
