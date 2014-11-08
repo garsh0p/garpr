@@ -17,6 +17,7 @@ def generate_ranking(dao):
         for player_id in tournament.players:
             player_date_map[player_id] = tournament.date
 
+        # TODO add a default rating entry when we add it to the map
         for match in tournament.matches:
             if not match.winner in player_id_to_player_map:
                 player_id_to_player_map[match.winner] = dao.get_player_by_id(match.winner)
