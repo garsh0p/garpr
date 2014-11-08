@@ -244,6 +244,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
         self.assertEquals(tournament_1.players, self.tournament_players_1)
+        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
 
         tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
@@ -253,6 +254,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
         tournament_2_raw_new = 'asdfasdf'
         tournament_2_name_new = 'new tournament 2 name'
@@ -270,6 +272,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
         self.assertEquals(tournament_1.players, self.tournament_players_1)
+        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
 
         tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
@@ -279,6 +282,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.name, tournament_2_name_new)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
     def test_get_all_tournaments(self):
         tournaments = self.norcal_dao.get_all_tournaments()
@@ -294,6 +298,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
         self.assertEquals(tournament_1.players, self.tournament_players_1)
+        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
 
         tournament_2 = tournaments[0]
         self.assertEquals(tournament_2.id, self.tournament_id_2)
@@ -303,6 +308,47 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
+
+    def test_get_all_tournaments_for_region(self):
+        tournaments = self.norcal_dao.get_all_tournaments(regions=['norcal'])
+
+        self.assertEquals(len(tournaments), 2)
+
+        # tournament 1 is last in the list because it occurs later than tournament 2
+        tournament_1 = tournaments[1]
+        self.assertEquals(tournament_1.id, self.tournament_id_1)
+        self.assertEquals(tournament_1.type, self.tournament_type_1)
+        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
+        self.assertEquals(tournament_1.date, self.tournament_date_1)
+        self.assertEquals(tournament_1.name, self.tournament_name_1)
+        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
+        self.assertEquals(tournament_1.players, self.tournament_players_1)
+        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
+
+        tournament_2 = tournaments[0]
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, self.tournament_name_2)
+        self.assertEquals(tournament_2.matches, self.tournament_matches_2)
+        self.assertEquals(tournament_2.players, self.tournament_players_2)
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
+
+        tournaments = self.norcal_dao.get_all_tournaments(regions=['texas'])
+
+        self.assertEquals(len(tournaments), 1)
+
+        tournament_2 = tournaments[0]
+        self.assertEquals(tournament_2.id, self.tournament_id_2)
+        self.assertEquals(tournament_2.type, self.tournament_type_2)
+        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
+        self.assertEquals(tournament_2.date, self.tournament_date_2)
+        self.assertEquals(tournament_2.name, self.tournament_name_2)
+        self.assertEquals(tournament_2.matches, self.tournament_matches_2)
+        self.assertEquals(tournament_2.players, self.tournament_players_2)
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
         
     def test_get_all_tournaments_containing_players(self):
         players = [self.player_5]
@@ -318,6 +364,24 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament.name, self.tournament_name_2)
         self.assertEquals(tournament.matches, self.tournament_matches_2)
         self.assertEquals(tournament.players, self.tournament_players_2)
+        self.assertEquals(tournament.regions, self.tournament_regions_2)
+
+    def test_get_all_tournaments_containing_players_and_regions(self):
+        players = [self.player_2]
+        regions = ['texas']
+
+        tournaments = self.norcal_dao.get_all_tournaments(players=players, regions=regions)
+        self.assertEquals(len(tournaments), 1)
+
+        tournament = tournaments[0]
+        self.assertEquals(tournament.id, self.tournament_id_2)
+        self.assertEquals(tournament.type, self.tournament_type_2)
+        self.assertEquals(tournament.raw, self.tournament_raw_2)
+        self.assertEquals(tournament.date, self.tournament_date_2)
+        self.assertEquals(tournament.name, self.tournament_name_2)
+        self.assertEquals(tournament.matches, self.tournament_matches_2)
+        self.assertEquals(tournament.players, self.tournament_players_2)
+        self.assertEquals(tournament.regions, self.tournament_regions_2)
 
     def test_get_tournament_by_id(self):
         tournament_1 = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
@@ -328,6 +392,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
         self.assertEquals(tournament_1.players, self.tournament_players_1)
+        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
 
         tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
@@ -337,6 +402,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
         self.assertIsNone(self.norcal_dao.get_tournament_by_id(ObjectId()))
 
@@ -351,6 +417,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
         self.assertEquals(tournament_1.players, self.tournament_players_1)
+        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
 
         tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
@@ -362,6 +429,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(len(tournament_2.matches), len(self.tournament_matches_1))
         self.assertEquals(tournament_2.matches[0], self.tournament_matches_1[0])
         self.assertEquals(tournament_2.matches[1], self.tournament_matches_1[1])
+        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
         merged_player_aliases = ['gar', 'garr', 'pewpewu']
         merged_player = self.norcal_dao.get_player_by_id(self.player_1_id)

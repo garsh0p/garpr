@@ -11,22 +11,39 @@ delta = .001
 
 class TestRankings(unittest.TestCase):
     def setUp(self):
-        self.region = 'test'
+        self.region_id = 'norcal'
+        self.region = Region(self.region_id, 'Norcal')
+
         self.mongo_client = mongomock.MongoClient()
-        self.dao = Dao(self.region, mongo_client=self.mongo_client, new=True)
+        Dao.insert_region(self.region, self.mongo_client)
+
+        self.dao = Dao(self.region_id, mongo_client=self.mongo_client)
 
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
         self.player_3_id = ObjectId()
         self.player_4_id = ObjectId()
         self.player_5_id = ObjectId()
-        self.player_1 = Player('gaR', ['gar', 'garr'], TrueskillRating(), False, id=self.player_1_id)
-        self.player_2 = Player('sfat', ['sfat', 'miom | sfat'], TrueskillRating(), False, id=self.player_2_id)
-        self.player_3 = Player('mango', ['mango'], 
-                               TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3)), 
-                               True, id=self.player_3_id)
-        self.player_4 = Player('shroomed', ['shroomed'], TrueskillRating(), False, id=self.player_4_id)
-        self.player_5 = Player('pewpewu', ['pewpewu'], TrueskillRating(), False, id=self.player_5_id)
+        self.player_1 = Player(
+                'gaR', 
+                ['gar', 'garr'], 
+                {'norcal': TrueskillRating(), 'texas': TrueskillRating()}, 
+                ['norcal', 'texas'], 
+                id=self.player_1_id)
+        self.player_2 = Player(
+                'sfat', 
+                ['sfat', 'miom | sfat'], 
+                {'norcal': TrueskillRating()}, 
+                ['norcal'], 
+                id=self.player_2_id)
+        self.player_3 = Player(
+                'mango', 
+                ['mango'], 
+                {'norcal': TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3))}, 
+                ['socal'], 
+                id=self.player_3_id)
+        self.player_4 = Player('shroomed', ['shroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=self.player_4_id)
+        self.player_5 = Player('pewpewu', ['pewpewu'], {'norcal': TrueskillRating()}, ['norcal'], id=self.player_5_id)
 
         self.players = [self.player_1, self.player_2, self.player_3, self.player_4, self.player_5]
 
@@ -40,6 +57,7 @@ class TestRankings(unittest.TestCase):
                 MatchResult(winner=self.player_1_id, loser=self.player_2_id),
                 MatchResult(winner=self.player_3_id, loser=self.player_4_id)
         ]
+        self.tournament_regions_1 = ['norcal']
 
         # tournament 2 is earlier than tournament 1, but inserted after
         self.tournament_id_2 = ObjectId()
@@ -52,6 +70,7 @@ class TestRankings(unittest.TestCase):
                 MatchResult(winner=self.player_5_id, loser=self.player_2_id),
                 MatchResult(winner=self.player_3_id, loser=self.player_4_id)
         ]
+        self.tournament_regions_2 = ['norcal', 'texas']
 
         self.tournament_1 = Tournament(self.tournament_type_1,
                                        self.tournament_raw_1,
@@ -59,6 +78,7 @@ class TestRankings(unittest.TestCase):
                                        self.tournament_name_1,
                                        self.tournament_players_1,
                                        self.tournament_matches_1,
+                                       self.tournament_regions_1,
                                        id=self.tournament_id_1)
 
         self.tournament_2 = Tournament(self.tournament_type_2,
@@ -67,13 +87,14 @@ class TestRankings(unittest.TestCase):
                                        self.tournament_name_2,
                                        self.tournament_players_2,
                                        self.tournament_matches_2,
+                                       self.tournament_regions_2,
                                        id=self.tournament_id_2)
 
         self.tournament_ids = [self.tournament_id_1, self.tournament_id_2]
         self.tournaments = [self.tournament_1, self.tournament_2]
 
         for player in self.players:
-            self.dao.add_player(player)
+            self.dao.insert_player(player)
 
         for tournament in self.tournaments:
             self.dao.insert_tournament(tournament)

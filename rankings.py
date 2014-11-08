@@ -6,13 +6,11 @@ import trueskill
 DEFAULT_RATING = TrueskillRating()
 
 def generate_ranking(dao):
-    dao.reset_all_player_ratings()
-
     player_date_map = {}
     now = datetime.now()
-    player_id_to_player_map = dict((p.id, p) for p in dao.get_all_players())
+    player_id_to_player_map = {}
 
-    tournaments = dao.get_all_tournaments()
+    tournaments = dao.get_all_tournaments(regions=[dao.region_id])
     for tournament in tournaments:
         print 'Processing:', tournament.name
 
@@ -20,12 +18,18 @@ def generate_ranking(dao):
             player_date_map[player_id] = tournament.date
 
         for match in tournament.matches:
+            if not match.winner in player_id_to_player_map:
+                player_id_to_player_map[match.winner] = dao.get_player_by_id(match.winner)
+
+            if not match.loser in player_id_to_player_map:
+                player_id_to_player_map[match.loser] = dao.get_player_by_id(match.loser)
+
             winner = player_id_to_player_map[match.winner]
             loser = player_id_to_player_map[match.loser]
-
+            
+            # TODO handle region here
             rating_calculators.update_trueskill_ratings(winner=winner, loser=loser)
 
-    excluded_players = set([p.id for p in dao.get_excluded_players()])
     i = 1
     players = player_id_to_player_map.values()
     sorted_players = sorted(players, key=lambda player: trueskill.expose(player.rating.trueskill_rating), reverse=True)

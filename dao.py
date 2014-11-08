@@ -93,14 +93,19 @@ class Dao(object):
     def update_tournament(self, tournament):
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-    def get_all_tournaments(self, players=None):
+    def get_all_tournaments(self, players=None, regions=None):
         '''players is a list of Players'''
         query_dict = {}
+        query_list = []
 
         if players:
-            query_list = []
             for player in players:
                 query_list.append({'players': {'$in': [player.id]}})
+
+        if regions:
+            query_list.append({'regions': {'$in': regions}})
+
+        if query_list:
             query_dict['$and'] = query_list
 
         return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
@@ -143,7 +148,7 @@ class Dao(object):
             day_limit = 90
             num_tourneys = 2
 
-        qualifying_tournaments = [x for x in self.get_all_tournaments([player]) if x.date >= (now - timedelta(days=day_limit))]
+        qualifying_tournaments = [x for x in self.get_all_tournaments(players=[player], regions=[self.region_id]) if x.date >= (now - timedelta(days=day_limit))]
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
