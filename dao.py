@@ -138,6 +138,7 @@ class Dao(object):
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find().sort('time', DESCENDING)[0])
 
+    # TODO this is untested
     def is_inactive(self, player, now):
         # default rules
         day_limit = 45
@@ -147,7 +148,7 @@ class Dao(object):
         # TODO this goes away once regions become a db collection
         if self.region_name == "nyc":
             day_limit = 90
-            num_tourneys = 2
+            num_tourneys = 3
 
         qualifying_tournaments = [x for x in self.get_all_tournaments([player]) if x.date >= (now - timedelta(days=day_limit))]
         if len(qualifying_tournaments) >= num_tourneys:
