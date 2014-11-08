@@ -5,6 +5,11 @@ from model import *
 import trueskill
 
 DEFAULT_RATING = TrueskillRating()
+DATABASE_NAME = 'garpr'
+PLAYERS_COLLECTION_NAME = 'players'
+TOURNAMENTS_COLLECTION_NAME = 'tournaments'
+RANKINGS_COLLECTION_NAME = 'rankings'
+REGIONS_COLLECTION_NAME = 'regions'
 
 class RegionNotFoundException(Exception):
     pass
@@ -16,23 +21,26 @@ class InvalidNameException(Exception):
     pass
 
 class Dao(object):
-    def __init__(self, region, mongo_client=MongoClient('localhost'), new=False):
+    def __init__(self, region_id, mongo_client):
         self.mongo_client = mongo_client
-        if not new and not region in Dao.get_all_regions(mongo_client=self.mongo_client):
-            raise RegionNotFoundException("%s is not a valid region! Set new=True to create a new region." 
-                                          % region)
+        self.region_id = region_id
 
-        database_name = 'smashranks_%s' % region       
-        self.players_col = mongo_client[database_name].players
-        self.tournaments_col = mongo_client[database_name].tournaments
-        self.rankings_col = mongo_client[database_name].rankings
-        self.region_name = region
+        if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
+            raise RegionNotFoundException("%s is not a valid region id!" % region_id)
+
+        self.players_col = mongo_client[DATABASE_NAME][PLAYERS_COLLECTION_NAME]
+        self.tournaments_col = mongo_client[DATABASE_NAME][TOURNAMENTS_COLLECTION_NAME]
+        self.rankings_col = mongo_client[DATABASE_NAME][RANKINGS_COLLECTION_NAME]
 
     @classmethod
-    def get_all_regions(cls, mongo_client=MongoClient('localhost')):
-        regions = mongo_client.database_names()
-        regions = [r.split('_')[1] for r in regions if r.startswith('smashranks_')]
-        return sorted(regions)
+    def insert_region(cls, region, mongo_client):
+        return mongo_client[DATABASE_NAME][REGIONS_COLLECTION_NAME].insert(region.get_json_dict())
+
+    # sorted by display name
+    @classmethod
+    def get_all_regions(cls, mongo_client):
+        regions = [Region.from_json(r) for r in mongo_client[DATABASE_NAME][REGIONS_COLLECTION_NAME].find()]
+        return sorted(regions, key=lambda r: r.display_name)
 
     def get_player_by_id(self, id):
         '''id must be an ObjectId'''
@@ -46,7 +54,7 @@ class Dao(object):
         '''Sorts by name in lexographical order'''
         return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
 
-    def add_player(self, player):
+    def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())
 
     def delete_player(self, player):
@@ -58,17 +66,6 @@ class Dao(object):
     # TODO bulk update
     def update_players(self, players):
         pass
-
-    def get_excluded_players(self):
-        return [Player.from_json(p) for p in self.players_col.find({'exclude': True})]
-
-    def exclude_player(self, player):
-        player.exclude = True
-        return self.update_player(player)
-
-    def include_player(self, player):
-        player.exclude = False
-        return self.update_player(player)
 
     def add_alias_to_player(self, player, alias):
         lowercase_alias = alias.lower()
@@ -89,9 +86,6 @@ class Dao(object):
 
         player.name = name
         return self.update_player(player)
-
-    def reset_all_player_ratings(self):
-        return self.players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
 
     def insert_tournament(self, tournament):
         return self.tournaments_col.insert(tournament.get_json_dict())
