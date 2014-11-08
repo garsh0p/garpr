@@ -104,44 +104,49 @@ class TestPlayer(unittest.TestCase):
         self.player_1_id = ObjectId()
         self.player_1_name = 'gaR'
         self.player_1_aliases = ['gar', 'garr', 'garpr']
-        self.player_1_rating = TrueskillRating()
-        self.player_1_exclude = False
+        self.player_1_rating = {
+                'norcal': TrueskillRating(), 
+                'texas': TrueskillRating(trueskill_rating=trueskill.Rating(mu=10, sigma=1))
+        }
+        self.player_1_regions = ['norcal', 'texas']
 
         self.player_2_id = ObjectId()
         self.player_2_name = 'MIOM | SFAT'
         self.player_2_aliases = ['miom | sfat', 'sfat', 'miom|sfat']
-        self.player_2_rating = TrueskillRating(trueskill_rating=trueskill.Rating(mu=30, sigma=2))
-        self.player_2_exclude = True
+        self.player_2_rating = {'norcal': TrueskillRating(trueskill_rating=trueskill.Rating(mu=30, sigma=2))}
+        self.player_2_regions = ['norcal']
 
-        self.player_1 = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_exclude, id=self.player_1_id)
-        self.player_1_missing_id = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_exclude)
-        self.player_2 = Player(self.player_2_name, self.player_2_aliases, self.player_2_rating, self.player_2_exclude, id=self.player_2_id)
+        self.player_1 = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_regions, id=self.player_1_id)
+        self.player_1_missing_id = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_regions)
+        self.player_2 = Player(self.player_2_name, self.player_2_aliases, self.player_2_rating, self.player_2_regions, id=self.player_2_id)
         
         self.player_1_json_dict = {
                 '_id': self.player_1_id,
                 'name': self.player_1_name,
                 'aliases': self.player_1_aliases,
-                'rating': self.player_1_rating.get_json_dict(),
-                'exclude': self.player_1_exclude
+                'ratings': {region: rating.get_json_dict() for region, rating in self.player_1_rating.iteritems()},
+                'regions': self.player_1_regions
         }
 
         self.player_1_json_dict_missing_id = {
                 'name': self.player_1_name,
                 'aliases': self.player_1_aliases,
-                'rating': self.player_1_rating.get_json_dict(),
-                'exclude': self.player_1_exclude
+                'ratings': {region: rating.get_json_dict() for region, rating in self.player_1_rating.iteritems()},
+                'regions': self.player_1_regions
         }
 
     def test_to_string(self):
-        self.assertEquals(str(self.player_1), "%s gaR (25.000, 8.333) ['gar', 'garr', 'garpr'] Excluded: False" % str(self.player_1_id))
+        self.assertEquals(
+                str(self.player_1), 
+                "%s gaR {'norcal': '(25.000, 8.333)', 'texas': '(10.000, 1.000)'} ['gar', 'garr', 'garpr'] ['norcal', 'texas']" % str(self.player_1_id))
 
     def test_equal(self):
-        player_1_clone = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_exclude, id=self.player_1_id)
+        player_1_clone = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_regions, id=self.player_1_id)
         self.assertTrue(player_1_clone == self.player_1)
         self.assertFalse(self.player_1 == self.player_2)
 
     def test_not_equal(self):
-        player_1_clone = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_exclude, id=self.player_1_id)
+        player_1_clone = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_regions, id=self.player_1_id)
         self.assertFalse(player_1_clone != self.player_1)
         self.assertTrue(self.player_1 != self.player_2)
 
@@ -193,6 +198,7 @@ class TestTournament(unittest.TestCase):
         self.player_ids = [self.player_1_id, self.player_2_id, self.player_3_id, self.player_4_id]
         self.players = [self.player_1, self.player_2, self.player_3, self.player_4]
         self.matches = [self.match_1, self.match_2]
+        self.regions = ['norcal', 'texas']
 
         self.tournament_json_dict = {
                 '_id': self.id,
@@ -201,10 +207,11 @@ class TestTournament(unittest.TestCase):
                 'date': self.date,
                 'name': self.name,
                 'players': self.player_ids,
-                'matches': [m.get_json_dict() for m in self.matches]
+                'matches': [m.get_json_dict() for m in self.matches],
+                'regions': self.regions
         }
         self.tournament = Tournament(
-                self.type, self.raw, self.date, self.name, self.player_ids, self.matches, id=self.id)
+                self.type, self.raw, self.date, self.name, self.player_ids, self.matches, self.regions, id=self.id)
 
     def test_replace_player(self):
         self.assertTrue(self.player_3_id in self.tournament.players)
@@ -254,7 +261,7 @@ class TestTournament(unittest.TestCase):
 
     def test_get_json_dict_missing_id(self):
         self.tournament = Tournament(
-                self.type, self.raw, self.date, self.name, self.player_ids, self.matches)
+                self.type, self.raw, self.date, self.name, self.player_ids, self.matches, self.regions)
         del self.tournament_json_dict['_id']
 
         self.assertEquals(self.tournament.get_json_dict(), self.tournament_json_dict)
@@ -268,10 +275,11 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.name, self.name)
         self.assertEquals(tournament.matches, self.matches)
         self.assertEquals(tournament.players, self.player_ids)
+        self.assertEquals(tournament.regions, self.regions)
 
     def test_from_json_missing_id(self):
         self.tournament = Tournament(
-                self.type, self.raw, self.date, self.name, self.player_ids, self.matches)
+                self.type, self.raw, self.date, self.name, self.player_ids, self.matches, self.regions)
         del self.tournament_json_dict['_id']
 
         tournament = Tournament.from_json(self.tournament_json_dict)
@@ -282,6 +290,7 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.name, self.name)
         self.assertEquals(tournament.matches, self.matches)
         self.assertEquals(tournament.players, self.player_ids)
+        self.assertEquals(tournament.regions, self.regions)
 
     def test_from_json_none(self):
         self.assertIsNone(Tournament.from_json(None))
@@ -293,6 +302,7 @@ class TestTournament(unittest.TestCase):
 
         mock_scraper = mock.Mock(spec=ChallongeScraper)
         mock_dao = mock.Mock(spec=Dao)
+        mock_dao.region_name = 'norcal'
 
         mock_scraper.get_players.return_value = [p.name for p in self.players]
         mock_scraper.get_matches.return_value = [match_1, match_2]
@@ -313,19 +323,22 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.name, self.name)
         self.assertEquals(tournament.matches, self.matches)
         self.assertEquals(tournament.players, self.player_ids)
+        self.assertEquals(tournament.regions, ['norcal'])
         
 class TestRanking(unittest.TestCase):
     def setUp(self):
         self.ranking_id = ObjectId()
+        self.region = 'norcal'
         self.time = datetime.now()
         self.tournaments = [ObjectId(), ObjectId()]
         self.ranking_entry_1 = RankingEntry(1, ObjectId(), 20.5)
         self.ranking_entry_2 = RankingEntry(2, ObjectId(), 19.3)
         self.rankings = [self.ranking_entry_1, self.ranking_entry_2]
-        self.ranking = Ranking(self.time, self.tournaments, self.rankings, id=self.ranking_id)
+        self.ranking = Ranking(self.region, self.time, self.tournaments, self.rankings, id=self.ranking_id)
 
         self.ranking_json_dict = {
                 '_id': self.ranking_id,
+                'region': self.region,
                 'time': self.time,
                 'tournaments': self.tournaments,
                 'ranking': [r.get_json_dict() for r in self.rankings]
@@ -335,7 +348,7 @@ class TestRanking(unittest.TestCase):
         self.assertEquals(self.ranking.get_json_dict(), self.ranking_json_dict)
 
     def test_get_json_dict_missing_id(self):
-        self.ranking = Ranking(self.time, self.tournaments, self.rankings)
+        self.ranking = Ranking(self.region, self.time, self.tournaments, self.rankings)
         del self.ranking_json_dict['_id']
 
         self.assertEquals(self.ranking.get_json_dict(), self.ranking_json_dict)
@@ -343,17 +356,19 @@ class TestRanking(unittest.TestCase):
     def test_from_json(self):
         ranking = Ranking.from_json(self.ranking_json_dict)
         self.assertEquals(ranking.id, self.ranking.id)
+        self.assertEquals(ranking.region, self.ranking.region)
         self.assertEquals(ranking.time, self.ranking.time)
         self.assertEquals(ranking.tournaments, self.ranking.tournaments)
         self.assertEquals(ranking.ranking, self.ranking.ranking)
 
     def test_from_json_missing_id(self):
-        self.ranking = Ranking(self.time, self.tournaments, self.rankings)
+        self.ranking = Ranking(self.region, self.time, self.tournaments, self.rankings)
         del self.ranking_json_dict['_id']
 
         ranking = Ranking.from_json(self.ranking_json_dict)
 
         self.assertEquals(ranking.id, self.ranking.id)
+        self.assertEquals(ranking.region, self.ranking.region)
         self.assertEquals(ranking.time, self.ranking.time)
         self.assertEquals(ranking.tournaments, self.ranking.tournaments)
         self.assertEquals(ranking.ranking, self.ranking.ranking)
@@ -390,3 +405,32 @@ class TestRankingEntry(unittest.TestCase):
 
     def test_from_json_none(self):
         self.assertIsNone(RankingEntry.from_json(None))
+
+class TestRegion(unittest.TestCase):
+    def setUp(self):
+        self.id = 'norcal'
+        self.display_name = 'Norcal'
+        self.region = Region(self.id, self.display_name)
+        self.region_json_dict = {
+                '_id': self.id,
+                'display_name': self.display_name
+        }
+
+    def test_equals(self):
+        self.assertTrue(Region.from_json(self.region_json_dict) == 
+                        Region.from_json(self.region_json_dict))
+
+    def test_not_equals(self):
+        self.assertFalse(Region.from_json(self.region_json_dict) !=
+                         Region.from_json(self.region_json_dict))
+
+    def test_get_json_dict(self):
+        self.assertEquals(self.region.get_json_dict(), self.region_json_dict)
+
+    def test_from_json(self):
+        region = Region.from_json(self.region_json_dict)
+        self.assertEquals(region.id, self.id)
+        self.assertEquals(region.display_name, self.display_name)
+
+    def test_from_json_none(self):
+        self.assertIsNone(Region.from_json(None))

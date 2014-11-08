@@ -37,8 +37,8 @@ class TrueskillRating(object):
 class MatchResult(object):
     def __init__(self, winner=None, loser=None):
         # player IDs
-        self.winner = winner;
-        self.loser = loser;
+        self.winner = winner
+        self.loser = loser
 
     def __str__(self):
         return "%s > %s" % (self.winner, self.loser)
@@ -85,24 +85,29 @@ class MatchResult(object):
         return cls(winner=json_dict['winner'], loser=json_dict['loser'])
 
 class Player(object):
-    def __init__(self, name, aliases, rating, exclude, id=None):
+    def __init__(self, name, aliases, ratings, regions, id=None):
         # TODO force aliases to lowercase
         self.id = id
         self.name = name
         self.aliases = aliases
-        self.rating = rating
-        self.exclude = exclude
+        self.ratings = ratings
+        self.regions = regions
 
     def __str__(self):
-        return "%s %s %s %s Excluded: %s" % (self.id, self.name, self.rating, self.aliases, self.exclude)
+        return "%s %s %s %s %s" % (
+                self.id, 
+                self.name, 
+                {reg: str(rat) for reg, rat in self.ratings.iteritems()}, 
+                self.aliases, 
+                self.regions)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
                 self.id == other.id and \
                 self.name == other.name and \
                 set(self.aliases) == set(other.aliases) and \
-                self.rating == other.rating and \
-                self.exclude == other.exclude
+                self.ratings == other.ratings and \
+                self.regions == other.regions
 
     def __ne__(self, other):
         return not self == other
@@ -118,8 +123,8 @@ class Player(object):
 
         json_dict['name'] = self.name
         json_dict['aliases'] = self.aliases
-        json_dict['rating'] = self.rating.get_json_dict()
-        json_dict['exclude'] = self.exclude
+        json_dict['ratings'] = {region: rating.get_json_dict() for region, rating in self.ratings.iteritems()}
+        json_dict['regions'] = self.regions
 
         return json_dict
 
@@ -131,18 +136,19 @@ class Player(object):
         return cls(
                 json_dict['name'], 
                 json_dict['aliases'], 
-                TrueskillRating.from_json(json_dict['rating']), 
-                json_dict['exclude'], 
+                {region: TrueskillRating.from_json(rating_dict) for region, rating_dict in json_dict['ratings'].iteritems()},
+                json_dict['regions'], 
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
 class Tournament(object):
-    def __init__(self, type, raw, date, name, players, matches, id=None):
+    def __init__(self, type, raw, date, name, players, matches, regions, id=None):
         self.id = id
         self.type = type
         self.raw = raw
         self.date = date
         self.name = name
         self.matches = matches
+        self.regions = regions
 
         # player IDs
         self.players = players
@@ -182,6 +188,7 @@ class Tournament(object):
         json_dict['name'] = self.name
         json_dict['players'] = self.players
         json_dict['matches'] = [m.get_json_dict() for m in self.matches]
+        json_dict['regions'] = self.regions
 
         return json_dict
 
@@ -197,12 +204,14 @@ class Tournament(object):
                 json_dict['name'], 
                 json_dict['players'], 
                 [MatchResult.from_json(m) for m in json_dict['matches']], 
+                json_dict['regions'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
     @classmethod
     def from_scraper(cls, type, scraper, dao):
         players = scraper.get_players()
         matches = scraper.get_matches()
+        regions = [dao.region_name]
 
         # TODO make sure 2 aliases in the same tournament don't map to a single player
         # the players and matches returned from the scraper use player aliases
@@ -218,10 +227,12 @@ class Tournament(object):
                 scraper.get_date(),
                 scraper.get_name(),
                 players,
-                matches)
+                matches,
+                regions)
 
 class Ranking(object):
-    def __init__(self, time, tournaments, ranking, id=None):
+    def __init__(self, region, time, tournaments, ranking, id=None):
+        self.region = region
         self.id = id
         self.time = time
         self.ranking = ranking
@@ -235,6 +246,7 @@ class Ranking(object):
         if self.id:
             json_dict['_id'] = self.id
 
+        json_dict['region'] = self.region
         json_dict['time'] = self.time
         json_dict['tournaments'] = self.tournaments
         json_dict['ranking'] = [r.get_json_dict() for r in self.ranking]
@@ -247,6 +259,7 @@ class Ranking(object):
             return None
 
         return cls(
+                json_dict['region'],
                 json_dict['time'], 
                 json_dict['tournaments'], 
                 [RankingEntry.from_json(r) for r in json_dict['ranking']],
@@ -286,3 +299,33 @@ class RankingEntry(object):
                 json_dict['rank'],
                 json_dict['player'],
                 json_dict['rating'])
+
+class Region(object):
+    def __init__(self, id, display_name):
+        self.id = id
+        self.display_name = display_name
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and \
+                self.id == other.id and \
+                self.display_name == other.display_name
+
+    def __ne__(self, other):
+        return not self == other
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['_id'] = self.id
+        json_dict['display_name'] = self.display_name
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['_id'],
+                json_dict['display_name'])
