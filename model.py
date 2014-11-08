@@ -204,6 +204,7 @@ class Tournament(object):
         players = scraper.get_players()
         matches = scraper.get_matches()
 
+        # TODO make sure 2 aliases in the same tournament don't map to a single player
         # the players and matches returned from the scraper use player aliases
         # we need to convert these to player IDs
         players = [dao.get_player_by_alias(p).id for p in players]

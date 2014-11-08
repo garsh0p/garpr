@@ -29,10 +29,18 @@ def bulk_alias_merge(path, region):
         for row in reader:
             target_alias = row[0]
             db_target = dao.get_player_by_alias(target_alias)
+            if db_target is None:
+                print '%s is not a valid alias' % target_alias
+                continue
+
             for source_alias in row[1:]:
                 source_alias = source_alias.strip()
                 if source_alias:
                     db_source = dao.get_player_by_alias(source_alias)
+                    if db_source is None:
+                        print '%s is not a valid alias' % source_alias
+                        continue
+
                     print source_alias, '->', target_alias
                     dao.merge_players(source=db_source, target=db_target)
 
