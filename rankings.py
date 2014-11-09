@@ -20,16 +20,19 @@ def generate_ranking(dao):
         # TODO add a default rating entry when we add it to the map
         for match in tournament.matches:
             if not match.winner in player_id_to_player_map:
-                player_id_to_player_map[match.winner] = dao.get_player_by_id(match.winner)
+                db_player = dao.get_player_by_id(match.winner)
+                db_player.ratings[dao.region_id] = DEFAULT_RATING
+                player_id_to_player_map[match.winner] = db_player
 
             if not match.loser in player_id_to_player_map:
-                player_id_to_player_map[match.loser] = dao.get_player_by_id(match.loser)
+                db_player = dao.get_player_by_id(match.loser)
+                db_player.ratings[dao.region_id] = DEFAULT_RATING
+                player_id_to_player_map[match.loser] = db_player
 
             winner = player_id_to_player_map[match.winner]
             loser = player_id_to_player_map[match.loser]
             
-            # TODO handle region here
-            rating_calculators.update_trueskill_ratings(winner=winner, loser=loser)
+            rating_calculators.update_trueskill_ratings(dao.region_id, winner=winner, loser=loser)
 
     i = 1
     players = player_id_to_player_map.values()
@@ -37,7 +40,7 @@ def generate_ranking(dao):
     ranking = []
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
-        if player_last_active_date == None or dao.is_inactive(player, now) or player.id in excluded_players:
+        if player_last_active_date == None or dao.is_inactive(player, now) or not dao.region_id in player.regions:
             pass # do nothing, skip this player
         else:
             ranking.append(RankingEntry(i, player.id, trueskill.expose(player.rating.trueskill_rating)))

@@ -106,11 +106,11 @@ class TestRankings(unittest.TestCase):
         mock_datetime.now.return_value = now
 
         # assert rankings before they get reset
-        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).rating, self.player_1.rating)
-        self.assertEquals(self.dao.get_player_by_id(self.player_2_id).rating, self.player_2.rating)
-        self.assertEquals(self.dao.get_player_by_id(self.player_3_id).rating, self.player_3.rating)
-        self.assertEquals(self.dao.get_player_by_id(self.player_4_id).rating, self.player_4.rating)
-        self.assertEquals(self.dao.get_player_by_id(self.player_5_id).rating, self.player_5.rating)
+        self.assertEquals(self.dao.get_player_by_id(self.player_1_id).ratings, self.player_1.ratings)
+        self.assertEquals(self.dao.get_player_by_id(self.player_2_id).ratings, self.player_2.ratings)
+        self.assertEquals(self.dao.get_player_by_id(self.player_3_id).ratings, self.player_3.ratings)
+        self.assertEquals(self.dao.get_player_by_id(self.player_4_id).ratings, self.player_4.ratings)
+        self.assertEquals(self.dao.get_player_by_id(self.player_5_id).ratings, self.player_5.ratings)
 
         rankings.generate_ranking(self.dao)
 

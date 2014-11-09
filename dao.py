@@ -144,7 +144,7 @@ class Dao(object):
 
         # special case for NYC
         # TODO this goes away once regions become a db collection
-        if self.region_name == "nyc":
+        if self.region_id == "nyc":
             day_limit = 90
             num_tourneys = 2
 
