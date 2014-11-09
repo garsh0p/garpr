@@ -36,14 +36,16 @@ def generate_ranking(dao):
 
     i = 1
     players = player_id_to_player_map.values()
-    sorted_players = sorted(players, key=lambda player: trueskill.expose(player.rating.trueskill_rating), reverse=True)
+    sorted_players = sorted(
+            players, 
+            key=lambda player: trueskill.expose(player.ratings[dao.region_id].trueskill_rating), reverse=True)
     ranking = []
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
         if player_last_active_date == None or dao.is_inactive(player, now) or not dao.region_id in player.regions:
             pass # do nothing, skip this player
         else:
-            ranking.append(RankingEntry(i, player.id, trueskill.expose(player.rating.trueskill_rating)))
+            ranking.append(RankingEntry(i, player.id, trueskill.expose(player.ratings[dao.region_id].trueskill_rating)))
             i += 1
 
     print 'Updating players...'
@@ -51,6 +53,6 @@ def generate_ranking(dao):
         dao.update_player(p)
 
     print 'Inserting new ranking...'
-    dao.insert_ranking(Ranking(now, [t.id for t in tournaments], ranking))
+    dao.insert_ranking(Ranking(dao.region_id, now, [t.id for t in tournaments], ranking))
 
     print 'Done!'
