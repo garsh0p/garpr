@@ -159,7 +159,7 @@ class TestDAO(unittest.TestCase):
         self.assertIsNone(self.norcal_dao.get_player_by_alias(''))
 
     def test_get_all_players(self):
-        self.assertEquals(self.norcal_dao.get_all_players(), [self.player_1, self.player_3, self.player_2])
+        self.assertEquals(self.norcal_dao.get_all_players(), [self.player_1, self.player_2])
 
     def test_add_player_duplicate(self):
         with self.assertRaises(DuplicateKeyError):

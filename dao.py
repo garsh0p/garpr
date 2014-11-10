@@ -20,6 +20,7 @@ class DuplicateAliasException(Exception):
 class InvalidNameException(Exception):
     pass
 
+#TODO create RegionSpecificDao object
 class Dao(object):
     def __init__(self, region_id, mongo_client):
         self.mongo_client = mongo_client
@@ -50,9 +51,11 @@ class Dao(object):
         '''Converts alias to lowercase'''
         return Player.from_json(self.players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
 
+    # TODO this currently gets players for the current region.
+    # TODO add another function that explicitly gets all players in the db
     def get_all_players(self):
         '''Sorts by name in lexographical order'''
-        return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
+        return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': self.region_id}}).sort([('name', 1)])]
 
     def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())
@@ -135,7 +138,7 @@ class Dao(object):
         return self.rankings_col.insert(ranking.get_json_dict())
 
     def get_latest_ranking(self):
-        return Ranking.from_json(self.rankings_col.find().sort('time', DESCENDING)[0])
+        return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
 
     def is_inactive(self, player, now):
         # default rules

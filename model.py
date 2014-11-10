@@ -211,7 +211,7 @@ class Tournament(object):
     def from_scraper(cls, type, scraper, dao):
         players = scraper.get_players()
         matches = scraper.get_matches()
-        regions = [dao.region_name]
+        regions = [dao.region_id]
 
         # TODO make sure 2 aliases in the same tournament don't map to a single player
         # the players and matches returned from the scraper use player aliases

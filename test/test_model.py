@@ -302,7 +302,7 @@ class TestTournament(unittest.TestCase):
 
         mock_scraper = mock.Mock(spec=ChallongeScraper)
         mock_dao = mock.Mock(spec=Dao)
-        mock_dao.region_name = 'norcal'
+        mock_dao.region_id = 'norcal'
 
         mock_scraper.get_players.return_value = [p.name for p in self.players]
         mock_scraper.get_matches.return_value = [match_1, match_2]
