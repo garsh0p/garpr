@@ -59,10 +59,11 @@ class TestServer(unittest.TestCase):
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
+
         expected_region_dict = {
                 'regions': [
-                    self.norcal_region.get_json_dict(),
-                    self.texas_region.get_json_dict()
+                    {'id': 'norcal', 'display_name': 'Norcal'},
+                    {'id': 'texas', 'display_name': 'Texas'}
                 ]
         }
 

@@ -31,7 +31,13 @@ def convert_object_id_list(json_dict_list):
 
 class RegionListResource(restful.Resource):
     def get(self):
-        return {'regions': [r.get_json_dict() for r in Dao.get_all_regions(mongo_client)]}
+        regions_dict = {'regions': [r.get_json_dict() for r in Dao.get_all_regions(mongo_client)]}
+
+        for region in regions_dict['regions']:
+            region['id'] = region['_id']
+            del region['_id']
+
+        return regions_dict
 
 class PlayerListResource(restful.Resource):
     def get(self, region):
