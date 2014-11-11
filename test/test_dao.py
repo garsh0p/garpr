@@ -36,7 +36,7 @@ class TestDAO(unittest.TestCase):
                 ['socal'], 
                 id=self.player_3_id)
         self.player_4 = Player('shroomed', ['shroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=self.player_4_id)
-        self.player_5 = Player('pewpewu', ['pewpewu'], {'norcal': TrueskillRating()}, ['norcal'], id=self.player_5_id)
+        self.player_5 = Player('pewpewu', ['pewpewu'], {'norcal': TrueskillRating()}, ['norcal', 'socal'], id=self.player_5_id)
 
         # only includes players 1-3
         self.players = [self.player_1, self.player_2, self.player_3]
@@ -431,11 +431,13 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.matches[1], self.tournament_matches_1[1])
         self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
-        merged_player_aliases = ['gar', 'garr', 'pewpewu']
+        merged_player_aliases = set(['gar', 'garr', 'pewpewu'])
+        merged_player_regions = set(['norcal', 'texas', 'socal'])
         merged_player = self.norcal_dao.get_player_by_id(self.player_1_id)
         self.assertEquals(merged_player.id, self.player_1_id)
         self.assertEquals(merged_player.name, self.player_1.name)
-        self.assertEquals(merged_player.aliases, merged_player_aliases)
+        self.assertEquals(set(merged_player.aliases), merged_player_aliases)
+        self.assertEquals(set(merged_player.regions), merged_player_regions)
 
         self.assertIsNone(self.norcal_dao.get_player_by_id(self.player_5_id))
 

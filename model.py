@@ -112,8 +112,15 @@ class Player(object):
     def __ne__(self, other):
         return not self == other
 
-    def merge_aliases_from(self, player):
-        self.aliases.extend(player.aliases)
+    def merge_with_player(self, player):
+        aliases_set = set(self.aliases)
+        regions_set = set(self.regions)
+
+        aliases_set.update(set(player.aliases))
+        regions_set.update(set(player.regions))
+
+        self.aliases = list(aliases_set)
+        self.regions = list(regions_set)
 
     def get_json_dict(self):
         json_dict = {}

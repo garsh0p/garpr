@@ -114,7 +114,7 @@ class TestPlayer(unittest.TestCase):
         self.player_2_name = 'MIOM | SFAT'
         self.player_2_aliases = ['miom | sfat', 'sfat', 'miom|sfat']
         self.player_2_rating = {'norcal': TrueskillRating(trueskill_rating=trueskill.Rating(mu=30, sigma=2))}
-        self.player_2_regions = ['norcal']
+        self.player_2_regions = ['norcal', 'socal']
 
         self.player_1 = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_regions, id=self.player_1_id)
         self.player_1_missing_id = Player(self.player_1_name, self.player_1_aliases, self.player_1_rating, self.player_1_regions)
@@ -150,13 +150,19 @@ class TestPlayer(unittest.TestCase):
         self.assertFalse(player_1_clone != self.player_1)
         self.assertTrue(self.player_1 != self.player_2)
 
-    def test_merge_aliases(self):
-        expected_aliases = []
-        expected_aliases.extend(self.player_1_aliases)
-        expected_aliases.extend(self.player_2_aliases)
+    def test_merge_with_player(self):
+        expected_aliases = set()
+        expected_aliases.update(set(self.player_1_aliases))
+        expected_aliases.update(set(self.player_2_aliases))
+
+        expected_regions = set()
+        expected_regions.update(set(self.player_1_regions))
+        expected_regions.update(set(self.player_2_regions))
         
-        self.player_1.merge_aliases_from(self.player_2)
-        self.assertEquals(self.player_1.aliases, expected_aliases)
+        self.player_1.merge_with_player(self.player_2)
+        self.assertEquals(set(self.player_1.aliases), expected_aliases)
+        self.assertEquals(len(self.player_1.regions), 3)
+        self.assertEquals(set(self.player_1.regions), expected_regions)
 
     def test_get_json_dict(self):
         self.assertEquals(self.player_1.get_json_dict(), self.player_1_json_dict)

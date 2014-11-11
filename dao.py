@@ -125,7 +125,7 @@ class Dao(object):
         if source == target:
             raise ValueError("source and target can't be the same!")
 
-        target.merge_aliases_from(source)
+        target.merge_with_player(source)
         self.update_player(target)
 
         for tournament in self.get_all_tournaments():
