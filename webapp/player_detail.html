@@ -3,8 +3,10 @@
         <div class="player-name col-md-10">
             <h1>{{playerData.name}}</h1>
         </div>
-        <div class="player-rating col-md-2">
-            <h1 tooltip="Skill: {{playerData.rating.mu | number:3}}, Uncertainty: {{playerData.rating.sigma | number:3}}"><small>Rating: {{playerData.rating.mu - 3*playerData.rating.sigma | number:3}}</small></h1>
+        <div class="player-rating col-md-2" tooltip-placement="left" tooltip-html-unsafe="Skill: {{playerData.rating.mu | number:3}}<br>Uncertainty: {{playerData.rating.sigma | number:3}}">
+            <h1>
+                <small>Rating: {{playerData.rating.mu - 3*playerData.rating.sigma | number:3}}</small>
+            </h1>
         </div>
     </div>
     <table class="table">
