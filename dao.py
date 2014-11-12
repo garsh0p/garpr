@@ -55,7 +55,7 @@ class Dao(object):
     # TODO add another function that explicitly gets all players in the db
     def get_all_players(self):
         '''Sorts by name in lexographical order'''
-        return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': self.region_id}}).sort([('name', 1)])]
+        return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
 
     def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())
