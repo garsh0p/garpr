@@ -4,7 +4,7 @@
             <td>Name</td>
         </tr>
         <tr ng-repeat="line in playerService.playerList.players">
-            <td><a href="#/{{regionService.region}}/players/{{line.id}}">{{line.name}}</a></td>
+            <td><a href="#/{{regionService.region.id}}/players/{{line.id}}">{{line.name}}</a></td>
         </tr>
     </table>
 </div>

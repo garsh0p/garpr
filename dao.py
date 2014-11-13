@@ -5,6 +5,11 @@ from model import *
 import trueskill
 
 DEFAULT_RATING = TrueskillRating()
+DATABASE_NAME = 'garpr'
+PLAYERS_COLLECTION_NAME = 'players'
+TOURNAMENTS_COLLECTION_NAME = 'tournaments'
+RANKINGS_COLLECTION_NAME = 'rankings'
+REGIONS_COLLECTION_NAME = 'regions'
 
 class RegionNotFoundException(Exception):
     pass
@@ -15,24 +20,28 @@ class DuplicateAliasException(Exception):
 class InvalidNameException(Exception):
     pass
 
+#TODO create RegionSpecificDao object
 class Dao(object):
-    def __init__(self, region, mongo_client=MongoClient('localhost'), new=False):
+    def __init__(self, region_id, mongo_client):
         self.mongo_client = mongo_client
-        if not new and not region in Dao.get_all_regions(mongo_client=self.mongo_client):
-            raise RegionNotFoundException("%s is not a valid region! Set new=True to create a new region." 
-                                          % region)
+        self.region_id = region_id
 
-        database_name = 'smashranks_%s' % region       
-        self.players_col = mongo_client[database_name].players
-        self.tournaments_col = mongo_client[database_name].tournaments
-        self.rankings_col = mongo_client[database_name].rankings
-        self.region_name = region
+        if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
+            raise RegionNotFoundException("%s is not a valid region id!" % region_id)
+
+        self.players_col = mongo_client[DATABASE_NAME][PLAYERS_COLLECTION_NAME]
+        self.tournaments_col = mongo_client[DATABASE_NAME][TOURNAMENTS_COLLECTION_NAME]
+        self.rankings_col = mongo_client[DATABASE_NAME][RANKINGS_COLLECTION_NAME]
 
     @classmethod
-    def get_all_regions(cls, mongo_client=MongoClient('localhost')):
-        regions = mongo_client.database_names()
-        regions = [r.split('_')[1] for r in regions if r.startswith('smashranks_')]
-        return sorted(regions)
+    def insert_region(cls, region, mongo_client):
+        return mongo_client[DATABASE_NAME][REGIONS_COLLECTION_NAME].insert(region.get_json_dict())
+
+    # sorted by display name
+    @classmethod
+    def get_all_regions(cls, mongo_client):
+        regions = [Region.from_json(r) for r in mongo_client[DATABASE_NAME][REGIONS_COLLECTION_NAME].find()]
+        return sorted(regions, key=lambda r: r.display_name)
 
     def get_player_by_id(self, id):
         '''id must be an ObjectId'''
@@ -42,11 +51,13 @@ class Dao(object):
         '''Converts alias to lowercase'''
         return Player.from_json(self.players_col.find_one({'aliases': {'$in': [alias.lower()]}}))
 
+    # TODO this currently gets players for the current region.
+    # TODO add another function that explicitly gets all players in the db
     def get_all_players(self):
         '''Sorts by name in lexographical order'''
-        return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
+        return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
 
-    def add_player(self, player):
+    def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())
 
     def delete_player(self, player):
@@ -58,17 +69,6 @@ class Dao(object):
     # TODO bulk update
     def update_players(self, players):
         pass
-
-    def get_excluded_players(self):
-        return [Player.from_json(p) for p in self.players_col.find({'exclude': True})]
-
-    def exclude_player(self, player):
-        player.exclude = True
-        return self.update_player(player)
-
-    def include_player(self, player):
-        player.exclude = False
-        return self.update_player(player)
 
     def add_alias_to_player(self, player, alias):
         lowercase_alias = alias.lower()
@@ -90,23 +90,25 @@ class Dao(object):
         player.name = name
         return self.update_player(player)
 
-    def reset_all_player_ratings(self):
-        return self.players_col.update({}, {'$set': {'rating': DEFAULT_RATING.get_json_dict()}}, multi=True)
-
     def insert_tournament(self, tournament):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-    def get_all_tournaments(self, players=None):
+    def get_all_tournaments(self, players=None, regions=None):
         '''players is a list of Players'''
         query_dict = {}
+        query_list = []
 
         if players:
-            query_list = []
             for player in players:
                 query_list.append({'players': {'$in': [player.id]}})
+
+        if regions:
+            query_list.append({'regions': {'$in': regions}})
+
+        if query_list:
             query_dict['$and'] = query_list
 
         return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
@@ -123,7 +125,7 @@ class Dao(object):
         if source == target:
             raise ValueError("source and target can't be the same!")
 
-        target.merge_aliases_from(source)
+        target.merge_with_player(source)
         self.update_player(target)
 
         for tournament in self.get_all_tournaments():
@@ -136,7 +138,7 @@ class Dao(object):
         return self.rankings_col.insert(ranking.get_json_dict())
 
     def get_latest_ranking(self):
-        return Ranking.from_json(self.rankings_col.find().sort('time', DESCENDING)[0])
+        return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
 
     # TODO this is untested
     def is_inactive(self, player, now):
@@ -146,11 +148,11 @@ class Dao(object):
 
         # special case for NYC
         # TODO this goes away once regions become a db collection
-        if self.region_name == "nyc":
+        if self.region_id == "nyc":
             day_limit = 90
             num_tourneys = 3
 
-        qualifying_tournaments = [x for x in self.get_all_tournaments([player]) if x.date >= (now - timedelta(days=day_limit))]
+        qualifying_tournaments = [x for x in self.get_all_tournaments(players=[player], regions=[self.region_id]) if x.date >= (now - timedelta(days=day_limit))]
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True

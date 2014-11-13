@@ -3,9 +3,8 @@
         <div class="player-name col-md-10">
             <h1>{{playerData.name}}</h1>
         </div>
-        <div class="player-rating col-md-2" tooltip-placement="left" tooltip-html-unsafe="Skill: {{playerData.rating.mu | number:3}}<br>Uncertainty: {{playerData.rating.sigma | number:3}}">
-            <h1>
-                <small>Rating: {{playerData.rating.mu - 3*playerData.rating.sigma | number:3}}</small>
+        <div class="player-rating col-md-2" tooltip-placement="left" tooltip-html-unsafe="Skill: {{playerData.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{playerData.ratings[regionService.region.id].sigma | number:3}}">
+            <h1><small>Rating: {{playerData.ratings[regionService.region.id].mu - 3*playerData.ratings[regionService.region.id].sigma | number:3}}</small></h1>
             </h1>
         </div>
     </div>
@@ -19,7 +18,7 @@
         <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
             <td>{{match.tournament_date}}</td>
             <td>{{match.tournament_name}}</td>
-            <td><a href="#/{{regionService.region}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
+            <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
             <td>{{match.result}}</td>
         </tr>
     </table>

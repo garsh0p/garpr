@@ -4,7 +4,7 @@ from mock import patch
 import mongomock
 from dao import Dao
 from scraper.tio import TioScraper
-from model import Player, Tournament, TrueskillRating
+from model import *
 import json
 import rankings
 from bson.objectid import ObjectId
@@ -23,8 +23,13 @@ class TestServer(unittest.TestCase):
         server.app.config['TESTING'] = True
         self.app = server.app.test_client()
 
-        self.norcal_dao = Dao(NORCAL_REGION_NAME, mongo_client=self.mongo_client, new=True)
-        self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client, new=True)
+        self.norcal_region = Region('norcal', 'Norcal')
+        self.texas_region = Region('texas', 'Texas')
+        Dao.insert_region(self.norcal_region, self.mongo_client)
+        Dao.insert_region(self.texas_region, self.mongo_client)
+
+        self.norcal_dao = Dao(NORCAL_REGION_NAME, mongo_client=self.mongo_client)
+        self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client)
 
         self._import_files()
         rankings.generate_ranking(self.norcal_dao)
@@ -45,16 +50,27 @@ class TestServer(unittest.TestCase):
         for player in scraper.get_players():
             db_player = dao.get_player_by_alias(player)
             if db_player is None:
-                db_player = Player(player, [player.lower()], TrueskillRating(), False)
-                dao.add_player(db_player)
+                db_player = Player(
+                        player, 
+                        [player.lower()], 
+                        {dao.region_id: TrueskillRating()},
+                        [dao.region_id])
+                dao.insert_player(db_player)
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
-        self.assertEquals(json.loads(data), {'regions': ['norcal', 'texas']})
+
+        expected_region_dict = {
+                'regions': [
+                    {'id': 'norcal', 'display_name': 'Norcal'},
+                    {'id': 'texas', 'display_name': 'Texas'}
+                ]
+        }
+
+        self.assertEquals(json.loads(data), expected_region_dict)
 
     def test_get_player_list(self):
-        def for_region(data, dao):
-            json_data = json.loads(data)
+        def for_region(json_data, dao):
 
             self.assertEquals(json_data.keys(), ['players'])
             players_list = json_data['players']
@@ -67,10 +83,14 @@ class TestServer(unittest.TestCase):
                 self.assertEquals(ObjectId(player['id']), dao.get_player_by_alias(player['name']).id)
 
         data = self.app.get('/norcal/players').data
-        for_region(data, self.norcal_dao)
+        json_data = json.loads(data)
+        self.assertEquals(len(json_data['players']), 65)
+        for_region(json_data, self.norcal_dao)
 
         data = self.app.get('/texas/players').data
-        for_region(data, self.texas_dao)
+        json_data = json.loads(data)
+        self.assertEquals(len(json_data['players']), 41)
+        for_region(json_data, self.texas_dao)
 
     def test_get_player(self):
         player = self.norcal_dao.get_player_by_alias('gar')
@@ -81,9 +101,9 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_data['id'], str(player.id))
         self.assertEquals(json_data['name'], 'gar')
         self.assertEquals(json_data['aliases'], ['gar'])
-        self.assertEquals(json_data['exclude'], False)
-        self.assertTrue(json_data['rating']['mu'] > 25.9)
-        self.assertTrue(json_data['rating']['sigma'] > 3.89)
+        self.assertEquals(json_data['regions'], ['norcal'])
+        self.assertTrue(json_data['ratings']['norcal']['mu'] > 25.9)
+        self.assertTrue(json_data['ratings']['norcal']['sigma'] > 3.89)
 
         player = self.texas_dao.get_player_by_alias('wobbles')
         data = self.app.get('/texas/players/' + str(player.id)).data
@@ -93,9 +113,9 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_data['id'], str(player.id))
         self.assertEquals(json_data['name'], 'Wobbles')
         self.assertEquals(json_data['aliases'], ['wobbles'])
-        self.assertEquals(json_data['exclude'], False)
-        self.assertTrue(json_data['rating']['mu'] > 44.5)
-        self.assertTrue(json_data['rating']['sigma'] > 3.53)
+        self.assertEquals(json_data['regions'], ['texas'])
+        self.assertTrue(json_data['ratings']['texas']['mu'] > 44.5)
+        self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
 
     def test_get_tournament_list(self):
         def for_region(data, dao):
@@ -103,16 +123,17 @@ class TestServer(unittest.TestCase):
 
             self.assertEquals(json_data.keys(), ['tournaments'])
             tournaments_list = json_data['tournaments']
-            tournaments_from_db = dao.get_all_tournaments()
+            tournaments_from_db = dao.get_all_tournaments(regions=[dao.region_id])
             self.assertEquals(len(tournaments_list), len(tournaments_from_db))
 
             for tournament in tournaments_list:
                 tournament_from_db = dao.get_tournament_by_id(ObjectId(tournament['id']))
-                expected_keys = set(['id', 'name', 'date'])
+                expected_keys = set(['id', 'name', 'date', 'regions'])
                 self.assertEquals(set(tournament.keys()), expected_keys)
                 self.assertEquals(tournament['id'], str(tournament_from_db.id))
                 self.assertEquals(tournament['name'], tournament_from_db.name)
                 self.assertEquals(tournament['date'], tournament_from_db.date.strftime('%x'))
+                self.assertEquals(tournament['regions'], [dao.region_id])
 
         data = self.app.get('/norcal/tournaments').data
         for_region(data, self.norcal_dao)
@@ -121,15 +142,16 @@ class TestServer(unittest.TestCase):
         for_region(data, self.texas_dao)
 
     def test_get_tournament(self):
-        tournament = self.norcal_dao.get_all_tournaments()[0]
+        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 6)
+        self.assertEquals(len(json_data.keys()), 7)
         self.assertEquals(json_data['id'], str(tournament.id))
         self.assertEquals(json_data['name'], 'BAM: 4 stocks is not a lead')
         self.assertEquals(json_data['type'], 'tio')
         self.assertEquals(json_data['date'], str(tournament.date))
+        self.assertEquals(json_data['regions'], ['norcal'])
         self.assertEquals(len(json_data['players']), len(tournament.players))
         self.assertEquals(len(json_data['matches']), len(tournament.matches))
 
@@ -160,11 +182,12 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/texas/tournaments/' + str(tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 6)
+        self.assertEquals(len(json_data.keys()), 7)
         self.assertEquals(json_data['id'], str(tournament.id))
         self.assertEquals(json_data['name'], 'FX Biweekly 6')
         self.assertEquals(json_data['type'], 'tio')
         self.assertEquals(json_data['date'], str(tournament.date))
+        self.assertEquals(json_data['regions'], ['texas'])
         self.assertEquals(len(json_data['players']), len(tournament.players))
         self.assertEquals(len(json_data['matches']), len(tournament.matches))
 
@@ -173,9 +196,10 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 3)
+        self.assertEquals(len(json_data.keys()), 4)
         self.assertEquals(json_data['time'], str(db_ranking.time))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
+        self.assertEquals(json_data['region'], self.norcal_dao.region_id)
         self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
 
         # spot check first and last ranking entries
@@ -217,7 +241,7 @@ class TestServer(unittest.TestCase):
         # spot check a few matches
         match = matches[0]
         opponent = self.norcal_dao.get_player_by_alias('darrell')
-        tournament = self.norcal_dao.get_all_tournaments()[0]
+        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         self.assertEquals(len(match.keys()), 6)
         self.assertEquals(match['opponent_id'], str(opponent.id))
         self.assertEquals(match['opponent_name'], opponent.name)
@@ -228,7 +252,7 @@ class TestServer(unittest.TestCase):
 
         match = matches[2]
         opponent = self.norcal_dao.get_player_by_alias('eric')
-        tournament = self.norcal_dao.get_all_tournaments()[1]
+        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[1]
         self.assertEquals(len(match.keys()), 6)
         self.assertEquals(match['opponent_id'], str(opponent.id))
         self.assertEquals(match['opponent_name'], opponent.name)
@@ -259,7 +283,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(matches), 1)
 
         match = matches[0]
-        tournament = self.norcal_dao.get_all_tournaments()[0]
+        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         self.assertEquals(len(match.keys()), 6)
         self.assertEquals(match['opponent_id'], str(opponent.id))
         self.assertEquals(match['opponent_name'], opponent.name)

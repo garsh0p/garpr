@@ -4,32 +4,38 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
     var service = {
         regions: [],
         region: '',
-        setRegion: function (newRegion) {
-            if (newRegion != this.region) {
-                this.region = newRegion;
+        setRegion: function (newRegionId) {
+            if (!this.region || newRegionId != this.region.id) {
+                // TODO race condition here if regions endpoint hasn't returned yet
+                this.region = this.getRegionFromRegionId(newRegionId);
                 PlayerService.playerList = null;
                 TournamentService.tournamentList = null;
                 RankingsService.rankingsList = null;
 
-                $http.get('http://api.garpr.com/' + this.region + '/players').
+                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region.id + '/players').
                     success(function(data) {
                         PlayerService.playerList = data;
                     });
 
-                $http.get('http://api.garpr.com/' + this.region + '/tournaments').
+                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region.id + '/tournaments').
                     success(function(data) {
                         TournamentService.tournamentList = data.tournaments.reverse();
                     });
 
-                $http.get('http://api.garpr.com/' + this.region + '/rankings').
+                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region.id + '/rankings').
                     success(function(data) {
                         RankingsService.rankingsList = data;
                     });
             }
+        },
+        getRegionFromRegionId: function(regionId) {
+            return this.regions.filter(function(element) {
+                return element.id == regionId;
+            })[0];
         }
     };
 
-    $http.get('http://api.garpr.com/regions').
+    $http.get('http://garsh0p.no-ip.biz:5101/regions').
         success(function(data) {
             service.regions = data.regions;
         });
@@ -130,12 +136,12 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, R
     $scope.regionService = RegionService;
     $scope.playerId = $routeParams.playerId;
 
-    $http.get('http://api.garpr.com/' + $routeParams.region + '/players/' + $routeParams.playerId).
+    $http.get('http://garsh0p.no-ip.biz:5101/' + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
             $scope.playerData = data;
         });
 
-    $http.get('http://api.garpr.com/' + $routeParams.region + '/matches/' + $routeParams.playerId).
+    $http.get('http://garsh0p.no-ip.biz:5101/' + $routeParams.region + '/matches/' + $routeParams.playerId).
         success(function(data) {
             $scope.matches = data.matches.reverse();
         });
@@ -153,7 +159,7 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
 
     $scope.onChange = function() {
         if ($scope.player1 != null && $scope.player2 != null) {
-            $http.get('http://api.garpr.com/' + $routeParams.region + 
+            $http.get('http://garsh0p.no-ip.biz:5101/' + $routeParams.region + 
                 '/matches/' + $scope.player1.id + '?opponent=' + $scope.player2.id).
                 success(function(data) {
                     $scope.playerName = $scope.player1.name;
