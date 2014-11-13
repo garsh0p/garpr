@@ -4,28 +4,34 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
     var service = {
         regions: [],
         region: '',
-        setRegion: function (newRegion) {
-            if (newRegion != this.region) {
-                this.region = newRegion;
+        setRegion: function (newRegionId) {
+            if (!this.region || newRegionId != this.region.id) {
+                // TODO race condition here if regions endpoint hasn't returned yet
+                this.region = this.getRegionFromRegionId(newRegionId);
                 PlayerService.playerList = null;
                 TournamentService.tournamentList = null;
                 RankingsService.rankingsList = null;
 
-                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region + '/players').
+                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region.id + '/players').
                     success(function(data) {
                         PlayerService.playerList = data;
                     });
 
-                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region + '/tournaments').
+                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region.id + '/tournaments').
                     success(function(data) {
                         TournamentService.tournamentList = data.tournaments.reverse();
                     });
 
-                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region + '/rankings').
+                $http.get('http://garsh0p.no-ip.biz:5101/' + this.region.id + '/rankings').
                     success(function(data) {
                         RankingsService.rankingsList = data;
                     });
             }
+        },
+        getRegionFromRegionId: function(regionId) {
+            return this.regions.filter(function(element) {
+                return element.id == regionId;
+            })[0];
         }
     };
 

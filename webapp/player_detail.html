@@ -17,7 +17,7 @@
         <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
             <td>{{match.tournament_date}}</td>
             <td>{{match.tournament_name}}</td>
-            <td><a href="#/{{regionService.region}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
+            <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
             <td>{{match.result}}</td>
         </tr>
     </table>

@@ -24,16 +24,16 @@
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                     <li ng-class="{active: $route.current.activeTab == 'rankings'}">
-                        <a ng-href="#/{{regionService.region}}/rankings">Rankings</a>
+                        <a ng-href="#/{{regionService.region.id}}/rankings">Rankings</a>
                     </li>
                     <li ng-class="{active: $route.current.activeTab == 'players'}">
-                        <a ng-href="#/{{regionService.region}}/players">Players</a>
+                        <a ng-href="#/{{regionService.region.id}}/players">Players</a>
                     </li>
                     <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
-                        <a ng-href="#/{{regionService.region}}/tournaments">Tournaments</a>
+                        <a ng-href="#/{{regionService.region.id}}/tournaments">Tournaments</a>
                     </li>
                     <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
-                        <a ng-href="#/{{regionService.region}}/headtohead">Head-to-Head</a>
+                        <a ng-href="#/{{regionService.region.id}}/headtohead">Head-to-Head</a>
                     </li>
                     <li ng-class="{active: $route.current.activeTab == 'about'}">
                         <a ng-href="#/about">About</a>
@@ -42,7 +42,7 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-hide="$route.current.activeTab == 'about'">
                         <a class="dropdown-toggle">
-                            {{regionService.region}} 
+                            {{regionService.region.display_name}} 
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
