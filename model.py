@@ -95,7 +95,7 @@ class Player(object):
 
     @classmethod
     def create_with_default_values(cls, name, region):
-        return cls(name, [name.lower()], {'ratings': {}}, [region])
+        return cls(name, [name.lower()], {}, [region])
 
     def __str__(self):
         return "%s %s %s %s %s" % (

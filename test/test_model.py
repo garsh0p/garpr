@@ -143,7 +143,7 @@ class TestPlayer(unittest.TestCase):
         self.assertEquals(player.id, None)
         self.assertEquals(player.name, name)
         self.assertEquals(player.aliases, ['asdf'])
-        self.assertEquals(player.ratings, {'ratings': {}})
+        self.assertEquals(player.ratings, {})
         self.assertEquals(player.regions, [region])
 
     def test_to_string(self):
