@@ -135,6 +135,17 @@ class TestPlayer(unittest.TestCase):
                 'regions': self.player_1_regions
         }
 
+    def test_create_with_default_values(self):
+        name = 'ASDF'
+        region = 'r'
+        
+        player = Player.create_with_default_values(name, region)
+        self.assertEquals(player.id, None)
+        self.assertEquals(player.name, name)
+        self.assertEquals(player.aliases, ['asdf'])
+        self.assertEquals(player.ratings, {'ratings': {}})
+        self.assertEquals(player.regions, [region])
+
     def test_to_string(self):
         self.assertEquals(
                 str(self.player_1), 

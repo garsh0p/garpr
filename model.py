@@ -93,6 +93,10 @@ class Player(object):
         self.ratings = ratings
         self.regions = regions
 
+    @classmethod
+    def create_with_default_values(cls, name, region):
+        return cls(name, [name.lower()], {'ratings': {}}, [region])
+
     def __str__(self):
         return "%s %s %s %s %s" % (
                 self.id, 
