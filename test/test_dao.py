@@ -158,16 +158,16 @@ class TestDAO(unittest.TestCase):
         self.assertIsNone(self.norcal_dao.get_player_by_alias('miom|sfat'))
         self.assertIsNone(self.norcal_dao.get_player_by_alias(''))
 
-    def test_get_player_by_alias_from_all_regions(self):
-        self.assertEquals(self.norcal_dao.get_player_by_alias_from_all_regions('gar'), self.player_1)
-        self.assertEquals(self.norcal_dao.get_player_by_alias_from_all_regions('GAR'), self.player_1)
-        self.assertEquals(self.norcal_dao.get_player_by_alias_from_all_regions('garr'), self.player_1)
-        self.assertEquals(self.norcal_dao.get_player_by_alias_from_all_regions('sfat'), self.player_2)
-        self.assertEquals(self.norcal_dao.get_player_by_alias_from_all_regions('miom | sfat'), self.player_2)
-        self.assertEquals(self.norcal_dao.get_player_by_alias_from_all_regions('mango'), self.player_3)
+    def test_get_players_by_alias_from_all_regions(self):
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('gar'), [self.player_1, self.player_3])
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('GAR'), [self.player_1, self.player_3])
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('garr'), [self.player_1])
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('sfat'), [self.player_2])
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('miom | sfat'), [self.player_2])
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('mango'), [self.player_3])
 
-        self.assertIsNone(self.norcal_dao.get_player_by_alias_from_all_regions('miom|sfat'))
-        self.assertIsNone(self.norcal_dao.get_player_by_alias_from_all_regions(''))
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('miom|sfat'), [])
+        self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions(''), [])
 
     def test_get_all_players(self):
         self.assertEquals(self.norcal_dao.get_all_players(), [self.player_1, self.player_2])
