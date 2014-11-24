@@ -101,7 +101,7 @@ def get_player_alias_to_id_map(scraper, dao):
                 if not alias.lower() in db_player.aliases:
                     add_alias = click.confirm("Add %s as a new alias for player %s?" % (alias, db_player.name), default=True)
                     if add_alias:
-                        dao.add_alias_to_player(player_to_add_alias_to, alias)
+                        dao.add_alias_to_player(db_player, alias)
 
                 player_map[alias] = db_player.id
 
