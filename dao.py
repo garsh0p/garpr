@@ -167,7 +167,8 @@ class Dao(object):
         target.merge_with_player(source)
         self.update_player(target)
 
-        for tournament in self.get_all_tournaments():
+        for tournament_id in self.get_all_tournament_ids():
+            tournament = self.get_tournament_by_id(tournament_id)
             tournament.replace_player(player_to_remove=source, player_to_add=target)
             self.update_tournament(tournament)
 
