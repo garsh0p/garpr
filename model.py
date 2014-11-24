@@ -218,19 +218,26 @@ class Tournament(object):
                 json_dict['regions'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
+    # player_alias_to_player_id_map is a map from player alias (string) -> player id (ObjectId)
     @classmethod
-    def from_scraper(cls, type, scraper, dao):
+    def from_scraper(cls, type, scraper, player_alias_to_player_id_map, region_id):
+        def _get_player_id_from_map_or_throw(player_alias_to_id_map, player_alias):
+            player_id = player_alias_to_id_map[player_alias]
+            if player_id is None:
+                raise Exception('Alias %s has no ID in map\n: %s' % (player_alias, player_alias_to_id_map))
+            else:
+                return player_id
+
         players = scraper.get_players()
         matches = scraper.get_matches()
-        regions = [dao.region_id]
+        regions = [region_id]
 
-        # TODO make sure 2 aliases in the same tournament don't map to a single player
         # the players and matches returned from the scraper use player aliases
         # we need to convert these to player IDs
-        players = [dao.get_player_by_alias(p).id for p in players]
+        players = [_get_player_id_from_map_or_throw(player_alias_to_player_id_map, p) for p in players]
         for m in matches:
-            m.winner = dao.get_player_by_alias(m.winner).id
-            m.loser = dao.get_player_by_alias(m.loser).id
+            m.winner = _get_player_id_from_map_or_throw(player_alias_to_player_id_map, m.winner)
+            m.loser = _get_player_id_from_map_or_throw(player_alias_to_player_id_map, m.loser)
 
         return cls(
                 type,

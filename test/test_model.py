@@ -207,6 +207,13 @@ class TestTournament(unittest.TestCase):
         self.match_1 = MatchResult(winner=self.player_1_id, loser=self.player_2_id)
         self.match_2 = MatchResult(winner=self.player_3_id, loser=self.player_4_id)
 
+        self.player_alias_to_player_id_map = {
+                self.player_1.name: self.player_1_id,
+                self.player_2.name: self.player_2_id,
+                self.player_3.name: self.player_3_id,
+                self.player_4.name: self.player_4_id
+        }
+
         self.id = ObjectId()
         self.type = 'tio'
         self.raw = 'raw'
@@ -318,8 +325,6 @@ class TestTournament(unittest.TestCase):
         match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
 
         mock_scraper = mock.Mock(spec=ChallongeScraper)
-        mock_dao = mock.Mock(spec=Dao)
-        mock_dao.region_id = 'norcal'
 
         mock_scraper.get_players.return_value = [p.name for p in self.players]
         mock_scraper.get_matches.return_value = [match_1, match_2]
@@ -327,11 +332,7 @@ class TestTournament(unittest.TestCase):
         mock_scraper.get_date.return_value = self.date
         mock_scraper.get_name.return_value = self.name
 
-        # dictionary that maps player alias to player object
-        mock_dao_return_values = dict(((p.name,), p) for p in self.players)
-        mock_dao.get_player_by_alias.side_effect = lambda *args: mock_dao_return_values[args]
-
-        tournament = Tournament.from_scraper(self.type, mock_scraper, mock_dao)
+        tournament = Tournament.from_scraper(self.type, mock_scraper, self.player_alias_to_player_id_map, 'norcal')
 
         self.assertIsNone(tournament.id)
         self.assertEquals(tournament.type, self.type)
@@ -341,6 +342,24 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.matches, self.matches)
         self.assertEquals(tournament.players, self.player_ids)
         self.assertEquals(tournament.regions, ['norcal'])
+
+    def test_from_scraper_throws_exception(self):
+        # the scraper returns matches that use player aliases instead of player ids
+        match_1 = MatchResult(winner=self.player_1.name, loser=self.player_2.name)
+        match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
+
+        mock_scraper = mock.Mock(spec=ChallongeScraper)
+
+        mock_scraper.get_players.return_value = [p.name for p in self.players]
+        mock_scraper.get_matches.return_value = [match_1, match_2]
+        mock_scraper.get_raw.return_value = self.raw
+        mock_scraper.get_date.return_value = self.date
+        mock_scraper.get_name.return_value = self.name
+
+        with self.assertRaises(Exception) as e:
+            tournament = Tournament.from_scraper(self.type, mock_scraper, {self.player_1.name: None}, 'norcal')
+
+        self.assertTrue('Alias gar has no ID in map' in str(e.exception))
         
 class TestRanking(unittest.TestCase):
     def setUp(self):

@@ -41,6 +41,7 @@ def import_tournament(type, path, bracket, region, name):
 
     import_players(scraper, dao)
 
+    # TODO pass in a map of overrides for specific players
     tournament = Tournament.from_scraper(type, scraper, dao)
     if name:
         tournament.name = name
@@ -56,30 +57,44 @@ def import_players(scraper, dao):
     for player in scraper.get_players():
         db_player = dao.get_player_by_alias(player)
         if db_player == None:
-            click.echo("%s does not exist in the database." % player)
+            click.echo("%s does not exist in the current region %s." % (player, dao.region_id))
 
-            add_new = click.confirm("Add this player as a new player?", default=True)
-            if add_new:
-                name = click.prompt("Enter name", default=player)
-                alias_set = set()
-                alias_set.add(name.lower())
-                alias_set.add(player.lower())
+            db_player_list = dao.get_players_by_alias_from_all_regions(player)
+            if not db_player_list:
+                click.echo("%s could not be found in any region." % player)
 
-                db_player = dao.get_player_by_alias(name)
-                if db_player:
-                    click.echo("%s already exists, adding %s as an alias." % (name, player))
-                    dao.add_alias_to_player(db_player, player)
-                    continue
+                add_new = click.confirm("Add this player as a new player?", default=True)
+                if add_new:
+                    name = click.prompt("Enter name", default=player)
+                    alias_set = set()
+                    alias_set.add(name.lower())
+                    alias_set.add(player.lower())
 
-                player_to_add = Player(name, list(alias_set), DEFAULT_RATING, False)
-                dao.add_player(player_to_add)
+                    db_player = dao.get_player_by_alias(name)
+                    if db_player:
+                        click.echo("%s already exists, adding %s as an alias." % (name, player))
+                        dao.add_alias_to_player(db_player, player)
+                        continue
+
+                    player_to_add = Player(name, list(alias_set), DEFAULT_RATING, False)
+                    dao.add_player(player_to_add)
+                else:
+                    player_to_add_alias_to = None
+                    while not player_to_add_alias_to:
+                        alias = click.prompt("Enter a player who is referred to by this alias")
+                        player_to_add_alias_to = dao.get_player_by_alias(alias)
+
+                    dao.add_alias_to_player(player_to_add_alias_to, player)
             else:
-                player_to_add_alias_to = None
-                while not player_to_add_alias_to:
-                    alias = click.prompt("Enter a player who is referred to by this alias")
-                    player_to_add_alias_to = dao.get_player_by_alias(alias)
+                click.echo("Found the following players matching alias %s:" % player)
+                for p in db_player_list:
+                    click.echo(p)
+                
+                id = click.prompt("Enter the ID of this player or 'none' to add as a new player")
+                if id == 'none':
+                    # TODO new player
+                else:
 
-                dao.add_alias_to_player(player_to_add_alias_to, player)
         else:
             click.echo("Found player: %s" % db_player)
 

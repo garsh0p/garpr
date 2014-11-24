@@ -58,6 +58,21 @@ class Dao(object):
         '''Converts alias to lowercase'''
         return [Player.from_json(p) for p in self.players_col.find({'aliases': {'$in': [alias.lower()]}})]
 
+    def get_player_id_map_from_player_aliases(self, aliases):
+        '''Given a list of player aliases, returns a map that maps player aliases -> player ids for the current
+        region. If no player can be found, returns a map from alias -> None.'''
+        player_alias_to_player_id_map = {}
+
+        for alias in aliases:
+            id = None
+            player = self.get_player_by_alias(alias)
+            if player is not None:
+                id = player.id
+
+            player_alias_to_player_id_map[alias] = id
+
+        return player_alias_to_player_id_map
+
     # TODO this currently gets players for the current region.
     # TODO add another function that explicitly gets all players in the db
     def get_all_players(self):

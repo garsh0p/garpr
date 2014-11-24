@@ -169,6 +169,17 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions('miom|sfat'), [])
         self.assertEquals(self.norcal_dao.get_players_by_alias_from_all_regions(''), [])
 
+    def test_get_player_id_map_from_player_aliases(self):
+        aliases = ['GAR', 'sfat', 'asdf', 'mango']
+        expected_map = {
+                'GAR': self.player_1_id,
+                'sfat': self.player_2_id,
+                'asdf': None,
+                'mango': None,
+        }
+        map = self.norcal_dao.get_player_id_map_from_player_aliases(aliases)
+        self.assertEquals(map, expected_map)
+
     def test_get_all_players(self):
         self.assertEquals(self.norcal_dao.get_all_players(), [self.player_1, self.player_2])
 
