@@ -118,6 +118,23 @@ class Dao(object):
     def update_tournament(self, tournament):
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
+    def get_all_tournament_ids(self, players=None, regions=None):
+        '''players is a list of Players'''
+        query_dict = {}
+        query_list = []
+
+        if players:
+            for player in players:
+                query_list.append({'players': {'$in': [player.id]}})
+
+        if regions:
+            query_list.append({'regions': {'$in': regions}})
+
+        if query_list:
+            query_dict['$and'] = query_list
+
+        return [t['_id'] for t in self.tournaments_col.find(query_dict, {'_id': 1}).sort([('date', 1)])]
+
     def get_all_tournaments(self, players=None, regions=None):
         '''players is a list of Players'''
         query_dict = {}

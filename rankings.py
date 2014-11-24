@@ -49,8 +49,9 @@ def generate_ranking(dao):
             i += 1
 
     print 'Updating players...'
-    for p in players:
+    for i, p in enumerate(players, start=1):
         dao.update_player(p)
+        print 'Updated player %d of %d' % (i, len(players))
 
     print 'Inserting new ranking...'
     dao.insert_ranking(Ranking(dao.region_id, now, [t.id for t in tournaments], ranking))

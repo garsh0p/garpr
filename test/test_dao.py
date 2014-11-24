@@ -306,6 +306,13 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.players, self.tournament_players_2)
         self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
+    def test_get_all_tournament_ids(self):
+        tournament_ids = self.norcal_dao.get_all_tournament_ids()
+
+        self.assertEquals(len(tournament_ids), 2)
+        self.assertEquals(tournament_ids[0], self.tournament_id_1)
+        self.assertEquals(tournament_ids[1], self.tournament_id_2)
+
     def test_get_all_tournaments(self):
         tournaments = self.norcal_dao.get_all_tournaments()
 
