@@ -58,6 +58,8 @@ def get_player_alias_to_id_map(scraper, dao):
     player_map = dao.get_player_id_map_from_player_aliases(scraper.get_players())
 
     for alias, id in player_map.iteritems():
+        print ''
+
         if id is None:
             click.echo("%s does not exist in the current region %s." % (alias, dao.region_id))
 
