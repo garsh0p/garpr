@@ -73,7 +73,6 @@ class TestServer(unittest.TestCase):
 
     def test_get_player_list(self):
         def for_region(json_data, dao):
-
             self.assertEquals(json_data.keys(), ['players'])
             players_list = json_data['players']
             players_from_db = dao.get_all_players()
@@ -93,6 +92,35 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         self.assertEquals(len(json_data['players']), 41)
         for_region(json_data, self.texas_dao)
+
+    def test_get_player_list_with_alias(self):
+        player = self.norcal_dao.get_player_by_alias('gar')
+
+        data = self.app.get('/norcal/players?alias=gar').data
+        json_data = json.loads(data)
+        self.assertEquals(len(json_data['players']), 1)
+
+        json_player = json_data['players'][0]
+        expected_keys = set(['id', 'name'])
+        self.assertEquals(set(json_player.keys()), expected_keys)
+        self.assertEquals(ObjectId(json_player['id']), player.id)
+
+    def test_get_player_list_case_insensitive(self):
+        player = self.norcal_dao.get_player_by_alias('gar')
+
+        data = self.app.get('/norcal/players?alias=GAR').data
+        json_data = json.loads(data)
+        self.assertEquals(len(json_data['players']), 1)
+
+        json_player = json_data['players'][0]
+        expected_keys = set(['id', 'name'])
+        self.assertEquals(set(json_player.keys()), expected_keys)
+        self.assertEquals(ObjectId(json_player['id']), player.id)
+
+    def test_get_player_list_with_bad_alias(self):
+        data = self.app.get('/norcal/players?alias=BADALIAS').data
+        json_data = json.loads(data)
+        self.assertEquals(len(json_data['players']), 0)
 
     def test_get_player(self):
         player = self.norcal_dao.get_player_by_alias('gar')

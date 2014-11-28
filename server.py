@@ -15,6 +15,9 @@ app = Flask(__name__)
 cors = CORS(app)
 api = restful.Api(app)
 
+player_list_get_parser = reqparse.RequestParser()
+player_list_get_parser.add_argument('alias', type=str)
+
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('opponent', type=str)
 
@@ -41,9 +44,18 @@ class RegionListResource(restful.Resource):
 
 class PlayerListResource(restful.Resource):
     def get(self, region):
+        args = player_list_get_parser.parse_args()
         dao = Dao(region, mongo_client=mongo_client)
         return_dict = {}
-        return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
+
+        if args['alias'] is not None:
+            return_dict['players'] = []
+            db_player = dao.get_player_by_alias(args['alias'])
+            if db_player:
+                return_dict['players'].append(db_player.get_json_dict())
+        else:
+            return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
+
         convert_object_id_list(return_dict['players'])
 
         # remove extra fields
