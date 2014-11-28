@@ -34,6 +34,7 @@ def generate_ranking(dao):
             
             rating_calculators.update_trueskill_ratings(dao.region_id, winner=winner, loser=loser)
 
+    print 'Checking for player inactivity...'
     i = 1
     players = player_id_to_player_map.values()
     sorted_players = sorted(
