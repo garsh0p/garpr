@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
@@ -12,7 +12,7 @@ from pymongo import MongoClient
 mongo_client = MongoClient('localhost')
 
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app, headers='Authorization')
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
@@ -68,6 +68,9 @@ class PlayerListResource(restful.Resource):
 
 class PlayerResource(restful.Resource):
     def get(self, region, id):
+        if 'Authorization' in request.headers:
+            print request.headers['Authorization']
+
         dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))
 
