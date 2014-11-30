@@ -482,6 +482,10 @@ class TestUser(unittest.TestCase):
                 'admin_regions': self.admin_regions
                 }
 
+    def test_to_string(self):
+        expected_string = "%s %s" % (self.id, self.admin_regions)
+        self.assertEquals(str(self.user), expected_string)
+
     def test_get_json_dict(self):
         self.assertEquals(self.user.get_json_dict(), self.user_json_dict)
 

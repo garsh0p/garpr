@@ -42,17 +42,23 @@ def convert_object_id_list(json_dict_list):
     for j in json_dict_list:
         convert_object_id(j)
 
-def get_facebook_id_from_access_token(headers):
-    access_token = headers['Authorization']
+def _get_user_id_from_facebook_access_token(access_token):
+    '''Calls Facebook's debug_token endpoint to validate the token. Returns the user id if validation passes,
+    otherwise throws an exception.'''
     url = DEBUG_TOKEN_URL % (access_token, fb_app_token)
     r = requests.get(url)
     json_data = r.json()['data']
 
-    # validate token
     if json_data['app_id'] != fb_app_id or not json_data['is_valid']:
         raise Exception('Facebook access token is invalid')
 
     return json_data['user_id']
+
+def get_user_from_access_token(headers, dao):
+    access_token = headers['Authorization']
+    user_id = _get_user_id_from_facebook_access_token(access_token)
+
+    return dao.get_or_create_user_by_id(user_id)
 
 class RegionListResource(restful.Resource):
     def get(self):
@@ -90,8 +96,6 @@ class PlayerListResource(restful.Resource):
 
 class PlayerResource(restful.Resource):
     def get(self, region, id):
-        get_facebook_id_from_access_token(request.headers)
-
         dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))
 

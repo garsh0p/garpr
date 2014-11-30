@@ -353,6 +353,9 @@ class User(object):
         self.id = id
         self.admin_regions = admin_regions
 
+    def __str__(self):
+        return "%s %s" % (self.id, self.admin_regions)
+
     def get_json_dict(self):
         json_dict = {}
 
