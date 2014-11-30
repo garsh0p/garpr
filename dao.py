@@ -10,6 +10,7 @@ PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
+USERS_COLLECTION_NAME = 'users'
 
 class RegionNotFoundException(Exception):
     pass
@@ -22,25 +23,26 @@ class InvalidNameException(Exception):
 
 #TODO create RegionSpecificDao object
 class Dao(object):
-    def __init__(self, region_id, mongo_client):
+    def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
         self.mongo_client = mongo_client
         self.region_id = region_id
 
         if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
 
-        self.players_col = mongo_client[DATABASE_NAME][PLAYERS_COLLECTION_NAME]
-        self.tournaments_col = mongo_client[DATABASE_NAME][TOURNAMENTS_COLLECTION_NAME]
-        self.rankings_col = mongo_client[DATABASE_NAME][RANKINGS_COLLECTION_NAME]
+        self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
+        self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
+        self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
+        self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
 
     @classmethod
-    def insert_region(cls, region, mongo_client):
-        return mongo_client[DATABASE_NAME][REGIONS_COLLECTION_NAME].insert(region.get_json_dict())
+    def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
+        return mongo_client[database_name][REGIONS_COLLECTION_NAME].insert(region.get_json_dict())
 
     # sorted by display name
     @classmethod
-    def get_all_regions(cls, mongo_client):
-        regions = [Region.from_json(r) for r in mongo_client[DATABASE_NAME][REGIONS_COLLECTION_NAME].find()]
+    def get_all_regions(cls, mongo_client, database_name=DATABASE_NAME):
+        regions = [Region.from_json(r) for r in mongo_client[database_name][REGIONS_COLLECTION_NAME].find()]
         return sorted(regions, key=lambda r: r.display_name)
 
     def get_player_by_id(self, id):
@@ -73,10 +75,8 @@ class Dao(object):
 
         return player_alias_to_player_id_map
 
-    # TODO this currently gets players for the current region.
-    # TODO add another function that explicitly gets all players in the db
     def get_all_players(self):
-        '''Sorts by name in lexographical order'''
+        '''Sorts by name in lexographical order. This only gets a list of players in the current region.'''
         return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
 
     def insert_player(self, player):
@@ -179,6 +179,18 @@ class Dao(object):
 
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
+
+    def insert_user(self, user):
+        return self.users_col.insert(user.get_json_dict())
+
+    def get_or_create_user_by_id(self, id):
+        query = {'_id': id}
+        update = {'$setOnInsert': {'admin_regions': []}}
+
+        return User.from_json(self.users_col.find_and_modify(query=query, update=update, new=True, upsert=True))
+
+    def get_all_users(self):
+        return [User.from_json(u) for u in self.users_col.find()]
 
     # TODO this is untested
     def is_inactive(self, player, now):
