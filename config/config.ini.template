@@ -5,3 +5,7 @@ user=USER
 
 [challonge]
 api_key=API_KEY
+
+[facebook]
+app_id=FB_APP_ID
+app_token=FB_APP_TOKEN

@@ -5,7 +5,7 @@ if (dev) {
     var hostname = 'http://garsh0p.no-ip.biz:5101/';
 }
 else {
-    var hostname = 'http://api.garpr.com/';
+    var hostname = 'https://api.garpr.com/';
 }
 
 app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService) {

@@ -8,6 +8,10 @@ from bson.objectid import ObjectId
 import sys
 import rankings
 from pymongo import MongoClient
+from ConfigParser import ConfigParser
+import requests
+
+DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
 mongo_client = MongoClient('localhost')
 
@@ -24,6 +28,12 @@ matches_get_parser.add_argument('opponent', type=str)
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
+# parse config file
+config = ConfigParser()
+config.read('config/config.ini')
+fb_app_id = config.get('facebook', 'app_id')
+fb_app_token = config.get('facebook', 'app_token')
+
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
     del json_dict['_id']
@@ -31,6 +41,18 @@ def convert_object_id(json_dict):
 def convert_object_id_list(json_dict_list):
     for j in json_dict_list:
         convert_object_id(j)
+
+def get_facebook_id_from_access_token(headers):
+    access_token = headers['Authorization']
+    url = DEBUG_TOKEN_URL % (access_token, fb_app_token)
+    r = requests.get(url)
+    json_data = r.json()['data']
+
+    # validate token
+    if json_data['app_id'] != fb_app_id or not json_data['is_valid']:
+        raise Exception('Facebook access token is invalid')
+
+    return json_data['user_id']
 
 class RegionListResource(restful.Resource):
     def get(self):
@@ -68,8 +90,7 @@ class PlayerListResource(restful.Resource):
 
 class PlayerResource(restful.Resource):
     def get(self, region, id):
-        if 'Authorization' in request.headers:
-            print request.headers['Authorization']
+        get_facebook_id_from_access_token(request.headers)
 
         dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))

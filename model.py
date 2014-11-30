@@ -347,3 +347,25 @@ class Region(object):
         return cls(
                 json_dict['_id'],
                 json_dict['display_name'])
+
+class User(object):
+    def __init__(self, id, admin_regions):
+        self.id = id
+        self.admin_regions = admin_regions
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['_id'] = self.id
+        json_dict['admin_regions'] = self.admin_regions
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['_id'],
+                json_dict['admin_regions'])
