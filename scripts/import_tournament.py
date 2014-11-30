@@ -22,7 +22,7 @@ def import_tournament(type, path, bracket, region, name):
     mongo_client = MongoClient(host=config.get_mongo_url())
 
     if type == 'tio':
-        scraper = TioScraper(path, bracket)
+        scraper = TioScraper.from_file(path, bracket)
     elif type =='challonge':
         scraper = ChallongeScraper(path)
     else:
