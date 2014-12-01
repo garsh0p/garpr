@@ -10,6 +10,7 @@ import rankings
 from pymongo import MongoClient
 from ConfigParser import ConfigParser
 import requests
+import os
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
