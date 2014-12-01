@@ -29,8 +29,9 @@ rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
 # parse config file
+config_full_path = os.path.join(os.path.dirname(__file__), 'config/config.ini')
 config = ConfigParser()
-config.read('config/config.ini')
+config.read(config_full_path)
 fb_app_id = config.get('facebook', 'app_id')
 fb_app_token = config.get('facebook', 'app_token')
 
