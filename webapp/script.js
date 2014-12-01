@@ -84,8 +84,34 @@ app.service('RankingsService', function() {
     return service;
 });
 
+app.service('SessionService', function($http) {
+    var service ={
+        loggedIn: false,
+        userInfo: null,
+        accessToken: null,
+        authenticated_get: function(url, success_callback) {
+            if (this.accessToken != null) {
+                config = {
+                    headers: {
+                        'Authorization': this.accessToken
+                    }
+                }
+                $http.get(url, config).success(success_callback);
+            }
+            else {
+                $http.get(url).success(success_callback);
+            }
+        }
+    };
+
+    return service;
+});
+
 app.config(function(FacebookProvider) {
-    FacebookProvider.init('328340437351153');
+    FacebookProvider.init({
+        appId: '328340437351153',
+        cookie: false
+    });
 });
 
 app.config(['$routeProvider', function($routeProvider) {
@@ -123,18 +149,16 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
-app.controller("AuthenticationController", function($scope, $http, Facebook) {
-    $scope.loggedIn = false;
-    $scope.userInfo = null;
+app.controller("AuthenticationController", function($scope, Facebook, SessionService) {
+    $scope.sessionService = SessionService;
 
     $scope.handleLogin = function(response) {
         if (response.status == 'connected') {
-            $http.defaults.headers.common.Authorization = response.authResponse.accessToken;
-
+            $scope.sessionService.accessToken = response.authResponse.accessToken;
             Facebook.api('/me', function(response) {
                 $scope.$apply(function() {
-                    $scope.userInfo = response;
-                    $scope.loggedIn = true;
+                    $scope.sessionService.loggedIn = true;
+                    $scope.sessionService.userInfo = response;
                 });
             });
         }
@@ -147,9 +171,9 @@ app.controller("AuthenticationController", function($scope, $http, Facebook) {
     $scope.logout = function() {
         Facebook.logout(function() {
             $scope.$apply(function() {
-                $scope.loggedIn = false;
-                $scope.userInfo = null;
-                $http.defaults.headers.common.Authorization = undefined;
+                $scope.sessionService.loggedIn = false;
+                $scope.sessionService.userInfo = null;
+                $scope.sessionService.accessToken = null;
             });
         });
     };
@@ -182,7 +206,7 @@ app.controller("PlayersController", function($scope, $routeParams, RegionService
     $scope.playerService = PlayerService;
 });
 
-app.controller("PlayerDetailController", function($scope, $http, $routeParams, RegionService) {
+app.controller("PlayerDetailController", function($scope, $http, $routeParams, RegionService, SessionService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.playerId = $routeParams.playerId;

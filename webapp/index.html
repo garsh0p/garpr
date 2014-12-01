@@ -43,12 +43,12 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-controller="AuthenticationController">
                         <a class="dropdown-toggle">
-                            {{loggedIn ? userInfo.name : "Login"}}
+                            {{sessionService.loggedIn ? sessionService.userInfo.name : "Login"}}
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
-                           <li ng-hide="loggedIn"><a href="javascript:void(0)" ng-click="login()">Login with Facebook</a></li>
-                           <li ng-show="loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
+                           <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="login()">Login with Facebook</a></li>
+                           <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
                         </ul>
                     </li>
                     <li class="dropdown" ng-hide="$route.current.activeTab == 'about'">
