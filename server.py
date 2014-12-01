@@ -16,7 +16,7 @@ DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_
 mongo_client = MongoClient('localhost')
 
 app = Flask(__name__)
-cors = CORS(app, headers='Authorization')
+cors = CORS(app, origins='*', headers='Authorization')
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
