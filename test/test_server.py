@@ -1,6 +1,6 @@
 import unittest
 import server
-from mock import patch
+from mock import patch, Mock
 import mongomock
 from dao import Dao
 from scraper.tio import TioScraper
@@ -8,6 +8,7 @@ from model import *
 import json
 import rankings
 from bson.objectid import ObjectId
+import requests
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -321,3 +322,74 @@ class TestServer(unittest.TestCase):
         self.assertEquals(match['tournament_id'], str(tournament.id))
         self.assertEquals(match['tournament_name'], tournament.name)
         self.assertEquals(match['tournament_date'], tournament.date.strftime("%x"))
+
+    @patch('server.requests', spec=requests)
+    def test_get_user_from_access_token(self, mock_requests):
+        user_id = 'asdf'
+        user = User(user_id, ['norcal'])
+        auth_header = 'auth'
+
+        mock_response = Mock(spec=requests.Response)
+        mock_response.json.return_value = {
+            'data': {
+                'app_id': server.fb_app_id,
+                'is_valid': True,
+                'user_id': user_id
+            }
+        }
+
+        mock_requests.get.return_value = mock_response
+
+        mock_dao = Mock(spec=Dao)
+        mock_dao.get_or_create_user_by_id.return_value = user
+        
+        retrieved_user = server.get_user_from_access_token({'Authorization': auth_header}, mock_dao)
+        self.assertEquals(retrieved_user.id, user.id)
+        self.assertEquals(retrieved_user.admin_regions, user.admin_regions)
+
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.fb_app_token)
+        mock_requests.get.assert_called_once_with(expected_url)
+
+        mock_dao.get_or_create_user_by_id.assert_called_once_with(user_id)
+
+    @patch('server.requests', spec=requests)
+    def test_get_user_from_access_token_invalid_app_id(self, mock_requests):
+        user_id = 'asdf'
+        auth_header = 'auth'
+
+        mock_response = Mock(spec=requests.Response)
+        mock_response.json.return_value = {
+            'data': {
+                'app_id': 'bad app id',
+                'is_valid': True,
+            }
+        }
+
+        mock_requests.get.return_value = mock_response
+
+        with self.assertRaises(server.InvalidAccessToken):
+            server.get_user_from_access_token({'Authorization': auth_header}, None)
+
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.fb_app_token)
+        mock_requests.get.assert_called_once_with(expected_url)
+
+    @patch('server.requests', spec=requests)
+    def test_get_user_from_access_token_invalid_response(self, mock_requests):
+        user_id = 'asdf'
+        auth_header = 'auth'
+
+        mock_response = Mock(spec=requests.Response)
+        mock_response.json.return_value = {
+            'data': {
+                'app_id': server.fb_app_id,
+                'is_valid': False
+            }
+        }
+
+        mock_requests.get.return_value = mock_response
+
+        with self.assertRaises(server.InvalidAccessToken):
+            server.get_user_from_access_token({'Authorization': auth_header}, None)
+
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.fb_app_token)
+        mock_requests.get.assert_called_once_with(expected_url)

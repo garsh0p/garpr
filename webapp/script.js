@@ -1,6 +1,6 @@
 var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook']);
 
-var dev = true;
+var dev = false;
 if (dev) {
     var hostname = 'http://garsh0p.no-ip.biz:5101/';
 }
@@ -129,15 +129,11 @@ app.controller("AuthenticationController", function($scope, $http, Facebook) {
 
     $scope.handleLogin = function(response) {
         if (response.status == 'connected') {
-            console.log(response);
-
             $http.defaults.headers.common.Authorization = response.authResponse.accessToken;
-            console.log(response.authResponse.accessToken);
 
             Facebook.api('/me', function(response) {
                 $scope.$apply(function() {
                     $scope.userInfo = response;
-                    console.log($scope.userInfo);
                     $scope.loggedIn = true;
                 });
             });

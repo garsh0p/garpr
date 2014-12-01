@@ -34,6 +34,9 @@ config.read('config/config.ini')
 fb_app_id = config.get('facebook', 'app_id')
 fb_app_token = config.get('facebook', 'app_token')
 
+class InvalidAccessToken(Exception):
+    pass
+
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
     del json_dict['_id']
@@ -50,7 +53,7 @@ def _get_user_id_from_facebook_access_token(access_token):
     json_data = r.json()['data']
 
     if json_data['app_id'] != fb_app_id or not json_data['is_valid']:
-        raise Exception('Facebook access token is invalid')
+        raise InvalidAccessToken('Facebook access token is invalid')
 
     return json_data['user_id']
 
