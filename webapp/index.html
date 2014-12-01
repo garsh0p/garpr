@@ -14,6 +14,7 @@
         <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.11.2.js"></script>
         <script src="lib/angulartics.js"></script>
         <script src="lib/angulartics-ga.js"></script>
+        <script src="lib/angular-facebook.js"></script>
         <script src="script.js"></script>
     </head>
     <body>
@@ -40,6 +41,16 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown" ng-controller="AuthenticationController">
+                        <a class="dropdown-toggle">
+                            {{loggedIn ? userInfo.name : "Login"}}
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                           <li ng-hide="loggedIn"><a href="javascript:void(0)" ng-click="login()">Login with Facebook</a></li>
+                           <li ng-show="loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
+                        </ul>
+                    </li>
                     <li class="dropdown" ng-hide="$route.current.activeTab == 'about'">
                         <a class="dropdown-toggle">
                             {{regionService.region.display_name}} 

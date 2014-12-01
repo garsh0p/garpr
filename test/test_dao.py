@@ -5,12 +5,18 @@ from model import *
 from ming import mim
 import trueskill
 from datetime import datetime
-import mongomock
 from pymongo.errors import DuplicateKeyError
+from pymongo import MongoClient
+
+DATABASE_NAME = 'garpr_test'
 
 class TestDAO(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        MongoClient().drop_database(DATABASE_NAME)
+
     def setUp(self):
-        self.mongo_client = mongomock.MongoClient()
+        self.mongo_client = MongoClient()
 
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
@@ -103,15 +109,25 @@ class TestDAO(unittest.TestCase):
 
         self.rankings = [self.ranking_1, self.ranking_2, self.ranking_3]
 
+        self.user_id_1 = 'abc123'
+        self.user_admin_regions_1 = ['norcal', 'texas']
+        self.user_1 = User(self.user_id_1, self.user_admin_regions_1)
+
+        self.user_id_2 = 'asdfasdf'
+        self.user_admin_regions_2 = []
+        self.user_2 = User(self.user_id_2, self.user_admin_regions_2)
+
+        self.users = [self.user_1, self.user_2]
+
         self.region_1 = Region('norcal', 'Norcal')
         self.region_2 = Region('texas', 'Texas')
 
         self.regions = [self.region_1, self.region_2]
 
         for region in self.regions:
-            Dao.insert_region(region, self.mongo_client)
+            Dao.insert_region(region, self.mongo_client, database_name=DATABASE_NAME)
 
-        self.norcal_dao = Dao('norcal', self.mongo_client)
+        self.norcal_dao = Dao('norcal', self.mongo_client, database_name=DATABASE_NAME)
 
         for player in self.players:
             self.norcal_dao.insert_player(player)
@@ -122,20 +138,26 @@ class TestDAO(unittest.TestCase):
         for ranking in self.rankings:
             self.norcal_dao.insert_ranking(ranking)
 
+        for user in self.users:
+            self.norcal_dao.insert_user(user)
+
+    def tearDown(self):
+        self.mongo_client.drop_database(DATABASE_NAME)
+
     def test_init_with_invalid_region(self):
         # create a dao with an existing region
-        Dao('norcal', self.mongo_client)
+        Dao('norcal', self.mongo_client, database_name=DATABASE_NAME)
 
         # create a dao with a new region
         with self.assertRaises(RegionNotFoundException):
-            Dao('newregion', self.mongo_client)
+            Dao('newregion', self.mongo_client, database_name=DATABASE_NAME)
 
     def test_get_all_regions(self):
         # add another region
         region = Region('newregion', 'New Region')
-        Dao.insert_region(region, self.mongo_client)
+        Dao.insert_region(region, self.mongo_client, database_name=DATABASE_NAME)
 
-        regions = Dao.get_all_regions(self.mongo_client)
+        regions = Dao.get_all_regions(self.mongo_client, database_name=DATABASE_NAME)
         self.assertEquals(len(regions), 3)
         self.assertEquals(regions[0], region)
         self.assertEquals(regions[1], self.region_1)
@@ -310,8 +332,8 @@ class TestDAO(unittest.TestCase):
         tournament_ids = self.norcal_dao.get_all_tournament_ids()
 
         self.assertEquals(len(tournament_ids), 2)
-        self.assertEquals(tournament_ids[0], self.tournament_id_1)
-        self.assertEquals(tournament_ids[1], self.tournament_id_2)
+        self.assertEquals(tournament_ids[0], self.tournament_id_2)
+        self.assertEquals(tournament_ids[1], self.tournament_id_1)
 
     def test_get_all_tournaments(self):
         tournaments = self.norcal_dao.get_all_tournaments()
@@ -500,3 +522,65 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(rankings[0], self.ranking_entry_1)
         self.assertEquals(rankings[1], self.ranking_entry_2)
         self.assertEquals(rankings[2], self.ranking_entry_4)
+
+    def test_get_or_create_user_by_id_new_user(self):
+        users = self.norcal_dao.get_all_users()
+        self.assertEquals(len(users), 2)
+
+        new_id = 'lol'
+
+        user = self.norcal_dao.get_or_create_user_by_id(new_id)
+        users = self.norcal_dao.get_all_users()
+
+        self.assertEquals(len(users), 3)
+
+        self.assertEquals(user.id, new_id)
+        self.assertEquals(user.admin_regions, [])
+
+        # make sure none of the old users have been modified
+        user = users[0]
+        self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
+
+        user = users[1]
+        self.assertEquals(user.id, self.user_id_2)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_2)
+
+        user = users[2]
+        self.assertEquals(user.id, new_id)
+        self.assertEquals(user.admin_regions, [])
+
+    def test_get_or_create_user_by_id_existing_user(self):
+        users = self.norcal_dao.get_all_users()
+        self.assertEquals(len(users), 2)
+
+        user = self.norcal_dao.get_or_create_user_by_id(self.user_id_1)
+        users = self.norcal_dao.get_all_users()
+
+        # the number of users shouldn't have changed
+        self.assertEquals(len(users), 2)
+
+        self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
+
+        # make sure none of the old users have been modified
+        user = users[0]
+        self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
+
+        user = users[1]
+        self.assertEquals(user.id, self.user_id_2)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_2)
+
+    def test_get_all_users(self):
+        users = self.norcal_dao.get_all_users()
+        self.assertEquals(len(users), 2)
+        
+        user = users[0]
+        self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
+
+        user = users[1]
+        self.assertEquals(user.id, self.user_id_2)
+        self.assertEquals(user.admin_regions, self.user_admin_regions_2)
+

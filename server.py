@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
@@ -8,11 +8,15 @@ from bson.objectid import ObjectId
 import sys
 import rankings
 from pymongo import MongoClient
+from ConfigParser import ConfigParser
+import requests
+
+DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
 mongo_client = MongoClient('localhost')
 
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app, headers='Authorization')
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
@@ -24,6 +28,15 @@ matches_get_parser.add_argument('opponent', type=str)
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
+# parse config file
+config = ConfigParser()
+config.read('config/config.ini')
+fb_app_id = config.get('facebook', 'app_id')
+fb_app_token = config.get('facebook', 'app_token')
+
+class InvalidAccessToken(Exception):
+    pass
+
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
     del json_dict['_id']
@@ -31,6 +44,24 @@ def convert_object_id(json_dict):
 def convert_object_id_list(json_dict_list):
     for j in json_dict_list:
         convert_object_id(j)
+
+def _get_user_id_from_facebook_access_token(access_token):
+    '''Calls Facebook's debug_token endpoint to validate the token. Returns the user id if validation passes,
+    otherwise throws an exception.'''
+    url = DEBUG_TOKEN_URL % (access_token, fb_app_token)
+    r = requests.get(url)
+    json_data = r.json()['data']
+
+    if json_data['app_id'] != fb_app_id or not json_data['is_valid']:
+        raise InvalidAccessToken('Facebook access token is invalid')
+
+    return json_data['user_id']
+
+def get_user_from_access_token(headers, dao):
+    access_token = headers['Authorization']
+    user_id = _get_user_id_from_facebook_access_token(access_token)
+
+    return dao.get_or_create_user_by_id(user_id)
 
 class RegionListResource(restful.Resource):
     def get(self):

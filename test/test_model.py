@@ -470,3 +470,29 @@ class TestRegion(unittest.TestCase):
 
     def test_from_json_none(self):
         self.assertIsNone(Region.from_json(None))
+
+class TestUser(unittest.TestCase):
+    def setUp(self):
+        self.id = '123abc'
+        self.admin_regions = ['norcal', 'texas']
+        self.user = User(self.id, self.admin_regions)
+
+        self.user_json_dict = {
+                '_id': self.id,
+                'admin_regions': self.admin_regions
+                }
+
+    def test_to_string(self):
+        expected_string = "%s %s" % (self.id, self.admin_regions)
+        self.assertEquals(str(self.user), expected_string)
+
+    def test_get_json_dict(self):
+        self.assertEquals(self.user.get_json_dict(), self.user_json_dict)
+
+    def test_from_json(self):
+        user = User.from_json(self.user_json_dict)
+        self.assertEquals(user.id, self.id)
+        self.assertEquals(user.admin_regions, self.admin_regions)
+
+    def test_from_json_none(self):
+        self.assertIsNone(User.from_json(None))

@@ -1,11 +1,11 @@
-var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics']);
+var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook']);
 
 var dev = false;
 if (dev) {
     var hostname = 'http://garsh0p.no-ip.biz:5101/';
 }
 else {
-    var hostname = 'http://api.garpr.com/';
+    var hostname = 'https://api.garpr.com/';
 }
 
 app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService) {
@@ -54,7 +54,7 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
     return service;
 });
 
-app.service('PlayerService', function ($http) {
+app.service('PlayerService', function() {
     var service = {
         playerList: null,
         getPlayerIdFromName: function (name) {
@@ -70,18 +70,22 @@ app.service('PlayerService', function ($http) {
     return service;
 });
 
-app.service('TournamentService', function ($http) {
+app.service('TournamentService', function() {
     var service = {
         tournamentList: null
     };
     return service;
 });
 
-app.service('RankingsService', function ($http) {
+app.service('RankingsService', function() {
     var service = {
         rankingsList: null
     };
     return service;
+});
+
+app.config(function(FacebookProvider) {
+    FacebookProvider.init('328340437351153');
 });
 
 app.config(['$routeProvider', function($routeProvider) {
@@ -119,24 +123,60 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
+app.controller("AuthenticationController", function($scope, $http, Facebook) {
+    $scope.loggedIn = false;
+    $scope.userInfo = null;
+
+    $scope.handleLogin = function(response) {
+        if (response.status == 'connected') {
+            $http.defaults.headers.common.Authorization = response.authResponse.accessToken;
+
+            Facebook.api('/me', function(response) {
+                $scope.$apply(function() {
+                    $scope.userInfo = response;
+                    $scope.loggedIn = true;
+                });
+            });
+        }
+    };
+
+    $scope.login = function() {
+        Facebook.login($scope.handleLogin);
+    };
+
+    $scope.logout = function() {
+        Facebook.logout(function() {
+            $scope.$apply(function() {
+                $scope.loggedIn = false;
+                $scope.userInfo = null;
+                $http.defaults.headers.common.Authorization = undefined;
+            });
+        });
+    };
+
+    Facebook.getLoginStatus(function(response) {
+        $scope.handleLogin(response);
+    });
+});
+
 app.controller("RegionDropdownController", function($scope, $route, RegionService) {
     $scope.regionService = RegionService;
     $scope.$route = $route;
 });
 
-app.controller("RankingsController", function($scope, $http, $routeParams, RegionService, RankingsService) {
+app.controller("RankingsController", function($scope, $routeParams, RegionService, RankingsService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.rankingsService = RankingsService
 });
 
-app.controller("TournamentsController", function($scope, $http, $routeParams, RegionService, TournamentService) {
+app.controller("TournamentsController", function($scope, $routeParams, RegionService, TournamentService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.tournamentService = TournamentService;
 });
 
-app.controller("PlayersController", function($scope, $http, $routeParams, RegionService, PlayerService) {
+app.controller("PlayersController", function($scope, $routeParams, RegionService, PlayerService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.playerService = PlayerService;
