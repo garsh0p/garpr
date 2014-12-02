@@ -2,11 +2,13 @@ from flask import Flask, request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
+from werkzeug.datastructures import FileStorage
 from dao import Dao
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 import sys
 import rankings
+import tournaments as _tournaments
 from pymongo import MongoClient
 import requests
 import os
@@ -362,6 +364,82 @@ class TournamentRegionResource(restful.Resource):
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
+class TournamentImportResource(restful.Resource):
+    def post(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        parser = reqparse.RequestParser()
+        parser.add_argument('tournament_name', type=str, required=True, location='form', help="Tournament must have a name.")
+        parser.add_argument('bracket_type', type=str, required=True, location='form', help="Bracket must have a type.")
+        parser.add_argument('challonge_url', type=str, location='form')
+        parser.add_argument('tio_file', type=FileStorage, location='files')
+        parser.add_argument('tio_bracket_name', type=str, location='form')
+        args = parser.parse_args()
+
+        try:
+            tournament_name = args['tournament_name']
+            bracket_type = args['bracket_type']
+
+            if bracket_type == 'challonge':
+                if 'challonge_url' not in args:
+                    raise KeyError("Challonge bracket specified, but without a Challonge URL.")
+
+                pending_id = _tournaments.import_tournament_from_challonge(region, args['challonge_url'], tournament_name)
+                return {
+                    "status": "success",
+                    "pending_tournament_id": pending_id
+                    }, 201
+            elif bracket_type == 'tio':
+                if 'tio_file' not in args:
+                    raise KeyError("TIO bracket specified, but no file uploaded.")
+                if 'tio_bracket_name' not in args:
+                    raise KeyError("TIO bracket specified, but no TIO bracket name given.")
+
+                tio_file = args['tio_file']
+                bracket_name = args['bracket_name']
+
+                pending_id = _tournaments.import_tournament_from_tio_filestream(region, tio_file.stream, bracket_name, tournament_name)
+                return {
+                    "status": "success",
+                    "pending_tournament_id": pending_id
+                    }, 201
+            else:
+                raise ValueError("Bracket type must be 'challonge' or 'tio'.")
+        except requests.exceptions.HTTPError as e:
+            return {
+                "status": "error",
+                "error": "Failed to query Challonge API for given URL: " + str(e)
+                }, 400
+        except (KeyError, ValueError, IOError) as e:
+            return {
+                "status": "error",
+                "error": str(e)
+                }, 400
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": "Unknown server error while importing tournament."
+                }, 500
+
+class PendingTournamentListResource(restful.Resource):
+    def get(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        return_dict = {}
+        return_dict['pending_tournaments'] = _tournaments.get_pending_tournaments(region)
+        convert_object_id_list(return_dict['pending_tournaments'])
+
+        for t in return_dict['pending_tournaments']:
+            t['date'] = t['date'].strftime("%x")
+            # whether all aliases have been mapped to players or not
+            # necessary condition for the tournament to be ready to be finalized
+            t['alias_mapping_finished'] = (len(t['alias_to_id_map']) == len(t['players']))
+
+            # remove extra fields
+            del t['raw']
+            del t['matches']
+            del t['players']
+
+        return return_dict
+
 class RankingsResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
@@ -464,6 +542,8 @@ api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
 
+api.add_resource(TournamentImportResource, '/<string:region>/tournaments/new')
+api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 api.add_resource(CurrentUserResource, '/users/me')

@@ -27,14 +27,14 @@ def get_dao(region):
     return Dao(region, mongo_client=mongo_client)
 
 # import pending tournaments
-def import_tournament_from_tio_raw(region, raw, bracket, name):
+def import_tournament_from_tio_filestream(region, stream, bracket, name):
     dao = get_dao(region)
-    scraper = TioScraper(raw, bracket)
+    scraper = TioScraper(stream.read(), bracket)
     pending = PendingTournament.from_scraper(type, scraper, region)
     if name:
         pending.name = name
 
-    dao.insert_pending_tournament(pending)
+    return dao.insert_pending_tournament(pending)
 
 def import_tournament_from_challonge(region, path, name):
     dao = get_dao(region)
@@ -43,7 +43,7 @@ def import_tournament_from_challonge(region, path, name):
     if name:
         pending.name = name
 
-    dao.insert_pending_tournament(pending)
+    return dao.insert_pending_tournament(pending)
 
 def get_pending_tournaments(region):
     dao = get_dao(region)
