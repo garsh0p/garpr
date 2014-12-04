@@ -335,7 +335,7 @@ class TestServer(unittest.TestCase):
         mock_response = Mock(spec=requests.Response)
         mock_response.json.return_value = {
             'data': {
-                'app_id': server.fb_app_id,
+                'app_id': server.config.get_fb_app_id(),
                 'is_valid': True,
                 'user_id': user_id
             }
@@ -350,7 +350,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(retrieved_user.id, user.id)
         self.assertEquals(retrieved_user.admin_regions, user.admin_regions)
 
-        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.fb_app_token)
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
         mock_requests.get.assert_called_once_with(expected_url)
 
         mock_dao.get_or_create_user_by_id.assert_called_once_with(user_id)
@@ -373,7 +373,7 @@ class TestServer(unittest.TestCase):
         with self.assertRaises(server.InvalidAccessToken):
             server.get_user_from_access_token({'Authorization': auth_header}, None)
 
-        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.fb_app_token)
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
         mock_requests.get.assert_called_once_with(expected_url)
 
     @patch('server.requests', spec=requests)
@@ -384,7 +384,7 @@ class TestServer(unittest.TestCase):
         mock_response = Mock(spec=requests.Response)
         mock_response.json.return_value = {
             'data': {
-                'app_id': server.fb_app_id,
+                'app_id': server.config.get_fb_app_id(),
                 'is_valid': False
             }
         }
@@ -394,5 +394,5 @@ class TestServer(unittest.TestCase):
         with self.assertRaises(server.InvalidAccessToken):
             server.get_user_from_access_token({'Authorization': auth_header}, None)
 
-        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.fb_app_token)
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
         mock_requests.get.assert_called_once_with(expected_url)

@@ -4,7 +4,7 @@ import os
 import iso8601
 from model import MatchResult
 from bs4 import BeautifulSoup
-from ConfigParser import ConfigParser
+from config.config import Config
 
 CONFIG_FILE_PATH = 'config/config.ini'
 BASE_CHALLONGE_API_URL = 'https://api.challonge.com/v1/tournaments'
@@ -16,16 +16,12 @@ MATCHES_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s', 'matches.json')
 class ChallongeScraper(object):
     def __init__(self, tournament_id):
         self.tournament_id = tournament_id
-        self.api_key = self._get_api_key_from_config()
+        self.config = Config(config_file_path=CONFIG_FILE_PATH)
+        self.api_key = self.config.get_challonge_api_key()
         self.api_key_dict = {'api_key': self.api_key}
 
         self.raw_dict = None
         self.get_raw()
-
-    def _get_api_key_from_config(self):
-        config = ConfigParser()
-        config.read(CONFIG_FILE_PATH)
-        return config.get('challonge', 'api_key')
 
     def get_raw(self):
         if self.raw_dict == None:

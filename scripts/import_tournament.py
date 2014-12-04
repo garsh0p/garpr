@@ -4,7 +4,6 @@ from scraper.challonge import ChallongeScraper
 from model import *
 from dao import Dao
 import rankings
-from ConfigParser import ConfigParser
 from pymongo import MongoClient
 import getpass
 from bson.objectid import ObjectId
@@ -20,7 +19,6 @@ DEFAULT_RATING = {}
 @click.argument('path')
 def import_tournament(type, path, bracket, region, name):
     config = Config()
-    print config.get_mongo_url()
     mongo_client = MongoClient(host=config.get_mongo_url())
 
     if type == 'tio':

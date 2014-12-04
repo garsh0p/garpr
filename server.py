@@ -8,13 +8,17 @@ from bson.objectid import ObjectId
 import sys
 import rankings
 from pymongo import MongoClient
-from ConfigParser import ConfigParser
 import requests
 import os
+from config.config import Config
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
-mongo_client = MongoClient('localhost')
+# parse config file
+config_full_path = os.path.join(os.path.dirname(__file__), 'config/config.ini')
+config = Config(config_file_path=config_full_path)
+
+mongo_client = MongoClient(host=config.get_mongo_url())
 
 app = Flask(__name__)
 cors = CORS(app, origins='*', headers='Authorization')
@@ -28,13 +32,6 @@ matches_get_parser.add_argument('opponent', type=str)
 
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
-
-# parse config file
-config_full_path = os.path.join(os.path.dirname(__file__), 'config/config.ini')
-config = ConfigParser()
-config.read(config_full_path)
-fb_app_id = config.get('facebook', 'app_id')
-fb_app_token = config.get('facebook', 'app_token')
 
 class InvalidAccessToken(Exception):
     pass
@@ -50,11 +47,11 @@ def convert_object_id_list(json_dict_list):
 def _get_user_id_from_facebook_access_token(access_token):
     '''Calls Facebook's debug_token endpoint to validate the token. Returns the user id if validation passes,
     otherwise throws an exception.'''
-    url = DEBUG_TOKEN_URL % (access_token, fb_app_token)
+    url = DEBUG_TOKEN_URL % (access_token, config.get_fb_app_token())
     r = requests.get(url)
     json_data = r.json()['data']
 
-    if json_data['app_id'] != fb_app_id or not json_data['is_valid']:
+    if json_data['app_id'] != config.get_fb_app_id() or not json_data['is_valid']:
         raise InvalidAccessToken('Facebook access token is invalid')
 
     return json_data['user_id']
