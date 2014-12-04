@@ -1,1 +1,1 @@
- mongodump --host garpr.com --username ivan -p --out "dump/`date`"
+ mongodump --host garpr.com --username ivan --authenticationDatabase admin -p --out "dump/`date`"
