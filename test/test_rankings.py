@@ -100,10 +100,8 @@ class TestRankings(unittest.TestCase):
             self.dao.insert_tournament(tournament)
 
     # all tournaments are within the active range and will be included
-    @patch('rankings.datetime', spec=True)
-    def test_generate_rankings(self, mock_datetime):
+    def test_generate_rankings(self):
         now = datetime(2013, 10, 17)
-        mock_datetime.now.return_value = now
 
         # assert rankings before they get reset
         self.assertEquals(self.dao.get_player_by_id(self.player_1_id).ratings, self.player_1.ratings)
@@ -112,7 +110,7 @@ class TestRankings(unittest.TestCase):
         self.assertEquals(self.dao.get_player_by_id(self.player_4_id).ratings, self.player_4.ratings)
         self.assertEquals(self.dao.get_player_by_id(self.player_5_id).ratings, self.player_5.ratings)
 
-        rankings.generate_ranking(self.dao)
+        rankings.generate_ranking(self.dao, now=now)
 
         # assert rankings after ranking calculation
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_1_id).ratings['norcal'].trueskill_rating.mu, 
@@ -173,12 +171,10 @@ class TestRankings(unittest.TestCase):
         self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
 
     # players that only played in the first tournament will be excluded for inactivity
-    @patch('rankings.datetime', spec=True)
-    def test_generate_rankings_excluded_for_inactivity(self, mock_datetime):
+    def test_generate_rankings_excluded_for_inactivity(self):
         now = datetime(2013, 11, 25)
-        mock_datetime.now.return_value = now
 
-        rankings.generate_ranking(self.dao)
+        rankings.generate_ranking(self.dao, now=now)
 
         ranking = self.dao.get_latest_ranking()
 

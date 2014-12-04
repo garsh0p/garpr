@@ -9,6 +9,7 @@ import json
 import rankings
 from bson.objectid import ObjectId
 import requests
+from datetime import datetime
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -33,8 +34,10 @@ class TestServer(unittest.TestCase):
         self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client)
 
         self._import_files()
-        rankings.generate_ranking(self.norcal_dao)
-        rankings.generate_ranking(self.texas_dao)
+
+        now = datetime(2014, 11, 1)
+        rankings.generate_ranking(self.norcal_dao, now=now)
+        rankings.generate_ranking(self.texas_dao, now=now)
 
     def _import_files(self):
         for f in NORCAL_FILES:

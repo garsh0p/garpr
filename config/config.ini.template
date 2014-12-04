@@ -2,6 +2,7 @@
 host=HOSTNAME
 auth_db=AUTH_DB
 user=USER
+password=PASSWORD
 
 [challonge]
 api_key=API_KEY

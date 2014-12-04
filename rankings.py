@@ -5,9 +5,8 @@ import trueskill
 
 DEFAULT_RATING = TrueskillRating()
 
-def generate_ranking(dao):
+def generate_ranking(dao, now=datetime.now()):
     player_date_map = {}
-    now = datetime.now()
     player_id_to_player_map = {}
 
     tournaments = dao.get_all_tournaments(regions=[dao.region_id])
