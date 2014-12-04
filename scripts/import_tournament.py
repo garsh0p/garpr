@@ -8,13 +8,9 @@ from ConfigParser import ConfigParser
 from pymongo import MongoClient
 import getpass
 from bson.objectid import ObjectId
+from config.config import Config
 
 DEFAULT_RATING = {}
-
-def parse_config():
-    config = ConfigParser()
-    config.read('config/config.ini')
-    return config
 
 @click.command()
 @click.option('--type', '-t', help='tio or challonge', type=click.Choice(['challonge', 'tio']), prompt=True)
@@ -23,13 +19,9 @@ def parse_config():
 @click.option('--name', '-n', help='Tournament name (override)')
 @click.argument('path')
 def import_tournament(type, path, bracket, region, name):
-    config = parse_config()
-    username = config.get('database', 'user')
-    host = config.get('database', 'host')
-    auth_db = config.get('database', 'auth_db')
-    password = getpass.getpass()
-
-    mongo_client = MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
+    config = Config()
+    print config.get_mongo_url()
+    mongo_client = MongoClient(host=config.get_mongo_url())
 
     if type == 'tio':
         scraper = TioScraper(path, bracket)
