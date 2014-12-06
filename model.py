@@ -349,17 +349,19 @@ class Region(object):
                 json_dict['display_name'])
 
 class User(object):
-    def __init__(self, id, admin_regions):
+    def __init__(self, id, admin_regions, full_name=""):
         self.id = id
+        self.full_name = full_name
         self.admin_regions = admin_regions
 
     def __str__(self):
-        return "%s %s" % (self.id, self.admin_regions)
+        return "%s %s %s" % (self.id, self.full_name, self.admin_regions)
 
     def get_json_dict(self):
         json_dict = {}
 
         json_dict['_id'] = self.id
+        json_dict['full_name'] = self.full_name
         json_dict['admin_regions'] = self.admin_regions
 
         return json_dict
@@ -371,4 +373,6 @@ class User(object):
 
         return cls(
                 json_dict['_id'],
-                json_dict['admin_regions'])
+                json_dict['admin_regions'],
+                json_dict['full_name'])
+

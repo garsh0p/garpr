@@ -114,8 +114,9 @@ class TestDAO(unittest.TestCase):
         self.user_1 = User(self.user_id_1, self.user_admin_regions_1)
 
         self.user_id_2 = 'asdfasdf'
+        self.user_full_name_2 = 'Full Name'
         self.user_admin_regions_2 = []
-        self.user_2 = User(self.user_id_2, self.user_admin_regions_2)
+        self.user_2 = User(self.user_id_2, self.user_admin_regions_2, full_name=self.user_full_name_2)
 
         self.users = [self.user_1, self.user_2]
 
@@ -535,19 +536,23 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(len(users), 3)
 
         self.assertEquals(user.id, new_id)
+        self.assertEquals(user.full_name, '')
         self.assertEquals(user.admin_regions, [])
 
         # make sure none of the old users have been modified
         user = users[0]
         self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.full_name, '')
         self.assertEquals(user.admin_regions, self.user_admin_regions_1)
 
         user = users[1]
         self.assertEquals(user.id, self.user_id_2)
+        self.assertEquals(user.full_name, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 
         user = users[2]
         self.assertEquals(user.id, new_id)
+        self.assertEquals(user.full_name, '')
         self.assertEquals(user.admin_regions, [])
 
     def test_get_or_create_user_by_id_existing_user(self):
@@ -561,15 +566,18 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(len(users), 2)
 
         self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.full_name, '')
         self.assertEquals(user.admin_regions, self.user_admin_regions_1)
 
         # make sure none of the old users have been modified
         user = users[0]
         self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.full_name, '')
         self.assertEquals(user.admin_regions, self.user_admin_regions_1)
 
         user = users[1]
         self.assertEquals(user.id, self.user_id_2)
+        self.assertEquals(user.full_name, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 
     def test_get_all_users(self):
@@ -578,9 +586,11 @@ class TestDAO(unittest.TestCase):
         
         user = users[0]
         self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.full_name, '')
         self.assertEquals(user.admin_regions, self.user_admin_regions_1)
 
         user = users[1]
         self.assertEquals(user.id, self.user_id_2)
+        self.assertEquals(user.full_name, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 

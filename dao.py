@@ -185,7 +185,7 @@ class Dao(object):
 
     def get_or_create_user_by_id(self, id):
         query = {'_id': id}
-        update = {'$setOnInsert': {'admin_regions': []}}
+        update = {'$setOnInsert': {'admin_regions': [], 'full_name': ''}}
 
         return User.from_json(self.users_col.find_and_modify(query=query, update=update, new=True, upsert=True))
 
