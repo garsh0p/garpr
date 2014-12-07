@@ -8,7 +8,7 @@ from bson.json_util import dumps
 from bson.objectid import ObjectId
 import sys
 import rankings
-import tournaments as _tournaments
+import tournament_import_service as tournament_import
 from pymongo import MongoClient
 import requests
 import os
@@ -383,7 +383,7 @@ class TournamentImportResource(restful.Resource):
                 if 'challonge_url' not in args:
                     raise KeyError("Challonge bracket specified, but without a Challonge URL.")
 
-                pending_id = _tournaments.import_tournament_from_challonge(region, args['challonge_url'], tournament_name)
+                pending_id = tournament_import.import_tournament_from_challonge(region, args['challonge_url'], tournament_name)
                 return {
                     "status": "success",
                     "pending_tournament_id": pending_id
@@ -397,7 +397,7 @@ class TournamentImportResource(restful.Resource):
                 tio_file = args['tio_file']
                 bracket_name = args['bracket_name']
 
-                pending_id = _tournaments.import_tournament_from_tio_filestream(region, tio_file.stream, bracket_name, tournament_name)
+                pending_id = tournament_import.import_tournament_from_tio_filestream(region, tio_file.stream, bracket_name, tournament_name)
                 return {
                     "status": "success",
                     "pending_tournament_id": pending_id
@@ -424,7 +424,7 @@ class PendingTournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
         return_dict = {}
-        return_dict['pending_tournaments'] = _tournaments.get_pending_tournaments(region)
+        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region)
         convert_object_id_list(return_dict['pending_tournaments'])
 
         for t in return_dict['pending_tournaments']:
