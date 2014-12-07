@@ -40,6 +40,12 @@ class TestServer(unittest.TestCase):
         rankings.generate_ranking(self.norcal_dao, now=now)
         rankings.generate_ranking(self.texas_dao, now=now)
 
+        self.user_id = 'asdf'
+        self.user_full_name = 'full name'
+        self.user_admin_regions = ['norcal']
+        self.user = User(self.user_id, self.user_admin_regions, full_name=self.user_full_name)
+        self.norcal_dao.insert_user(self.user)
+
     def _import_files(self):
         for f in NORCAL_FILES:
             scraper = TioScraper(f[0], f[1])
@@ -438,3 +444,18 @@ class TestServer(unittest.TestCase):
 
         expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
         mock_requests.get.assert_called_once_with(expected_url)
+
+    @patch('server.get_user_from_access_token')
+    def test_get_current_user(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        data = self.app.get('/users/me').data
+        json_data = json.loads(data)
+
+        expected_data = {
+                'id': self.user_id,
+                'full_name': self.user_full_name,
+                'admin_regions': self.user_admin_regions
+        }
+
+        self.assertEquals(json_data, expected_data)
+

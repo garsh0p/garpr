@@ -223,6 +223,18 @@ class MatchesResource(restful.Resource):
 
         return return_dict
 
+class CurrentUserResource(restful.Resource):
+    def get(self):
+        # TODO region doesn't matter, remove hardcode
+        dao = Dao('norcal', mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+        return_dict = user.get_json_dict()
+
+        return_dict['id'] = return_dict['_id']
+        del return_dict['_id']
+
+        return return_dict
+
 api.add_resource(RegionListResource, '/regions')
 api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
@@ -230,6 +242,7 @@ api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
+api.add_resource(CurrentUserResource, '/users/me')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))
