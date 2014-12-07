@@ -11,6 +11,7 @@ from pymongo import MongoClient
 import requests
 import os
 from config.config import Config
+import facebook
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
@@ -59,8 +60,16 @@ def _get_user_id_from_facebook_access_token(access_token):
 def get_user_from_access_token(headers, dao):
     access_token = headers['Authorization']
     user_id = _get_user_id_from_facebook_access_token(access_token)
+    user = dao.get_or_create_user_by_id(user_id)
 
-    return dao.get_or_create_user_by_id(user_id)
+    # populate the user's full name if it's blank
+    if not user.full_name:
+        graph = facebook.GraphAPI(access_token)
+        profile = graph.get_object('me')
+        user.full_name = profile['name']
+        dao.update_user(user)
+
+    return user
 
 class RegionListResource(restful.Resource):
     def get(self):

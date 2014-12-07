@@ -580,6 +580,23 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(user.full_name, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 
+    def test_update_user(self):
+        user = self.norcal_dao.get_or_create_user_by_id(self.user_id_1)
+        self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.full_name, '')
+        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
+
+        new_name = 'new name'
+        new_regions = ['norcal']
+        user.full_name = new_name
+        user.admin_regions = new_regions
+        self.norcal_dao.update_user(user)
+
+        user = self.norcal_dao.get_or_create_user_by_id(self.user_id_1)
+        self.assertEquals(user.id, self.user_id_1)
+        self.assertEquals(user.full_name, new_name)
+        self.assertEquals(user.admin_regions, new_regions)
+
     def test_get_all_users(self):
         users = self.norcal_dao.get_all_users()
         self.assertEquals(len(users), 2)

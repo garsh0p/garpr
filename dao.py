@@ -189,6 +189,9 @@ class Dao(object):
 
         return User.from_json(self.users_col.find_and_modify(query=query, update=update, new=True, upsert=True))
 
+    def update_user(self, user):
+        return self.users_col.update({'_id': user.id}, user.get_json_dict())
+
     def get_all_users(self):
         return [User.from_json(u) for u in self.users_col.find()]
 

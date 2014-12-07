@@ -10,6 +10,7 @@ import rankings
 from bson.objectid import ObjectId
 import requests
 from datetime import datetime
+import facebook
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -329,7 +330,8 @@ class TestServer(unittest.TestCase):
     @patch('server.requests', spec=requests)
     def test_get_user_from_access_token(self, mock_requests):
         user_id = 'asdf'
-        user = User(user_id, ['norcal'])
+        user_full_name = 'full name'
+        user = User(user_id, ['norcal'], full_name=user_full_name)
         auth_header = 'auth'
 
         mock_response = Mock(spec=requests.Response)
@@ -348,12 +350,52 @@ class TestServer(unittest.TestCase):
         
         retrieved_user = server.get_user_from_access_token({'Authorization': auth_header}, mock_dao)
         self.assertEquals(retrieved_user.id, user.id)
+        self.assertEquals(retrieved_user.full_name, user_full_name)
         self.assertEquals(retrieved_user.admin_regions, user.admin_regions)
 
         expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
         mock_requests.get.assert_called_once_with(expected_url)
 
         mock_dao.get_or_create_user_by_id.assert_called_once_with(user_id)
+
+    @patch('server.requests', spec=requests)
+    @patch('server.facebook', spec=facebook)
+    def test_get_user_from_access_token_populate_user_full_name(self, mock_facebook, mock_requests):
+        user_id = 'asdf'
+        user_full_name = 'full name'
+        user = User(user_id, ['norcal'])
+        auth_header = 'auth'
+
+        mock_response = Mock(spec=requests.Response)
+        mock_response.json.return_value = {
+            'data': {
+                'app_id': server.config.get_fb_app_id(),
+                'is_valid': True,
+                'user_id': user_id
+            }
+        }
+
+        mock_requests.get.return_value = mock_response
+
+        mock_dao = Mock(spec=Dao)
+        mock_dao.get_or_create_user_by_id.return_value = user
+
+        mock_graph_api = Mock(spec=facebook.GraphAPI)
+        mock_facebook.GraphAPI.return_value = mock_graph_api
+        mock_graph_api.get_object.return_value = {'name': user_full_name}
+        
+        retrieved_user = server.get_user_from_access_token({'Authorization': auth_header}, mock_dao)
+        self.assertEquals(retrieved_user.id, user.id)
+        self.assertEquals(retrieved_user.full_name, user_full_name)
+        self.assertEquals(retrieved_user.admin_regions, user.admin_regions)
+
+        expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
+        mock_requests.get.assert_called_once_with(expected_url)
+
+        mock_dao.get_or_create_user_by_id.assert_called_once_with(user_id)
+        mock_dao.update_user.assert_called_once_with(user)
+        mock_facebook.GraphAPI.assert_called_once_with(auth_header)
+        mock_graph_api.get_object.assert_called_once_with('me')
 
     @patch('server.requests', spec=requests)
     def test_get_user_from_access_token_invalid_app_id(self, mock_requests):
