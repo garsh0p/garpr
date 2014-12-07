@@ -155,12 +155,12 @@ app.controller("AuthenticationController", function($scope, Facebook, SessionSer
     $scope.handleLogin = function(response) {
         if (response.status == 'connected') {
             $scope.sessionService.accessToken = response.authResponse.accessToken;
-            Facebook.api('/me', function(response) {
-                $scope.$apply(function() {
+            $scope.sessionService.authenticated_get(hostname + 'users/me',
+                function(data) {
                     $scope.sessionService.loggedIn = true;
-                    $scope.sessionService.userInfo = response;
-                });
-            });
+                    $scope.sessionService.userInfo = data;
+                }
+            );
         }
     };
 
