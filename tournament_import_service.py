@@ -4,26 +4,25 @@ from scraper.challonge import ChallongeScraper
 from model import *
 from dao import Dao
 import rankings
-from ConfigParser import ConfigParser
+from ConfigParser import Config
 from pymongo import MongoClient
 import getpass
 from bson.objectid import ObjectId
 
 DEFAULT_RATING = {}
+config = Config()
+mongo_client = get_mongo_client()
 
-def parse_config():
-    config = ConfigParser()
-    config.read('config/config.ini')
-    return config
+def get_mongo_client():
+    username = config.get_db_user()
+    host = config.get_db_host()
+    auth_db = config.get_auth_db_name()
+    password = config.get_password()
+
+    return MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
 
 def get_dao(region):
-    config = parse_config()
-    username = config.get('database', 'user')
-    host = config.get('database', 'host')
-    auth_db = config.get('database', 'auth_db')
-    password = getpass.getpass()
-
-    mongo_client = MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
+    global mongo_client
     return Dao(region, mongo_client=mongo_client)
 
 # import pending tournaments
