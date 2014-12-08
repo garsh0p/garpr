@@ -246,18 +246,16 @@ class Tournament(object):
             else:
                 return player_id
 
-        players = pending_tournament.players
-        matches = pending_tournament.matches
         alias_to_id_map = pending_tournament.alias_to_id_map
 
         # the players and matches returned from the scraper use player aliases
         # we need to convert these to player IDs
-        players = [_get_player_id_from_map_or_throw(alias_to_id_map, p) for p in players]
-        for m in matches:
+        players = [_get_player_id_from_map_or_throw(alias_to_id_map, p) for p in pending_tournament.players]
+        for m in pending_tournament.matches:
             m.winner = _get_player_id_from_map_or_throw(alias_to_id_map, m.winner)
             m.loser = _get_player_id_from_map_or_throw(alias_to_id_map, m.loser)
         return cls(
-                pending_tournamnet.type,
+                pending_tournament.type,
                 pending_tournament.raw,
                 pending_tournament.date,
                 pending_tournament.name,
@@ -274,7 +272,8 @@ class Tournament(object):
 
 
 class PendingTournament(object):
-    '''Same as a Tournament, except it uses aliases for players instead of ids. Used during tournament import, before unidentified aliases are merged.'''
+    '''Same as a Tournament, except it uses aliases for players instead of ids.
+       Used during tournament import, before alias are mapped to player ids.'''
     def __init__(self, type, raw, date, name, players, matches, regions, alias_to_id_map={}, id=None):
         self.id = id
         self.type = type
@@ -325,7 +324,7 @@ class PendingTournament(object):
         self.alias_to_id_map[alias] = _id
 
     def are_all_aliases_mapped(self):
-        return len(self.alias_to_id_map) == len(self.players)
+        return set(self.alias_to_id_map.keys()) == set(self.players)
 
     @classmethod
     def from_scraper(cls, type, scraper, region_id):

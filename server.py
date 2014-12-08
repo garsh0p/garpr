@@ -38,6 +38,10 @@ player_list_get_parser.add_argument('query', type=str)
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('opponent', type=str)
 
+rankings_get_parser = reqparse.RequestParser()
+rankings_get_parser.add_argument('generateNew', type=str)
+
+
 player_put_parser = reqparse.RequestParser()
 player_put_parser.add_argument('name', type=str)
 player_put_parser.add_argument('aliases', type=list)
@@ -49,6 +53,13 @@ tournament_put_parser.add_argument('date', type=int)
 tournament_put_parser.add_argument('players', type=list)
 tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
+
+tournament_import_parser = reqparse.RequestParser()
+tournament_import_parser.add_argument('tournament_name', type=str, required=True, location='form', help="Tournament must have a name.")
+tournament_import_parser.add_argument('bracket_type', type=str, required=True, location='form', help="Bracket must have a type.")
+tournament_import_parser.add_argument('challonge_url', type=str, location='form')
+tournament_import_parser.add_argument('tio_file', type=str, location='form')
+tournament_import_parser.add_argument('tio_bracket_name', type=str, location='form')
 
 class InvalidAccessToken(Exception):
     pass
@@ -364,16 +375,9 @@ class TournamentRegionResource(restful.Resource):
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
-class TournamentImportResource(restful.Resource):
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
-        parser = reqparse.RequestParser()
-        parser.add_argument('tournament_name', type=str, required=True, location='form', help="Tournament must have a name.")
-        parser.add_argument('bracket_type', type=str, required=True, location='form', help="Bracket must have a type.")
-        parser.add_argument('challonge_url', type=str, location='form')
-        parser.add_argument('tio_file', type=FileStorage, location='files')
-        parser.add_argument('tio_bracket_name', type=str, location='form')
-        args = parser.parse_args()
+        args = tournament_import_parser.parse_args()
 
         try:
             tournament_name = args['tournament_name']
@@ -431,7 +435,7 @@ class PendingTournamentListResource(restful.Resource):
             t['date'] = t['date'].strftime("%x")
             # whether all aliases have been mapped to players or not
             # necessary condition for the tournament to be ready to be finalized
-            t['alias_mapping_finished'] = (len(t['alias_to_id_map']) == len(t['players']))
+            t['alias_mapping_finished'] = t.are_all_aliases_mapped()
 
             # remove extra fields
             del t['raw']
