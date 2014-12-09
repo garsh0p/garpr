@@ -149,10 +149,11 @@ class PlayerResource(restful.Resource):
             for a in args['aliases']:
                 if not isinstance(a, unicode):
                     return "each alias must be a string", 400
+            new_aliases = [a.lower() for a in args['aliases']]
             #TODO: should we validate that all aliases are lowercase? or force them all to lowercase?
-            if player.name.lower() not in args['aliases']:
+            if player.name.lower() not in new_aliases:
                 return "aliases must contain the players name!", 400
-            player.aliases = args['aliases']
+            player.aliases = new_aliases
         if args['regions']:
             for a in args['regions']:
                 if not isinstance(a, unicode):
