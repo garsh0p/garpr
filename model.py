@@ -165,7 +165,7 @@ class Tournament(object):
     def __init__(self, type, raw, date, name, players, matches, regions, id=None):
         '''
         :param type: string, either "tio" or "challonge"
-        :param raw: string, the raw data. for tio, this is an xml string. for challonge its some kinda string?
+        :param raw: for tio, this is an xml string. for challonge its a dict from string --> string
         :param date: datetime
         :param name: string
         :param players: list of ObjectIDs
