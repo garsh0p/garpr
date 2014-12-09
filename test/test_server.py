@@ -596,7 +596,6 @@ class TestServer(unittest.TestCase):
 
         #construct info for third test
         valid_aliases = new_aliases
-
         new_aliases = ('nope', 'someoneelse', 'unknowndude')
         raw_dict = {'aliases': new_aliases}
         test_data = json.dumps(raw_dict)
