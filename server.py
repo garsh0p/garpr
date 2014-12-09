@@ -133,7 +133,6 @@ class PlayerResource(restful.Resource):
 
         return return_dict
 
-<<<<<<< HEAD
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))
