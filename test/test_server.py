@@ -259,9 +259,40 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
         self.assertTrue(ranking_entry['rating'] > -3.86)
 
-    # TODO write this test, or delete the endpoint
-    def test_get_rankings_generate_new(self):
-        pass
+    def test_get_rankings_ignore_invalid_player_id(self):
+        # delete a player that exists in the rankings
+        db_ranking = self.norcal_dao.get_latest_ranking()
+        player_to_delete = self.norcal_dao.get_player_by_id(db_ranking.ranking[1].player)
+        self.norcal_dao.delete_player(player_to_delete)
+
+        data = self.app.get('/norcal/rankings').data
+        json_data = json.loads(data)
+        db_ranking = self.norcal_dao.get_latest_ranking()
+
+        self.assertEquals(len(json_data.keys()), 4)
+        self.assertEquals(json_data['time'], str(db_ranking.time))
+        self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
+        self.assertEquals(json_data['region'], self.norcal_dao.region_id)
+
+        # subtract 1 for the player we removed
+        self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking) - 1)
+
+        # spot check first and last ranking entries
+        ranking_entry = json_data['ranking'][0]
+        db_ranking_entry = db_ranking.ranking[0]
+        self.assertEquals(len(ranking_entry.keys()), 4)
+        self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
+        self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
+        self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
+        self.assertTrue(ranking_entry['rating'] > 33.2)
+
+        ranking_entry = json_data['ranking'][-1]
+        db_ranking_entry = db_ranking.ranking[-1]
+        self.assertEquals(len(ranking_entry.keys()), 4)
+        self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
+        self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
+        self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
+        self.assertTrue(ranking_entry['rating'] > -3.86)
 
     def test_get_matches(self):
         player = self.norcal_dao.get_player_by_alias('gar')

@@ -173,9 +173,15 @@ class RankingsResource(restful.Resource):
         return_dict['time'] = str(return_dict['time'])
         return_dict['tournaments'] = [str(t) for t in return_dict['tournaments']]
 
+        ranking_list = []
         for r in return_dict['ranking']:
-            r['name'] = dao.get_player_by_id(r['player']).name
-            r['id'] = str(r.pop('player'))
+            player = dao.get_player_by_id(r['player'])
+            if player:
+                r['name'] = player.name
+                r['id'] = str(r.pop('player'))
+                ranking_list.append(r)
+
+        return_dict['ranking'] = ranking_list
 
         return return_dict
 
