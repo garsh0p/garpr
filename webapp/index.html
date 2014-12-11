@@ -41,8 +41,8 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown" ng-controller="AuthenticationController">
-                        <a class="dropdown-toggle">
+                    <li class="dropdown" dropdown ng-controller="AuthenticationController">
+                        <a class="dropdown-toggle" dropdown-toggle>
                             {{sessionService.loggedIn ? sessionService.userInfo.full_name : "Login"}}
                             <span class="caret"></span>
                         </a>
@@ -51,8 +51,8 @@
                            <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
                         </ul>
                     </li>
-                    <li class="dropdown" ng-hide="$route.current.activeTab == 'about'">
-                        <a class="dropdown-toggle">
+                    <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
+                        <a class="dropdown-toggle" dropdown-toggle>
                             {{regionService.region.display_name}} 
                             <span class="caret"></span>
                         </a>
