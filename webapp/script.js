@@ -135,6 +135,11 @@ app.config(['$routeProvider', function($routeProvider) {
         controller: 'TournamentsController',
         activeTab: 'tournaments'
     }).
+    when('/:region/tournaments/:tournamentId', {
+        templateUrl: 'tournament_detail.html',
+        controller: 'TournamentDetailController',
+        activeTab: 'tournaments'
+    }).
     when('/:region/headtohead', {
         templateUrl: 'headtohead.html',
         controller: 'HeadToHeadController',
@@ -198,6 +203,17 @@ app.controller("TournamentsController", function($scope, $routeParams, RegionSer
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.tournamentService = TournamentService;
+});
+
+app.controller("TournamentDetailController", function($scope, $routeParams, $http, RegionService) {
+    RegionService.setRegion($routeParams.region);
+    $scope.regionService = RegionService;
+    $scope.tournamentId = $routeParams.tournamentId
+
+    $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
+        success(function(data) {
+            $scope.tournament = data;
+        });
 });
 
 app.controller("PlayersController", function($scope, $routeParams, RegionService, PlayerService) {

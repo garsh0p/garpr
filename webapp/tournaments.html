@@ -4,9 +4,9 @@
             <td>Date</td>
             <td>Name</td>
         </tr>
-        <tr ng-repeat="line in tournamentService.tournamentList">
-            <td>{{line.date}}</td>
-            <td>{{line.name}}</td>
+        <tr ng-repeat="tournament in tournamentService.tournamentList">
+            <td>{{tournament.date}}</td>
+            <td><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</td>
         </tr>
     </table>
 </div>

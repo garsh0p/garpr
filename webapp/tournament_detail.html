@@ -1,0 +1,33 @@
+<div class="container">
+    <div class="row">
+        <div>
+            <h1>{{tournament.date}} - {{tournament.name}}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Players</h3>
+            <table class="table">
+                <tr>
+                    <td>Name</td>
+                </tr>
+                <tr ng-repeat="player in tournament.players">
+                    <td><a href="#/{{regionService.region.id}}/players/{{player.id}}">{{player.name}}</a></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-8">
+            <h3>Matches</h3>
+            <table class="table">
+                <tr>
+                    <td>Winner</td>
+                    <td>Loser</td>
+                </tr>
+                <tr ng-repeat="match in tournament.matches">
+                    <td class="success"><a href="#/{{regionService.region.id}}/players/{{match.winner_id}}">{{match.winner_name}}</a></td>
+                    <td class="danger"><a href="#/{{regionService.region.id}}/players/{{match.loser_id}}">{{match.loser_name}}</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
