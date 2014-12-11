@@ -18,7 +18,7 @@
             <input type="text" placeholder="Player name" class="form-control input-lg input-right" ng-model="player2" typeahead="player as player.name for player in playerService.playerList.players | filter:$viewValue:typeaheadFilter | limitTo:20" typeahead-on-select="onChange()">
         </div>
     </div>
-    <table class="table">
+    <table class="table table-condensed">
         <tr>
             <td>Date</td>
             <td>Tournament</td>
@@ -26,7 +26,7 @@
         </tr>
         <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
             <td>{{match.tournament_date}}</td>
-            <td>{{match.tournament_name}}</td>
+            <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
             <td>{{match.result == 'win' ? playerName : opponentName}}</td>
         </tr>
     </table>
