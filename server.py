@@ -141,7 +141,7 @@ class TournamentResource(restful.Resource):
         return_dict = tournament.get_json_dict()
         convert_object_id(return_dict)
 
-        return_dict['date'] = str(return_dict['date'])
+        return_dict['date'] = return_dict['date'].strftime("%x")
 
         return_dict['players'] = [{
                 'id': str(p), 
