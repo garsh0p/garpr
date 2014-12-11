@@ -85,6 +85,9 @@ def get_user_from_access_token(headers, dao):
 
     return user
 
+def is_user_admin_for_region(user, region):
+    return region in user.admin_regions
+
 class RegionListResource(restful.Resource):
     def get(self):
         regions_dict = {'regions': [r.get_json_dict() for r in Dao.get_all_regions(mongo_client)]}
@@ -131,6 +134,9 @@ class PlayerResource(restful.Resource):
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
+
+        # TODO add auth
+
         player = dao.get_player_by_id(ObjectId(id))
 
         if not player:
@@ -154,6 +160,38 @@ class PlayerResource(restful.Resource):
             player.regions = args['regions']
 
         dao.update_player(player)
+
+class PlayerRegionResource(restful.Resource):
+    def put(self, region, id, region_to_change):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_region(user, region_to_change):
+            return 'Permission denied', 403
+
+        player = dao.get_player_by_id(ObjectId(id))
+        if not region_to_change in player.regions:
+            player.regions.append(region_to_change)
+            dao.update_player(player)
+
+        return_dict = dao.get_player_by_id(player.id).get_json_dict()
+        convert_object_id(return_dict)
+        return return_dict
+
+    def delete(self, region, id, region_to_change):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_region(user, region_to_change):
+            return 'Permission denied', 403
+
+        player = dao.get_player_by_id(ObjectId(id))
+        if region_to_change in player.regions:
+            player.regions.remove(region_to_change)
+            dao.update_player(player)
+
+        return_dict = dao.get_player_by_id(player.id).get_json_dict()
+        print return_dict
+        convert_object_id(return_dict)
+        return return_dict
 
 class TournamentListResource(restful.Resource):
     def get(self, region):
@@ -202,6 +240,9 @@ class TournamentResource(restful.Resource):
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
+
+        # TODO add auth
+
         tournament = dao.get_tournament_by_id(ObjectId(id))
         if not tournament:
             return "No tournament found with that id.", 400
@@ -233,6 +274,9 @@ class TournamentResource(restful.Resource):
             tournament.regions = args['regions']
 
         dao.update_tournament(tournament)
+        
+class TournamentRegionResource(restful.Resource):
+    pass
 
 class RankingsResource(restful.Resource):
     def get(self, region):
@@ -316,12 +360,19 @@ class CurrentUserResource(restful.Resource):
         return return_dict
 
 api.add_resource(RegionListResource, '/regions')
+
 api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
+api.add_resource(PlayerRegionResource, '/<string:region>/players/<string:id>/region/<string:region_to_change>')
+
+api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
+
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
+api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
+
 api.add_resource(RankingsResource, '/<string:region>/rankings')
-api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
+
 api.add_resource(CurrentUserResource, '/users/me')
 
 if __name__ == '__main__':

@@ -42,7 +42,7 @@ class TestServer(unittest.TestCase):
 
         self.user_id = 'asdf'
         self.user_full_name = 'full name'
-        self.user_admin_regions = ['norcal']
+        self.user_admin_regions = ['norcal', 'nyc']
         self.user = User(self.user_id, self.user_admin_regions, full_name=self.user_full_name)
         self.norcal_dao.insert_user(self.user)
 
@@ -157,6 +157,81 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_data['regions'], ['texas'])
         self.assertTrue(json_data['ratings']['texas']['mu'] > 44.5)
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
+
+    @patch('server.get_user_from_access_token')
+    def test_put_player_region(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player = self.norcal_dao.get_player_by_alias('gar')
+        self.assertEquals(player.regions, ['norcal'])
+
+        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc')
+        json_data = json.loads(response.data)
+
+        player = self.norcal_dao.get_player_by_alias('gar')
+        self.assertEquals(set(player.regions), set(['norcal', 'nyc']))
+
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(set(json_data['regions']), set(['norcal', 'nyc']))
+
+    @patch('server.get_user_from_access_token')
+    def test_put_player_region_already_exists(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player = self.norcal_dao.get_player_by_alias('gar')
+        self.assertEquals(player.regions, ['norcal'])
+
+        response = self.app.put('/norcal/players/' + str(player.id) + '/region/norcal')
+        json_data = json.loads(response.data)
+
+        self.assertEquals(player.regions, ['norcal'])
+
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['regions'], ['norcal'])
+
+    @patch('server.get_user_from_access_token')
+    def test_put_player_region_invalid_permissions(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player = self.norcal_dao.get_player_by_alias('gar')
+        response = self.app.put('/norcal/players/' + str(player.id) + '/region/texas')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, '"Permission denied"')
+
+    @patch('server.get_user_from_access_token')
+    def test_delete_player_region(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player = self.norcal_dao.get_player_by_alias('gar')
+        self.assertEquals(player.regions, ['norcal'])
+
+        response = self.app.delete('/norcal/players/' + str(player.id) + '/region/norcal')
+        json_data = json.loads(response.data)
+
+        player = self.norcal_dao.get_player_by_id(player.id)
+        self.assertEquals(player.regions, [])
+
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['regions'], [])
+
+    @patch('server.get_user_from_access_token')
+    def test_delete_player_does_not_exist(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player = self.norcal_dao.get_player_by_alias('gar')
+        self.assertEquals(player.regions, ['norcal'])
+
+        response = self.app.delete('/norcal/players/' + str(player.id) + '/region/nyc')
+        json_data = json.loads(response.data)
+
+        player = self.norcal_dao.get_player_by_alias('gar')
+        self.assertEquals(player.regions, ['norcal'])
+
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['regions'], ['norcal'])
+
+    @patch('server.get_user_from_access_token')
+    def test_delete_player_region_invalid_permissions(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player = self.norcal_dao.get_player_by_alias('gar')
+        response = self.app.delete('/norcal/players/' + str(player.id) + '/region/texas')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, '"Permission denied"')
 
     def test_get_tournament_list(self):
         def for_region(data, dao):
