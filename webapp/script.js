@@ -287,3 +287,4 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
         return false;
     };
 });
+
