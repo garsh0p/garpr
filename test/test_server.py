@@ -490,7 +490,7 @@ class TestServer(unittest.TestCase):
 
         self.assertEquals(json_data, expected_data)
 
-    def test_put_tournament(self):
+    def test_put_tournament_name_change(self):
         #initial setup
         dao = self.norcal_dao
         #pick a tournament
@@ -523,6 +523,18 @@ class TestServer(unittest.TestCase):
         self.assertEquals(old_regions, the_tourney.regions)
         self.assertEquals(old_type, the_tourney.type)
 
+    def test_put_tournament_everything_change(self):
+        #initial setup
+        dao = self.norcal_dao
+        #pick a tournament
+        tournaments_from_db = dao.get_all_tournaments(regions="norcal")
+        the_tourney = tournaments_from_db[0]
+
+        #save info about it
+        tourney_id = the_tourney.id
+        new_tourney_name = "jessesGodlikeTourney"
+        old_raw = the_tourney.raw
+        old_type = the_tourney.type
         #setup for test 2
         player1 = ObjectId()
         player2 = ObjectId()
@@ -550,7 +562,34 @@ class TestServer(unittest.TestCase):
         self.assertEquals(set(new_regions), set(the_tourney.regions))
         self.assertEquals(old_type, the_tourney.type)
 
+    def test_put_tournament_invalid_id(self):
+        #construct info
+        new_tourney_name = "jessesGodlikeTourney"
+        raw_dict = {'name': new_tourney_name}
+        test_data = json.dumps(raw_dict)
         # try sending one with an invalid tourney ID
+        rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
+
+    def test_put_tournament_invalid_types(self):
+        #non string player name
+        raw_dict = {'players': ("abc", 123)}
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
+        #match with numerical winner
+        raw_dict = {'matches': {'winner': 123, 'loser': 'bob'}}
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
+        #match with numerical loser
+        raw_dict = {'matches': {'winner': 'bob', 'loser': 123}}
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
+        self.assertEquals(rv.status, '400 BAD REQUEST')
+        #match with both numerical
+        raw_dict = {'matches': {'winner': 1234, 'loser': 123}}
+        test_data = json.dumps(raw_dict)
         rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
         self.assertEquals(rv.status, '400 BAD REQUEST')
 
