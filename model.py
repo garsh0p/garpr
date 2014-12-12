@@ -182,8 +182,6 @@ class Tournament(object):
         self.regions = regions
         self.players = players
 
-
-
     def replace_player(self, player_to_remove=None, player_to_add=None):
         # TODO edge cases with this
         # TODO the player being added cannot play himself in any match
@@ -281,9 +279,7 @@ class Ranking(object):
         self.id = id
         self.time = time
         self.ranking = ranking
-
-        # object ids
-        self.tournaments = tournaments
+        self.tournaments = tournaments         # object ids
 
     def get_json_dict(self):
         json_dict = {}

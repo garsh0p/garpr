@@ -30,7 +30,6 @@ class Dao(object):
         if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
 
-
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
@@ -198,7 +197,6 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
-
         day_limit = 45
         num_tourneys = 1
 

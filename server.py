@@ -15,7 +15,6 @@ import facebook
 from datetime import datetime
 from model import MatchResult
 
-
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
 # parse config file
@@ -37,8 +36,6 @@ matches_get_parser.add_argument('opponent', type=str)
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
-
-
 player_put_parser = reqparse.RequestParser()
 player_put_parser.add_argument('name', type=str)
 player_put_parser.add_argument('aliases', type=list)
@@ -53,7 +50,6 @@ tournament_put_parser.add_argument('regions', type=list)
 
 class InvalidAccessToken(Exception):
     pass
-
 
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
@@ -147,7 +143,6 @@ class PlayerResource(restful.Resource):
                 if not isinstance(a, unicode):
                     return "each alias must be a string", 400
             new_aliases = [a.lower() for a in args['aliases']]
-            #TODO: should we validate that all aliases are lowercase? or force them all to lowercase?
             if player.name.lower() not in new_aliases:
                 return "aliases must contain the players name!", 400
             player.aliases = new_aliases
@@ -156,7 +151,6 @@ class PlayerResource(restful.Resource):
                 if not isinstance(a, unicode):
                     return "each region must be a string", 400
             player.regions = args['regions']
-
 
         dao.update_player(player)
 
@@ -213,7 +207,6 @@ class TournamentResource(restful.Resource):
             return "No tournament found with that id.", 400
         args = tournament_put_parser.parse_args()
 
-        #TODO: convert these asserts into error returns
         #TODO: should we do validation that matches and players are compatible here?
         if args['name']:
             tournament.name = args['name']
@@ -226,7 +219,7 @@ class TournamentResource(restful.Resource):
             tournament.players = [ObjectId(i) for i in args['players']]
         if args['matches']:
             for d in args['matches']:
-                if not (isinstance(d['winner'], unicode)) or not (isinstance(d['loser'], unicode)):
+                if (not isinstance(d['winner'], unicode)) or (not isinstance(d['loser'], unicode)):
                     return 400, "winner and loser must be strings"
             #turn the list of dicts into list of matchresults
             matches = [MatchResult(winner=ObjectId(m['winner']), loser=ObjectId(m['loser'])) for m in args['matches']]
