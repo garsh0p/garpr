@@ -12,7 +12,6 @@ def generate_ranking(dao, now=datetime.now()):
     player_date_map = {}
     player_id_to_player_map = {}
 
-
     tournaments = dao.get_all_tournaments(regions=[dao.region_id])
     for tournament in tournaments:
         print 'Processing:', tournament.name
@@ -47,7 +46,6 @@ def generate_ranking(dao, now=datetime.now()):
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
         if player_last_active_date == None or dao.is_inactive(player, now) or not dao.region_id in player.regions:
-
             pass # do nothing, skip this player
         else:
             ranking.append(RankingEntry(i, player.id, trueskill.expose(player.ratings[dao.region_id].trueskill_rating)))
