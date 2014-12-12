@@ -13,8 +13,7 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, TrueskillRating
-import trueskill
+from model import MatchResult
 
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
@@ -136,8 +135,6 @@ class PlayerResource(restful.Resource):
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         player = dao.get_player_by_id(ObjectId(id))
-        args = player_put_parser.parse_arguments()
-
 
         if not player:
             return "No player found with that region/id.", 400

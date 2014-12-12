@@ -531,7 +531,7 @@ class TestServer(unittest.TestCase):
         new_matches = (MatchResult(player1, player2), MatchResult(player2, player1))
 
         new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
-        new_date = datetime.datetime.now()
+        new_date = datetime.now()
         new_regions = ("norcal", "socal")
         raw_dict = {'name': new_tourney_name, 'date': new_date.toordinal(), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
         test_data = json.dumps(raw_dict)

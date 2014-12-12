@@ -7,8 +7,6 @@ DEFAULT_RATING = TrueskillRating()
 
 def generate_ranking(dao, now=datetime.now()):
 
-    dao.reset_all_player_ratings()
-
     player_date_map = {}
     player_id_to_player_map = {}
 
