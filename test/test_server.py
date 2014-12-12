@@ -11,7 +11,6 @@ from bson.objectid import ObjectId
 import requests
 from datetime import datetime
 import facebook
-import datetime
 
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
