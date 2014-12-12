@@ -197,12 +197,10 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
-        # default rules
         day_limit = 45
         num_tourneys = 1
 
         # special case for NYC
-        # TODO this goes away once regions become a db collection
         if self.region_id == "nyc":
             day_limit = 90
             num_tourneys = 3
@@ -211,3 +209,4 @@ class Dao(object):
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
+

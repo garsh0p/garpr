@@ -12,6 +12,8 @@ import requests
 import os
 from config.config import Config
 import facebook
+from datetime import datetime
+from model import MatchResult
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 
@@ -33,6 +35,18 @@ matches_get_parser.add_argument('opponent', type=str)
 
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
+
+player_put_parser = reqparse.RequestParser()
+player_put_parser.add_argument('name', type=str)
+player_put_parser.add_argument('aliases', type=list)
+player_put_parser.add_argument('regions', type=list)
+
+tournament_put_parser = reqparse.RequestParser()
+tournament_put_parser.add_argument('name', type=str)
+tournament_put_parser.add_argument('date', type=int)
+tournament_put_parser.add_argument('players', type=list)
+tournament_put_parser.add_argument('matches', type=list)
+tournament_put_parser.add_argument('regions', type=list)
 
 class InvalidAccessToken(Exception):
     pass
@@ -115,6 +129,32 @@ class PlayerResource(restful.Resource):
 
         return return_dict
 
+    def put(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        player = dao.get_player_by_id(ObjectId(id))
+
+        if not player:
+            return "No player found with that region/id.", 400
+        args = player_put_parser.parse_args()
+
+        if args['name']:
+            player.name = args['name']
+        if args['aliases']:
+            for a in args['aliases']:
+                if not isinstance(a, unicode):
+                    return "each alias must be a string", 400
+            new_aliases = [a.lower() for a in args['aliases']]
+            if player.name.lower() not in new_aliases:
+                return "aliases must contain the players name!", 400
+            player.aliases = new_aliases
+        if args['regions']:
+            for a in args['regions']:
+                if not isinstance(a, unicode):
+                    return "each region must be a string", 400
+            player.regions = args['regions']
+
+        dao.update_player(player)
+
 class TournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
@@ -159,6 +199,40 @@ class TournamentResource(restful.Resource):
         del return_dict['raw']
 
         return return_dict
+
+    def put(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        tournament = dao.get_tournament_by_id(ObjectId(id))
+        if not tournament:
+            return "No tournament found with that id.", 400
+        args = tournament_put_parser.parse_args()
+
+        #TODO: should we do validation that matches and players are compatible here?
+        if args['name']:
+            tournament.name = args['name']
+        if args['date']:
+            tournament.date = datetime.fromordinal(args['date'])
+        if args['players']:
+            for p in args['players']:
+                if not isinstance(p, unicode):
+                    return "each player must be a string", 400
+            tournament.players = [ObjectId(i) for i in args['players']]
+        if args['matches']:
+            for d in args['matches']:
+                if not isinstance(d, dict):
+                    return "matches must be a dict", 400
+                if (not isinstance(d['winner'], unicode)) or (not isinstance(d['loser'], unicode)):
+                    return "winner and loser must be strings", 400
+            #turn the list of dicts into list of matchresults
+            matches = [MatchResult(winner=ObjectId(m['winner']), loser=ObjectId(m['loser'])) for m in args['matches']]
+            tournament.matches = matches
+        if args['regions']:
+            for p in args['regions']:
+                if not isinstance(p, unicode):
+                    return "each region must be a string", 400
+            tournament.regions = args['regions']
+
+        dao.update_tournament(tournament)
 
 class RankingsResource(restful.Resource):
     def get(self, region):
