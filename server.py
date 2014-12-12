@@ -215,19 +215,21 @@ class TournamentResource(restful.Resource):
         if args['players']:
             for p in args['players']:
                 if not isinstance(p, unicode):
-                    return 400, "each player must be a string"
+                    return "each player must be a string", 400
             tournament.players = [ObjectId(i) for i in args['players']]
         if args['matches']:
             for d in args['matches']:
+                if not isinstance(d, dict):
+                    return "matches must be a dict", 400
                 if (not isinstance(d['winner'], unicode)) or (not isinstance(d['loser'], unicode)):
-                    return 400, "winner and loser must be strings"
+                    return "winner and loser must be strings", 400
             #turn the list of dicts into list of matchresults
             matches = [MatchResult(winner=ObjectId(m['winner']), loser=ObjectId(m['loser'])) for m in args['matches']]
             tournament.matches = matches
         if args['regions']:
-            for p in args['players']:
+            for p in args['regions']:
                 if not isinstance(p, unicode):
-                    return 400, "each region must be a string"
+                    return "each region must be a string", 400
             tournament.regions = args['regions']
 
         dao.update_tournament(tournament)
