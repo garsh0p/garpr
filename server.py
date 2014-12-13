@@ -211,32 +211,34 @@ class TournamentListResource(restful.Resource):
 
         return return_dict
 
+def convert_tournament_to_response(tournament, dao):
+    return_dict = tournament.get_json_dict()
+    convert_object_id(return_dict)
+
+    return_dict['date'] = return_dict['date'].strftime("%x")
+
+    return_dict['players'] = [{
+            'id': str(p), 
+            'name': dao.get_player_by_id(p).name
+        } for p in return_dict['players']]
+
+    return_dict['matches'] = [{
+            'winner_id': str(m['winner']), 
+            'loser_id': str(m['loser']), 
+            'winner_name': dao.get_player_by_id(m['winner']).name, 
+            'loser_name': dao.get_player_by_id(m['loser']).name
+        } for m in return_dict['matches']]
+
+    # remove extra fields
+    del return_dict['raw']
+
+    return return_dict
+
 class TournamentResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         tournament = dao.get_tournament_by_id(ObjectId(id))
-
-        return_dict = tournament.get_json_dict()
-        convert_object_id(return_dict)
-
-        return_dict['date'] = return_dict['date'].strftime("%x")
-
-        return_dict['players'] = [{
-                'id': str(p), 
-                'name': dao.get_player_by_id(p).name
-            } for p in return_dict['players']]
-
-        return_dict['matches'] = [{
-                'winner_id': str(m['winner']), 
-                'loser_id': str(m['loser']), 
-                'winner_name': dao.get_player_by_id(m['winner']).name, 
-                'loser_name': dao.get_player_by_id(m['loser']).name
-            } for m in return_dict['matches']]
-
-        # remove extra fields
-        del return_dict['raw']
-
-        return return_dict
+        return convert_tournament_to_response(tournament, dao)
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
