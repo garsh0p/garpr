@@ -189,7 +189,6 @@ class PlayerRegionResource(restful.Resource):
             dao.update_player(player)
 
         return_dict = dao.get_player_by_id(player.id).get_json_dict()
-        print return_dict
         convert_object_id(return_dict)
         return return_dict
 
@@ -278,7 +277,31 @@ class TournamentResource(restful.Resource):
         dao.update_tournament(tournament)
         
 class TournamentRegionResource(restful.Resource):
-    pass
+    def put(self, region, id, region_to_change):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_region(user, region_to_change):
+            return 'Permission denied', 403
+
+        tournament = dao.get_tournament_by_id(ObjectId(id))
+        if not region_to_change in tournament.regions:
+            tournament.regions.append(region_to_change)
+            dao.update_tournament(tournament)
+
+        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
+
+    def delete(self, region, id, region_to_change):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_region(user, region_to_change):
+            return 'Permission denied', 403
+
+        tournament = dao.get_tournament_by_id(ObjectId(id))
+        if region_to_change in tournament.regions:
+            tournament.regions.remove(region_to_change)
+            dao.update_tournament(tournament)
+
+        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
 class RankingsResource(restful.Resource):
     def get(self, region):
