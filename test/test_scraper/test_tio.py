@@ -9,7 +9,7 @@ BRACKET_NAME = "Singles"
 
 class TestTioScraper(unittest.TestCase):
     def setUp(self):
-        self.scraper = TioScraper(FILEPATH, BRACKET_NAME)
+        self.scraper = TioScraper.from_file(FILEPATH, BRACKET_NAME)
 
     def test_get_raw(self):
         self.assertTrue(len(self.scraper.get_raw()) > 0)
@@ -41,7 +41,7 @@ class TestTioScraper(unittest.TestCase):
             self.scraper.get_matches()
 
     def test_get_matches_one_grand_finals_set(self):
-        self.scraper = TioScraper('test/test_scraper/data/2.tio', BRACKET_NAME)
+        self.scraper = TioScraper.from_file('test/test_scraper/data/2.tio', BRACKET_NAME)
         matches = self.scraper.get_matches()
 
         self.assertEquals(len(matches), 116)

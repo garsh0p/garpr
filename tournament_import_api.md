@@ -1,7 +1,7 @@
 # Tournament Import API
 
 ##Upload bracket: 
- - `POST /[region]/tournaments/new`
+ - `POST /[region]/tournaments/`
     - Body: Tourney name; Bracket type; Challonge link or (TIO file contents and bracket name)
     - Create `PendingTournament` from relevant `Scraper`; save this in the `pending_tournaments` collection
     - return success

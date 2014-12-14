@@ -260,7 +260,7 @@ class Tournament(object):
                 pending_tournament.date,
                 pending_tournament.name,
                 players,
-                matches,
+                pending_tournament.matches,
                 pending_tournament.regions)
 
     @classmethod

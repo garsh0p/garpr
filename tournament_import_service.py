@@ -4,22 +4,23 @@ from scraper.challonge import ChallongeScraper
 from model import *
 from dao import Dao
 import rankings
-from ConfigParser import Config
+from config.config import Config
 from pymongo import MongoClient
 import getpass
 from bson.objectid import ObjectId
 
 DEFAULT_RATING = {}
 config = Config()
-mongo_client = get_mongo_client()
 
 def get_mongo_client():
     username = config.get_db_user()
     host = config.get_db_host()
     auth_db = config.get_auth_db_name()
-    password = config.get_password()
+    password = config.get_db_password()
 
     return MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
+
+mongo_client = get_mongo_client()
 
 def get_dao(region):
     global mongo_client
