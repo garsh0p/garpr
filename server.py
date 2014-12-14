@@ -88,6 +88,12 @@ def get_user_from_access_token(headers, dao):
 def is_user_admin_for_region(user, region):
     return region in user.admin_regions
 
+def is_user_admin_for_regions(user, regions):
+    if len(set(regions).intersection(user.admin_regions)) == 0:
+        return False
+    else:
+        return True
+
 class RegionListResource(restful.Resource):
     def get(self):
         regions_dict = {'regions': [r.get_json_dict() for r in Dao.get_all_regions(mongo_client)]}
@@ -134,13 +140,16 @@ class PlayerResource(restful.Resource):
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
-
-        # TODO add auth
-
         player = dao.get_player_by_id(ObjectId(id))
 
         if not player:
             return "No player found with that region/id.", 400
+
+        # TODO auth for this needs to be different, otherwise an admin can tag with their region and then edit everything
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_regions(user, player.regions):
+            return 'Permission denied', 403
+
         args = player_put_parser.parse_args()
 
         if args['name']:
@@ -241,12 +250,15 @@ class TournamentResource(restful.Resource):
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
-
-        # TODO add auth
-
         tournament = dao.get_tournament_by_id(ObjectId(id))
         if not tournament:
             return "No tournament found with that id.", 400
+
+        # TODO auth for this needs to be different, otherwise an admin can tag with their region and then edit everything
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_regions(user, tournament.regions):
+            return 'Permission denied', 403
+
         args = tournament_put_parser.parse_args()
 
         #TODO: should we do validation that matches and players are compatible here?
