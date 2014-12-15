@@ -1,0 +1,23 @@
+<div class="modal-header">
+    <h3 class="modal-title">Regions</h3>
+</div>
+
+<div class="modal-body">
+    <p>Checking a region will cause this tournament to be used in ranking calculations for that region.</p>
+    <p>You should only include a tournament in a region if a large portion of that tournament's entrants are from that region, otherwise the accuracy of rankings will suffer.</p>
+    <div class="checkbox" ng-repeat="regionId in sessionService.getAdminRegions()">
+        <h3>
+            <label>
+                <input type="checkbox" 
+                       ng-model="tournamentRegionCheckbox[regionId]" 
+                       ng-checked="isTournamentInRegion(regionId)" 
+                       ng-change="onCheckboxChange(regionId)">
+                {{regionService.getRegionDisplayNameFromRegionId(regionId)}}
+            </label>
+        </h3>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="close()">Close</button>
+</div>

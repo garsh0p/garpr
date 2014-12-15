@@ -1,7 +1,10 @@
 <div class="container">
     <div class="row">
-        <div>
+        <div class="col-md-10">
             <h1>{{tournament.date}} - {{tournament.name}}</h1>
+        </div>
+        <div class="col-md-2" ng-show="sessionService.isAdmin()">
+            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="open()">Edit Regions</button></h1>
         </div>
     </div>
     <div class="row">

@@ -29,6 +29,11 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
                 return element.id == regionId;
             })[0];
         },
+        getRegionDisplayNameFromRegionId: function(regionId) {
+            return this.regions.filter(function(element) {
+                return element.id == regionId;
+            })[0].display_name;
+        },
         populateDataForCurrentRegion: function() {
             $http.get(hostname + this.region.id + '/players').
                 success(function(data) {
@@ -89,18 +94,55 @@ app.service('SessionService', function($http) {
         loggedIn: false,
         userInfo: null,
         accessToken: null,
-        authenticated_get: function(url, success_callback) {
+        authenticatedGet: function(url, successCallback) {
             if (this.accessToken != null) {
                 config = {
                     headers: {
                         'Authorization': this.accessToken
                     }
                 }
-                $http.get(url, config).success(success_callback);
+                $http.get(url, config).success(successCallback);
             }
             else {
-                $http.get(url).success(success_callback);
+                $http.get(url).success(successCallback);
             }
+        },
+        authenticatedPut: function(url, successCallback) {
+            if (this.accessToken != null) {
+                config = {
+                    headers: {
+                        'Authorization': this.accessToken
+                    }
+                }
+                $http.put(url, {}, config).success(successCallback);
+            }
+            else {
+                $http.put(url, {}).success(successCallback);
+            }
+        },
+        authenticatedDelete: function(url, successCallback) {
+            if (this.accessToken != null) {
+                config = {
+                    headers: {
+                        'Authorization': this.accessToken
+                    }
+                }
+                $http.delete(url, config).success(successCallback);
+            }
+            else {
+                $http.delete(url).success(successCallback);
+            }
+        },
+        isAdmin: function() {
+            if (!this.loggedIn) {
+                return false;
+            }
+            else {
+                return this.userInfo.admin_regions.length > 0
+            }
+        },
+        getAdminRegions: function() {
+            return this.userInfo.admin_regions
         }
     };
 
@@ -160,7 +202,7 @@ app.controller("AuthenticationController", function($scope, Facebook, SessionSer
     $scope.handleLogin = function(response) {
         if (response.status == 'connected') {
             $scope.sessionService.accessToken = response.authResponse.accessToken;
-            $scope.sessionService.authenticated_get(hostname + 'users/me',
+            $scope.sessionService.authenticatedGet(hostname + 'users/me',
                 function(data) {
                     $scope.sessionService.loggedIn = true;
                     $scope.sessionService.userInfo = data;
@@ -205,10 +247,45 @@ app.controller("TournamentsController", function($scope, $routeParams, RegionSer
     $scope.tournamentService = TournamentService;
 });
 
-app.controller("TournamentDetailController", function($scope, $routeParams, $http, RegionService) {
+app.controller("TournamentDetailController", function($scope, $routeParams, $http, $modal, RegionService, SessionService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
+    $scope.sessionService = SessionService;
+
+    $scope.tournament = null;
     $scope.tournamentId = $routeParams.tournamentId
+    $scope.modalInstance = null;
+
+    $scope.open = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'tournament_region_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.tournamentRegionCheckbox = {}
+    };
+
+    $scope.close = function() {
+        $scope.modalInstance.close()
+    };
+
+    $scope.isTournamentInRegion = function(regionId) {
+        return $scope.tournament.regions.indexOf(regionId) > -1
+    };
+
+    $scope.onCheckboxChange = function(regionId) {
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/region/' + regionId;
+        successCallback = function(data) {
+            $scope.tournament = data;
+        };
+
+        if ($scope.tournamentRegionCheckbox[regionId]) {
+            $scope.sessionService.authenticatedPut(url, successCallback);
+        }
+        else {
+            $scope.sessionService.authenticatedDelete(url, successCallback);
+        }
+    };
 
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success(function(data) {
