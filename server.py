@@ -24,7 +24,7 @@ config = Config(config_file_path=config_full_path)
 mongo_client = MongoClient(host=config.get_mongo_url())
 
 app = Flask(__name__)
-cors = CORS(app, origins='*', headers='Authorization')
+cors = CORS(app, origins='*', headers=['Authorization', 'Content-Type'])
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
