@@ -8,9 +8,9 @@ from config.config import Config
 
 CONFIG_FILE_PATH = 'config/config.ini'
 BASE_CHALLONGE_API_URL = 'https://api.challonge.com/v1/tournaments'
-TOURNAMENT_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s.json')
-PARTICIPANTS_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s', 'participants.json')
-MATCHES_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s', 'matches.json')
+TOURNAMENT_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s.json').replace("\\","/")
+PARTICIPANTS_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s', 'participants.json').replace("\\","/")
+MATCHES_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s', 'matches.json').replace("\\","/")
 
 # http://api.challonge.com/v1
 class ChallongeScraper(object):
@@ -28,6 +28,10 @@ class ChallongeScraper(object):
             self.raw_dict = {}
 
             url = TOURNAMENT_URL % self.tournament_id
+            print(url)
+            print(self.api_key_dict)
+            rawrequest = requests.get(url, params=self.api_key_dict).request
+            print(rawrequest.path_url)
             self.raw_dict['tournament'] = self._check_for_200(requests.get(url, params=self.api_key_dict)).json()
 
             url = MATCHES_URL % self.tournament_id
@@ -48,13 +52,13 @@ class ChallongeScraper(object):
         player_map = dict((p['participant']['id'], p['participant']['name'].strip() 
                            if p['participant']['name'] 
                            else p['participant']['username'].strip()) 
-                          for p in self.get_raw()['participants'])
+                          for p in self.get_raw()['participants'])  
 
         matches = []
         for m in self.get_raw()['matches']:
-            m = m['match']
-            winner_id = m['winner_id']
-            loser_id = m['loser_id']
+            match = m['match']
+            winner_id = match['winner_id']
+            loser_id = match['loser_id']            
             if winner_id is not None and loser_id is not None:
                 winner = player_map[winner_id]
                 loser = player_map[loser_id]

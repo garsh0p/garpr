@@ -5,12 +5,13 @@ from model import *
 import trueskill
 
 DEFAULT_RATING = TrueskillRating()
-DATABASE_NAME = 'garpr'
+DATABASE_NAME = 'meleedata'
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
+INACTIVE_LIMIT = 365
 
 class RegionNotFoundException(Exception):
     pass
@@ -25,7 +26,7 @@ class InvalidNameException(Exception):
 class Dao(object):
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
         self.mongo_client = mongo_client
-        self.region_id = region_id
+        self.region_id = region_id        
 
         if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
@@ -41,7 +42,7 @@ class Dao(object):
 
     # sorted by display name
     @classmethod
-    def get_all_regions(cls, mongo_client, database_name=DATABASE_NAME):
+    def get_all_regions(cls, mongo_client, database_name=DATABASE_NAME):        
         regions = [Region.from_json(r) for r in mongo_client[database_name][REGIONS_COLLECTION_NAME].find()]
         return sorted(regions, key=lambda r: r.display_name)
 
@@ -197,7 +198,7 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
-        day_limit = 45
+        day_limit = INACTIVE_LIMIT
         num_tourneys = 1
 
         # special case for NYC

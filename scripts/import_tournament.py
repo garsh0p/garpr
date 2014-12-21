@@ -70,8 +70,10 @@ def get_player_alias_to_id_map(scraper, dao):
 
                 db_player = dao.get_player_by_alias(name)
                 if db_player:
-                    click.echo("%s already exists, adding %s as an alias." % (name, player))
-                    dao.add_alias_to_player(db_player, player)
+                    click.echo("%s already exists, adding %s as an alias." % (name, alias))
+                    dao.add_alias_to_player(db_player, alias)
+                    #Update the previously uninitialised id with the players id.
+                    player_map[alias] = db_player.id
                     continue
 
                 regions = []
