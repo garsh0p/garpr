@@ -199,7 +199,12 @@ app.config(['$routeProvider', function($routeProvider) {
 app.controller("AuthenticationController", function($scope, Facebook, SessionService) {
     $scope.sessionService = SessionService;
 
-    $scope.handleLogin = function(response) {
+    // Monitor the authResponseChange event so we can refresh expired access tokens
+    $scope.$on('Facebook:authResponseChange', function(event, response) {
+        $scope.handleAuthResponse(response);
+    });
+
+    $scope.handleAuthResponse = function(response) {
         if (response.status == 'connected') {
             $scope.sessionService.accessToken = response.authResponse.accessToken;
             $scope.sessionService.authenticatedGet(hostname + 'users/me',
@@ -209,25 +214,23 @@ app.controller("AuthenticationController", function($scope, Facebook, SessionSer
                 }
             );
         }
+        else {
+            $scope.sessionService.loggedIn = false;
+            $scope.sessionService.userInfo = null;
+            $scope.sessionService.accessToken = null;
+        }
     };
 
     $scope.login = function() {
-        Facebook.login($scope.handleLogin);
+        Facebook.login();
     };
 
     $scope.logout = function() {
-        Facebook.logout(function() {
-            $scope.$apply(function() {
-                $scope.sessionService.loggedIn = false;
-                $scope.sessionService.userInfo = null;
-                $scope.sessionService.accessToken = null;
-            });
-        });
+        Facebook.logout();
     };
 
-    Facebook.getLoginStatus(function(response) {
-        $scope.handleLogin(response);
-    });
+    // Initial login
+    Facebook.getLoginStatus();
 });
 
 app.controller("RegionDropdownController", function($scope, $route, RegionService) {
