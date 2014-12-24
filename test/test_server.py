@@ -1049,3 +1049,17 @@ class TestServer(unittest.TestCase):
         response = self.app.put('/texas/players/' + str(the_player.id), content_type='application/json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
+
+    @patch('server.get_user_from_access_token')
+    def test_post_tournament(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+
+        #okay first, try sending a valid challonge tournament and seeing if it works
+        #then try sending a valid tio tournament and see if it works
+        #then try type mismatch, sending challonge but give tio data
+        #then try type mismatch send tio but give challonge
+        #try tio w/o tio_file
+        #try tio w/o bracket_name
+        #try tio with invalid tio data
+        #try challonge w/o challonge_url
+        pass
