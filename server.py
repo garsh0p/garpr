@@ -41,7 +41,6 @@ matches_get_parser.add_argument('opponent', type=str)
 rankings_get_parser = reqparse.RequestParser()
 rankings_get_parser.add_argument('generateNew', type=str)
 
-
 player_put_parser = reqparse.RequestParser()
 player_put_parser.add_argument('name', type=str)
 player_put_parser.add_argument('aliases', type=list)
