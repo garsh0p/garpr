@@ -27,7 +27,7 @@ class Dao(object):
         self.mongo_client = mongo_client
         self.region_id = region_id
 
-        if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
+        if not region_id in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
 
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
