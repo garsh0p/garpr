@@ -299,14 +299,48 @@ app.controller("PlayersController", function($scope, $routeParams, RegionService
     $scope.playerService = PlayerService;
 });
 
-app.controller("PlayerDetailController", function($scope, $http, $routeParams, RegionService, SessionService) {
+app.controller("PlayerDetailController", function($scope, $http, $routeParams, $modal, RegionService, SessionService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
+    $scope.sessionService = SessionService;
+
     $scope.playerId = $routeParams.playerId;
+    $scope.modalInstance = null;
+
+    $scope.open = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'player_region_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.playerRegionCheckbox = {}
+    };
+
+    $scope.close = function() {
+        $scope.modalInstance.close()
+    };
+
+    $scope.isPlayerInRegion = function(regionId) {
+        return $scope.player.regions.indexOf(regionId) > -1
+    };
+
+    $scope.onCheckboxChange = function(regionId) {
+        url = hostname + $routeParams.region + '/players/' + $scope.playerId + '/region/' + regionId;
+        successCallback = function(data) {
+            $scope.player = data;
+        };
+
+        if ($scope.playerRegionCheckbox[regionId]) {
+            $scope.sessionService.authenticatedPut(url, successCallback);
+        }
+        else {
+            $scope.sessionService.authenticatedDelete(url, successCallback);
+        }
+    };
 
     $http.get(hostname + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
-            $scope.playerData = data;
+            $scope.player = data;
         });
 
     $http.get(hostname + $routeParams.region + '/matches/' + $routeParams.playerId).

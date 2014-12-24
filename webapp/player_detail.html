@@ -1,25 +1,36 @@
 <div class="container">
     <div class="row">
         <div class="player-name col-md-10">
-            <h1>{{playerData.name}}</h1>
+            <h1>{{player.name}}</h1>
         </div>
-        <div class="player-rating col-md-2" tooltip-placement="left" tooltip-html-unsafe="Skill: {{playerData.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{playerData.ratings[regionService.region.id].sigma | number:3}}">
-            <h1><small>Rating: {{playerData.ratings[regionService.region.id].mu - 3*playerData.ratings[regionService.region.id].sigma | number:3}}</small></h1>
-            </h1>
+        <div class="col-md-2" ng-show="sessionService.isAdmin()">
+            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="open()">Edit Regions</button></h1>
         </div>
     </div>
-    <table class="table table-condensed">
-        <tr>
-            <td>Date</td>
-            <td>Tournament</td>
-            <td>Opponent</td>
-            <td>Result</td>
-        </tr>
-        <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
-            <td>{{match.tournament_date}}</td>
-            <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
-            <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
-            <td>{{match.result == 'win' ? "W" : "L"}}</td>
-        </tr>
-    </table>
+    <div class="row">
+        <div class="player-rating col-md-12">
+            <h2><span tooltip-placement="right" 
+                      tooltip-html-unsafe="Skill: {{player.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{player.ratings[regionService.region.id].sigma | number:3}}">
+                Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
+            </span></h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-condensed">
+                <tr>
+                    <td>Date</td>
+                    <td>Tournament</td>
+                    <td>Opponent</td>
+                    <td>Result</td>
+                </tr>
+                <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
+                    <td>{{match.tournament_date}}</td>
+                    <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
+                    <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
+                    <td>{{match.result == 'win' ? "W" : "L"}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
