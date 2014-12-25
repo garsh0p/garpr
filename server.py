@@ -17,6 +17,7 @@ import facebook
 from datetime import datetime
 from model import MatchResult
 import re
+from StringIO import StringIO
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 TYPEAHEAD_PLAYER_LIMIT = 20
@@ -423,7 +424,7 @@ class TournamentImportResource(restful.Resource):
                 tio_file = args['tio_file']
                 bracket_name = args['tio_bracket_name']
 
-                pending_id = tournament_import.import_tournament_from_tio_filestream(region, tio_file.stream, bracket_name, tournament_name)
+                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), bracket_name, tournament_name)
                 return {
                     "status": "success",
                     "pending_tournament_id": pending_id
