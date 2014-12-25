@@ -1055,10 +1055,11 @@ class TestServer(unittest.TestCase):
     def test_post_tournament(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
         dao = self.texas_dao
+        print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
         test_data = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
-            test_data['tio_file'] = f.read()[3:]
+            test_data['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
         test_data['tournament_name'] = "Justice4"
         test_data['bracket_type'] = "tio"
         test_data['bracket_name'] = 'Bracket'
