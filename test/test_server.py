@@ -11,6 +11,7 @@ from bson.objectid import ObjectId
 import requests
 from datetime import datetime
 import facebook
+import string
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -1057,13 +1058,14 @@ class TestServer(unittest.TestCase):
         test_data = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
-            test_data['tio_file'] = f.read()
+            test_data['tio_file'] = f.read()[3:]
         test_data['tournament_name'] = "Justice4"
         test_data['bracket_type'] = "tio"
-        test_data['tio_bracket_name'] = 'Bracket'
+        test_data['bracket_name'] = 'Bracket'
         response = self.app.post('/texas/tournaments/new', data=json.dumps(test_data), content_type='application/json')
-        the_msg = msg=''.join(x for x in response.data if ord(x) < 128)
-        self.assertEquals(response.status_code, 201, msg=the_msg)
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 201, msg=response.data)
 
         #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
