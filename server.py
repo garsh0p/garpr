@@ -54,11 +54,11 @@ tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
 
 tournament_import_parser = reqparse.RequestParser()
-tournament_import_parser.add_argument('tournament_name', type=str, required=True, location='form', help="Tournament must have a name.")
-tournament_import_parser.add_argument('bracket_type', type=str, required=True, location='form', help="Bracket must have a type.")
-tournament_import_parser.add_argument('challonge_url', type=str, location='form')
-tournament_import_parser.add_argument('tio_file', type=str, location='form')
-tournament_import_parser.add_argument('tio_bracket_name', type=str, location='form')
+tournament_import_parser.add_argument('tournament_name', type=str, required=True, help="Tournament must have a name.")
+tournament_import_parser.add_argument('bracket_type', type=str, required=True, help="Bracket must have a type.")
+tournament_import_parser.add_argument('challonge_url', type=str)
+tournament_import_parser.add_argument('tio_file', type=str)
+tournament_import_parser.add_argument('tio_bracket_name', type=str)
 
 class InvalidAccessToken(Exception):
     pass
@@ -374,6 +374,29 @@ class TournamentRegionResource(restful.Resource):
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
+    
+
+class PendingTournamentListResource(restful.Resource):
+    def get(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        return_dict = {}
+        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region)
+        convert_object_id_list(return_dict['pending_tournaments'])
+
+        for t in return_dict['pending_tournaments']:
+            t['date'] = t['date'].strftime("%x")
+            # whether all aliases have been mapped to players or not
+            # necessary condition for the tournament to be ready to be finalized
+            t['alias_mapping_finished'] = t.are_all_aliases_mapped()
+
+            # remove extra fields
+            del t['raw']
+            del t['matches']
+            del t['players']
+
+        return return_dict
+
+class TournamentImportResource(restful.Resource):
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
         args = tournament_import_parser.parse_args()
@@ -423,25 +446,6 @@ class TournamentRegionResource(restful.Resource):
                 "error": "Unknown server error while importing tournament."
                 }, 500
 
-class PendingTournamentListResource(restful.Resource):
-    def get(self, region):
-        dao = Dao(region, mongo_client=mongo_client)
-        return_dict = {}
-        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region)
-        convert_object_id_list(return_dict['pending_tournaments'])
-
-        for t in return_dict['pending_tournaments']:
-            t['date'] = t['date'].strftime("%x")
-            # whether all aliases have been mapped to players or not
-            # necessary condition for the tournament to be ready to be finalized
-            t['alias_mapping_finished'] = t.are_all_aliases_mapped()
-
-            # remove extra fields
-            del t['raw']
-            del t['matches']
-            del t['players']
-
-        return return_dict
 
 class RankingsResource(restful.Resource):
     def get(self, region):

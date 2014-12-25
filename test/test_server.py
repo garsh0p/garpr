@@ -1061,8 +1061,8 @@ class TestServer(unittest.TestCase):
         test_data['tournament_name'] = "Justice4"
         test_data['bracket_type'] = "tio"
         test_data['tio_bracket_name'] = 'Bracket'
-        response = self.app.post('/texas/tournaments/new', data=test_data, content_type='application/json')
-        self.assertEquals(response.status_code, 201)
+        response = self.app.post('/texas/tournaments/new', data=json.dumps(test_data), content_type='application/json')
+        self.assertEquals(response.status_code, 201, msg=response.data)
 
         #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
