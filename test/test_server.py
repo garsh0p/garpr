@@ -671,7 +671,7 @@ class TestServer(unittest.TestCase):
         dao = self.norcal_dao
         #pick a tournament
         tournaments_from_db = dao.get_all_tournaments(regions=['norcal'])
-        the_tourney = tournaments_from_db[0]
+        the_tourney = dao.get_tournament_by_id(tournaments_from_db[0].id)
 
         #save info about it
         tourney_id = the_tourney.id
@@ -706,7 +706,7 @@ class TestServer(unittest.TestCase):
         dao = self.norcal_dao
         #pick a tournament
         tournaments_from_db = dao.get_all_tournaments(regions=['norcal'])
-        the_tourney = tournaments_from_db[0]
+        the_tourney = dao.get_tournament_by_id(tournaments_from_db[0].id)
 
         #save info about it
         tourney_id = the_tourney.id

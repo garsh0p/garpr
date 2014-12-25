@@ -21,6 +21,9 @@ class DuplicateAliasException(Exception):
 class InvalidNameException(Exception):
     pass
 
+class UpdateTournamentException(Exception):
+    pass
+
 #TODO create RegionSpecificDao object
 class Dao(object):
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
@@ -116,6 +119,9 @@ class Dao(object):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
+        if len(tournament.raw) == 0:
+            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
+
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
     def get_all_tournament_ids(self, players=None, regions=None):
@@ -140,6 +146,11 @@ class Dao(object):
         query_dict = {}
         query_list = []
 
+        # don't pull the raw field because it takes too much memory
+        fields_dict = {
+                'raw': 0
+        }
+
         if players:
             for player in players:
                 query_list.append({'players': {'$in': [player.id]}})
@@ -150,7 +161,13 @@ class Dao(object):
         if query_list:
             query_dict['$and'] = query_list
 
-        return [Tournament.from_json(t) for t in self.tournaments_col.find(query_dict).sort([('date', 1)])]
+        tournaments = [t for t in self.tournaments_col.find(query_dict, fields_dict).sort([('date', 1)])]
+
+        # manually add an empty raw field
+        for tournament in tournaments:
+            tournament['raw'] = ''
+
+        return [Tournament.from_json(t) for t in tournaments]
 
     def get_tournament_by_id(self, id):
         '''id must be an ObjectId'''
