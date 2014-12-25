@@ -1053,9 +1053,18 @@ class TestServer(unittest.TestCase):
     @patch('server.get_user_from_access_token')
     def test_post_tournament(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
+        dao = self.texas_dao
+        test_data = {}
+        #then try sending a valid tio tournament and see if it works
+        with open('test/data/Justice4.tio') as f:
+            test_data['tio_file'] = f.read()
+        test_data['tournament_name'] = "Justice4"
+        test_data['bracket_type'] = "tio"
+        test_data['tio_bracket_name'] = 'Bracket'
+        response = self.app.post('/texas/tournaments/new', data=test_data, content_type='application/json')
+        self.assertEquals(response.status_code, 201)
 
         #okay first, try sending a valid challonge tournament and seeing if it works
-        #then try sending a valid tio tournament and see if it works
         #then try type mismatch, sending challonge but give tio data
         #then try type mismatch send tio but give challonge
         #try tio w/o tio_file
