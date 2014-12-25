@@ -444,6 +444,30 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
         self.assertTrue(ranking_entry['rating'] > -3.86)
 
+    @patch('server.get_user_from_access_token')
+    @patch('server.datetime')
+    def test_post_rankings(self, mock_datetime, mock_get_user_from_access_token):
+        now = datetime(2014, 11, 2)
+
+        mock_datetime.now.return_value = now
+        mock_get_user_from_access_token.return_value = self.user
+
+        data = self.app.post('/norcal/rankings').data
+        json_data = json.loads(data)
+        db_ranking = self.norcal_dao.get_latest_ranking()
+
+        self.assertEquals(now, db_ranking.time)
+        self.assertEquals(json_data['time'], str(db_ranking.time))
+        self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
+
+    @patch('server.get_user_from_access_token')
+    def test_post_rankings_permission_denied(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+
+        response = self.app.post('/texas/rankings')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, '"Permission denied"')
+
     def test_get_matches(self):
         player = self.norcal_dao.get_player_by_alias('gar')
         data = self.app.get('/norcal/matches/' + str(player.id)).data

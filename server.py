@@ -33,9 +33,6 @@ player_list_get_parser.add_argument('alias', type=str)
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('opponent', type=str)
 
-rankings_get_parser = reqparse.RequestParser()
-rankings_get_parser.add_argument('generateNew', type=str)
-
 player_put_parser = reqparse.RequestParser()
 player_put_parser.add_argument('name', type=str)
 player_put_parser.add_argument('aliases', type=list)
@@ -318,10 +315,6 @@ class TournamentRegionResource(restful.Resource):
 class RankingsResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
-        args = rankings_get_parser.parse_args()
-
-        if args['generateNew'] is not None and args['generateNew'] == 'true':
-            rankings.generate_ranking(dao)
 
         return_dict = dao.get_latest_ranking().get_json_dict()
         del return_dict['_id']
@@ -339,6 +332,19 @@ class RankingsResource(restful.Resource):
         return_dict['ranking'] = ranking_list
 
         return return_dict
+
+    def post(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_region(user, region):
+            return 'Permission denied', 403
+
+        # we pass in now so we can mock it out in tests
+        now = datetime.now()
+        rankings.generate_ranking(dao, now=now)
+
+        return self.get(region)
 
 class MatchesResource(restful.Resource):
     def get(self, region, id):
