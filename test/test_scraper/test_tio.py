@@ -37,7 +37,7 @@ class TestTioScraper(unittest.TestCase):
 
     def test_get_matches_invalid_bracket_name(self):
         with self.assertRaises(ValueError):
-            self.scraper = TioScraper(FILEPATH, 'invalid bracket name')
+            self.scraper = TioScraper.from_file(FILEPATH, 'invalid bracket name')
             self.scraper.get_matches()
 
     def test_get_matches_one_grand_finals_set(self):
