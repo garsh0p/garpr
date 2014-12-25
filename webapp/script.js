@@ -107,6 +107,19 @@ app.service('SessionService', function($http) {
                 $http.get(url).success(successCallback);
             }
         },
+        authenticatedPost: function(url, successCallback) {
+            if (this.accessToken != null) {
+                config = {
+                    headers: {
+                        'Authorization': this.accessToken
+                    }
+                }
+                $http.post(url, {}, config).success(successCallback);
+            }
+            else {
+                $http.post(url, {}).success(successCallback);
+            }
+        },
         authenticatedPut: function(url, successCallback) {
             if (this.accessToken != null) {
                 config = {
@@ -139,6 +152,14 @@ app.service('SessionService', function($http) {
             }
             else {
                 return this.userInfo.admin_regions.length > 0
+            }
+        },
+        isAdminForRegion: function(regionId) {
+            if (!this.loggedIn) {
+                return false;
+            }
+            else {
+                return this.userInfo.admin_regions.indexOf(regionId) > -1;
             }
         },
         getAdminRegions: function() {
@@ -238,10 +259,37 @@ app.controller("RegionDropdownController", function($scope, $route, RegionServic
     $scope.$route = $route;
 });
 
-app.controller("RankingsController", function($scope, $routeParams, RegionService, RankingsService) {
+app.controller("RankingsController", function($scope, $routeParams, $modal, RegionService, RankingsService, SessionService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.rankingsService = RankingsService
+    $scope.sessionService = SessionService
+
+    $scope.modalInstance = null;
+    $scope.disableButtons = false;
+
+    $scope.prompt = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'generate_rankings_prompt_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+    };
+
+    $scope.confirm = function() {
+        $scope.disableButtons = true;
+        url = hostname + $routeParams.region + '/rankings';
+        successCallback = function(data) {
+            $scope.rankingsService.rankingsList = data;
+            $scope.modalInstance.close();
+        };
+
+        $scope.sessionService.authenticatedPost(url, successCallback);
+    };
+
+    $scope.cancel = function() {
+        $scope.modalInstance.close();
+    };
 });
 
 app.controller("TournamentsController", function($scope, $routeParams, RegionService, TournamentService) {
