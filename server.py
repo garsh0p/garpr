@@ -421,7 +421,7 @@ class TournamentImportResource(restful.Resource):
                     raise KeyError("TIO bracket specified, but no TIO bracket name given.")
 
                 tio_file = args['tio_file']
-                bracket_name = args['bracket_name']
+                bracket_name = args['tio_bracket_name']
 
                 pending_id = tournament_import.import_tournament_from_tio_filestream(region, tio_file.stream, bracket_name, tournament_name)
                 return {
@@ -443,7 +443,7 @@ class TournamentImportResource(restful.Resource):
         except Exception as e:
             return {
                 "status": "error",
-                "error": "Unknown server error while importing tournament."
+                "error": "Unknown server error while importing tournament: " + str(e)
                 }, 500
 
 
