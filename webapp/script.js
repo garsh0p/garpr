@@ -59,7 +59,7 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
     return service;
 });
 
-app.service('PlayerService', function() {
+app.service('PlayerService', function($http) {
     var service = {
         playerList: null,
         getPlayerIdFromName: function (name) {
@@ -70,6 +70,19 @@ app.service('PlayerService', function() {
                 }
             }
             return null;
+        },
+        getPlayerListFromQuery: function(query) {
+            // region doesn't matter here, so we hardcode norcal
+            url = hostname + 'norcal/players';
+            params = {
+                params: {
+                    query: query
+                }
+            }
+
+            return $http.get(url, params).then(function(response) {
+                return response.data.players;
+            });
         }
     };
     return service;
@@ -254,9 +267,17 @@ app.controller("AuthenticationController", function($scope, Facebook, SessionSer
     Facebook.getLoginStatus();
 });
 
-app.controller("RegionDropdownController", function($scope, $route, RegionService) {
+app.controller("NavbarController", function($scope, $route, $location, RegionService, PlayerService) {
     $scope.regionService = RegionService;
+    $scope.playerService = PlayerService;
     $scope.$route = $route;
+
+    $scope.selectedPlayer = null;
+
+    $scope.playerSelected = function($item) {
+        $location.path($scope.regionService.region.id + '/players/' + $item.id);
+        $scope.selectedPlayer = null;
+    };
 });
 
 app.controller("RankingsController", function($scope, $routeParams, $modal, RegionService, RankingsService, SessionService) {
@@ -422,19 +443,6 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
                     $scope.losses = data.losses;
                 });
         }
-    };
-
-    $scope.getPlayers = function(query) {
-        url = hostname + $routeParams.region + '/players';
-        params = {
-            params: {
-                query: query
-            }
-        }
-
-        return $http.get(url, params).then(function(response) {
-            return response.data.players;
-        });
     };
 });
 
