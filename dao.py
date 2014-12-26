@@ -78,9 +78,12 @@ class Dao(object):
 
         return player_alias_to_player_id_map
 
-    def get_all_players(self):
-        '''Sorts by name in lexographical order. This only gets a list of players in the current region.'''
-        return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
+    def get_all_players(self, all_regions=False):
+        '''Sorts by name in lexographical order.'''
+        if all_regions:
+            return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
+        else:
+            return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
 
     def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())

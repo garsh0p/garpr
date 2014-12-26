@@ -206,6 +206,9 @@ class TestDAO(unittest.TestCase):
     def test_get_all_players(self):
         self.assertEquals(self.norcal_dao.get_all_players(), [self.player_1, self.player_2])
 
+    def test_get_all_players_all_regions(self):
+        self.assertEquals(self.norcal_dao.get_all_players(all_regions=True), [self.player_1, self.player_3, self.player_2])
+
     def test_add_player_duplicate(self):
         with self.assertRaises(DuplicateKeyError):
             self.norcal_dao.insert_player(self.player_1)

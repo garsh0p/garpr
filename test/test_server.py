@@ -133,6 +133,50 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         self.assertEquals(len(json_data['players']), 0)
 
+    def test_get_player_list_with_query(self):
+        data = self.app.get('/norcal/players?query=AND').data
+        json_data = json.loads(data)
+        
+        self.assertEquals(len(json_data['players']), 3)
+
+        json_player = json_data['players'][0]
+        self.assertEquals(json_player['name'], 'Ampersand')
+
+        json_player = json_data['players'][1]
+        self.assertEquals(json_player['name'], 'laudandas')
+
+        json_player = json_data['players'][2]
+        self.assertEquals(json_player['name'], 'laudandus')
+
+    def test_get_player_list_with_query_short_name(self):
+        data = self.app.get('/norcal/players?query=ky').data
+        json_data = json.loads(data)
+
+        self.assertEquals(len(json_data['players']), 1)
+
+        json_player = json_data['players'][0]
+        self.assertEquals(json_player['name'], 'Ky')
+
+    def test_get_player_list_with_query_split_tokens(self):
+        data = self.app.get('/norcal/players?query=z').data
+        json_data = json.loads(data)
+
+        self.assertEquals(len(json_data['players']), 2)
+
+        json_player = json_data['players'][0]
+        self.assertEquals(json_player['name'], 'Zift')
+
+        json_player = json_data['players'][1]
+        self.assertEquals(json_player['name'], 'dr.z')
+
+        data = self.app.get('/norcal/players?query=d').data
+        json_data = json.loads(data)
+
+        self.assertEquals(len(json_data['players']), 7)
+
+        json_player = json_data['players'][0]
+        self.assertEquals(json_player['name'], 'CT Denti')
+        
     def test_get_player(self):
         player = self.norcal_dao.get_player_by_alias('gar')
         data = self.app.get('/norcal/players/' + str(player.id)).data

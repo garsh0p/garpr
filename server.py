@@ -14,8 +14,10 @@ from config.config import Config
 import facebook
 from datetime import datetime
 from model import MatchResult
+import re
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
+TYPEAHEAD_PLAYER_LIMIT = 20
 
 # parse config file
 config_full_path = os.path.join(os.path.dirname(__file__), 'config/config.ini')
@@ -29,6 +31,7 @@ api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
 player_list_get_parser.add_argument('alias', type=str)
+player_list_get_parser.add_argument('query', type=str)
 
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('opponent', type=str)
@@ -102,16 +105,58 @@ class RegionListResource(restful.Resource):
         return regions_dict
 
 class PlayerListResource(restful.Resource):
+    def _player_matches_query(self, player, query):
+        player_name = player.name.lower()
+        query = query.lower()
+
+        # try matching the full name first
+        if player_name == query:
+            return True
+
+        # if query is >= 3 chars, allow substring matching
+        # this is to allow players with very short names to appear for small search terms
+        if len(query) >= 3 and query in player_name:
+            return True
+
+        # split the player name on common dividers and try to match against each part starting from the beginning
+        # split on: . | space
+        tokens = re.split('\.|\|| ', player_name)
+        for token in tokens:
+            if token:
+                if token.startswith(query):
+                    return True
+
+        # no match
+        return False
+
+    def _get_players_matching_query(self, players, query):
+        matching_players = []
+
+        for player in players:
+            if self._player_matches_query(player, query):
+                matching_players.append(player)
+
+            if len(matching_players) >= TYPEAHEAD_PLAYER_LIMIT:
+                break
+
+        return matching_players
+
     def get(self, region):
         args = player_list_get_parser.parse_args()
         dao = Dao(region, mongo_client=mongo_client)
         return_dict = {}
 
+        # single player matching alias within region
         if args['alias'] is not None:
             return_dict['players'] = []
             db_player = dao.get_player_by_alias(args['alias'])
             if db_player:
                 return_dict['players'].append(db_player.get_json_dict())
+        # search multiple players by name across all regions
+        elif args['query'] is not None:
+            all_players = dao.get_all_players(all_regions=True)
+            return_dict['players'] = [p.get_json_dict() for p in self._get_players_matching_query(all_players, args['query'])]
+        # all players within region
         else:
             return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
 
