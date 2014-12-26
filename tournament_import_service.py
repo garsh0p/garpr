@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 DEFAULT_RATING = {}
 config = Config()
 
+'''
 def get_mongo_client():
     username = config.get_db_user()
     host = config.get_db_host()
@@ -25,10 +26,10 @@ mongo_client = get_mongo_client()
 def get_dao(region):
     global mongo_client
     return Dao(region, mongo_client=mongo_client)
+'''
 
 # import pending tournaments
-def import_tournament_from_tio_filestream(region, stream, bracket, name):
-    dao = get_dao(region)
+def import_tournament_from_tio_filestream(region, stream, bracket, name, dao):
     scraper = TioScraper(stream.read(), bracket)
     pending = PendingTournament.from_scraper(type, scraper, region)
     if name:
@@ -36,8 +37,7 @@ def import_tournament_from_tio_filestream(region, stream, bracket, name):
 
     return dao.insert_pending_tournament(pending)
 
-def import_tournament_from_challonge(region, path, name):
-    dao = get_dao(region)
+def import_tournament_from_challonge(region, path, name, dao):
     scraper = ChallongeScraper(path)
     pending = PendingTournament.from_scraper(type, scraper, region)
     if name:
@@ -45,12 +45,11 @@ def import_tournament_from_challonge(region, path, name):
 
     return dao.insert_pending_tournament(pending)
 
-def get_pending_tournaments(region):
-    dao = get_dao(region)
+def get_pending_tournaments(region, dao):
     return dao.get_all_pending_tournament_jsons([region])
 
-def finalize_tournament(region, pending_tournament):
-    dao = get_dao(region)
+#XXX: unused
+def finalize_tournament(region, pending_tournament, dao):
     if not pending_tournament.are_all_aliases_mapped():
         raise Exception("Not all aliases for the pending tournament have been mapped to an id.")
     tournament = Tournament.from_pending_tournament(pending_tournament)

@@ -381,7 +381,7 @@ class PendingTournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
         return_dict = {}
-        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region)
+        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region, dao)
         convert_object_id_list(return_dict['pending_tournaments'])
 
         for t in return_dict['pending_tournaments']:
@@ -411,7 +411,7 @@ class TournamentImportResource(restful.Resource):
                 if 'challonge_url' not in args:
                     raise KeyError("Challonge bracket specified, but without a Challonge URL.")
 
-                pending_id = tournament_import.import_tournament_from_challonge(region, args['challonge_url'], tournament_name)
+                pending_id = tournament_import.import_tournament_from_challonge(region, args['challonge_url'], tournament_name, dao)
                 return {
                     "status": "success",
                     "pending_tournament_id": pending_id
@@ -425,7 +425,7 @@ class TournamentImportResource(restful.Resource):
                 tio_file = args['tio_file']
                 bracket_name = args['tio_bracket_name']
 
-                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), bracket_name, tournament_name)
+                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), bracket_name, tournament_name, dao)
                 return {
                     "status": "success",
                     "pending_tournament_id": pending_id
