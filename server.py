@@ -399,6 +399,7 @@ class PendingTournamentListResource(restful.Resource):
 
 class TournamentImportResource(restful.Resource):
     def post(self, region):
+        print "client:", mongo_client
         dao = Dao(region, mongo_client=mongo_client)
         args = tournament_import_parser.parse_args()
 

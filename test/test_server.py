@@ -1054,8 +1054,8 @@ class TestServer(unittest.TestCase):
     @patch('server.get_user_from_access_token')
     def test_post_tournament(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
-        dao = self.texas_dao
-        print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        #dao = self.texas_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
         test_data = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
@@ -1063,7 +1063,7 @@ class TestServer(unittest.TestCase):
         test_data['tournament_name'] = "Justice4"
         test_data['bracket_type'] = "tio"
         test_data['bracket_name'] = 'Bracket'
-        response = self.app.post('/texas/tournaments/new', data=json.dumps(test_data), content_type='application/json')
+        response = self.app.post('/norcal/tournaments/new', data=json.dumps(test_data), content_type='application/json')
         for x in response.data:
             self.assertTrue(x in string.printable)
         self.assertEquals(response.status_code, 201, msg=response.data)
