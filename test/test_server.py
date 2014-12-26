@@ -149,13 +149,16 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_player['name'], 'laudandus')
 
     def test_get_player_list_with_query_short_name(self):
-        data = self.app.get('/norcal/players?query=ky').data
+        # add a player with a single letter name
+        self.norcal_dao.insert_player(Player.create_with_default_values('l', 'norcal'))
+
+        data = self.app.get('/norcal/players?query=l').data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data['players']), 1)
+        self.assertEquals(len(json_data['players']), 6)
 
         json_player = json_data['players'][0]
-        self.assertEquals(json_player['name'], 'Ky')
+        self.assertEquals(json_player['name'], 'l')
 
     def test_get_player_list_with_query_split_tokens(self):
         data = self.app.get('/norcal/players?query=z').data

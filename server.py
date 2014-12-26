@@ -136,8 +136,13 @@ class PlayerListResource(restful.Resource):
             if self._player_matches_query(player, query):
                 matching_players.append(player)
 
-            if len(matching_players) >= TYPEAHEAD_PLAYER_LIMIT:
-                break
+        # move exact matches to the front so that short names are guaranteed to appear
+        for i in xrange(len(matching_players)):
+            player = matching_players[i]
+            if player.name.lower() == query:
+                matching_players.insert(0, matching_players.pop(i))
+
+        matching_players = matching_players[:TYPEAHEAD_PLAYER_LIMIT]
 
         return matching_players
 
