@@ -424,29 +424,17 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
         }
     };
 
-    $scope.typeaheadFilter = function(playerName, viewValue) {
-        var lowerPlayerName = playerName.toLowerCase();
-        var lowerViewValue = viewValue.toLowerCase();
-
-        // try matching the full name first
-        if (lowerPlayerName.indexOf(lowerViewValue) == 0) {
-            return true;
-        }
-
-        // if viewValue is >= 3 chars, allow substring matching
-        // this is to allow players with very short names to appear for small search terms
-        if (lowerViewValue.length >= 3 && lowerPlayerName.indexOf(lowerViewValue) != -1) {
-            return true;
-        }
-
-        var tokens = playerName.split(new RegExp('[-_|. ]', 'g')).filter(function (str) { return str; });
-        for (i = 0; i < tokens.length; i++) {
-            if (tokens[i].toLowerCase().indexOf(viewValue.toLowerCase()) == 0) {
-                return true;
+    $scope.getPlayers = function(query) {
+        url = hostname + $routeParams.region + '/players';
+        params = {
+            params: {
+                query: query
             }
         }
 
-        return false;
+        return $http.get(url, params).then(function(response) {
+            return response.data.players;
+        });
     };
 });
 
