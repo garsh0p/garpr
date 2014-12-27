@@ -1062,7 +1062,7 @@ class TestServer(unittest.TestCase):
             test_data['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
         test_data['tournament_name'] = "Justice4"
         test_data['bracket_type'] = "tio"
-        test_data['bracket_name'] = 'Bracket'
+        test_data['tio_bracket_name'] = 'Bracket'
         response = self.app.post('/norcal/tournaments/new', data=json.dumps(test_data), content_type='application/json')
         for x in response.data:
             self.assertTrue(x in string.printable)

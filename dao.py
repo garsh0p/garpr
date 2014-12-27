@@ -229,3 +229,21 @@ class Dao(object):
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
+
+    #from jiang's branch
+    def insert_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.insert(tournament.get_json_dict())
+
+    def update_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+
+    def get_all_pending_tournament_jsons(self, regions=None):
+        query_dict = {'regions': {'$in': regions}} if regions else {}
+        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
+
+    def get_all_pending_tournaments(self, regions=None):
+        return [PendingTournament.from_json(t) for t in self.get_all_pending_tournament_jsons(regions)]
+
+    def get_pending_tournament_by_id(self, id):
+        '''id must be an ObjectId'''
+        return PendingTournament.from_json(self.pending_tournaments_col.find_one({'_id': id}))
