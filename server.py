@@ -102,6 +102,9 @@ def is_user_admin_for_region(user, region):
     return region in user.admin_regions
 
 def is_user_admin_for_regions(user, regions):
+    '''
+    returns true is user is an admin for ANY of the regions
+    '''
     if len(set(regions).intersection(user.admin_regions)) == 0:
         return False
     else:
