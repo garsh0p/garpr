@@ -1,5 +1,5 @@
 import unittest
-from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException
+from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException, UpdateTournamentException
 from bson.objectid import ObjectId
 from model import *
 from ming import mim
