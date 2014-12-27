@@ -8,6 +8,7 @@ DEFAULT_RATING = TrueskillRating()
 DATABASE_NAME = 'garpr'
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
+PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
@@ -21,19 +22,17 @@ class DuplicateAliasException(Exception):
 class InvalidNameException(Exception):
     pass
 
-class UpdateTournamentException(Exception):
-    pass
-
 #TODO create RegionSpecificDao object
 class Dao(object):
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
         self.mongo_client = mongo_client
         self.region_id = region_id
 
-        if not region_id in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
+        if not region_id in [r.id for r in Dao.get_all_regions(mongo_client=self.mongo_client)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
 
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
+        self.pending_tournaments_col = mongo_client[DATABASE_NAME][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
@@ -78,12 +77,9 @@ class Dao(object):
 
         return player_alias_to_player_id_map
 
-    def get_all_players(self, all_regions=False):
-        '''Sorts by name in lexographical order.'''
-        if all_regions:
-            return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
-        else:
-            return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
+    def get_all_players(self):
+        '''Sorts by name in lexographical order. This only gets a list of players in the current region.'''
+        return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
 
     def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())
@@ -118,16 +114,30 @@ class Dao(object):
         player.name = name
         return self.update_player(player)
 
+    def insert_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.insert(tournament.get_json_dict())
+
+    def update_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+
+    def get_all_pending_tournament_jsons(self, regions=None):
+        query_dict = {'regions': {'$in': regions}} if regions else {}
+        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
+
+    def get_all_pending_tournaments(self, regions=None):
+        return [PendingTournament.from_json(t) for t in self.get_all_pending_tournament_jsons(regions)]
+
+    def get_pending_tournament_by_id(self, id):
+        '''id must be an ObjectId'''
+        return PendingTournament.from_json(self.pending_tournaments_col.find_one({'_id': id}))
+
     def insert_tournament(self, tournament):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
-        if len(tournament.raw) == 0:
-            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
-
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-    def get_all_tournament_ids(self, players=None, regions=None):
+    def get_all_tournament_records(self, players=None, regions=None):
         '''players is a list of Players'''
         query_dict = {}
         query_list = []
@@ -142,35 +152,13 @@ class Dao(object):
         if query_list:
             query_dict['$and'] = query_list
 
-        return [t['_id'] for t in self.tournaments_col.find(query_dict, {'_id': 1}).sort([('date', 1)])]
+        return self.tournaments_col.find(query_dict).sort([('date', 1)])
+
+    def get_all_tournament_ids(self, players=None, regions=None):
+        return [t['_id'] for t in self.get_all_tournament_records(players, regions)]
 
     def get_all_tournaments(self, players=None, regions=None):
-        '''players is a list of Players'''
-        query_dict = {}
-        query_list = []
-
-        # don't pull the raw field because it takes too much memory
-        fields_dict = {
-                'raw': 0
-        }
-
-        if players:
-            for player in players:
-                query_list.append({'players': {'$in': [player.id]}})
-
-        if regions:
-            query_list.append({'regions': {'$in': regions}})
-
-        if query_list:
-            query_dict['$and'] = query_list
-
-        tournaments = [t for t in self.tournaments_col.find(query_dict, fields_dict).sort([('date', 1)])]
-
-        # manually add an empty raw field
-        for tournament in tournaments:
-            tournament['raw'] = ''
-
-        return [Tournament.from_json(t) for t in tournaments]
+        return [Tournament.from_json(t) for t in self.get_all_tournament_records(players, regions)]
 
     def get_tournament_by_id(self, id):
         '''id must be an ObjectId'''
@@ -217,10 +205,12 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
+        # default rules
         day_limit = 45
         num_tourneys = 1
 
         # special case for NYC
+        # TODO this goes away once regions become a db collection
         if self.region_id == "nyc":
             day_limit = 90
             num_tourneys = 3
@@ -229,21 +219,3 @@ class Dao(object):
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
-
-    #from jiang's branch
-    def insert_pending_tournament(self, tournament):
-        return self.pending_tournaments_col.insert(tournament.get_json_dict())
-
-    def update_pending_tournament(self, tournament):
-        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
-
-    def get_all_pending_tournament_jsons(self, regions=None):
-        query_dict = {'regions': {'$in': regions}} if regions else {}
-        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
-
-    def get_all_pending_tournaments(self, regions=None):
-        return [PendingTournament.from_json(t) for t in self.get_all_pending_tournament_jsons(regions)]
-
-    def get_pending_tournament_by_id(self, id):
-        '''id must be an ObjectId'''
-        return PendingTournament.from_json(self.pending_tournaments_col.find_one({'_id': id}))
