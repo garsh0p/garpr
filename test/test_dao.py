@@ -1,5 +1,5 @@
 import unittest
-from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException, UpdateTournamentException
+from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException
 from bson.objectid import ObjectId
 from model import *
 from ming import mim
@@ -336,8 +336,7 @@ class TestDAO(unittest.TestCase):
         tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
         tournament_2.raw = ''
 
-        with self.assertRaises(UpdateTournamentException):
-            self.norcal_dao.update_tournament(tournament_2)
+        self.norcal_dao.update_tournament(tournament_2)
 
     def test_get_all_tournament_ids(self):
         tournament_ids = self.norcal_dao.get_all_tournament_ids()
