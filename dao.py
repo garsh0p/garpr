@@ -39,7 +39,7 @@ class Dao(object):
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
-        self.pending_tournaments_col = mongo_client[DATABASE_NAME][PENDING_TOURNAMENTS_COLLECTION_NAME]
+        self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
 
 
     @classmethod
@@ -123,15 +123,13 @@ class Dao(object):
         return self.update_player(player)
 #jiang code
     def insert_pending_tournament(self, tournament):
-        print "in insert pending tournament"
-        return self.pending_tournaments_col.insert(tournament.get_json_dict())
+        the_json = tournament.get_json_dict()
+        return self.pending_tournaments_col.insert(the_json)
 
     def update_pending_tournament(self, tournament):
-        print "in update pending tournament"
         return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
     def get_all_pending_tournament_jsons(self, regions=None):
-        print "in get all pending tournaments json"
         query_dict = {'regions': {'$in': regions}} if regions else {}
         return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
 
@@ -140,7 +138,6 @@ class Dao(object):
 
     def get_pending_tournament_by_id(self, id):
         '''id must be an ObjectId'''
-        print "in get pending tournament by id"
         return PendingTournament.from_json(self.pending_tournaments_col.find_one({'_id': id}))
 #end jiang code
     def insert_tournament(self, tournament):

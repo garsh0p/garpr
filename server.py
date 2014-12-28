@@ -431,7 +431,7 @@ class TournamentImportResource(restful.Resource):
                 pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), bracket_name, tournament_name, dao)
                 return {
                     "status": "success",
-                    "pending_tournament_id": pending_id
+                    "pending_tournament_id": str(pending_id)
                     }, 201
             else:
                 raise ValueError("Bracket type must be 'challonge' or 'tio'.")

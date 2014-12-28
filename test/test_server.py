@@ -1056,14 +1056,15 @@ class TestServer(unittest.TestCase):
         mock_get_user_from_access_token.return_value = self.user
         #dao = self.texas_dao
         #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
-        test_data = {}
+        raw_dict = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
-            test_data['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
-        test_data['tournament_name'] = "Justice4"
-        test_data['bracket_type'] = "tio"
-        test_data['tio_bracket_name'] = 'Bracket'
-        response = self.app.post('/norcal/tournaments/new', data=json.dumps(test_data), content_type='application/json')
+            raw_dict['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
+        raw_dict['tournament_name'] = "Justice4"
+        raw_dict['bracket_type'] = "tio"
+        raw_dict['tio_bracket_name'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
         for x in response.data:
             self.assertTrue(x in string.printable)
         self.assertEquals(response.status_code, 201, msg=response.data)
