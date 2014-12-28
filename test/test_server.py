@@ -1052,9 +1052,9 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.data, '"Permission denied"')
 
     @patch('server.get_user_from_access_token')
-    def test_post_tournament(self, mock_get_user_from_access_token):
+    def test_post_tournament_from_challonge(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
-        #dao = self.texas_dao
+        dao = self.norcal_dao
         #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
         raw_dict = {}
         #then try sending a valid tio tournament and see if it works
@@ -1068,12 +1068,28 @@ class TestServer(unittest.TestCase):
         for x in response.data:
             self.assertTrue(x in string.printable)
         self.assertEquals(response.status_code, 201, msg=response.data)
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['pending_tournament_id']))
 
-        #okay first, try sending a valid challonge tournament and seeing if it works
+        self.assertEqual(the_tourney.name, "Justice4")
+        self.assertEqual(len(the_tourney.players), 48)
+
+        self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
+        self.assertEquals(the_tourney.type, 'tio')
+        self.assertEquals(the_dict['date'], the_tourney.date.strftime('%x'))
+        self.assertEquals(the_tourney.regions, ['norcal'])
+
+
+        #TODO, check some of the actual matches + players to make sure they came in correctly
+
+
+        pass
+
+
+   #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
         #then try type mismatch send tio but give challonge
         #try tio w/o tio_file
         #try tio w/o bracket_name
         #try tio with invalid tio data
         #try challonge w/o challonge_url
-        pass
