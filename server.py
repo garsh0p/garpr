@@ -417,7 +417,7 @@ class TournamentImportResource(restful.Resource):
                 pending_id = tournament_import.import_tournament_from_challonge(region, args['challonge_url'], tournament_name, dao)
                 return {
                     "status": "success",
-                    "pending_tournament_id": pending_id
+                    "pending_tournament_id": str(pending_id)
                     }, 201
             elif bracket_type == 'tio':
                 if 'tio_file' not in args:
