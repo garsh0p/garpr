@@ -1086,8 +1086,44 @@ class TestServer(unittest.TestCase):
         self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
         pass
 
+    @patch('server.get_user_from_access_token')
+    def test_post_tournament_from_challonge_without_trim(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #then try sending a valid tio tournament and see if it works
+        with open('test/data/Justice4.tio') as f:
+            raw_dict['tio_file'] = f.read() #NO TRIM BB
+        raw_dict['tournament_name'] = "Justice4"
+        raw_dict['bracket_type'] = "tio"
+        raw_dict['tio_bracket_name'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 201, msg=response.data)
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['pending_tournament_id']))
 
-   #okay first, try sending a valid challonge tournament and seeing if it works
+        self.assertEqual(the_tourney.name, "Justice4")
+        self.assertEqual(len(the_tourney.players), 48)
+
+        self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
+        self.assertEquals(the_tourney.type, 'tio')
+        self.assertEquals(the_tourney.regions, ['norcal'])
+
+        #let's spot check and make sure hax vs armada happens twice
+        sweden_wins_count = 0
+        for m in the_tourney.matches:
+            if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+                sweden_wins_count += 1
+        self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
+        pass
+
+
+    #TODOskis
+    #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
         #then try type mismatch send tio but give challonge
         #try tio w/o tio_file

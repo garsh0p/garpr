@@ -426,9 +426,11 @@ class TournamentImportResource(restful.Resource):
                     raise KeyError("TIO bracket specified, but no TIO bracket name given.")
 
                 tio_file = args['tio_file']
-                bracket_name = args['tio_bracket_name']
+                #deal with tio files having magic value which breaks StringIO (hex): EFBBBF
+                if tio_file[0:3] == "\xef\xbb\xbf":
+                    tio_file = tio_file[3:]
 
-                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), bracket_name, tournament_name, dao)
+                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), args['tio_bracket_name'], tournament_name, dao)
                 return {
                     "status": "success",
                     "pending_tournament_id": str(pending_id)
