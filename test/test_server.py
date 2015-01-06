@@ -1076,13 +1076,14 @@ class TestServer(unittest.TestCase):
 
         self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
         self.assertEquals(the_tourney.type, 'tio')
-        self.assertEquals(the_dict['date'], the_tourney.date.strftime('%x'))
         self.assertEquals(the_tourney.regions, ['norcal'])
 
-
-        #TODO, check some of the actual matches + players to make sure they came in correctly
-
-
+        #let's spot check and make sure hax vs armada happens twice
+        sweden_wins_count = 0
+        for m in the_tourney.matches:
+            if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+                sweden_wins_count += 1
+        self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
         pass
 
 
