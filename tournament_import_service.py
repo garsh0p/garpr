@@ -31,7 +31,7 @@ def get_dao(region):
 # import pending tournaments
 def import_tournament_from_tio_filestream(region, stream, bracket, name, dao):
     scraper = TioScraper(stream.read(), bracket)
-    pending = PendingTournament.from_scraper(type, scraper, region)
+    pending = PendingTournament.from_scraper('tio', scraper, region)
     if name:
         pending.name = name
 
@@ -39,7 +39,7 @@ def import_tournament_from_tio_filestream(region, stream, bracket, name, dao):
 
 def import_tournament_from_challonge(region, path, name, dao):
     scraper = ChallongeScraper(path)
-    pending = PendingTournament.from_scraper(type, scraper, region)
+    pending = PendingTournament.from_scraper('challonge', scraper, region)
     if name:
         pending.name = name
 
