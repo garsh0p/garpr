@@ -11,7 +11,7 @@ def generate_ranking(dao, now=datetime.now()):
 
     tournaments = dao.get_all_tournaments(regions=[dao.region_id])
     for tournament in tournaments:
-        print 'Processing:', tournament.name
+        print 'Processing:', tournament.name.encode('utf-8')
 
         for player_id in tournament.players:
             player_date_map[player_id] = tournament.date
