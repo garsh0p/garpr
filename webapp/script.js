@@ -8,6 +8,28 @@ else {
     var hostname = 'https://api.garpr.com/';
 }
 
+app.directive('onReadFile', function ($parse) {
+    return {
+        restrict: 'A',
+        scope: false,
+        link: function(scope, element, attrs) {
+            var fn = $parse(attrs.onReadFile);
+
+            element.on('change', function(onChangeEvent) {
+                var reader = new FileReader();
+
+                reader.onload = function(onLoadEvent) {
+                    scope.$apply(function() {
+                        fn(scope, {$fileContent:onLoadEvent.target.result});
+                    });
+                };
+
+                reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
+            });
+        }
+    };
+});
+
 app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService) {
     var service = {
         regionsPromise: $http.get(hostname + 'regions'),
@@ -313,10 +335,43 @@ app.controller("RankingsController", function($scope, $routeParams, $modal, Regi
     };
 });
 
-app.controller("TournamentsController", function($scope, $routeParams, RegionService, TournamentService) {
+app.controller("TournamentsController", function($scope, $routeParams, $modal, RegionService, TournamentService, SessionService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.tournamentService = TournamentService;
+    $scope.sessionService = SessionService;
+
+    $scope.modalInstance = null;
+    $scope.disableButtons = false;
+
+    $scope.postParams = {};
+
+    $scope.open = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'import_tournament_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+    };
+
+    $scope.setBracketType = function(bracketType) {
+        $scope.postParams = {};
+        $scope.postParams.bracketType = bracketType;
+    };
+
+    $scope.close = function() {
+        $scope.modalInstance.close();
+    };
+
+    $scope.submit = function() {
+        // TODO do real stuff here
+        console.log($scope.postParams);
+        $scope.close();
+    };
+
+    $scope.loadFile = function(fileContents) {
+        $scope.postParams.tioFileContents = fileContents;
+    };
 });
 
 app.controller("TournamentDetailController", function($scope, $routeParams, $http, $modal, RegionService, SessionService) {

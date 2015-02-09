@@ -1,12 +1,19 @@
 <div class="container">
-    <table class="table table-striped table-condensed">
-        <tr>
-            <td>Date</td>
-            <td>Name</td>
-        </tr>
-        <tr ng-repeat="tournament in tournamentService.tournamentList">
-            <td>{{tournament.date}}</td>
-            <td><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
-        </tr>
-    </table>
+    <div class="row">
+        <div ng-show="sessionService.isAdminForRegion(regionService.region.id)">
+            <h4 class="text-right"><button type="button" class="btn btn-danger" ng-click="open()">Upload a Tournament</button></h4>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-condensed">
+            <tr>
+                <td>Date</td>
+                <td>Name</td>
+            </tr>
+            <tr ng-repeat="tournament in tournamentService.tournamentList">
+                <td>{{tournament.date}}</td>
+                <td><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
+            </tr>
+        </table>
+    </div>
 </div>
