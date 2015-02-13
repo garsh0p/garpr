@@ -20,7 +20,7 @@ class IntTestChallongeScraper(unittest.TestCase):
         self.assertEquals(scraper.get_name(), "The Next Episode")
 
     def test_get_date(self):
-        self.assertEquals(scraper.get_date(), iso8601.parse_date("2014-03-23T17:28:34-04:00"))
+        self.assertEquals(scraper.get_date(), iso8601.parse_date("2014-03-23 17:28:34.647000-04:00"))
 
     def test_get_matches(self):
         self.assertEquals(len(scraper.get_matches()), 126)
