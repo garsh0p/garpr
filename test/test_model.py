@@ -360,6 +360,131 @@ class TestTournament(unittest.TestCase):
             tournament = Tournament.from_scraper(self.type, mock_scraper, {self.player_1.name: None}, 'norcal')
 
         self.assertTrue('Alias gar has no ID in map' in str(e.exception))
+
+class TestPendingTournament(unittest.TestCase):
+    def setUp(self):
+        self.player_1_id = ObjectId()
+        self.player_2_id = ObjectId()
+        self.player_3_id = ObjectId()
+        self.player_4_id = ObjectId()
+        self.player_5_id = ObjectId()
+        self.player_6_id = ObjectId()
+        self.player_1 = Player('gar', ['gar'], TrueskillRating(), False, id=self.player_1_id)
+        self.player_2 = Player('sfat', ['sfat'], TrueskillRating(), False, id=self.player_2_id)
+        self.player_3 = Player('shroomed', ['shroomed'], TrueskillRating(), False, id=self.player_3_id)
+        self.player_4 = Player('ppu', ['ppu'], TrueskillRating(), False, id=self.player_4_id)
+        self.player_5 = Player('ss', ['ss'], TrueskillRating(), False, id=self.player_5_id)
+        self.player_6 = Player('hmw', ['hmw'], TrueskillRating(), False, id=self.player_5_id)
+        self.match_1 = MatchResult(winner=self.player_1.name, loser=self.player_2.name)
+        self.match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
+
+        self.alias_to_id_map = {
+                self.player_1.name: self.player_1_id,
+                self.player_2.name: self.player_2_id,
+                self.player_3.name: self.player_3_id,
+                self.player_4.name: self.player_4_id
+        }
+
+        self.id = ObjectId()
+        self.type = 'tio'
+        self.raw = 'raw'
+        self.date = datetime.now()
+        self.name = 'tournament'
+        self.players = [self.player_1.name, self.player_2.name, self.player_3.name, self.player_4.name]
+        self.matches = [self.match_1, self.match_2]
+        self.regions = ['norcal', 'texas']
+
+        self.pending_tournament_json_dict = {
+                '_id': self.id,
+                'type': self.type,
+                'raw': self.raw,
+                'date': self.date,
+                'name': self.name,
+                'players': self.players,
+                'matches': [m.get_json_dict() for m in self.matches],
+                'regions': self.regions,
+                'alias_to_id_map': self.alias_to_id_map
+        }
+        self.pending_tournament = PendingTournament(
+                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map, id=self.id)
+
+    def test_get_json_dict(self):
+        self.assertEquals(self.pending_tournament.get_json_dict(), self.pending_tournament_json_dict)
+
+    def test_get_json_dict_missing_id(self):
+        self.pending_tournament = PendingTournament(
+                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map)
+        del self.pending_tournament_json_dict['_id']
+
+        self.assertEquals(self.pending_tournament.get_json_dict(), self.pending_tournament_json_dict)
+
+    def test_from_json(self):
+        pending_tournament = PendingTournament.from_json(self.pending_tournament_json_dict)
+        self.assertEquals(pending_tournament.id, self.id)
+        self.assertEquals(pending_tournament.type, self.type)
+        self.assertEquals(pending_tournament.raw, self.raw)
+        self.assertEquals(pending_tournament.date, self.date)
+        self.assertEquals(pending_tournament.name, self.name)
+        self.assertEquals(pending_tournament.matches, self.matches)
+        self.assertEquals(pending_tournament.players, self.players)
+        self.assertEquals(pending_tournament.regions, self.regions)
+        self.assertEquals(pending_tournament.alias_to_id_map, self.alias_to_id_map)
+    
+    def test_from_json_missing_id(self):
+        self.pending_tournament = PendingTournament(
+                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map)
+        del self.pending_tournament_json_dict['_id']
+
+        pending_tournament = PendingTournament.from_json(self.pending_tournament_json_dict)
+        self.assertIsNone(pending_tournament.id)
+        self.assertEquals(pending_tournament.type, self.type)
+        self.assertEquals(pending_tournament.raw, self.raw)
+        self.assertEquals(pending_tournament.date, self.date)
+        self.assertEquals(pending_tournament.name, self.name)
+        self.assertEquals(pending_tournament.matches, self.matches)
+        self.assertEquals(pending_tournament.players, self.players)
+        self.assertEquals(pending_tournament.regions, self.regions)
+        self.assertEquals(pending_tournament.alias_to_id_map, self.alias_to_id_map)
+    
+    def test_from_json_none(self):
+        self.assertIsNone(Tournament.from_json(None))
+
+    def test_add_alias_id_mapping(self):
+        self.assertEquals(len(self.pending_tournament.alias_to_id_map), 4)
+
+        new_alias = 'new alias'
+        new_object_id = ObjectId()
+        self.pending_tournament.add_alias_id_mapping(new_alias, new_object_id)
+
+        self.assertEquals(len(self.pending_tournament.alias_to_id_map), 5)
+        self.assertEquals(self.pending_tournament.alias_to_id_map[new_alias], new_object_id)
+
+    def test_are_all_aliases_mapped(self):
+        self.assertTrue(self.pending_tournament.are_all_aliases_mapped())
+
+        del self.alias_to_id_map[self.player_1.name]
+
+        self.assertFalse(self.pending_tournament.are_all_aliases_mapped())
+
+    def test_from_scraper(self):
+        mock_scraper = mock.Mock(spec=ChallongeScraper)
+
+        mock_scraper.get_players.return_value = self.players
+        mock_scraper.get_matches.return_value = self.matches
+        mock_scraper.get_raw.return_value = self.raw
+        mock_scraper.get_date.return_value = self.date
+        mock_scraper.get_name.return_value = self.name
+
+        pending_tournament = PendingTournament.from_scraper(self.type, mock_scraper, 'norcal')
+
+        self.assertIsNone(pending_tournament.id)
+        self.assertEquals(pending_tournament.type, self.type)
+        self.assertEquals(pending_tournament.raw, self.raw)
+        self.assertEquals(pending_tournament.date, self.date)
+        self.assertEquals(pending_tournament.name, self.name)
+        self.assertEquals(pending_tournament.matches, self.matches)
+        self.assertEquals(pending_tournament.players, self.players)
+        self.assertEquals(pending_tournament.regions, ['norcal'])
         
 class TestRanking(unittest.TestCase):
     def setUp(self):

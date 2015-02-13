@@ -236,26 +236,101 @@ class Tournament(object):
                 json_dict['regions'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
-    # player_alias_to_player_id_map is a map from player alias (string) -> player id (ObjectId)
     @classmethod
-    def from_scraper(cls, type, scraper, player_alias_to_player_id_map, region_id):
-        def _get_player_id_from_map_or_throw(player_alias_to_id_map, player_alias):
-            player_id = player_alias_to_id_map[player_alias]
+    def from_pending_tournament(cls, pending_tournament):
+        # alias_to_id_map is a map from player alias (string) -> player id (ObjectId)
+        def _get_player_id_from_map_or_throw(alias_to_id_map, alias):
+            player_id = alias_to_id_map[alias]
             if player_id is None:
-                raise Exception('Alias %s has no ID in map\n: %s' % (player_alias, player_alias_to_id_map))
+                raise Exception('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
             else:
                 return player_id
 
-        players = scraper.get_players()
-        matches = scraper.get_matches()
-        regions = [region_id]
+        alias_to_id_map = pending_tournament.alias_to_id_map
 
         # the players and matches returned from the scraper use player aliases
         # we need to convert these to player IDs
-        players = [_get_player_id_from_map_or_throw(player_alias_to_player_id_map, p) for p in players]
-        for m in matches:
-            m.winner = _get_player_id_from_map_or_throw(player_alias_to_player_id_map, m.winner)
-            m.loser = _get_player_id_from_map_or_throw(player_alias_to_player_id_map, m.loser)
+        players = [_get_player_id_from_map_or_throw(alias_to_id_map, p) for p in pending_tournament.players]
+        for m in pending_tournament.matches:
+            m.winner = _get_player_id_from_map_or_throw(alias_to_id_map, m.winner)
+            m.loser = _get_player_id_from_map_or_throw(alias_to_id_map, m.loser)
+        return cls(
+                pending_tournament.type,
+                pending_tournament.raw,
+                pending_tournament.date,
+                pending_tournament.name,
+                players,
+                pending_tournament.matches,
+                pending_tournament.regions)
+
+    @classmethod
+    def from_scraper(cls, type, scraper, alias_to_id_map, region_id):
+        pending_tournament = PendingTournament.from_scraper(type, scraper, region_id)
+        pending_tournament.alias_to_id_map = alias_to_id_map
+
+        return Tournament.from_pending_tournament(pending_tournament)
+
+
+class PendingTournament(object):
+    '''Same as a Tournament, except it uses aliases for players instead of ids.
+       Used during tournament import, before alias are mapped to player ids.'''
+    def __init__(self, type, raw, date, name, players, matches, regions, alias_to_id_map={}, id=None):
+        self.id = id
+        self.type = type
+        self.raw = raw
+        self.date = date
+        self.name = name
+        self.matches = matches
+        self.regions = regions
+        self.alias_to_id_map = alias_to_id_map
+
+        # player aliases, not ids!
+        self.players = players
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        if self.id:
+            json_dict['_id'] = self.id
+
+        json_dict['type'] = self.type
+        json_dict['raw'] = self.raw
+        json_dict['date'] = self.date
+        json_dict['name'] = self.name
+        json_dict['players'] = self.players
+        json_dict['matches'] = [m.get_json_dict() for m in self.matches]
+        json_dict['regions'] = self.regions
+        json_dict['alias_to_id_map'] = self.alias_to_id_map
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['type'],
+                json_dict['raw'],
+                json_dict['date'],
+                json_dict['name'],
+                json_dict['players'],
+                [MatchResult.from_json(m) for m in json_dict['matches']],
+                json_dict['regions'],
+                json_dict['alias_to_id_map'],
+                id=json_dict['_id'] if '_id' in json_dict else None)
+
+    def add_alias_id_mapping(self, alias, _id):
+        self.alias_to_id_map[alias] = _id
+
+    def are_all_aliases_mapped(self):
+        return set(self.alias_to_id_map.keys()) == set(self.players)
+
+    @classmethod
+    def from_scraper(cls, type, scraper, region_id):
+        players = scraper.get_players()
+        matches = scraper.get_matches()
+        regions = [region_id]
 
         return cls(
                 type,
