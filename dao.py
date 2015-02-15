@@ -11,6 +11,7 @@ TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
+PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 
 class RegionNotFoundException(Exception):
     pass
@@ -37,6 +38,7 @@ class Dao(object):
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
+        self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -117,6 +119,43 @@ class Dao(object):
 
         player.name = name
         return self.update_player(player)
+
+    def insert_pending_tournament(self, pending_tournament):
+        return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
+
+    def update_pending_tournament(self, pending_tournament):
+        if len(pending_tournament.raw) == 0:
+            raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
+
+        return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
+
+    def get_all_pending_tournaments(self, regions=None):
+        '''players is a list of Players'''
+        query_dict = {}
+        query_list = []
+
+        # don't pull the raw field because it takes too much memory
+        fields_dict = {
+                'raw': 0
+        }
+
+        if regions:
+            query_list.append({'regions': {'$in': regions}})
+
+        if query_list:
+            query_dict['$and'] = query_list
+
+        pending_tournaments = [t for t in self.pending_tournaments_col.find(query_dict, fields_dict).sort([('date', 1)])]
+
+        # manually add an empty raw field
+        for pending_tournament in pending_tournaments:
+            pending_tournament['raw'] = ''
+
+        return [PendingTournament.from_json(t) for t in pending_tournaments]
+
+    def get_pending_tournament_by_id(self, id):
+        '''id must be an ObjectId'''
+        return PendingTournament.from_json(self.pending_tournaments_col.find_one({'_id': id}))
 
     def insert_tournament(self, tournament):
         return self.tournaments_col.insert(tournament.get_json_dict())
@@ -229,4 +268,3 @@ class Dao(object):
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
-

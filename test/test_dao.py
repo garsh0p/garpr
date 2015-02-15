@@ -93,6 +93,29 @@ class TestDAO(unittest.TestCase):
         self.tournament_ids = [self.tournament_id_1, self.tournament_id_2]
         self.tournaments = [self.tournament_1, self.tournament_2]
 
+        self.pending_tournament_id_1 = ObjectId()
+        self.pending_tournament_type_1 = 'tio'
+        self.pending_tournament_raw_1 = 'raw1'
+        self.pending_tournament_date_1 = datetime(2013, 10, 11)
+        self.pending_tournament_name_1 = 'pending tournament 1'
+        self.pending_tournament_players_1 = [self.player_1.name, self.player_2.name, self.player_3.name, self.player_4.name]
+        self.pending_tournament_matches_1 = [
+                MatchResult(winner=self.player_1.name, loser=self.player_2.name),
+                MatchResult(winner=self.player_3.name, loser=self.player_4.name)
+        ]
+        self.pending_tournament_regions_1 = ['norcal']
+
+        self.pending_tournament_1 = PendingTournament(self.pending_tournament_type_1,
+                                                      self.pending_tournament_raw_1,
+                                                      self.pending_tournament_date_1, 
+                                                      self.pending_tournament_name_1,
+                                                      self.pending_tournament_players_1,
+                                                      self.pending_tournament_matches_1,
+                                                      self.pending_tournament_regions_1,
+                                                      id=self.pending_tournament_id_1)
+
+        self.pending_tournaments = [self.pending_tournament_1]
+
         self.ranking_entry_1 = RankingEntry(1, self.player_1_id, 20)
         self.ranking_entry_2 = RankingEntry(2, self.player_2_id, 19)
         self.ranking_entry_3 = RankingEntry(3, self.player_3_id, 17.5)
@@ -135,6 +158,9 @@ class TestDAO(unittest.TestCase):
 
         for tournament in self.tournaments:
             self.norcal_dao.insert_tournament(tournament)
+
+        for pending_tournament in self.pending_tournaments:
+            self.norcal_dao.insert_pending_tournament(pending_tournament)
 
         for ranking in self.rankings:
             self.norcal_dao.insert_ranking(ranking)
@@ -282,6 +308,85 @@ class TestDAO(unittest.TestCase):
     def test_update_player_name_non_alias(self):
         with self.assertRaises(InvalidNameException):
             self.norcal_dao.update_player_name(self.player_1, 'asdf')
+
+    def test_update_pending_tournament(self):
+        pending_tournament_1 = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament_1.id, self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament_1.type, self.pending_tournament_type_1)
+        self.assertEquals(pending_tournament_1.raw, self.pending_tournament_raw_1)
+        self.assertEquals(pending_tournament_1.date, self.pending_tournament_date_1)
+        self.assertEquals(pending_tournament_1.name, self.pending_tournament_name_1)
+        self.assertEquals(pending_tournament_1.matches, self.pending_tournament_matches_1)
+        self.assertEquals(pending_tournament_1.players, self.pending_tournament_players_1)
+        self.assertEquals(pending_tournament_1.regions, self.pending_tournament_regions_1)
+
+        pending_tournament_1_raw_new = 'asdfasdf'
+        pending_tournament_1_name_new = 'new pending tournament name'
+
+        pending_tournament_1.raw = pending_tournament_1_raw_new
+        pending_tournament_1.name = pending_tournament_1_name_new
+
+        self.norcal_dao.update_pending_tournament(pending_tournament_1)
+
+        pending_tournament_1 = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament_1.id, self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament_1.type, self.pending_tournament_type_1)
+        self.assertEquals(pending_tournament_1.raw, pending_tournament_1_raw_new)
+        self.assertEquals(pending_tournament_1.date, self.pending_tournament_date_1)
+        self.assertEquals(pending_tournament_1.name, pending_tournament_1_name_new)
+        self.assertEquals(pending_tournament_1.matches, self.pending_tournament_matches_1)
+        self.assertEquals(pending_tournament_1.players, self.pending_tournament_players_1)
+        self.assertEquals(pending_tournament_1.regions, self.pending_tournament_regions_1)
+
+    def test_update_pending_tournament_empty_raw(self):
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        pending_tournament.raw = ''
+
+        with self.assertRaises(UpdateTournamentException):
+            self.norcal_dao.update_tournament(pending_tournament)
+
+    def test_get_all_pending_tournaments(self):
+        pending_tournaments = self.norcal_dao.get_all_pending_tournaments()
+
+        self.assertEquals(len(pending_tournaments), 1)
+
+        pending_tournament = pending_tournaments[0]
+        self.assertEquals(pending_tournament.id, self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament.type, self.pending_tournament_type_1)
+        self.assertEquals(pending_tournament.raw, '')
+        self.assertEquals(pending_tournament.date, self.pending_tournament_date_1)
+        self.assertEquals(pending_tournament.name, self.pending_tournament_name_1)
+        self.assertEquals(pending_tournament.matches, self.pending_tournament_matches_1)
+        self.assertEquals(pending_tournament.players, self.pending_tournament_players_1)
+        self.assertEquals(pending_tournament.regions, self.pending_tournament_regions_1)
+
+    def test_get_all_pending_tournaments_for_region(self):
+        pending_tournaments = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])
+
+        self.assertEquals(len(pending_tournaments), 1)
+
+        pending_tournament = pending_tournaments[0]
+        self.assertEquals(pending_tournament.id, self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament.type, self.pending_tournament_type_1)
+        self.assertEquals(pending_tournament.raw, '')
+        self.assertEquals(pending_tournament.date, self.pending_tournament_date_1)
+        self.assertEquals(pending_tournament.name, self.pending_tournament_name_1)
+        self.assertEquals(pending_tournament.matches, self.pending_tournament_matches_1)
+        self.assertEquals(pending_tournament.players, self.pending_tournament_players_1)
+        self.assertEquals(pending_tournament.regions, self.pending_tournament_regions_1)
+
+    def test_get_pending_tournament_by_id(self):
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament.id, self.pending_tournament_id_1)
+        self.assertEquals(pending_tournament.type, self.pending_tournament_type_1)
+        self.assertEquals(pending_tournament.raw, self.pending_tournament_raw_1)
+        self.assertEquals(pending_tournament.date, self.pending_tournament_date_1)
+        self.assertEquals(pending_tournament.name, self.pending_tournament_name_1)
+        self.assertEquals(pending_tournament.matches, self.pending_tournament_matches_1)
+        self.assertEquals(pending_tournament.players, self.pending_tournament_players_1)
+        self.assertEquals(pending_tournament.regions, self.pending_tournament_regions_1)
+
+        self.assertIsNone(self.norcal_dao.get_tournament_by_id(ObjectId()))
 
     def test_update_tournament(self):
         tournament_1 = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
