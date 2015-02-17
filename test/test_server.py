@@ -48,13 +48,13 @@ class TestServer(unittest.TestCase):
 
     def _import_files(self):
         for f in NORCAL_FILES:
-            scraper = TioScraper(f[0], f[1])
+            scraper = TioScraper.from_file(f[0], f[1])
             self._import_players(scraper, self.norcal_dao)
             player_map = self.norcal_dao.get_player_id_map_from_player_aliases(scraper.get_players())
             self.norcal_dao.insert_tournament(Tournament.from_scraper('tio', scraper, player_map, self.norcal_dao.region_id))
 
         for f in TEXAS_FILES:
-            scraper = TioScraper(f[0], f[1])
+            scraper = TioScraper.from_file(f[0], f[1])
             self._import_players(scraper, self.texas_dao)
             player_map = self.texas_dao.get_player_id_map_from_player_aliases(scraper.get_players())
             self.texas_dao.insert_tournament(Tournament.from_scraper('tio', scraper, player_map, self.texas_dao.region_id))
