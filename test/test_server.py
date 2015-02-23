@@ -304,6 +304,86 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/texas/tournaments').data
         for_region(data, self.texas_dao)
 
+    @patch('server.get_user_from_access_token')
+    @patch('server.TioScraper')
+    def test_post_to_tournament_list_tio(self, mock_tio_scraper, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        scraper = TioScraper.from_file(NORCAL_FILES[0][0], NORCAL_FILES[0][1])
+        mock_tio_scraper.return_value = scraper
+        data = {
+            'data': 'data',
+            'type': 'tio',
+            'bracket': 'bracket'
+        }
+
+        response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
+        json_data = json.loads(response.data)
+
+        mock_tio_scraper.assert_called_once_with('data', 'bracket')
+
+        self.assertEquals(1, len(json_data))
+        self.assertEquals(24, len(json_data['id']))
+        self.assertIsNotNone(self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id'])))
+
+    @patch('server.get_user_from_access_token')
+    def test_post_to_tournament_list_tio_missing_bracket(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        data = {
+            'data': 'data',
+            'type': 'tio',
+        }
+
+        response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, '"Missing bracket name"')
+
+    @patch('server.get_user_from_access_token')
+    @patch('server.ChallongeScraper')
+    def test_post_to_tournament_list_challonge(self, mock_challonge_scraper, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        scraper = TioScraper.from_file(NORCAL_FILES[0][0], NORCAL_FILES[0][1])
+        mock_challonge_scraper.return_value = scraper
+        data = {
+            'data': 'data',
+            'type': 'challonge'
+        }
+
+        response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
+        json_data = json.loads(response.data)
+
+        mock_challonge_scraper.assert_called_once_with('data')
+
+        self.assertEquals(1, len(json_data))
+        self.assertEquals(24, len(json_data['id']))
+        self.assertIsNotNone(self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id'])))
+
+    @patch('server.get_user_from_access_token')
+    def test_post_to_tournament_list_missing_data(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        data = {'type': 'tio'}
+        response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, '"data required"')
+
+    @patch('server.get_user_from_access_token')
+    def test_post_to_tournament_list_unknown_type(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        data = {
+            'data': 'data',
+            'type': 'unknown'
+        }
+        response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, '"Unknown type"')
+
+    @patch('server.get_user_from_access_token')
+    def test_post_to_tournament_list_invalid_permissions(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        response = self.app.post('/texas/tournaments')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, '"Permission denied"')
+
     def test_get_tournament(self):
         tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(tournament.id)).data

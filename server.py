@@ -13,8 +13,10 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult
+from model import MatchResult, PendingTournament
 import re
+from scraper.tio import TioScraper
+from scraper.challonge import ChallongeScraper
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 TYPEAHEAD_PLAYER_LIMIT = 20
@@ -263,6 +265,43 @@ class TournamentListResource(restful.Resource):
             del t['matches']
             del t['players']
             del t['type']
+
+        return return_dict
+
+    def post(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_region(user, region):
+            return 'Permission denied', 403
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('type', type=str, location='json')
+        parser.add_argument('data', type=str, location='json')
+        parser.add_argument('bracket', type=str, location='json')
+        args = parser.parse_args()
+
+        if args['data'] is None:
+            return "data required", 400
+
+        type = args['type']
+        data = args['data']
+
+        if type == 'tio':
+            if args['bracket'] is None:
+                return "Missing bracket name", 400
+            
+            scraper = TioScraper(data, args['bracket'])
+        elif type == 'challonge':
+            scraper = ChallongeScraper(data)
+        else:
+            return "Unknown type", 400
+
+        pending_tournament = PendingTournament.from_scraper(type, scraper, region)
+        new_id = dao.insert_pending_tournament(pending_tournament)
+
+        return_dict = {
+                'id': str(new_id)
+        }
 
         return return_dict
 
