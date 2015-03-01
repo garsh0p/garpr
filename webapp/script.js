@@ -142,17 +142,17 @@ app.service('SessionService', function($http) {
                 $http.get(url).success(successCallback);
             }
         },
-        authenticatedPost: function(url, successCallback) {
+        authenticatedPost: function(url, data, successCallback) {
             if (this.accessToken != null) {
                 config = {
                     headers: {
                         'Authorization': this.accessToken
                     }
                 }
-                $http.post(url, {}, config).success(successCallback);
+                $http.post(url, data, config).success(successCallback);
             }
             else {
-                $http.post(url, {}).success(successCallback);
+                $http.post(url, data).success(successCallback);
             }
         },
         authenticatedPut: function(url, successCallback) {
@@ -327,7 +327,7 @@ app.controller("RankingsController", function($scope, $routeParams, $modal, Regi
             $scope.modalInstance.close();
         };
 
-        $scope.sessionService.authenticatedPost(url, successCallback);
+        $scope.sessionService.authenticatedPost(url, {}, successCallback);
     };
 
     $scope.cancel = function() {
@@ -347,6 +347,7 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
     $scope.postParams = {};
 
     $scope.open = function() {
+        $scope.disableButtons = false;
         $scope.modalInstance = $modal.open({
             templateUrl: 'import_tournament_modal.html',
             scope: $scope,
@@ -356,7 +357,7 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
 
     $scope.setBracketType = function(bracketType) {
         $scope.postParams = {};
-        $scope.postParams.bracketType = bracketType;
+        $scope.postParams.type = bracketType;
     };
 
     $scope.close = function() {
@@ -364,13 +365,20 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
     };
 
     $scope.submit = function() {
-        // TODO do real stuff here
         console.log($scope.postParams);
-        $scope.close();
+        $scope.disableButtons = true;
+
+        url = hostname + $routeParams.region + '/tournaments';
+        successCallback = function(data) {
+            console.log(data);
+            $scope.close();
+        };
+
+        $scope.sessionService.authenticatedPost(url, $scope.postParams, successCallback);
     };
 
     $scope.loadFile = function(fileContents) {
-        $scope.postParams.tioFileContents = fileContents;
+        $scope.postParams.data = fileContents;
     };
 });
 

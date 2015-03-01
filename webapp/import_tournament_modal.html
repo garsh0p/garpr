@@ -5,9 +5,14 @@
 <div class="modal-body">
     <tabset>
         <tab heading="Tio" select="setBracketType('tio')">
+            <p><img src="images/tiobracket.png"></p>
+            <p>The <b>bracket name</b> in the above example is <i>Melee Singles</i>. Please make sure you enter the bracket name <b>EXACTLY</b> as it appears.</p>
             <form ng-submit="submit()">
                 <div class="form-group">
-                    <input id="bracket" type="file" class="form-control" on-read-file="loadFile($fileContent)">
+                    <label for="tioFile">Tio File</label>
+                    <input id="tioFile" type="file" class="form-control" on-read-file="loadFile($fileContent)">
+                    <label for="bracket">Bracket Name</label>
+                    <input type="bracket" class="form-control" ng-model="postParams.bracket">
                 </div>
                 <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
             </form>
@@ -21,7 +26,7 @@
             <form ng-submit="submit()">
                 <div class="form-group">
                     <label for="bracket">Challonge Bracket ID</label>
-                    <input type="text" class="form-control" ng-model="postParams.challongeBracketId">
+                    <input type="text" class="form-control" ng-model="postParams.data">
                 </div>
                 <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
             </form>
