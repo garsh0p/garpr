@@ -35,6 +35,9 @@ player_list_get_parser = reqparse.RequestParser()
 player_list_get_parser.add_argument('alias', type=str)
 player_list_get_parser.add_argument('query', type=str)
 
+tournament_list_get_parser = reqparse.RequestParser()
+tournament_list_get_parser.add_argument('includePending', type=str)
+
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('opponent', type=str)
 
@@ -74,7 +77,11 @@ def _get_user_id_from_facebook_access_token(access_token):
     return json_data['user_id']
 
 def get_user_from_access_token(headers, dao):
-    access_token = headers['Authorization']
+    try:
+        access_token = headers['Authorization']
+    except KeyError:
+        return None
+
     user_id = _get_user_id_from_facebook_access_token(access_token)
     user = dao.get_or_create_user_by_id(user_id)
 
@@ -253,8 +260,30 @@ class PlayerRegionResource(restful.Resource):
 class TournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
+
+        include_pending_tournaments = False
+        args = tournament_list_get_parser.parse_args()
+        if args['includePending'] and args['includePending'] == 'true':
+            user = get_user_from_access_token(request.headers, dao)
+            include_pending_tournaments = user and is_user_admin_for_region(user, region)
+
+        tournaments = dao.get_all_tournaments(regions=[region])
+        all_tournament_jsons = [t.get_json_dict() for t in tournaments]
+
+        if include_pending_tournaments:
+            # add a pending field for all existing tournaments
+            for t in all_tournament_jsons:
+                t['pending'] = False
+
+            pending_tournaments = dao.get_all_pending_tournaments(regions=[region])
+            for p in pending_tournaments:
+                p = p.get_json_dict()
+                p['pending'] = True
+                del p['alias_to_id_map']
+                all_tournament_jsons.append(p)
+
         return_dict = {}
-        return_dict['tournaments'] = [t.get_json_dict() for t in dao.get_all_tournaments(regions=[region])]
+        return_dict['tournaments'] = all_tournament_jsons
         convert_object_id_list(return_dict['tournaments'])
 
         for t in return_dict['tournaments']:
