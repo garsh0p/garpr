@@ -30,7 +30,7 @@ app.directive('onReadFile', function ($parse) {
     };
 });
 
-app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService) {
+app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService, SessionService) {
     var service = {
         regionsPromise: $http.get(hostname + 'regions'),
         regions: [],
@@ -62,8 +62,8 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
                     PlayerService.playerList = data;
                 });
 
-            $http.get(hostname + this.region.id + '/tournaments').
-                success(function(data) {
+            SessionService.authenticatedGet(hostname + this.region.id + '/tournaments?includePending=true',
+                function(data) {
                     TournamentService.tournamentList = data.tournaments.reverse();
                 });
 
@@ -252,8 +252,9 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
-app.controller("AuthenticationController", function($scope, Facebook, SessionService) {
+app.controller("AuthenticationController", function($scope, Facebook, SessionService, RegionService) {
     $scope.sessionService = SessionService;
+    $scope.regionService = RegionService;
 
     // Monitor the authResponseChange event so we can refresh expired access tokens
     $scope.$on('Facebook:authResponseChange', function(event, response) {
@@ -267,6 +268,7 @@ app.controller("AuthenticationController", function($scope, Facebook, SessionSer
                 function(data) {
                     $scope.sessionService.loggedIn = true;
                     $scope.sessionService.userInfo = data;
+                    $scope.regionService.populateDataForCurrentRegion();
                 }
             );
         }
@@ -370,7 +372,7 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
 
         url = hostname + $routeParams.region + '/tournaments';
         successCallback = function(data) {
-            console.log(data);
+            $scope.regionService.populateDataForCurrentRegion()
             $scope.close();
         };
 

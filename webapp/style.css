@@ -1,0 +1,7 @@
+.pending {
+    font-style: italic;
+}
+
+.pending > a {
+    color: gray;
+}

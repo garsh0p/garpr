@@ -12,7 +12,7 @@
             </tr>
             <tr ng-repeat="tournament in tournamentService.tournamentList">
                 <td>{{tournament.date}}</td>
-                <td><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
+                <td ng-class="{'pending': tournament.pending}"><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
             </tr>
         </table>
     </div>
