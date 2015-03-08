@@ -392,6 +392,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
 
     $scope.tournament = null;
     $scope.tournamentId = $routeParams.tournamentId
+    $scope.isPendingTournament = false;
     $scope.modalInstance = null;
 
     $scope.open = function() {
@@ -428,6 +429,9 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success(function(data) {
             $scope.tournament = data;
+            if ($scope.tournament.hasOwnProperty('alias_to_id_map')) {
+                $scope.isPendingTournament = true;
+            }
         });
 });
 
