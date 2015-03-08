@@ -23,7 +23,6 @@ MATCHES_JSON_FILE = 'test/test_scraper/data/matches.json'
 PARTICIPANTS_JSON_FILE = 'test/test_scraper/data/participants.json'
 
 class TestChallongeScraper(unittest.TestCase):
-    @patch('scraper.challonge.CONFIG_FILE_PATH', TEMPLATE_CONFIG_FILE_PATH)
     @patch('scraper.challonge.requests', spec=requests)
     def setUp(self, mock_requests):
         mock_tournament_response = Mock(spec=requests.Response)
@@ -58,7 +57,7 @@ class TestChallongeScraper(unittest.TestCase):
         }
         mock_requests.get.side_effect = lambda url, **kwargs: mock_requests_return_values[(url, kwargs['params']['api_key'])]
 
-        self.scraper = ChallongeScraper(TOURNAMENT_ID)
+        self.scraper = ChallongeScraper(TOURNAMENT_ID, TEMPLATE_CONFIG_FILE_PATH)
 
     def test_get_raw(self):
         raw = self.scraper.get_raw()
