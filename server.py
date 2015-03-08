@@ -22,7 +22,7 @@ DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_
 TYPEAHEAD_PLAYER_LIMIT = 20
 
 # parse config file
-config_full_path = os.path.join(os.path.dirname(__file__), 'config/config.ini')
+config_full_path = os.path.abspath('config/config.ini')
 config = Config(config_file_path=config_full_path)
 
 mongo_client = MongoClient(host=config.get_mongo_url())

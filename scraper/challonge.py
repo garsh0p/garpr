@@ -6,7 +6,7 @@ from model import MatchResult
 from bs4 import BeautifulSoup
 from config.config import Config
 
-CONFIG_FILE_PATH = 'config/config.ini'
+CONFIG_FILE_PATH = os.path.abspath('config/config.ini')
 BASE_CHALLONGE_API_URL = 'https://api.challonge.com/v1/tournaments'
 TOURNAMENT_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s.json')
 PARTICIPANTS_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s', 'participants.json')

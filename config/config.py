@@ -1,6 +1,7 @@
 from ConfigParser import ConfigParser
+import os
 
-DEFAULT_CONFIG_PATH = 'config/config.ini'
+DEFAULT_CONFIG_PATH = os.path.abspath('config/config.ini')
 
 class Config(object):
     def __init__(self, config_file_path=DEFAULT_CONFIG_PATH):
