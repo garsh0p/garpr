@@ -538,6 +538,25 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), len(tournament.players))
         self.assertEquals(len(json_data['matches']), len(tournament.matches))
 
+    def test_get_tournament_pending(self):
+        pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
+        json_data = json.loads(data)
+
+        self.assertEquals(len(json_data.keys()), 8)
+        self.assertEquals(json_data['id'], str(pending_tournament.id))
+        self.assertEquals(json_data['name'], 'bam 6 - 11-8-14')
+        self.assertEquals(json_data['type'], 'tio')
+        self.assertEquals(json_data['date'], pending_tournament.date.strftime('%x'))
+        self.assertEquals(json_data['regions'], ['norcal'])
+        self.assertEquals(len(json_data['players']), len(pending_tournament.players))
+        self.assertEquals(len(json_data['matches']), len(pending_tournament.matches))
+        self.assertEquals(json_data['alias_to_id_map'], {})
+
+        # spot check 1 match
+        match = json_data['matches'][0]
+        self.assertEquals(len(match.keys()), 2)
+
     @patch('server.get_user_from_access_token')
     def test_put_tournament_region(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user

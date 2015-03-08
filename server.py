@@ -357,11 +357,32 @@ def convert_tournament_to_response(tournament, dao):
 
     return return_dict
 
+def convert_pending_tournament_to_response(pending_tournament, dao):
+    return_dict = pending_tournament.get_json_dict()
+    convert_object_id(return_dict)
+
+    return_dict['date'] = return_dict['date'].strftime("%x")
+
+    # TODO do something with alias to player map
+
+    # remove extra fields
+    del return_dict['raw']
+
+    return return_dict
+
 class TournamentResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
+        response = None
+
         tournament = dao.get_tournament_by_id(ObjectId(id))
-        return convert_tournament_to_response(tournament, dao)
+        if tournament is not None:
+            response = convert_tournament_to_response(tournament, dao)
+        else:
+            pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+            response = convert_pending_tournament_to_response(pending_tournament, dao)
+            
+        return response
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)

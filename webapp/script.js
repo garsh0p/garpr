@@ -372,6 +372,7 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
 
         url = hostname + $routeParams.region + '/tournaments';
         successCallback = function(data) {
+            // TODO don't need to populate everything, just tournaments
             $scope.regionService.populateDataForCurrentRegion()
             $scope.close();
         };
