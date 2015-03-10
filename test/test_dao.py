@@ -573,6 +573,12 @@ class TestDAO(unittest.TestCase):
 
         self.assertIsNone(self.norcal_dao.get_tournament_by_id(ObjectId()))
 
+    def test_get_players_with_similar_alias(self):
+        self.assertEquals(self.norcal_dao.get_players_with_similar_alias('gar'), [self.player_1, self.player_3])
+        self.assertEquals(self.norcal_dao.get_players_with_similar_alias('GAR'), [self.player_1, self.player_3])
+        self.assertEquals(self.norcal_dao.get_players_with_similar_alias('g a r'), [self.player_1, self.player_3])
+        self.assertEquals(self.norcal_dao.get_players_with_similar_alias('garpr | gar'), [self.player_1, self.player_3])
+
     def test_merge_players(self):
         self.norcal_dao.merge_players(source=self.player_5, target=self.player_1)
 

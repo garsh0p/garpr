@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from model import *
 import trueskill
+import re
 
 DEFAULT_RATING = TrueskillRating()
 DATABASE_NAME = 'garpr'
@@ -12,6 +13,8 @@ RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
+
+special_chars = re.compile("[^\w\s]*")
 
 class RegionNotFoundException(Exception):
     pass
@@ -214,6 +217,21 @@ class Dao(object):
     def get_tournament_by_id(self, id):
         '''id must be an ObjectId'''
         return Tournament.from_json(self.tournaments_col.find_one({'_id': id}))
+
+    # gets potential merge targets from all regions
+    # basically, get players who have an alias similar to the given alias
+    def get_players_with_similar_alias(self, alias):
+        alias_lower = alias.lower()
+        similar_aliases = list(set([
+            alias_lower,
+            alias_lower.replace(" ", ""), # remove spaces
+            re.sub(special_chars, '', alias_lower), # remove special characters
+            # remove everything before the last special character; hopefully removes crew/sponsor tags
+            re.split(special_chars, alias_lower)[-1].strip()
+        ]))
+        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
+        return [Player.from_json(p) for p in ret]
+
 
     # TODO reduce db calls for this
     def merge_players(self, source=None, target=None):
