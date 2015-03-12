@@ -304,7 +304,7 @@ class TournamentListResource(restful.Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument('type', type=str, location='json')
-        parser.add_argument('data', type=str, location='json')
+        parser.add_argument('data', type=unicode, location='json')
         parser.add_argument('bracket', type=str, location='json')
         args = parser.parse_args()
 
