@@ -142,17 +142,17 @@ app.service('SessionService', function($http) {
                 $http.get(url).success(successCallback);
             }
         },
-        authenticatedPost: function(url, data, successCallback) {
+        authenticatedPost: function(url, data, successCallback, failureCallback) {
             if (this.accessToken != null) {
                 config = {
                     headers: {
                         'Authorization': this.accessToken
                     }
                 }
-                $http.post(url, data, config).success(successCallback);
+                $http.post(url, data, config).success(successCallback).error(failureCallback);
             }
             else {
-                $http.post(url, data).success(successCallback);
+                $http.post(url, data).success(successCallback).error(failureCallback);
             }
         },
         authenticatedPut: function(url, successCallback) {
@@ -329,7 +329,7 @@ app.controller("RankingsController", function($scope, $routeParams, $modal, Regi
             $scope.modalInstance.close();
         };
 
-        $scope.sessionService.authenticatedPost(url, {}, successCallback);
+        $scope.sessionService.authenticatedPost(url, {}, successCallback, angular.noop);
     };
 
     $scope.cancel = function() {
@@ -345,6 +345,7 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
 
     $scope.modalInstance = null;
     $scope.disableButtons = false;
+    $scope.errorMessage = false;
 
     $scope.postParams = {};
 
@@ -360,6 +361,7 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
     $scope.setBracketType = function(bracketType) {
         $scope.postParams = {};
         $scope.postParams.type = bracketType;
+        $scope.errorMessage = false;
     };
 
     $scope.close = function() {
@@ -377,7 +379,12 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
             $scope.close();
         };
 
-        $scope.sessionService.authenticatedPost(url, $scope.postParams, successCallback);
+        failureCallback = function(data) {
+            $scope.disableButtons = false;
+            $scope.errorMessage = true;
+        };
+
+        $scope.sessionService.authenticatedPost(url, $scope.postParams, successCallback, failureCallback);
     };
 
     $scope.loadFile = function(fileContents) {
