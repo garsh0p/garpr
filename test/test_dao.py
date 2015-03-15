@@ -220,12 +220,12 @@ class TestDAO(unittest.TestCase):
 
     def test_get_player_id_map_from_player_aliases(self):
         aliases = ['GAR', 'sfat', 'asdf', 'mango']
-        expected_map = {
-                'GAR': self.player_1_id,
-                'sfat': self.player_2_id,
-                'asdf': None,
-                'mango': None,
-        }
+        expected_map = [
+            {'player_alias': 'GAR', 'player_id': self.player_1_id},
+            {'player_alias': 'sfat', 'player_id': self.player_2_id},
+            {'player_alias': 'asdf', 'player_id': None},
+            {'player_alias': 'mango', 'player_id': None},
+        ]
         map = self.norcal_dao.get_player_id_map_from_player_aliases(aliases)
         self.assertEquals(map, expected_map)
 

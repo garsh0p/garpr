@@ -238,18 +238,21 @@ class Tournament(object):
 
     @classmethod
     def from_pending_tournament(cls, pending_tournament):
-        # alias_to_id_map is a map from player alias (string) -> player id (ObjectId)
         def _get_player_id_from_map_or_throw(alias_to_id_map, alias):
-            player_id = alias_to_id_map[alias]
-            if player_id is None:
-                raise Exception('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
-            else:
-                return player_id
+            for mapping in alias_to_id_map:
+                if mapping['player_alias'] == alias:
+                    player_id = mapping['player_id']
+                    if player_id is None:
+                        raise Exception('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
+                    else:
+                        return player_id
+                       
+            # we've exhausted the map and we haven't found a match
+            raise Exception('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
 
         alias_to_id_map = pending_tournament.alias_to_id_map
 
-        # the players and matches returned from the scraper use player aliases
-        # we need to convert these to player IDs
+        # we need to convert pending tournament players/matches to player IDs
         players = [_get_player_id_from_map_or_throw(alias_to_id_map, p) for p in pending_tournament.players]
         for m in pending_tournament.matches:
             m.winner = _get_player_id_from_map_or_throw(alias_to_id_map, m.winner)
@@ -263,6 +266,8 @@ class Tournament(object):
                 pending_tournament.matches,
                 pending_tournament.regions)
 
+    # TODO this should go away as we should never build a Tournament straight from a scraper
+    # it should be from a PendingTournament
     @classmethod
     def from_scraper(cls, type, scraper, alias_to_id_map, region_id):
         pending_tournament = PendingTournament.from_scraper(type, scraper, region_id)
@@ -274,7 +279,7 @@ class Tournament(object):
 class PendingTournament(object):
     '''Same as a Tournament, except it uses aliases for players instead of ids.
        Used during tournament import, before alias are mapped to player ids.'''
-    def __init__(self, type, raw, date, name, players, matches, regions, alias_to_id_map={}, id=None):
+    def __init__(self, type, raw, date, name, players, matches, regions, alias_to_id_map=[], id=None):
         self.id = id
         self.type = type
         self.raw = raw
@@ -282,6 +287,8 @@ class PendingTournament(object):
         self.name = name
         self.matches = matches
         self.regions = regions
+
+        # this is actually a list because mongo doesn't support having keys (i.e. aliases) with periods in them
         self.alias_to_id_map = alias_to_id_map
 
         # player aliases, not ids!
@@ -320,12 +327,19 @@ class PendingTournament(object):
                 json_dict['alias_to_id_map'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
-    def add_alias_id_mapping(self, alias, _id):
-        self.alias_to_id_map[alias] = _id
+    def set_alias_id_mapping(self, alias, id):
+        for mapping in self.alias_to_id_map:
+            if mapping['player_alias'] == alias:
+                mapping['player_alias'] = alias
+                mapping['player_id'] = id
+                return
 
-    def are_all_aliases_mapped(self):
-        return set(self.alias_to_id_map.keys()) == set(self.players)
-
+        # if we've gotten out here, we couldn't find an existing match, so add a new element
+        self.alias_to_id_map.append({
+            'player_alias': alias,
+            'player_id': id
+        })
+            
     @classmethod
     def from_scraper(cls, type, scraper, region_id):
         players = scraper.get_players()

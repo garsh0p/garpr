@@ -69,9 +69,9 @@ class Dao(object):
         return [Player.from_json(p) for p in self.players_col.find({'aliases': {'$in': [alias.lower()]}})]
 
     def get_player_id_map_from_player_aliases(self, aliases):
-        '''Given a list of player aliases, returns a map that maps player aliases -> player ids for the current
-        region. If no player can be found, returns a map from alias -> None.'''
-        player_alias_to_player_id_map = {}
+        '''Given a list of player aliases, returns a list of player aliases/id pairs for the current
+        region. If no player can be found, the player id field will be set to None.'''
+        player_alias_to_player_id_map = []
 
         for alias in aliases:
             id = None
@@ -79,7 +79,10 @@ class Dao(object):
             if player is not None:
                 id = player.id
 
-            player_alias_to_player_id_map[alias] = id
+            player_alias_to_player_id_map.append({
+                'player_alias': alias,
+                'player_id': id
+            })
 
         return player_alias_to_player_id_map
 

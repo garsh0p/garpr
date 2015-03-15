@@ -551,7 +551,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_data['regions'], ['norcal'])
         self.assertEquals(len(json_data['players']), len(pending_tournament.players))
         self.assertEquals(len(json_data['matches']), len(pending_tournament.matches))
-        self.assertEquals(json_data['alias_to_id_map'], {})
+        self.assertEquals(json_data['alias_to_id_map'], [])
 
         # spot check 1 match
         match = json_data['matches'][0]

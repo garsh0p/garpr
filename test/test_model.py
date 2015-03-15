@@ -5,7 +5,6 @@ from bson.objectid import ObjectId
 from datetime import datetime
 import mock
 from scraper.challonge import ChallongeScraper
-from dao import Dao
 
 class TestTrueskillRating(unittest.TestCase):
     def setUp(self):
@@ -207,12 +206,13 @@ class TestTournament(unittest.TestCase):
         self.match_1 = MatchResult(winner=self.player_1_id, loser=self.player_2_id)
         self.match_2 = MatchResult(winner=self.player_3_id, loser=self.player_4_id)
 
-        self.player_alias_to_player_id_map = {
-                self.player_1.name: self.player_1_id,
-                self.player_2.name: self.player_2_id,
-                self.player_3.name: self.player_3_id,
-                self.player_4.name: self.player_4_id
-        }
+        self.alias_to_id_map = [
+                {'player_alias': self.player_1.name, 'player_id': self.player_1_id},
+                {'player_alias': self.player_2.name, 'player_id': self.player_2_id},
+                {'player_alias': self.player_3.name, 'player_id': self.player_3_id},
+                {'player_alias': self.player_4.name, 'player_id': self.player_4_id},
+        ]
+
 
         self.id = ObjectId()
         self.type = 'tio'
@@ -319,20 +319,24 @@ class TestTournament(unittest.TestCase):
     def test_from_json_none(self):
         self.assertIsNone(Tournament.from_json(None))
 
-    def test_from_scraper(self):
-        # the scraper returns matches that use player aliases instead of player ids
+    def test_from_pending_tournament(self):
+        # we need MatchResults with aliases (instead of IDs)
         match_1 = MatchResult(winner=self.player_1.name, loser=self.player_2.name)
         match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
 
-        mock_scraper = mock.Mock(spec=ChallongeScraper)
+        player_aliases = [p.name for p in self.players]
+        matches = [match_1, match_2]
+        pending_tournament = PendingTournament(
+                self.type, 
+                self.raw, 
+                self.date, 
+                self.name, 
+                player_aliases, 
+                matches, 
+                ['norcal'], 
+                alias_to_id_map=self.alias_to_id_map)
 
-        mock_scraper.get_players.return_value = [p.name for p in self.players]
-        mock_scraper.get_matches.return_value = [match_1, match_2]
-        mock_scraper.get_raw.return_value = self.raw
-        mock_scraper.get_date.return_value = self.date
-        mock_scraper.get_name.return_value = self.name
-
-        tournament = Tournament.from_scraper(self.type, mock_scraper, self.player_alias_to_player_id_map, 'norcal')
+        tournament = Tournament.from_pending_tournament(pending_tournament)
 
         self.assertIsNone(tournament.id)
         self.assertEquals(tournament.type, self.type)
@@ -344,20 +348,26 @@ class TestTournament(unittest.TestCase):
         self.assertEquals(tournament.regions, ['norcal'])
 
     def test_from_scraper_throws_exception(self):
-        # the scraper returns matches that use player aliases instead of player ids
+        # we need MatchResults with aliases (instead of IDs)
         match_1 = MatchResult(winner=self.player_1.name, loser=self.player_2.name)
         match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
 
-        mock_scraper = mock.Mock(spec=ChallongeScraper)
+        player_aliases = [p.name for p in self.players]
+        matches = [match_1, match_2]
+        alias_to_id_map = [{'player_alias': self.player_1.name, "player_id": None}]
+        pending_tournament = PendingTournament(
+                self.type, 
+                self.raw, 
+                self.date, 
+                self.name, 
+                player_aliases, 
+                matches, 
+                ['norcal'], 
+                alias_to_id_map=alias_to_id_map)
 
-        mock_scraper.get_players.return_value = [p.name for p in self.players]
-        mock_scraper.get_matches.return_value = [match_1, match_2]
-        mock_scraper.get_raw.return_value = self.raw
-        mock_scraper.get_date.return_value = self.date
-        mock_scraper.get_name.return_value = self.name
 
         with self.assertRaises(Exception) as e:
-            tournament = Tournament.from_scraper(self.type, mock_scraper, {self.player_1.name: None}, 'norcal')
+            tournament = Tournament.from_pending_tournament(pending_tournament)
 
         self.assertTrue('Alias gar has no ID in map' in str(e.exception))
 
@@ -378,12 +388,12 @@ class TestPendingTournament(unittest.TestCase):
         self.match_1 = MatchResult(winner=self.player_1.name, loser=self.player_2.name)
         self.match_2 = MatchResult(winner=self.player_3.name, loser=self.player_4.name)
 
-        self.alias_to_id_map = {
-                self.player_1.name: self.player_1_id,
-                self.player_2.name: self.player_2_id,
-                self.player_3.name: self.player_3_id,
-                self.player_4.name: self.player_4_id
-        }
+        self.alias_to_id_map = [
+                {'player_alias': self.player_1.name, 'player_id': self.player_1_id},
+                {'player_alias': self.player_2.name, 'player_id': self.player_2_id},
+                {'player_alias': self.player_3.name, 'player_id': self.player_3_id},
+                {'player_alias': self.player_4.name, 'player_id': self.player_4_id},
+        ]
 
         self.id = ObjectId()
         self.type = 'tio'
@@ -449,22 +459,28 @@ class TestPendingTournament(unittest.TestCase):
     def test_from_json_none(self):
         self.assertIsNone(Tournament.from_json(None))
 
-    def test_add_alias_id_mapping(self):
+    def test_set_alias_id_mapping_new(self):
         self.assertEquals(len(self.pending_tournament.alias_to_id_map), 4)
 
         new_alias = 'new alias'
         new_object_id = ObjectId()
-        self.pending_tournament.add_alias_id_mapping(new_alias, new_object_id)
+        self.pending_tournament.set_alias_id_mapping(new_alias, new_object_id)
 
         self.assertEquals(len(self.pending_tournament.alias_to_id_map), 5)
-        self.assertEquals(self.pending_tournament.alias_to_id_map[new_alias], new_object_id)
+        mapping = self.pending_tournament.alias_to_id_map[4]
+        self.assertEquals(mapping['player_alias'], new_alias)
+        self.assertEquals(mapping['player_id'], new_object_id)
 
-    def test_are_all_aliases_mapped(self):
-        self.assertTrue(self.pending_tournament.are_all_aliases_mapped())
+    def test_set_alias_id_mapping_existing(self):
+        self.assertEquals(len(self.pending_tournament.alias_to_id_map), 4)
 
-        del self.alias_to_id_map[self.player_1.name]
+        new_object_id = ObjectId()
+        self.pending_tournament.set_alias_id_mapping(self.player_1.name, new_object_id)
 
-        self.assertFalse(self.pending_tournament.are_all_aliases_mapped())
+        self.assertEquals(len(self.pending_tournament.alias_to_id_map), 4)
+        mapping = self.pending_tournament.alias_to_id_map[0]
+        self.assertEquals(mapping['player_alias'], self.player_1.name)
+        self.assertEquals(mapping['player_id'], new_object_id)
 
     def test_from_scraper(self):
         mock_scraper = mock.Mock(spec=ChallongeScraper)
