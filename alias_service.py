@@ -10,8 +10,10 @@ def get_top_suggestion_for_aliases(dao, aliases):
     for entry in suggestions_map.iteritems():
         if entry[1]["player"] is not None:
             ret[entry[0]] = entry[1]["player"]
-        else:
+        elif entry[1]['suggestions']:
             ret[entry[0]] = min(entry[1]["suggestions"], key = lambda p: len(p.name))
+        else:
+            ret[entry[0]] = None
 
     return ret
 

@@ -97,9 +97,20 @@ class TestAliasService(unittest.TestCase):
             })
 
     def test_get_top_suggestion_for_aliases(self):
-        self.assertEquals(alias_service.get_top_suggestion_for_aliases(self.norcal_dao, ['gar', 'garpr | gar']), 
-            {
-                "gar": self.player_1,
-                "garpr | gar": self.player_1,
-            })
+        suggestions = alias_service.get_top_suggestion_for_aliases(self.norcal_dao, ['gar', 'garpr | gar'])
+        expected_suggestions = {
+            "gar": self.player_1,
+            "garpr | gar": self.player_1,
+        }
 
+        self.assertEquals(suggestions, expected_suggestions)
+
+    def test_get_top_suggestion_for_aliases_none(self):
+        suggestions = alias_service.get_top_suggestion_for_aliases(self.norcal_dao, ['gar', 'garpr | gar', 'ASDFASDF'])
+        expected_suggestions = {
+            "gar": self.player_1,
+            "garpr | gar": self.player_1,
+            "ASDFASDF": None
+        }
+
+        self.assertEquals(suggestions, expected_suggestions)
