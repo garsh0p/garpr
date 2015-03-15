@@ -114,3 +114,17 @@ class TestAliasService(unittest.TestCase):
         }
 
         self.assertEquals(suggestions, expected_suggestions)
+
+    def test_get_alias_to_id_map_in_list_format(self):
+        suggestions = alias_service.get_alias_to_id_map_in_list_format(
+                self.norcal_dao, ['gar', 'garpr | gar', 'ASDFASDF'])
+        expected_suggestions = [
+            {'player_alias': "gar", 'player_id': self.player_1.id},
+            {'player_alias': "garpr | gar", 'player_id': self.player_1.id},
+            {'player_alias': "ASDFASDF", 'player_id': None}
+        ]
+
+        self.assertEquals(len(suggestions), 3)
+        self.assertTrue(expected_suggestions[0] in suggestions)
+        self.assertTrue(expected_suggestions[1] in suggestions)
+        self.assertTrue(expected_suggestions[2] in suggestions)
