@@ -17,6 +17,7 @@ from model import MatchResult, PendingTournament
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
+import alias_service
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 TYPEAHEAD_PLAYER_LIMIT = 20
@@ -325,6 +326,8 @@ class TournamentListResource(restful.Resource):
             return "Unknown type", 400
 
         pending_tournament = PendingTournament.from_scraper(type, scraper, region)
+        pending_tournament.alias_to_id_map = alias_service.get_alias_to_id_map_in_list_format(
+                dao, pending_tournament.players)
         new_id = dao.insert_pending_tournament(pending_tournament)
 
         return_dict = {

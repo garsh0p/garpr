@@ -18,6 +18,7 @@ def get_top_suggestion_for_aliases(dao, aliases):
     return ret
 
 # return the result of get_top_suggestion_for_aliases in the list format stored in the db
+# TODO we should probably sanity check here to make sure we don't return the same player id for multiple aliases
 def get_alias_to_id_map_in_list_format(dao, aliases):
     alias_to_id_map = get_top_suggestion_for_aliases(dao, aliases)
     list_format = []

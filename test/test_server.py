@@ -427,7 +427,9 @@ class TestServer(unittest.TestCase):
 
         self.assertEquals(1, len(json_data))
         self.assertEquals(24, len(json_data['id']))
-        self.assertIsNotNone(self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id'])))
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id']))
+        self.assertIsNotNone(pending_tournament)
+        self.assertEquals(len(pending_tournament.alias_to_id_map), 59)
 
     @patch('server.get_user_from_access_token')
     def test_post_to_tournament_list_tio_missing_bracket(self, mock_get_user_from_access_token):
@@ -460,7 +462,9 @@ class TestServer(unittest.TestCase):
 
         self.assertEquals(1, len(json_data))
         self.assertEquals(24, len(json_data['id']))
-        self.assertIsNotNone(self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id'])))
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id']))
+        self.assertIsNotNone(pending_tournament)
+        self.assertEquals(len(pending_tournament.alias_to_id_map), 59)
 
     @patch('server.get_user_from_access_token')
     def test_post_to_tournament_list_missing_data(self, mock_get_user_from_access_token):
