@@ -362,7 +362,14 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
 
     return_dict['date'] = return_dict['date'].strftime("%x")
 
-    # TODO do something with alias to player map
+    # convert the alias_to_id_map from a list to mongo to an actual map
+    alias_to_id_map = {}
+    for mapping in return_dict['alias_to_id_map']:
+        player_alias = mapping['player_alias']
+        player_id = str(mapping['player_id']) if mapping['player_id'] else None
+
+        alias_to_id_map[player_alias] = player_id
+    return_dict['alias_to_id_map'] = alias_to_id_map
 
     # remove extra fields
     del return_dict['raw']
