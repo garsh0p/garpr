@@ -447,6 +447,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.playerSelected = function(playerAlias, $item) {
+        $scope.playerCheckboxState[playerAlias] = false;
         $scope.tournament.alias_to_id_map[playerAlias] = $item.id;
         $http.get(hostname + $routeParams.region + '/players/' + $item.id).
             success(function(data) {
