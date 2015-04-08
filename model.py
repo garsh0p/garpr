@@ -1,6 +1,8 @@
 from bson import json_util
 import json
 import trueskill
+from bson.objectid import ObjectId
+
 
 class TrueskillRating(object):
     def __init__(self, trueskill_rating=None):
@@ -492,8 +494,41 @@ class User(object):
         if json_dict == None:
             return None
 
+        print "model from json", json_dict
         return cls(
                 json_dict['_id'],
                 json_dict['admin_regions'],
                 json_dict['full_name'])
 
+
+class Merge(object):
+    def __init__(self, requester_user_id, base_player_obj_id, player_to_be_merged_obj_id, time, id=None):
+        self.requester_user_id = requester_user_id
+        self.base_player_obj_id = base_player_obj_id
+        self.player_to_be_merged_obj_id = player_to_be_merged_obj_id
+        self.time = time
+        self.id = id
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['requester_user_id'] = self.requester_user_id
+        json_dict['base_player_obj_id'] = self.base_player_obj_id
+        json_dict['player_to_be_merged_obj_id'] = self.player_to_be_merged_obj_id
+        json_dict['time'] = self.time
+        if self.id: json_dict['_id'] = self.id
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['requester_user_id'],
+                json_dict['base_player_obj_id'],
+                json_dict['player_to_be_merged_obj_id'],
+                json_dict['time'],
+                json_dict['_id']
+                )

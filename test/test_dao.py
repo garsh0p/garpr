@@ -732,3 +732,24 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(user.full_name, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 
+    def test_get_and_insert_pending_merge(self):
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        player_two = all_players[1]
+        users = dao.get_all_users()
+        user = users[0]
+        now = datetime.now()
+        the_merge = Merge(user.id, player_one.id, player_two.id, now)
+
+        merge_id = dao.insert_pending_merge(the_merge)
+
+        self.assertTrue(merge_id)
+
+        the_merge_redux = dao.get_pending_merge(merge_id)
+
+        self.assertEqual(the_merge.base_player_obj_id, the_merge_redux.base_player_obj_id, msg=the_merge_redux)
+
+
+
+        pass

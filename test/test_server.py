@@ -1260,3 +1260,71 @@ class TestServer(unittest.TestCase):
         response = self.app.put('/texas/players/' + str(the_player.id), content_type='application/json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
+
+    @patch('server.get_user_from_access_token')
+    def test_put_pending_merge(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        player_two = all_players[1]
+        raw_dict = {'base_player': str(player_one.id), 'to_be_merged_player' : str(player_two.id) }
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.status, '200 OK', msg=rv.data)
+        data_dict = json.loads(rv.data)
+        merge_id = data_dict['id']
+        self.assertTrue(merge_id, msg=merge_id)
+        #okay, now look in the dao and see if the merge is actually in there
+        the_merge = dao.get_pending_merge(ObjectId(merge_id))
+        # assert the correct player is in the correct place
+        self.assertTrue(the_merge, msg=merge_id)
+        self.assertEquals(the_merge.base_player_obj_id, player_one.id)
+        self.assertEquals(the_merge.player_to_be_merged_obj_id, player_two.id)
+
+    @patch('server.get_user_from_access_token')
+    def test_put_not_admin(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.texas_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        player_two = all_players[1]
+        raw_dict = {'base_player': str(player_one.id), 'to_be_merged_player' : str(player_two.id) }
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/texas/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.data, "\"user is not an admin for this region\"")
+
+    @patch('server.get_user_from_access_token')
+    def test_put_invalid_id(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        raw_dict = {'base_player': "abcd", 'to_be_merged_player' : "adskj" }
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.data, "\"invalid ids, that wasn't an ObjectID\"", msg=rv.data)
+
+
+    @patch('server.get_user_from_access_token')
+    def test_put_p1_not_found(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        player_two = all_players[1]
+        raw_dict = {'base_player': "552f53650181b84aaaa01051", 'to_be_merged_player' : str(player_two.id)  }
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.data, "\"base_player not found\"", msg=rv.data)
+
+
+    @patch('server.get_user_from_access_token')
+    def test_put_p2_not_found(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        player_two = all_players[1]
+        raw_dict = {'base_player': str(player_one.id), 'to_be_merged_player' : "552f53650181b84aaaa01051"  }
+        test_data = json.dumps(raw_dict)
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
