@@ -1,6 +1,6 @@
 var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook']);
 
-var dev = false;
+var dev = true;
 if (dev) {
     var hostname = 'http://garsh0p.no-ip.biz:5101/';
 }
@@ -392,17 +392,20 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
     };
 });
 
-app.controller("TournamentDetailController", function($scope, $routeParams, $http, $modal, RegionService, SessionService) {
+app.controller("TournamentDetailController", function($scope, $routeParams, $http, $modal, RegionService, SessionService, PlayerService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.sessionService = SessionService;
+    $scope.playerService = PlayerService;
 
     $scope.tournament = null;
     $scope.tournamentId = $routeParams.tournamentId
     $scope.isPendingTournament = false;
     $scope.modalInstance = null;
+    $scope.playerData = {}
+    $scope.playerCheckboxState = {};
 
-    $scope.open = function() {
+    $scope.openRegionModal = function() {
         $scope.modalInstance = $modal.open({
             templateUrl: 'tournament_region_modal.html',
             scope: $scope,
@@ -411,8 +414,25 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         $scope.tournamentRegionCheckbox = {}
     };
 
-    $scope.close = function() {
+    $scope.closeRegionModal = function() {
         $scope.modalInstance.close()
+    };
+
+    $scope.openSubmitPendingTournamentModal = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'submit_pending_tournament_confirmation_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.tournamentRegionCheckbox = {}
+    };
+
+    $scope.closeSubmitPendingTournamentModal = function() {
+        $scope.modalInstance.close()
+    };
+
+    $scope.submitPendingTournament = function() {
+        console.log('submit pending tournament');
     };
 
     $scope.isTournamentInRegion = function(regionId) {
@@ -433,11 +453,69 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         }
     };
 
+    $scope.onPlayerCheckboxChange = function(playerAlias) {
+        console.log($scope.tournament.alias_to_id_map);
+        console.log($scope.playerData);
+        if ($scope.playerCheckboxState[playerAlias]) {
+            $scope.tournament.alias_to_id_map[playerAlias] = null;
+            delete $scope.playerData[playerAlias];
+        }
+
+    };
+
+    $scope.playerSelected = function(playerAlias, $item) {
+        $scope.playerCheckboxState[playerAlias] = false;
+        $scope.tournament.alias_to_id_map[playerAlias] = $item.id;
+        $http.get(hostname + $routeParams.region + '/players/' + $item.id).
+            success(function(data) {
+                $scope.playerData[playerAlias] = data;
+                console.log($scope.tournament.alias_to_id_map);
+            })
+    };
+
+    $scope.prettyPrintRegionListForPlayer = function(player) {
+        var retString = 'None';
+        if (player != null && player.hasOwnProperty('regions')) {
+            var regions = player.regions;
+            for (i = 0; i < regions.length; i++) {
+                r = regions[i];
+                if (retString == 'None') {
+                    retString = $scope.regionService.getRegionDisplayNameFromRegionId(r);
+                }
+                else {
+                    retString += ', ' + $scope.regionService.getRegionDisplayNameFromRegionId(r);
+                }
+            }
+        }
+
+        return retString
+    };
+
+
+    // TODO submission checks! check to make sure everything in $scope.playerData is an object (not a string. string = partially typed box)
+
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success(function(data) {
             $scope.tournament = data;
             if ($scope.tournament.hasOwnProperty('alias_to_id_map')) {
                 $scope.isPendingTournament = true;
+
+                // load individual player detail
+                for (var player in $scope.tournament.alias_to_id_map) {
+                    var id = $scope.tournament.alias_to_id_map[player];
+                    if (id != null) {
+                        $scope.playerCheckboxState[player] = false;
+                        (function(clsplayer, clsid) {
+                            $http.get(hostname + $routeParams.region + '/players/' + clsid).
+                                success(function(data) {
+                                    $scope.playerData[clsplayer] = data;
+                                })
+                        })(player, id);
+                    }
+                    else {
+                        $scope.playerCheckboxState[player] = true;
+                    }
+                }
             }
         });
 });
