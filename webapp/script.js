@@ -405,7 +405,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.playerData = {}
     $scope.playerCheckboxState = {};
 
-    $scope.open = function() {
+    $scope.openRegionModal = function() {
         $scope.modalInstance = $modal.open({
             templateUrl: 'tournament_region_modal.html',
             scope: $scope,
@@ -414,8 +414,25 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         $scope.tournamentRegionCheckbox = {}
     };
 
-    $scope.close = function() {
+    $scope.closeRegionModal = function() {
         $scope.modalInstance.close()
+    };
+
+    $scope.openSubmitPendingTournamentModal = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'submit_pending_tournament_confirmation_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.tournamentRegionCheckbox = {}
+    };
+
+    $scope.closeSubmitPendingTournamentModal = function() {
+        $scope.modalInstance.close()
+    };
+
+    $scope.submitPendingTournament = function() {
+        console.log('submit pending tournament');
     };
 
     $scope.isTournamentInRegion = function(regionId) {
@@ -447,6 +464,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.playerSelected = function(playerAlias, $item) {
+        $scope.playerCheckboxState[playerAlias] = false;
         $scope.tournament.alias_to_id_map[playerAlias] = $item.id;
         $http.get(hostname + $routeParams.region + '/players/' + $item.id).
             success(function(data) {

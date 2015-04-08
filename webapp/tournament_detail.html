@@ -5,7 +5,7 @@
             <h1>{{tournament.date}} - {{tournament.name}}</h1>
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdmin()">
-            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="open()">Edit Regions</button></h1>
+            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="openRegionModal()">Edit Regions</button></h1>
         </div>
     </div>
     <div class="row" ng-show="isPendingTournament">
@@ -21,6 +21,7 @@
                     <td><strong>New Player?</strong></td>
                     <td><strong>Tag</strong></td>
                     <td><strong>Player Details</strong></td>
+                    <td><strong>Player Search</strong></td>
                 </tr>
                 <tr ng-repeat="player in tournament.players">
                     <td>
@@ -31,9 +32,6 @@
                     <td ng-class="{'text-danger': playerCheckboxState[player], newPlayer: playerCheckboxState[player]}">{{player}}</td>
                     <td>
                         <div ng-hide="playerCheckboxState[player]">
-                            <div class="form-group">
-                                <input type="text" class="form-control" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
-                            </div>
                             <div ng-show="playerData[player].hasOwnProperty('id')">
                                 <p>Regions: <strong>{{prettyPrintRegionListForPlayer(playerData[player])}}</strong></p>
                                 <a href="#/{{regionService.region.id}}/players/{{playerData[player].id}}">
@@ -43,6 +41,11 @@
                             <div ng-hide="playerData[player].hasOwnProperty('id')">
                                 <p class="text-danger"><strong>Please select a valid existing player!</strong></p>
                             </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="text" class="form-control" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
                 </tr>
@@ -62,6 +65,11 @@
                     <td class="danger">{{match.loser}}</a></td>
                 </tr>
             </table>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-2 col-md-offset-10">
+            <button type="button" class="btn pull-right" ng-click="openSubmitPendingTournamentModal()">Submit</button>
         </div>
     </div>
 
