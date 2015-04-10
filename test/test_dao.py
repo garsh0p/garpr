@@ -388,6 +388,20 @@ class TestDAO(unittest.TestCase):
 
         self.assertIsNone(self.norcal_dao.get_tournament_by_id(ObjectId()))
 
+    def test_delete_pending_tournament(self):
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        # make a copy with a new id
+        new_id = ObjectId()
+        pending_tournament.id = new_id
+        self.norcal_dao.insert_pending_tournament(pending_tournament)
+
+        pending_tournament_copy = self.norcal_dao.get_pending_tournament_by_id(new_id)
+        self.assertIsNotNone(pending_tournament_copy)
+
+        self.norcal_dao.delete_pending_tournament(pending_tournament)
+        deleted_tournament = self.norcal_dao.get_pending_tournament_by_id(new_id)
+        self.assertIsNone(deleted_tournament)
+
     def test_update_tournament(self):
         tournament_1 = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
         self.assertEquals(tournament_1.id, self.tournament_id_1)
