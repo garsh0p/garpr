@@ -244,12 +244,12 @@ class Tournament(object):
                 if mapping['player_alias'] == alias:
                     player_id = mapping['player_id']
                     if player_id is None:
-                        raise Exception('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
+                        raise ValueError('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
                     else:
                         return player_id
                        
             # we've exhausted the map and we haven't found a match
-            raise Exception('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
+            raise ValueError('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
 
         alias_to_id_map = pending_tournament.alias_to_id_map
 
@@ -279,7 +279,7 @@ class Tournament(object):
 
 class PendingTournament(object):
     '''Same as a Tournament, except it uses aliases for players instead of ids.
-       Used during tournament import, before alias are mapped to player ids.'''
+       Used during tournament import, before aliases are mapped to player ids.'''
     def __init__(self, type, raw, date, name, players, matches, regions, alias_to_id_map=[], id=None):
         self.id = id
         self.type = type

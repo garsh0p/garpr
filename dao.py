@@ -135,7 +135,8 @@ class Dao(object):
         if len(pending_tournament.raw) == 0:
             raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
 
-        return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
+    def delete_pending_tournament(self, pending_tournament):
+        return self.pending_tournaments_col.remove({'_id': pending_tournament.id})
 
     def get_all_pending_tournaments(self, regions=None):
         '''players is a list of Players'''
