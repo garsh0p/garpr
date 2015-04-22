@@ -436,6 +436,7 @@ class TournamentResource(restful.Resource):
             tournament.regions = args['regions']
 
         dao.update_tournament(tournament)
+        return {"success": True}
 
     def delete(self, region, id):
         """ Deletes a pending tournament.
@@ -444,18 +445,23 @@ class TournamentResource(restful.Resource):
         dao = Dao(region, mongo_client=mongo_client)
 
         user = get_user_from_access_token(request.headers, dao)
-        if not is_user_admin_for_region(user, region):
-            return 'Permission denied', 403
-
         pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+
         if not pending_tournament:
             tournament = dao.get_tournament_by_id(ObjectId(id))
-            if tournament:
-                return "Cannot delete a finalized tournament.", 400
-            else:
+            if not tournament:
                 return "No pending tournament found with that id.", 400
+            else:
+                if not is_user_admin_for_regions(user, tournament.regions):
+                    return 'Permission denied', 403
+                else:
+                    return "Cannot delete a finalized tournament.", 400
+
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
 
         dao.delete_pending_tournament(pending_tournament)
+        return {"success": True}
         
 class TournamentRegionResource(restful.Resource):
     def put(self, region, id, region_to_change):
@@ -491,12 +497,12 @@ class FinalizeTournamentResource(restful.Resource):
     def post(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         user = get_user_from_access_token(request.headers, dao)
-        if not is_user_admin_for_region(user, region):
-            return 'Permission denied', 403
 
         pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
         if not pending_tournament:
             return "No pending tournament found with that id.", 400
+        elif not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
         
         try:
             tournament = Tournament.from_pending_tournament(pending_tournament)
