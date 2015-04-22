@@ -482,6 +482,12 @@ class TestPendingTournament(unittest.TestCase):
         self.assertEquals(mapping['player_alias'], self.player_1.name)
         self.assertEquals(mapping['player_id'], new_object_id)
 
+    def test_delete_alias_id_mapping(self):
+        self.assertEquals(len(self.pending_tournament.alias_to_id_map), 4)
+        deleted_mapping = self.pending_tournament.delete_alias_id_mapping(self.player_1.name)
+        self.assertEquals(len(self.pending_tournament.alias_to_id_map), 3)
+        self.assertFalse(deleted_mapping in self.pending_tournament.alias_to_id_map)
+
     def test_from_scraper(self):
         mock_scraper = mock.Mock(spec=ChallongeScraper)
 

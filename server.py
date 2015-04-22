@@ -460,6 +460,48 @@ class TournamentRegionResource(restful.Resource):
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
+class AliasMapResource(restful.Resource):
+    def post(self, region, id, player_tag):
+        dao = Dao(region, mongo_client=mongo_client)
+        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not pending_tournament:
+            return "No pending tournament found with that id.", 400
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('player_id', type=str, location='json')
+        args = parser.parse_args()
+        player_id = args["player_id"]
+
+        if player_id is not None:
+            player = dao.get_player_by_id(ObjectId(args["player_id"]))
+            if not player:
+                return "No player found with that id.", 400
+            player_id = player.id
+
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
+
+        pending_tournament.set_alias_id_mapping(player_tag, player_id)
+        dao.update_pending_tournament(pending_tournament)
+        response = convert_pending_tournament_to_response(pending_tournament, dao)
+        return response
+
+    def delete(self, region, id, player_tag):
+        dao = Dao(region, mongo_client=mongo_client)
+        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not pending_tournament:
+            return "No pending tournament found with that id.", 400
+
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
+
+        pending_tournament.delete_alias_id_mapping(player_tag)
+        dao.update_pending_tournament(pending_tournament)
+        response = convert_pending_tournament_to_response(pending_tournament, dao)
+        return response
+
 class RankingsResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
@@ -561,6 +603,8 @@ api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
+api.add_resource(AliasMapResource, '/<string:region>/tournaments/<string:id>/alias_map/<string:player_tag>')
+
 
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 

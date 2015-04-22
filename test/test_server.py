@@ -636,6 +636,40 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
+    @patch('server.get_user_from_access_token')
+    def test_post_and_delete_alias_mapping(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        self.assertEquals(pending_tournament.regions, ['norcal'])
+
+        player_tag = pending_tournament.players[0]
+        real_player = self.norcal_dao.get_all_players()[0]
+
+        data = {"player_id": str(real_player.id)}
+
+        # test post
+        response = self.app.post('/norcal/tournaments/' + str(pending_tournament.id) + '/alias_map/' + player_tag, 
+            data=json.dumps(data), content_type='application/json')
+        json_data = json.loads(response.data)
+
+        self.assertEquals(str(pending_tournament.id), json_data['id'])
+
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id']))
+        self.assertIsNotNone(pending_tournament)
+        mapping = {"player_alias": player_tag, "player_id": real_player.id}
+        self.assertTrue(mapping in pending_tournament.alias_to_id_map)
+
+        # test delete
+        response = self.app.delete('/norcal/tournaments/' + str(pending_tournament.id) + '/alias_map/' + player_tag, 
+            content_type='application/json')
+        json_data = json.loads(response.data)
+        self.assertEquals(str(pending_tournament.id), json_data['id'])
+
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id']))
+        self.assertIsNotNone(pending_tournament)
+        mapping = {"player_alias": player_tag, "player_id": real_player.id}
+        self.assertFalse(mapping in pending_tournament.alias_to_id_map)
+
     def test_get_rankings(self):
         data = self.app.get('/norcal/rankings').data
         json_data = json.loads(data)
