@@ -754,3 +754,7 @@ class TestDAO(unittest.TestCase):
         self.assertEqual(the_merge.id, the_merge_redux.id)
         self.assertEqual(the_merge.requester_user_id, the_merge_redux.requester_user_id)
         self.assertEqual(the_merge.time, the_merge_redux.time)
+
+    def test_get_non_existant_merge(self):
+        dao = self.norcal_dao
+        self.assertIsNone(dao.get_pending_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
