@@ -241,9 +241,7 @@ class Dao(object):
         return self.pending_merges_col.insert(the_merge.get_json_dict())
 
     def get_pending_merge(self, merge_id):
-        print "entering get_pending_merge"
         info = self.pending_merges_col.find_one({'_id' : merge_id})
-        print "get_pending_merge info:", info
         return Merge.from_json(info)
 
     # TODO reduce db calls for this
