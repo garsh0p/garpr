@@ -745,11 +745,12 @@ class TestDAO(unittest.TestCase):
         merge_id = dao.insert_pending_merge(the_merge)
 
         self.assertTrue(merge_id)
+        self.assertIsInstance(merge_id, ObjectId)
 
         the_merge_redux = dao.get_pending_merge(merge_id)
 
         self.assertEqual(the_merge.base_player_obj_id, the_merge_redux.base_player_obj_id, msg=the_merge_redux)
-
-
-
-        pass
+        self.assertEqual(the_merge.player_to_be_merged_obj_id, the_merge_redux.player_to_be_merged_obj_id)
+        self.assertEqual(the_merge.id, the_merge_redux.id)
+        self.assertEqual(the_merge.requester_user_id, the_merge_redux.requester_user_id)
+        self.assertEqual(the_merge.time, the_merge_redux.time)
