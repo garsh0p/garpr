@@ -739,13 +739,15 @@ class TestDAO(unittest.TestCase):
         player_two = all_players[1]
         users = dao.get_all_users()
         user = users[0]
-        now = datetime.now()
-        the_merge = Merge(user.id, player_one.id, player_two.id, now)
+        now = datetime.today()
+        orig_id = ObjectId()
+        the_merge = Merge(user.id, player_one.id, player_two.id, now, id=orig_id)
 
         merge_id = dao.insert_pending_merge(the_merge)
 
         self.assertTrue(merge_id)
         self.assertIsInstance(merge_id, ObjectId)
+        self.assertEqual(merge_id, orig_id)
 
         the_merge_redux = dao.get_pending_merge(merge_id)
 
