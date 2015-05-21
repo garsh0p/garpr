@@ -755,7 +755,8 @@ class TestDAO(unittest.TestCase):
         self.assertEqual(the_merge.player_to_be_merged_obj_id, the_merge_redux.player_to_be_merged_obj_id)
         self.assertEqual(the_merge.id, the_merge_redux.id)
         self.assertEqual(the_merge.requester_user_id, the_merge_redux.requester_user_id)
-        self.assertTrue(abs(the_merge.time - the_merge_redux.time).total_seconds() < 1) # changed to account for mongo driver losing sub-second accuracy
+        # changed to account for mongo driver losing sub-second accuracy on datetimes
+        self.assertTrue(abs(the_merge.time - the_merge_redux.time).total_seconds() < 1)
 
     def test_get_non_existant_merge(self):
         dao = self.norcal_dao

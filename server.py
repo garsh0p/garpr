@@ -562,8 +562,8 @@ class PendingMergesResource(restful.Resource):
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
         requesting_user = get_user_from_access_token(request.headers, dao)
-        if not is_user_admin_for_region(requesting_user, region): #wow, such auth
-            return "user is not an admin for this region", 403
+        if not requesting_user.admin_regions: #wow, such auth
+            return "user is not an admin", 403
         args = merges_put_parser.parse_args() #parse args
         try:
             base_player_id = ObjectId(args['base_player_id'])
