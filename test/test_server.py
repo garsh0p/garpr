@@ -492,6 +492,177 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
+    @patch('server.get_user_from_access_token')
+    def test_finalize_tournament(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        player_1_id = ObjectId()
+        player_2_id = ObjectId()
+        player_3_id = ObjectId()
+        player_4_id = ObjectId()
+        player_1 = Player(
+            'C9 Mango',
+            ['C9 Mango'],
+            {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
+            ['norcal', 'texas'],
+            id=player_1_id)
+        player_2 = Player(
+            '[A]rmada',
+            ['[A]rmada'],
+            {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
+            ['norcal', 'texas'],
+            id=player_2_id)
+        player_3 = Player(
+            'Liquid`Hungrybox',
+            ['Liquid`Hungrybox'],
+            {'norcal': TrueskillRating()},
+            ['norcal'],
+            id=player_3_id)
+        player_4 = Player(
+            'Poor | Zhu',
+            ['Poor | Zhu'],
+            {'norcal': TrueskillRating()},
+            ['norcal'],
+            id=player_4_id)
+
+        players = [player_1, player_2, player_3, player_4]
+
+        player_1_name = 'Mango'
+        player_2_name = 'Armada'
+        player_3_name = 'Hungrybox'
+        player_4_name = 'Zhu'
+
+        # pending tournament that can be finalized
+        pending_tournament_id_1 = ObjectId()
+        pending_tournament_players_1 = [player_1_name, player_2_name, player_3_name, player_4_name]
+        pending_tournament_matches_1 = [
+                MatchResult(winner=player_2_name, loser=player_1_name),
+                MatchResult(winner=player_3_name, loser=player_4_name),
+                MatchResult(winner=player_1_name, loser=player_3_name),
+                MatchResult(winner=player_1_name, loser=player_2_name),
+                MatchResult(winner=player_1_name, loser=player_2_name),
+        ]
+
+        pending_tournament_1 = PendingTournament( 'tio',
+                                                  'raw',
+                                                  datetime(2009, 7, 10),
+                                                  'Genesis top 4',
+                                                  pending_tournament_players_1,
+                                                  pending_tournament_matches_1,
+                                                  ['norcal'],
+                                                  id=pending_tournament_id_1)
+
+        pending_tournament_1.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_1.set_alias_id_mapping(player_2_name, player_2_id)
+        pending_tournament_1.set_alias_id_mapping(player_3_name, player_3_id)
+        pending_tournament_1.set_alias_id_mapping(player_4_name, player_4_id)
+
+        # pending tournament in wrong region
+        pending_tournament_id_2 = ObjectId()
+        pending_tournament_players_2 = [player_1_name, player_2_name]
+        pending_tournament_matches_2 = [
+                MatchResult(winner=player_2_name, loser=player_1_name),
+        ]
+
+        pending_tournament_2 = PendingTournament( 'tio',
+                                                  'raw',
+                                                  datetime(2014, 7, 10),
+                                                  'Fake Texas Tournament',
+                                                  pending_tournament_players_2,
+                                                  pending_tournament_matches_2,
+                                                  ['texas'],
+                                                  id=pending_tournament_id_2)
+
+        pending_tournament_2.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_2.set_alias_id_mapping(player_2_name, player_2_id)
+
+        # incompletely mapped pending touranment
+        pending_tournament_id_3 = ObjectId()
+        pending_tournament_3 = PendingTournament( 'tio',
+                                                  'raw',
+                                                  datetime(2009, 7, 10),
+                                                  'Genesis top 4 incomplete',
+                                                  pending_tournament_players_1,
+                                                  pending_tournament_matches_1,
+                                                  ['norcal'],
+                                                  id=pending_tournament_id_3)
+
+        pending_tournament_3.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_3.set_alias_id_mapping(player_2_name, player_2_id)
+        # Note that Hungrybox and Zhu are unmapped
+
+        for player in players:
+            self.norcal_dao.insert_player(player)
+
+        self.norcal_dao.insert_pending_tournament(pending_tournament_1)
+        self.norcal_dao.insert_pending_tournament(pending_tournament_3)
+        self.texas_dao.insert_pending_tournament(pending_tournament_2)
+
+        # check initial list of tournaments
+        tournaments_list_1 = self.norcal_dao.get_all_tournaments()
+        tournaments_ids_1 = set([ str(tournament.id) for tournament in tournaments_list_1])
+        self.assertFalse(str(pending_tournament_id_1) in tournaments_ids_1)
+        self.assertFalse(str(pending_tournament_id_3) in tournaments_ids_1)
+
+        pending_tournaments_list_1 = self.norcal_dao.get_all_pending_tournaments()
+        pending_tournaments_ids_1 = set(
+            [str(tournament.id) for tournament in pending_tournaments_list_1])
+
+        self.assertTrue(str(pending_tournament_id_1) in pending_tournaments_ids_1)
+        self.assertTrue(str(pending_tournament_id_3) in pending_tournaments_ids_1)
+
+        # incorrect region
+        no_permissions_response = self.app.post(
+            '/texas/tournaments/' + str(pending_tournament_id_2) + '/finalize')
+        self.assertEquals(no_permissions_response.status_code, 403)
+        self.assertEquals(no_permissions_response.data, '"Permission denied"')
+
+        # no pending tournament with this id
+        missing_response = self.app.post('/norcal/tournaments/' + str(ObjectId()) + '/finalize')
+        self.assertEquals(missing_response.status_code, 400)
+        self.assertEquals(missing_response.data,
+            '"No pending tournament found with that id."')
+
+        # alias_to_id_map doesn't map each alias
+        incomplete_response = self.app.post(
+            '/norcal/tournaments/' + str(pending_tournament_id_3) + '/finalize')
+        self.assertEquals(incomplete_response.status_code, 400)
+        self.assertEquals(incomplete_response.data,
+            '"Not all player aliases in this pending tournament have been mapped to player ids."')
+
+        success_response = self.app.post(
+            '/norcal/tournaments/' + str(pending_tournament_id_1) + '/finalize')
+        self.assertEquals(success_response.status_code, 200)
+        success_response_data = json.loads(success_response.data)
+        self.assertTrue(success_response_data['success'])
+        self.assertTrue('tournament_id' in success_response_data)
+        new_tournament_id = success_response_data['tournament_id']
+        # finalized tournament gets a new id
+        self.assertIsNotNone(new_tournament_id)
+        self.assertNotEquals(new_tournament_id, pending_tournament_id_1)
+
+        # check final list of tournaments
+        tournaments_list_2 = self.norcal_dao.get_all_tournaments()
+        tournaments_ids_2 = set([ str(tournament.id) for tournament in tournaments_list_2])
+        self.assertTrue(str(new_tournament_id) in tournaments_ids_2)
+        self.assertFalse(str(pending_tournament_id_1) in tournaments_ids_2)
+        self.assertFalse(str(pending_tournament_id_3) in tournaments_ids_2)
+
+        pending_tournaments_list_2 = self.norcal_dao.get_all_pending_tournaments()
+        pending_tournaments_ids_2 = set(
+            [str(tournament.id) for tournament in pending_tournaments_list_2])
+
+        self.assertFalse(str(new_tournament_id) in pending_tournaments_ids_2)
+        self.assertFalse(str(pending_tournament_id_1) in pending_tournaments_ids_2)
+        self.assertTrue(str(pending_tournament_id_3) in pending_tournaments_ids_2)
+
+        # cleanup
+        for player in players:
+            self.norcal_dao.delete_player(player)
+
+        self.norcal_dao.delete_pending_tournament(pending_tournament_3)
+        self.norcal_dao.delete_tournament(pending_tournament_1)
+        self.texas_dao.delete_pending_tournament(pending_tournament_2)
+
     def test_get_tournament(self):
         tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(tournament.id)).data

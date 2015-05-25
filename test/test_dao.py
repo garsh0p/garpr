@@ -458,6 +458,20 @@ class TestDAO(unittest.TestCase):
         with self.assertRaises(UpdateTournamentException):
             self.norcal_dao.update_tournament(tournament_2)
 
+    def test_delete_tournament(self):
+        tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
+        # make a copy with a new id
+        new_id = ObjectId()
+        tournament.id = new_id
+        self.norcal_dao.insert_tournament(tournament)
+
+        tournament_copy = self.norcal_dao.get_tournament_by_id(new_id)
+        self.assertIsNotNone(tournament_copy)
+
+        self.norcal_dao.delete_tournament(tournament)
+        deleted_tournament = self.norcal_dao.get_tournament_by_id(new_id)
+        self.assertIsNone(deleted_tournament)
+
     def test_get_all_tournament_ids(self):
         tournament_ids = self.norcal_dao.get_all_tournament_ids()
 

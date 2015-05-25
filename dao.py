@@ -176,6 +176,10 @@ class Dao(object):
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
+    # used only in tests
+    def delete_tournament(self, tournament):
+        return self.tournaments_col.remove({'_id': tournament.id})
+
     def get_all_tournament_ids(self, players=None, regions=None):
         '''players is a list of Players'''
         query_dict = {}

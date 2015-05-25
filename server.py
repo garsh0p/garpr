@@ -500,15 +500,17 @@ class FinalizeTournamentResource(restful.Resource):
 
         pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
         if not pending_tournament:
-            return "No pending tournament found with that id.", 400
+            return 'No pending tournament found with that id.', 400
         elif not is_user_admin_for_regions(user, pending_tournament.regions):
             return 'Permission denied', 403
         
         try:
             tournament = Tournament.from_pending_tournament(pending_tournament)
-            dao.insert_tournament(tournament)
+            tournament_id = dao.insert_tournament(tournament)
+            dao.delete_pending_tournament(pending_tournament)
+            return {"success": True, "tournament_id": str(tournament_id)}
         except ValueError:
-            return "Not all player aliases in this pending tournament have been mapped to player ids.", 400
+            return 'Not all player aliases in this pending tournament have been mapped to player ids.', 400
 
 class RankingsResource(restful.Resource):
     def get(self, region):
@@ -646,7 +648,7 @@ api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
-api.add_resource(FinalizeTournamentResource, '<string:region>/tournaments/<string:id>/finalize')
+api.add_resource(FinalizeTournamentResource, '/<string:region>/tournaments/<string:id>/finalize')
 
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
