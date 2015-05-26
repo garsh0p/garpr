@@ -155,17 +155,20 @@ app.service('SessionService', function($http) {
                 $http.post(url, data).success(successCallback).error(failureCallback);
             }
         },
-        authenticatedPut: function(url, successCallback) {
+        authenticatedPut: function(url, successCallback, data) {
+            if (data === undefined) {
+                data = {};
+            }
             if (this.accessToken != null) {
                 config = {
                     headers: {
                         'Authorization': this.accessToken
                     }
                 }
-                $http.put(url, {}, config).success(successCallback);
+                $http.put(url, data, config).success(successCallback);
             }
             else {
-                $http.put(url, {}).success(successCallback);
+                $http.put(url, data).success(successCallback);
             }
         },
         authenticatedDelete: function(url, successCallback) {
@@ -454,21 +457,11 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.onPlayerCheckboxChange = function(playerAlias) {
-        console.log($scope.tournament.alias_to_id_map);
-        console.log($scope.playerData);
-
-        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/alias_map/' + playerAlias;
-        if ($scope.playerCheckboxState[playerAlias]) {   
-            $scope.sessionService.authenticatedPost(url, {"player_id": null}, $scope.updateData);
-        } else {
-            $scope.sessionService.authenticatedDelete(url, $scope.updateData);
-        }
+        $scope.put_tournament_from_ui()
     };
 
     $scope.playerSelected = function(playerAlias, $item) {
-        console.log($scope.tournament.alias_to_id_map);
-        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/alias_map/' + playerAlias;
-        $scope.sessionService.authenticatedPost(url, {"player_id": $item.id}, $scope.updateData);
+        $scope.put_tournament_from_ui()
     };
 
     $scope.prettyPrintRegionListForPlayer = function(player) {
@@ -488,6 +481,27 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
 
         return retString
     };
+
+    $scope.update_alias_map_from_ui = function() {
+        var alias_map = {}
+        for (var player in $scope.playerCheckboxState) {
+            if ($scope.playerCheckboxState[player] === true) {
+                alias_map[player] = null;
+                delete $scope.playerData[player];
+            }
+        }
+        for (var player in $scope.playerData){
+            alias_map[player] = $scope.playerData[player].id
+        }
+        $scope.tournament.alias_to_id_map = alias_map;
+    };
+
+    $scope.put_tournament_from_ui = function() {
+        $scope.update_alias_map_from_ui()
+        console.log($scope.tournament.alias_to_id_map);
+        url = hostname + $routeParams.region + '/pending_tournaments/' + $scope.tournamentId;
+        $scope.sessionService.authenticatedPut(url, $scope.updateData, $scope.tournament);
+    }
 
     $scope.updateData = function(data) {
         $scope.tournament = data;
