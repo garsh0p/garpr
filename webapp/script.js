@@ -93,7 +93,7 @@ app.service('PlayerService', function($http) {
             }
             return null;
         },
-        getPlayerListFromQuery: function(query) {
+        getPlayerListFromQuery: function(query, filter_fn) {
             // region doesn't matter here, so we hardcode norcal
             url = hostname + 'norcal/players';
             params = {
@@ -103,7 +103,17 @@ app.service('PlayerService', function($http) {
             }
 
             return $http.get(url, params).then(function(response) {
-                return response.data.players;
+                players = response.data.players;
+                if (filter_fn != undefined) {
+                    filtered_players = []
+                    for (var i = 0; i < players.length; i++) {
+                        if (filter_fn(players[i])) {
+                            filtered_players.push(players[i])
+                        }
+                    }
+                    players = filtered_players;
+                }
+                return players;
             });
         }
     };
@@ -526,12 +536,14 @@ app.controller("PlayersController", function($scope, $routeParams, RegionService
     $scope.playerService = PlayerService;
 });
 
-app.controller("PlayerDetailController", function($scope, $http, $routeParams, $modal, RegionService, SessionService) {
+app.controller("PlayerDetailController", function($scope, $http, $routeParams, $modal, RegionService, SessionService, PlayerService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.sessionService = SessionService;
+    $scope.playerService = PlayerService;
 
     $scope.playerId = $routeParams.playerId;
+    $scope.mergePlayer = "";
     $scope.modalInstance = null;
 
     $scope.open = function() {
@@ -564,6 +576,25 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
             $scope.sessionService.authenticatedDelete(url, successCallback);
         }
     };
+
+    $scope.submitMerge = function() {
+        if ($scope.mergePlayer.id === undefined) {
+            alert("You must select a player to merge");
+            return;
+        }
+        url = hostname + $routeParams.region + '/merges';
+        params = {"base_player_id": $scope.playerId, "to_be_merged_player_id": $scope.mergePlayer.id};
+        console.log(params);
+        $scope.sessionService.authenticatedPost(url, params, 
+            function() {alert("Your merge request has been sent. A site admin will process it soon.")}, 
+            function() {alert("Your merge request didn't go through. Please try again later.")});
+    };
+
+    $scope.getMergePlayers = function(viewValue) {
+        players = $scope.playerService.getPlayerListFromQuery(viewValue, 
+            function(player) {return player.id != $scope.playerId});
+        return players;
+    }
 
     $http.get(hostname + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
