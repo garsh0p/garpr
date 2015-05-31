@@ -1284,6 +1284,7 @@ class TestServer(unittest.TestCase):
 
     @patch('server.get_user_from_access_token')
     def test_post_not_admin(self, mock_get_user_from_access_token):
+        self.user.admin_regions = []
         mock_get_user_from_access_token.return_value = self.user
         dao = self.texas_dao
         all_players = dao.get_all_players()
@@ -1292,7 +1293,7 @@ class TestServer(unittest.TestCase):
         raw_dict = {'base_player_id': str(player_one.id), 'to_be_merged_player_id' : str(player_two.id) }
         test_data = json.dumps(raw_dict)
         rv = self.app.post('/texas/merges', data=str(test_data), content_type='application/json')
-        self.assertEquals(rv.data, "\"user is not an admin for this region\"")
+        self.assertEquals(rv.data, "\"user is not an admin\"")
 
     @patch('server.get_user_from_access_token')
     def test_post_merge_invalid_id(self, mock_get_user_from_access_token):
