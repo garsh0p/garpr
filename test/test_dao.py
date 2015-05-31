@@ -732,3 +732,32 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(user.full_name, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 
+    def test_get_and_insert_pending_merge(self):
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        player_two = all_players[1]
+        users = dao.get_all_users()
+        user = users[0]
+        now = datetime.today()
+        orig_id = ObjectId()
+        the_merge = Merge(user.id, player_one.id, player_two.id, now, id=orig_id)
+
+        merge_id = dao.insert_pending_merge(the_merge)
+
+        self.assertTrue(merge_id)
+        self.assertIsInstance(merge_id, ObjectId)
+        self.assertEqual(merge_id, orig_id)
+
+        the_merge_redux = dao.get_pending_merge(merge_id)
+
+        self.assertEqual(the_merge.base_player_obj_id, the_merge_redux.base_player_obj_id, msg=the_merge_redux)
+        self.assertEqual(the_merge.player_to_be_merged_obj_id, the_merge_redux.player_to_be_merged_obj_id)
+        self.assertEqual(the_merge.id, the_merge_redux.id)
+        self.assertEqual(the_merge.requester_user_id, the_merge_redux.requester_user_id)
+        # changed to account for mongo driver losing sub-second accuracy on datetimes
+        self.assertTrue(abs(the_merge.time - the_merge_redux.time).total_seconds() < 1)
+
+    def test_get_non_existant_merge(self):
+        dao = self.norcal_dao
+        self.assertIsNone(dao.get_pending_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope

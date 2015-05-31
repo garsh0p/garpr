@@ -13,7 +13,7 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, PendingTournament
+from model import MatchResult, PendingTournament, Merge
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
@@ -52,6 +52,10 @@ tournament_put_parser.add_argument('date', type=int)
 tournament_put_parser.add_argument('players', type=list)
 tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
+
+merges_put_parser = reqparse.RequestParser()
+merges_put_parser.add_argument('base_player_id', type=str)
+merges_put_parser.add_argument('to_be_merged_player_id', type=str)
 
 class InvalidAccessToken(Exception):
     pass
@@ -549,6 +553,41 @@ class CurrentUserResource(restful.Resource):
         del return_dict['_id']
 
         return return_dict
+
+class PendingMergesResource(restful.Resource):
+    def get(self):
+        #TODO: decide if we want to implement this
+        pass
+
+    def post(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        requesting_user = get_user_from_access_token(request.headers, dao)
+        if not requesting_user.admin_regions: #wow, such auth
+            return "user is not an admin", 403
+        args = merges_put_parser.parse_args() #parse args
+        try:
+            base_player_id = ObjectId(args['base_player_id'])
+            to_be_merged_player_id = ObjectId(args['to_be_merged_player_id'])
+        except:
+            return "invalid ids, that wasn't an ObjectID", 400
+        # the above should validate that we have real objectIDs
+        # now lets validate that both of those players exist
+        if not dao.get_player_by_id(base_player_id):
+            return "base_player not found", 400
+        if not dao.get_player_by_id(to_be_merged_player_id):
+            return "to_be_merged_player not found", 400
+        #get curr time
+        now = datetime.now()
+        #create a new merge object
+        the_merge = Merge(requesting_user.id, base_player_id, to_be_merged_player_id, now)
+        #store it in the dao
+        merge_id = dao.insert_pending_merge(the_merge)
+        string_rep = str(merge_id)
+        return_dict = {'id': string_rep}
+        return return_dict, 200
+
+
+api.add_resource(PendingMergesResource, '/<string:region>/merges')
 
 api.add_resource(RegionListResource, '/regions')
 

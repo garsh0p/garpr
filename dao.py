@@ -13,6 +13,7 @@ RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
+PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -42,6 +43,7 @@ class Dao(object):
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
+        self.pending_merges_col = mongo_client[database_name][PENDING_MERGES_COLLECTION_NAME]
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -235,6 +237,12 @@ class Dao(object):
         ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
         return [Player.from_json(p) for p in ret]
 
+    def insert_pending_merge(self, the_merge):
+        return self.pending_merges_col.insert(the_merge.get_json_dict())
+
+    def get_pending_merge(self, merge_id):
+        info = self.pending_merges_col.find_one({'_id' : merge_id})
+        return Merge.from_json(info)
 
     # TODO reduce db calls for this
     def merge_players(self, source=None, target=None):
