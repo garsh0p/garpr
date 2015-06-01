@@ -436,7 +436,7 @@ class TournamentResource(restful.Resource):
             tournament.regions = args['regions']
 
         dao.update_tournament(tournament)
-        return {"success": True}
+        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
     def delete(self, region, id):
         """ Deletes a pending tournament.
