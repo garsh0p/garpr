@@ -41,3 +41,10 @@ You probably want to change the `hostname` variable in `webapp/script.js` and se
 	}
 
 Browse to localhost:8000 to view the application.
+
+
+Running Tests
+======================
+This runs the tests. Make sure you are running mongod without authentification.
+
+    bash run_tests.sh
