@@ -497,8 +497,6 @@ class TournamentRegionResource(restful.Resource):
             dao.update_tournament(tournament)
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
-
-<<<<<<< HEAD
     
 
 class PendingTournamentListResource(restful.Resource):

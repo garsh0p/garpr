@@ -1288,7 +1288,6 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.data, '"Permission denied"')
 
     @patch('server.get_user_from_access_token')
-<<<<<<< HEAD
     def test_post_pending_merge(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
         dao = self.norcal_dao
@@ -1356,7 +1355,7 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
-=======
+
     def test_post_tournament_from_challonge(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
         dao = self.norcal_dao
