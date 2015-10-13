@@ -341,6 +341,12 @@ class PendingTournament(object):
             'player_alias': alias,
             'player_id': id
         })
+
+    def delete_alias_id_mapping(self, alias):
+        for mapping in self.alias_to_id_map:
+            if mapping['player_alias'] == alias:
+                self.alias_to_id_map.remove(mapping)
+                return mapping
             
     @classmethod
     def from_scraper(cls, type, scraper, region_id):

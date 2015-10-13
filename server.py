@@ -15,7 +15,7 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, PendingTournament, Merge
+from model import MatchResult, PendingTournament, Merge, User
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
@@ -69,6 +69,14 @@ tournament_import_parser.add_argument('bracket_type', type=str, required=True, h
 tournament_import_parser.add_argument('challonge_url', type=str)
 tournament_import_parser.add_argument('tio_file', type=str)
 tournament_import_parser.add_argument('tio_bracket_name', type=str)
+
+pending_tournament_put_parser = reqparse.RequestParser()
+pending_tournament_put_parser.add_argument('name', type=str)
+pending_tournament_put_parser.add_argument('players', type=list)
+pending_tournament_put_parser.add_argument('matches', type=list)
+pending_tournament_put_parser.add_argument('regions', type=list)
+pending_tournament_put_parser.add_argument('alias_to_id_map', type=dict)
+
 
 class InvalidAccessToken(Exception):
     pass
@@ -399,6 +407,16 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
 
     return return_dict
 
+def convert_request_to_pending_tournament(data):
+    alias_to_id_map = []
+    for player_alias, player_id in data["alias_to_id_map"].items():
+        alias_to_id_map.append({
+            "player_alias": player_alias, 
+            "player_id": ObjectId(player_id) if player_id is not None else player_id
+        })
+    data["alias_to_id_map"] = alias_to_id_map
+    return data
+
 class TournamentResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
@@ -480,6 +498,7 @@ class TournamentRegionResource(restful.Resource):
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
+<<<<<<< HEAD
     
 
 class PendingTournamentListResource(restful.Resource):
@@ -555,6 +574,25 @@ class TournamentImportResource(restful.Resource):
                 "error": "Unknown server error while importing tournament: " + str(e)
                 }, 500
 
+class PendingTournamentResource(restful.Resource):
+    def put(self, region, id):
+        """
+            Currently only updates the alias_to_id_map in the pending tournament
+        """
+        dao = Dao(region, mongo_client=mongo_client)
+        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not pending_tournament:
+            return "No pending tournament found with that id.", 400
+
+        user = get_user_from_access_token(request.headers, dao)
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
+        args = pending_tournament_put_parser.parse_args()
+        data = convert_request_to_pending_tournament(args)
+        pending_tournament.alias_to_id_map = data["alias_to_id_map"]
+        dao.update_pending_tournament(pending_tournament)
+        response = convert_pending_tournament_to_response(pending_tournament, dao)
+        return response 
 
 class RankingsResource(restful.Resource):
     def get(self, region):
@@ -692,6 +730,7 @@ api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
+api.add_resource(PendingTournamentResource, '/<string:region>/pending_tournaments/<string:id>')
 
 api.add_resource(TournamentImportResource, '/<string:region>/tournaments/new')
 api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')

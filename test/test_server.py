@@ -637,6 +637,31 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
+    @patch('server.get_user_from_access_token')
+    def test_put_alias_mapping(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        self.assertEquals(pending_tournament.regions, ['norcal'])
+
+        player_tag = pending_tournament.players[0]
+        real_player = self.norcal_dao.get_all_players()[0]
+        mapping = {"player_alias": player_tag, "player_id": real_player.id}
+        self.assertFalse(mapping in pending_tournament.alias_to_id_map)
+
+        pending_tournament.set_alias_id_mapping(player_tag, real_player.id)
+        pending_tournament_json = server.convert_pending_tournament_to_response(pending_tournament, self.norcal_dao)
+
+        # test put
+        response = self.app.put('/norcal/pending_tournaments/' + str(pending_tournament.id), 
+            data=json.dumps(pending_tournament_json), content_type='application/json')
+        json_data = json.loads(response.data)
+
+        self.assertEquals(str(pending_tournament.id), json_data['id'])
+
+        pending_tournament_from_db = self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id']))
+        self.assertIsNotNone(pending_tournament)
+        self.assertTrue(mapping in pending_tournament_from_db.alias_to_id_map)
+
     def test_get_rankings(self):
         data = self.app.get('/norcal/rankings').data
         json_data = json.loads(data)
