@@ -492,9 +492,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
-    @patch('server.get_user_from_access_token')
-    def test_finalize_tournament(self, mock_get_user_from_access_token):
-        mock_get_user_from_access_token.return_value = self.user
+    def setup_finalize_tournament_fixtures(self):
         player_1_id = ObjectId()
         player_2_id = ObjectId()
         player_3_id = ObjectId()
@@ -575,7 +573,7 @@ class TestServer(unittest.TestCase):
         pending_tournament_2.set_alias_id_mapping(player_1_name, player_1_id)
         pending_tournament_2.set_alias_id_mapping(player_2_name, player_2_id)
 
-        # incompletely mapped pending touranment
+        # incompletely mapped pending tournament
         pending_tournament_id_3 = ObjectId()
         pending_tournament_3 = PendingTournament( 'tio',
                                                   'raw',
@@ -597,24 +595,40 @@ class TestServer(unittest.TestCase):
         self.norcal_dao.insert_pending_tournament(pending_tournament_3)
         self.texas_dao.insert_pending_tournament(pending_tournament_2)
 
-        # check initial list of tournaments
-        tournaments_list_1 = self.norcal_dao.get_all_tournaments()
-        tournaments_ids_1 = set([ str(tournament.id) for tournament in tournaments_list_1])
-        self.assertFalse(str(pending_tournament_id_1) in tournaments_ids_1)
-        self.assertFalse(str(pending_tournament_id_3) in tournaments_ids_1)
+        # return players and pending tournaments for test use and cleanup
+        # pending tournaments are padded by 0 so indices work out nicely
+        return {
+            "players": players,
+            "pending_tournaments": (0, pending_tournament_1, pending_tournament_2, pending_tournament_3)
+        }
 
-        pending_tournaments_list_1 = self.norcal_dao.get_all_pending_tournaments()
-        pending_tournaments_ids_1 = set(
-            [str(tournament.id) for tournament in pending_tournaments_list_1])
+    def cleanup_finalize_tournament_fixtures(self, fixtures):
+        for player in fixtures["players"]:
+            self.norcal_dao.delete_player(player)
+        tmp, pending_tournament_1, pending_tournament_2, pending_tournament_3 = fixtures["pending_tournaments"]
 
-        self.assertTrue(str(pending_tournament_id_1) in pending_tournaments_ids_1)
-        self.assertTrue(str(pending_tournament_id_3) in pending_tournaments_ids_1)
+        self.norcal_dao.delete_pending_tournament(pending_tournament_1)
+        self.norcal_dao.delete_pending_tournament(pending_tournament_3)
+        self.texas_dao.delete_pending_tournament(pending_tournament_2)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_tournament_incorrect_region(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+        mock_get_user_from_access_token.return_value = self.user
 
         # incorrect region
         no_permissions_response = self.app.post(
-            '/texas/tournaments/' + str(pending_tournament_id_2) + '/finalize')
+            '/texas/tournaments/' + str(fixture_pending_tournaments[2].id) + '/finalize')
         self.assertEquals(no_permissions_response.status_code, 403)
         self.assertEquals(no_permissions_response.data, '"Permission denied"')
+
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_nonexistent_tournament(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        mock_get_user_from_access_token.return_value = self.user
 
         # no pending tournament with this id
         missing_response = self.app.post('/norcal/tournaments/' + str(ObjectId()) + '/finalize')
@@ -622,15 +636,34 @@ class TestServer(unittest.TestCase):
         self.assertEquals(missing_response.data,
             '"No pending tournament found with that id."')
 
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_incompletely_mapped_tournament(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+        mock_get_user_from_access_token.return_value = self.user
+
         # alias_to_id_map doesn't map each alias
         incomplete_response = self.app.post(
-            '/norcal/tournaments/' + str(pending_tournament_id_3) + '/finalize')
+            '/norcal/tournaments/' + str(fixture_pending_tournaments[3].id) + '/finalize')
         self.assertEquals(incomplete_response.status_code, 400)
         self.assertEquals(incomplete_response.data,
             '"Not all player aliases in this pending tournament have been mapped to player ids."')
 
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_tournament(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+        mock_get_user_from_access_token.return_value = self.user
+
+        print "1 2 3 ids: " + str([t.id for t in fixture_pending_tournaments[1:]])
+
+        # finalize first pending tournament
         success_response = self.app.post(
-            '/norcal/tournaments/' + str(pending_tournament_id_1) + '/finalize')
+            '/norcal/tournaments/' + str(fixture_pending_tournaments[1].id) + '/finalize')
         self.assertEquals(success_response.status_code, 200)
         success_response_data = json.loads(success_response.data)
         self.assertTrue(success_response_data['success'])
@@ -638,30 +671,29 @@ class TestServer(unittest.TestCase):
         new_tournament_id = success_response_data['tournament_id']
         # finalized tournament gets a new id
         self.assertIsNotNone(new_tournament_id)
-        self.assertNotEquals(new_tournament_id, pending_tournament_id_1)
+        self.assertNotEquals(new_tournament_id, fixture_pending_tournaments[1].id)
+
+        print "NEW", new_tournament_id
 
         # check final list of tournaments
-        tournaments_list_2 = self.norcal_dao.get_all_tournaments()
-        tournaments_ids_2 = set([ str(tournament.id) for tournament in tournaments_list_2])
-        self.assertTrue(str(new_tournament_id) in tournaments_ids_2)
-        self.assertFalse(str(pending_tournament_id_1) in tournaments_ids_2)
-        self.assertFalse(str(pending_tournament_id_3) in tournaments_ids_2)
+        tournaments_list_response = self.app.get('/norcal/tournaments?includePending=false')
+        self.assertEquals(tournaments_list_response.status_code, 200)
+        tournaments_data = json.loads(tournaments_list_response.data)
+        tournaments_ids = set([str(tournament['id']) for tournament in tournaments_data['tournaments']])
+        self.assertTrue(str(new_tournament_id) in tournaments_ids)
+        self.assertFalse(str(fixture_pending_tournaments[1].id) in tournaments_ids)
+        self.assertFalse(str(fixture_pending_tournaments[3].id) in tournaments_ids)
 
-        pending_tournaments_list_2 = self.norcal_dao.get_all_pending_tournaments()
-        pending_tournaments_ids_2 = set(
-            [str(tournament.id) for tournament in pending_tournaments_list_2])
+        pending_tournaments_list_response = self.app.get('/norcal/tournaments?includePending=true')
+        self.assertEquals(pending_tournaments_list_response.status_code, 200)
+        pending_tournaments_data = json.loads(pending_tournaments_list_response.data)
+        pending_tournaments_ids = set([str(tournament['id']) for tournament in pending_tournaments_data['tournaments']])
 
-        self.assertFalse(str(new_tournament_id) in pending_tournaments_ids_2)
-        self.assertFalse(str(pending_tournament_id_1) in pending_tournaments_ids_2)
-        self.assertTrue(str(pending_tournament_id_3) in pending_tournaments_ids_2)
+        self.assertTrue(str(new_tournament_id) in pending_tournaments_ids)
+        self.assertFalse(str(fixture_pending_tournaments[1].id) in pending_tournaments_ids)
+        self.assertTrue(str(fixture_pending_tournaments[3].id) in pending_tournaments_ids)
 
-        # cleanup
-        for player in players:
-            self.norcal_dao.delete_player(player)
-
-        self.norcal_dao.delete_pending_tournament(pending_tournament_3)
-        self.norcal_dao.delete_tournament(pending_tournament_1)
-        self.texas_dao.delete_pending_tournament(pending_tournament_2)
+        self.cleanup_finalize_tournament_fixtures(fixtures)
 
     def test_get_tournament(self):
         tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]

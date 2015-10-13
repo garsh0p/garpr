@@ -236,6 +236,7 @@ class Tournament(object):
                 json_dict['regions'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
+    # TODO "sanity checks"
     @classmethod
     def from_pending_tournament(cls, pending_tournament):
         # takes a real alias to id map instead of a list of objects
