@@ -390,16 +390,8 @@ class TestDAO(unittest.TestCase):
 
     def test_delete_pending_tournament(self):
         pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
-        # make a copy with a new id
-        new_id = ObjectId()
-        pending_tournament.id = new_id
-        self.norcal_dao.insert_pending_tournament(pending_tournament)
-
-        pending_tournament_copy = self.norcal_dao.get_pending_tournament_by_id(new_id)
-        self.assertIsNotNone(pending_tournament_copy)
-
         self.norcal_dao.delete_pending_tournament(pending_tournament)
-        deleted_tournament = self.norcal_dao.get_pending_tournament_by_id(new_id)
+        deleted_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
         self.assertIsNone(deleted_tournament)
 
     def test_update_tournament(self):
@@ -460,16 +452,8 @@ class TestDAO(unittest.TestCase):
 
     def test_delete_tournament(self):
         tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
-        # make a copy with a new id
-        new_id = ObjectId()
-        tournament.id = new_id
-        self.norcal_dao.insert_tournament(tournament)
-
-        tournament_copy = self.norcal_dao.get_tournament_by_id(new_id)
-        self.assertIsNotNone(tournament_copy)
-
         self.norcal_dao.delete_tournament(tournament)
-        deleted_tournament = self.norcal_dao.get_tournament_by_id(new_id)
+        deleted_tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
         self.assertIsNone(deleted_tournament)
 
     def test_get_all_tournament_ids(self):

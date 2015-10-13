@@ -1,9 +1,6 @@
 from bson import json_util
 import json
 import trueskill
-import traceback
-import sys
-
 
 class TrueskillRating(object):
     def __init__(self, trueskill_rating=None):
@@ -244,15 +241,11 @@ class Tournament(object):
         # takes a real alias to id map instead of a list of objects
         def _get_player_id_from_map_or_throw(alias_to_id_map, alias):
             if alias in alias_to_id_map:
-                if alias_to_id_map[alias] is None:
-                    raise ValueError('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
-                else:
-                    return alias_to_id_map[alias]
-                       
-            # we've exhausted the map and we haven't found a match
-            raise ValueError('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
+                return alias_to_id_map[alias]
+            else:
+                raise ValueError('Alias %s has no ID in map\n: %s' % (alias, alias_to_id_map))
 
-        alias_to_id_map = dict([(entry['player_alias'], entry['player_id']) for entry in pending_tournament.alias_to_id_map])
+        alias_to_id_map = dict([(entry['player_alias'], entry['player_id']) for entry in pending_tournament.alias_to_id_map if entry['player_id'] is not None])
 
         # we need to convert pending tournament players/matches to player IDs
         players = [_get_player_id_from_map_or_throw(alias_to_id_map, p) for p in pending_tournament.players]

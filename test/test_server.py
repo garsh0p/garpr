@@ -1154,13 +1154,31 @@ class TestServer(unittest.TestCase):
         raw_dict = {'name': new_tourney_name, 'date': new_date.toordinal(), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
         test_data = json.dumps(raw_dict)
 
+        # add new players to dao
+        player1_obj = Player('testshroomed', ['testshroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=player1)
+        player2_obj = Player('testpewpewu', ['testpewpewu'], {'norcal': TrueskillRating()}, ['norcal', 'socal'], id=player2)
+        dao.insert_player(player1_obj)
+        dao.insert_player(player2_obj)
+
         # try overwriting all its writeable attributes: date players matches regions
         rv = self.app.put('/norcal/tournaments/' + str(tourney_id), data=test_data, content_type='application/json')
         self.assertEqual(rv.status, '200 OK')
+        json_data = json.loads(rv.data)
+
+        # check that things are correct
+        self.assertEquals(json_data['name'], new_tourney_name)
+        self.assertEquals(json_data['date'], new_date.strftime('%m/%d/%y'))
+        for m1, m2 in zip(json_data['matches'], new_matches):
+            self.assertEqual(m1['winner_id'], str(m2.winner))
+            self.assertEqual(m1['loser_id'], str(m2.loser))
+        for p1, p2 in zip(json_data['players'], new_players):
+            self.assertEqual(p1['id'], str(p2))
+        self.assertEquals(set(json_data['regions']), set(new_regions))
+
         the_tourney = dao.get_tournament_by_id(tourney_id)
-        self.assertEquals(the_tourney.name, new_tourney_name)
+        self.assertEquals(new_tourney_name, the_tourney.name)
         self.assertEquals(new_date.toordinal(), the_tourney.date.toordinal())
-        for m1,m2 in zip(new_matches, the_tourney.matches):
+        for m1, m2 in zip(new_matches, the_tourney.matches):
             self.assertEqual(m1.winner, m2.winner)
             self.assertEqual(m1.loser, m2.loser)
 
