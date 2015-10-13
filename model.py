@@ -260,7 +260,8 @@ class Tournament(object):
                 pending_tournament.name,
                 players,
                 pending_tournament.matches,
-                pending_tournament.regions)
+                pending_tournament.regions,
+                pending_tournament.id)
 
     # TODO this should go away as we should never build a Tournament straight from a scraper
     # it should be from a PendingTournament

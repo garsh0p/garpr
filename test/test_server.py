@@ -659,8 +659,6 @@ class TestServer(unittest.TestCase):
         fixture_pending_tournaments = fixtures["pending_tournaments"]
         mock_get_user_from_access_token.return_value = self.user
 
-        print "1 2 3 ids: " + str([t.id for t in fixture_pending_tournaments[1:]])
-
         # finalize first pending tournament
         success_response = self.app.post(
             '/norcal/tournaments/' + str(fixture_pending_tournaments[1].id) + '/finalize')
@@ -669,11 +667,9 @@ class TestServer(unittest.TestCase):
         self.assertTrue(success_response_data['success'])
         self.assertTrue('tournament_id' in success_response_data)
         new_tournament_id = success_response_data['tournament_id']
-        # finalized tournament gets a new id
+        # finalized tournament gets the same id
         self.assertIsNotNone(new_tournament_id)
-        self.assertNotEquals(new_tournament_id, fixture_pending_tournaments[1].id)
-
-        print "NEW", new_tournament_id
+        self.assertEquals(new_tournament_id, str(fixture_pending_tournaments[1].id))
 
         # check final list of tournaments
         tournaments_list_response = self.app.get('/norcal/tournaments?includePending=false')
@@ -681,7 +677,6 @@ class TestServer(unittest.TestCase):
         tournaments_data = json.loads(tournaments_list_response.data)
         tournaments_ids = set([str(tournament['id']) for tournament in tournaments_data['tournaments']])
         self.assertTrue(str(new_tournament_id) in tournaments_ids)
-        self.assertFalse(str(fixture_pending_tournaments[1].id) in tournaments_ids)
         self.assertFalse(str(fixture_pending_tournaments[3].id) in tournaments_ids)
 
         pending_tournaments_list_response = self.app.get('/norcal/tournaments?includePending=true')
@@ -690,7 +685,6 @@ class TestServer(unittest.TestCase):
         pending_tournaments_ids = set([str(tournament['id']) for tournament in pending_tournaments_data['tournaments']])
 
         self.assertTrue(str(new_tournament_id) in pending_tournaments_ids)
-        self.assertFalse(str(fixture_pending_tournaments[1].id) in pending_tournaments_ids)
         self.assertTrue(str(fixture_pending_tournaments[3].id) in pending_tournaments_ids)
 
         self.cleanup_finalize_tournament_fixtures(fixtures)
