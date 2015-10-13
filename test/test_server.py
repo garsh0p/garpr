@@ -11,6 +11,7 @@ from bson.objectid import ObjectId
 import requests
 from datetime import datetime
 import facebook
+import string
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -1262,6 +1263,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.data, '"Permission denied"')
 
     @patch('server.get_user_from_access_token')
+<<<<<<< HEAD
     def test_post_pending_merge(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
         dao = self.norcal_dao
@@ -1329,3 +1331,82 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
+=======
+    def test_post_tournament_from_challonge(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #then try sending a valid tio tournament and see if it works
+        with open('test/data/Justice4.tio') as f:
+            raw_dict['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
+        raw_dict['tournament_name'] = "Justice4"
+        raw_dict['bracket_type'] = "tio"
+        raw_dict['tio_bracket_name'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 201, msg=response.data)
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['pending_tournament_id']))
+
+        self.assertEqual(the_tourney.name, "Justice4")
+        self.assertEqual(len(the_tourney.players), 48)
+
+        self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
+        self.assertEquals(the_tourney.type, 'tio')
+        self.assertEquals(the_tourney.regions, ['norcal'])
+
+        #let's spot check and make sure hax vs armada happens twice
+        sweden_wins_count = 0
+        for m in the_tourney.matches:
+            if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+                sweden_wins_count += 1
+        self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
+        pass
+
+    @patch('server.get_user_from_access_token')
+    def test_post_tournament_from_challonge_without_trim(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #then try sending a valid tio tournament and see if it works
+        with open('test/data/Justice4.tio') as f:
+            raw_dict['tio_file'] = f.read() #NO TRIM BB
+        raw_dict['tournament_name'] = "Justice4"
+        raw_dict['bracket_type'] = "tio"
+        raw_dict['tio_bracket_name'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 201, msg=response.data)
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['pending_tournament_id']))
+
+        self.assertEqual(the_tourney.name, "Justice4")
+        self.assertEqual(len(the_tourney.players), 48)
+
+        self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
+        self.assertEquals(the_tourney.type, 'tio')
+        self.assertEquals(the_tourney.regions, ['norcal'])
+
+        #let's spot check and make sure hax vs armada happens twice
+        sweden_wins_count = 0
+        for m in the_tourney.matches:
+            if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+                sweden_wins_count += 1
+        self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
+        pass
+
+
+    #TODOskis
+    #okay first, try sending a valid challonge tournament and seeing if it works
+        #then try type mismatch, sending challonge but give tio data
+        #then try type mismatch send tio but give challonge
+        #try tio w/o tio_file
+        #try tio w/o bracket_name
+        #try tio with invalid tio data
+        #try challonge w/o challonge_url

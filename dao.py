@@ -17,6 +17,7 @@ PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
 
 special_chars = re.compile("[^\w\s]*")
 
+
 class RegionNotFoundException(Exception):
     pass
 
@@ -44,6 +45,7 @@ class Dao(object):
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.pending_merges_col = mongo_client[database_name][PENDING_MERGES_COLLECTION_NAME]
+
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -127,6 +129,17 @@ class Dao(object):
 
         player.name = name
         return self.update_player(player)
+#jiang code
+    def insert_pending_tournament(self, tournament):
+        the_json = tournament.get_json_dict()
+        return self.pending_tournaments_col.insert(the_json)
+
+    def update_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+
+    def get_all_pending_tournament_jsons(self, regions=None):
+        query_dict = {'regions': {'$in': regions}} if regions else {}
+        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
 
     def insert_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
@@ -160,6 +173,7 @@ class Dao(object):
             pending_tournament['raw'] = ''
 
         return [PendingTournament.from_json(t) for t in pending_tournaments]
+
 
     def get_pending_tournament_by_id(self, id):
         '''id must be an ObjectId'''

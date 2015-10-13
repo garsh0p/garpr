@@ -443,7 +443,7 @@ class TestDAO(unittest.TestCase):
 
         with self.assertRaises(UpdateTournamentException):
             self.norcal_dao.update_tournament(tournament_2)
-
+            
     def test_get_all_tournament_ids(self):
         tournament_ids = self.norcal_dao.get_all_tournament_ids()
 

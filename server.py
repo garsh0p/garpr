@@ -2,11 +2,13 @@ from flask import Flask, request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
+from werkzeug.datastructures import FileStorage
 from dao import Dao
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 import sys
 import rankings
+import tournament_import_service as tournament_import
 from pymongo import MongoClient
 import requests
 import os
@@ -18,6 +20,7 @@ import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
 import alias_service
+from StringIO import StringIO
 
 DEBUG_TOKEN_URL = 'https://graph.facebook.com/debug_token?input_token=%s&access_token=%s'
 TYPEAHEAD_PLAYER_LIMIT = 20
@@ -41,6 +44,9 @@ tournament_list_get_parser.add_argument('includePending', type=str)
 matches_get_parser = reqparse.RequestParser()
 matches_get_parser.add_argument('opponent', type=str)
 
+rankings_get_parser = reqparse.RequestParser()
+rankings_get_parser.add_argument('generateNew', type=str)
+
 player_put_parser = reqparse.RequestParser()
 player_put_parser.add_argument('name', type=str)
 player_put_parser.add_argument('aliases', type=list)
@@ -56,6 +62,13 @@ tournament_put_parser.add_argument('regions', type=list)
 merges_put_parser = reqparse.RequestParser()
 merges_put_parser.add_argument('base_player_id', type=str)
 merges_put_parser.add_argument('to_be_merged_player_id', type=str)
+
+tournament_import_parser = reqparse.RequestParser()
+tournament_import_parser.add_argument('tournament_name', type=str, required=True, help="Tournament must have a name.")
+tournament_import_parser.add_argument('bracket_type', type=str, required=True, help="Bracket must have a type.")
+tournament_import_parser.add_argument('challonge_url', type=str)
+tournament_import_parser.add_argument('tio_file', type=str)
+tournament_import_parser.add_argument('tio_bracket_name', type=str)
 
 class InvalidAccessToken(Exception):
     pass
@@ -102,6 +115,9 @@ def is_user_admin_for_region(user, region):
     return region in user.admin_regions
 
 def is_user_admin_for_regions(user, regions):
+    '''
+    returns true is user is an admin for ANY of the regions
+    '''
     if len(set(regions).intersection(user.admin_regions)) == 0:
         return False
     else:
@@ -464,6 +480,82 @@ class TournamentRegionResource(restful.Resource):
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
+    
+
+class PendingTournamentListResource(restful.Resource):
+    def get(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        return_dict = {}
+        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region, dao)
+        convert_object_id_list(return_dict['pending_tournaments'])
+
+        for t in return_dict['pending_tournaments']:
+            t['date'] = t['date'].strftime("%x")
+            # whether all aliases have been mapped to players or not
+            # necessary condition for the tournament to be ready to be finalized
+            t['alias_mapping_finished'] = t.are_all_aliases_mapped()
+
+            # remove extra fields
+            del t['raw']
+            del t['matches']
+            del t['players']
+
+        return return_dict
+
+class TournamentImportResource(restful.Resource):
+    def post(self, region):
+        print "client:", mongo_client
+        dao = Dao(region, mongo_client=mongo_client)
+        args = tournament_import_parser.parse_args()
+
+        try:
+            tournament_name = args['tournament_name']
+            bracket_type = args['bracket_type']
+
+            if bracket_type == 'challonge':
+                if 'challonge_url' not in args:
+                    raise KeyError("Challonge bracket specified, but without a Challonge URL.")
+
+                pending_id = tournament_import.import_tournament_from_challonge(region, args['challonge_url'], tournament_name, dao)
+                return {
+                    "status": "success",
+                    "pending_tournament_id": str(pending_id)
+                    }, 201
+            elif bracket_type == 'tio':
+                if 'tio_file' not in args:
+                    raise KeyError("TIO bracket specified, but no file uploaded.")
+                if 'tio_bracket_name' not in args:
+                    raise KeyError("TIO bracket specified, but no TIO bracket name given.")
+
+                tio_file = args['tio_file']
+                #deal with tio files having magic value which breaks StringIO (hex): EFBBBF
+                if tio_file[0:3] == "\xef\xbb\xbf":
+                    tio_file = tio_file[3:]
+
+                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), args['tio_bracket_name'], tournament_name, dao)
+                return {
+                    "status": "success",
+                    "pending_tournament_id": str(pending_id)
+                    }, 201
+            else:
+                raise ValueError("Bracket type must be 'challonge' or 'tio'.")
+        except requests.exceptions.HTTPError as e:
+            return {
+                "status": "error",
+                "error": "Failed to query Challonge API for given URL: " + str(e)
+                }, 400
+        except (KeyError, ValueError, IOError) as e:
+            return {
+                "status": "error",
+                "error": str(e)
+                }, 400
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": "Unknown server error while importing tournament: " + str(e)
+                }, 500
+
+
 class RankingsResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
@@ -601,6 +693,8 @@ api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
 
+api.add_resource(TournamentImportResource, '/<string:region>/tournaments/new')
+api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 api.add_resource(CurrentUserResource, '/users/me')
