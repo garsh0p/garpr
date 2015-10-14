@@ -388,6 +388,12 @@ class TestDAO(unittest.TestCase):
 
         self.assertIsNone(self.norcal_dao.get_tournament_by_id(ObjectId()))
 
+    def test_delete_pending_tournament(self):
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.norcal_dao.delete_pending_tournament(pending_tournament)
+        deleted_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.assertIsNone(deleted_tournament)
+
     def test_update_tournament(self):
         tournament_1 = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
         self.assertEquals(tournament_1.id, self.tournament_id_1)
@@ -444,6 +450,13 @@ class TestDAO(unittest.TestCase):
         with self.assertRaises(UpdateTournamentException):
             self.norcal_dao.update_tournament(tournament_2)
             
+
+    def test_delete_tournament(self):
+        tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
+        self.norcal_dao.delete_tournament(tournament)
+        deleted_tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
+        self.assertIsNone(deleted_tournament)
+
     def test_get_all_tournament_ids(self):
         tournament_ids = self.norcal_dao.get_all_tournament_ids()
 
