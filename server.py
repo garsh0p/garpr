@@ -29,6 +29,7 @@ TYPEAHEAD_PLAYER_LIMIT = 20
 config = Config()
 
 mongo_client = MongoClient(host=config.get_mongo_url())
+print "parsed config: ", config.get_mongo_url()
 
 app = Flask(__name__)
 cors = CORS(app, origins='*', headers=['Authorization', 'Content-Type'])
@@ -337,8 +338,18 @@ class TournamentListResource(restful.Resource):
         parser.add_argument('bracket', type=str, location='json')
         args = parser.parse_args()
 
+       
+
+        print "in server post, actually got this far!"
+
         if args['data'] is None:
             return "data required", 400
+
+        the_bytes = bytearray(args['data'], "utf8")
+
+        if the_bytes[0] == 0xef:
+            print "found magic numbers"
+            return "magic numbers!", 503
 
         type = args['type']
         data = args['data']
@@ -346,7 +357,9 @@ class TournamentListResource(restful.Resource):
         if type == 'tio':
             if args['bracket'] is None:
                 return "Missing bracket name", 400
-            
+            data_bytes = bytes(data)
+            if data_bytes[0] == '\xef':
+                data = data[:3]
             scraper = TioScraper(data, args['bracket'])
         elif type == 'challonge':
             scraper = ChallongeScraper(data)
