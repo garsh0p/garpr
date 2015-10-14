@@ -15,7 +15,7 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, PendingTournament, Merge, User
+from model import MatchResult, Tournament, PendingTournament, Merge, User
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
@@ -483,6 +483,32 @@ class TournamentResource(restful.Resource):
             tournament.regions = args['regions']
 
         dao.update_tournament(tournament)
+        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
+
+    def delete(self, region, id):
+        """ Deletes a pending tournament.
+            If a (non-pending) tournament with this id exists, tell the user they can't do that.
+            Route restricted to admins for this region. """
+        dao = Dao(region, mongo_client=mongo_client)
+
+        user = get_user_from_access_token(request.headers, dao)
+        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+
+        if not pending_tournament:
+            tournament = dao.get_tournament_by_id(ObjectId(id))
+            if not tournament:
+                return "No pending tournament found with that id.", 400
+            else:
+                if not is_user_admin_for_regions(user, tournament.regions):
+                    return 'Permission denied', 403
+                else:
+                    return "Cannot delete a finalized tournament.", 400
+
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
+
+        dao.delete_pending_tournament(pending_tournament)
+        return {"success": True}
         
 class TournamentRegionResource(restful.Resource):
     def put(self, region, id, region_to_change):
@@ -604,6 +630,28 @@ class PendingTournamentResource(restful.Resource):
         dao.update_pending_tournament(pending_tournament)
         response = convert_pending_tournament_to_response(pending_tournament, dao)
         return response 
+
+class FinalizeTournamentResource(restful.Resource):
+    """ Converts a pending tournament to a tournament.
+        Works only if the PendingTournament's alias_to_id_map is completely filled out.
+        Route restricted to admins for this region. """
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_access_token(request.headers, dao)
+
+        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not pending_tournament:
+            return 'No pending tournament found with that id.', 400
+        elif not is_user_admin_for_regions(user, pending_tournament.regions):
+            return 'Permission denied', 403
+        
+        try:
+            tournament = Tournament.from_pending_tournament(pending_tournament)
+            tournament_id = dao.insert_tournament(tournament)
+            dao.delete_pending_tournament(pending_tournament)
+            return {"success": True, "tournament_id": str(tournament_id)}
+        except ValueError:
+            return 'Not all player aliases in this pending tournament have been mapped to player ids.', 400
 
 class RankingsResource(restful.Resource):
     def get(self, region):
@@ -742,6 +790,7 @@ api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
 api.add_resource(PendingTournamentResource, '/<string:region>/pending_tournaments/<string:id>')
+api.add_resource(FinalizeTournamentResource, '/<string:region>/tournaments/<string:id>/finalize')
 
 api.add_resource(TournamentImportResource, '/<string:region>/tournaments/new')
 api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')
