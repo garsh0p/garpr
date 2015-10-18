@@ -445,7 +445,11 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.submitPendingTournament = function() {
-        console.log('submit pending tournament');
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/finalize';
+        successCallback = function(data) {
+            window.location.reload();
+        };
+        $scope.sessionService.authenticatedPost(url, {}, successCallback);
     };
 
     $scope.isTournamentInRegion = function(regionId) {

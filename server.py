@@ -15,7 +15,7 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, Tournament, PendingTournament, Merge, User
+from model import MatchResult, Tournament, PendingTournament, Merge, User, Player
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
@@ -644,6 +644,18 @@ class FinalizeTournamentResource(restful.Resource):
             return 'No pending tournament found with that id.', 400
         elif not is_user_admin_for_regions(user, pending_tournament.regions):
             return 'Permission denied', 403
+
+        new_player_names = []
+        for mapping in pending_tournament.alias_to_id_map:
+            if mapping["player_id"] == None:
+                new_player_names.append(mapping["player_alias"])
+
+        for player_name in new_player_names:
+            player = Player.create_with_default_values(player_name, region)
+            player_id = dao.insert_player(player)
+            pending_tournament.set_alias_id_mapping(player_name, player_id)
+
+        dao.update_pending_tournament(pending_tournament)
         
         try:
             tournament = Tournament.from_pending_tournament(pending_tournament)
