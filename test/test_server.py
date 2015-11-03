@@ -529,6 +529,7 @@ class TestServer(unittest.TestCase):
         player_2_name = 'Armada'
         player_3_name = 'Hungrybox'
         player_4_name = 'Zhu'
+        new_player_name = 'Scar' 
 
         # pending tournament that can be finalized
         pending_tournament_id_1 = ObjectId()
@@ -539,12 +540,13 @@ class TestServer(unittest.TestCase):
                 MatchResult(winner=player_1_name, loser=player_3_name),
                 MatchResult(winner=player_1_name, loser=player_2_name),
                 MatchResult(winner=player_1_name, loser=player_2_name),
+                MatchResult(winner=player_4_name, loser=new_player_name),
         ]
 
         pending_tournament_1 = PendingTournament( 'tio',
                                                   'raw',
                                                   datetime(2009, 7, 10),
-                                                  'Genesis top 4',
+                                                  'Genesis top 5',
                                                   pending_tournament_players_1,
                                                   pending_tournament_matches_1,
                                                   ['norcal'],
@@ -554,6 +556,9 @@ class TestServer(unittest.TestCase):
         pending_tournament_1.set_alias_id_mapping(player_2_name, player_2_id)
         pending_tournament_1.set_alias_id_mapping(player_3_name, player_3_id)
         pending_tournament_1.set_alias_id_mapping(player_4_name, player_4_id)
+
+        # set id mapping to None for a player that doesn't exist
+        pending_tournament_1.set_alias_id_mapping(new_player_name, None)
 
         # pending tournament in wrong region
         pending_tournament_id_2 = ObjectId()
@@ -606,6 +611,9 @@ class TestServer(unittest.TestCase):
     def cleanup_finalize_tournament_fixtures(self, fixtures):
         for player in fixtures["players"]:
             self.norcal_dao.delete_player(player)
+        new_player = self.norcal_dao.get_player_by_alias('Scar')
+        if new_player:
+            self.norcal_dao.delete_player(new_player)
         tmp, pending_tournament_1, pending_tournament_2, pending_tournament_3 = fixtures["pending_tournaments"]
 
         self.norcal_dao.delete_pending_tournament(pending_tournament_1)
@@ -687,6 +695,11 @@ class TestServer(unittest.TestCase):
 
         self.assertTrue(str(new_tournament_id) in pending_tournaments_ids)
         self.assertTrue(str(fixture_pending_tournaments[3].id) in pending_tournaments_ids)
+
+        new_player_name = 'Scar'
+        new_player = self.norcal_dao.get_player_by_alias(new_player_name)
+        self.assertIsNotNone(new_player)
+        self.assertEquals(new_player.name, new_player_name)
 
         self.cleanup_finalize_tournament_fixtures(fixtures)
 
