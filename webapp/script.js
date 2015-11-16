@@ -2,10 +2,10 @@ var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'an
 
 var dev = true;
 if (dev) {
-    var hostname = 'http://garsh0p.no-ip.biz:5101/';
+    var hostname = 'http://localhost:3000/';
 }
 else {
-    var hostname = 'https://api.garpr.com/';
+    var hostname = 'http://localhost:3000/'; //whensgarpr.gg:3000
 }
 
 app.directive('onReadFile', function ($parse) {
