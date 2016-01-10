@@ -1,6 +1,8 @@
 from bson import json_util
 import json
 import trueskill
+import hashlib
+import os
 
 class TrueskillRating(object):
     def __init__(self, trueskill_rating=None):
@@ -510,20 +512,24 @@ class Region(object):
                 json_dict['display_name'])
 
 class User(object):
-    def __init__(self, id, admin_regions, full_name=""):
+    def __init__(self, id, admin_regions, username, salt, hashed_password):
         self.id = id
-        self.full_name = full_name
         self.admin_regions = admin_regions
+        self.username = username
+        self.salt = salt
+        self.hashed_password = hashed_password
 
     def __str__(self):
-        return "%s %s %s" % (self.id, self.full_name, self.admin_regions)
+        return "%s %s %s" % (self.id, self.username, self.admin_regions)
 
     def get_json_dict(self):
         json_dict = {}
-
         json_dict['_id'] = self.id
-        json_dict['full_name'] = self.full_name
+        json_dict['username'] = self.username
         json_dict['admin_regions'] = self.admin_regions
+        json_dict['username'] = self.username
+        json_dict['salt'] = self.salt
+        json_dict['hashed_passwd'] = self.hashed_passwd
 
         return json_dict
 
@@ -535,7 +541,10 @@ class User(object):
         return cls(
                 json_dict['_id'],
                 json_dict['admin_regions'],
-                json_dict['full_name'])
+                json_dict['username'],
+                json_dict['salt'],
+                json_dict['hashed_password']
+                )
 
 class Merge(object):
     # when base_player and player_to_be_merged are merged, ONLY base_player remains

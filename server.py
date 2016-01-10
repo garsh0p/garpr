@@ -78,6 +78,13 @@ pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
 pending_tournament_put_parser.add_argument('alias_to_id_map', type=dict)
 
+session_put_parser = reqparse.RequestParser()
+session_put_parser.add_argument('username', type=str)
+session_put_parser.add_argument('password', type=str)
+
+session_delete_parser = reqparse.RequestParser()
+session_delete_parser.add_argument('session_id', location='cookies', type=str)
+
 
 class InvalidAccessToken(Exception):
     pass
@@ -90,21 +97,11 @@ def convert_object_id_list(json_dict_list):
     for j in json_dict_list:
         convert_object_id(j)
 
-def _get_user_id_from_facebook_access_token(access_token):
-    '''Calls Facebook's debug_token endpoint to validate the token. Returns the user id if validation passes,
-    otherwise throws an exception.'''
-    url = DEBUG_TOKEN_URL % (access_token, config.get_fb_app_token())
-    r = requests.get(url)
-    json_data = r.json()['data']
-
-    if json_data['app_id'] != config.get_fb_app_id() or not json_data['is_valid']:
-        raise InvalidAccessToken('Facebook access token is invalid')
-
-    return json_data['user_id']
-
 def get_user_from_access_token(headers, dao):
     try:
-        access_token = headers['Authorization']
+        cookie_string = headers['Cookie']
+        C = Cookie.SimpleCookie()
+        C['session_id'].value
     except KeyError:
         return None
 
@@ -787,6 +784,25 @@ class PendingMergesResource(restful.Resource):
         return_dict = {'id': string_rep}
         return return_dict, 200
 
+class SessionResource(restful.Resource):
+    def put(self):
+        args = session_put_parser.parse_args() #parse args
+        dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        session_id = dao.check_creds_and_get_session_id(args['username'], args['password'])
+        if not session_id:
+            return 'Permission denied', 403
+        return 'success', 200, {'Set-Cookie': "session_id=" + session_id + " ; Secure; HttpOnly"}
+
+    def delete(self):
+        args = session_delete_put_parser.parse_args()
+        dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        logout_success = dao.logout_user(args['session_id'])
+        if not logout_success:
+            return 'who is you', 404
+        return 'logout success', 200, {'Set-Cookie': "session_id=deleted; expires=Thu, 01 Jan 1970 00:00:00 GMT"}
+
+
+
 
 api.add_resource(PendingMergesResource, '/<string:region>/merges')
 
@@ -809,6 +825,8 @@ api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pe
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 api.add_resource(CurrentUserResource, '/users/me')
+
+api.add_resource(SessionResource, '/users/session')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))

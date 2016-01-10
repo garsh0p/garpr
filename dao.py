@@ -1,12 +1,14 @@
 from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
+from base64 import b64encode
 from datetime import datetime, timedelta
 from model import *
 import trueskill
 import re
+import hashlib
 
 DEFAULT_RATING = TrueskillRating()
-DATABASE_NAME = 'garpr'
+DATABASE_NAME = 'admin' #should be garpr but uhh i fucked up setting up my db -jh
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
@@ -14,6 +16,7 @@ REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
+SESSIONS_COLLECTION_NAME = 'sessions'
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -31,6 +34,7 @@ class UpdateTournamentException(Exception):
     pass
 
 #TODO create RegionSpecificDao object
+#TODO yeah rn we pass in norcal for a buncha things we dont need to
 class Dao(object):
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
         self.mongo_client = mongo_client
@@ -288,17 +292,18 @@ class Dao(object):
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
 
+''' were not letting people create/modify users from the serverside now
     def insert_user(self, user):
         return self.users_col.insert(user.get_json_dict())
+'''
 
-    def get_or_create_user_by_id(self, id):
+    def get_user_by_id(self, id):
         query = {'_id': id}
-        update = {'$setOnInsert': {'admin_regions': [], 'full_name': ''}}
-
-        return User.from_json(self.users_col.find_and_modify(query=query, update=update, new=True, upsert=True))
-
+        return User.from_json(self.users_col.find(query=query))
+'''
     def update_user(self, user):
         return self.users_col.update({'_id': user.id}, user.get_json_dict())
+'''
 
     def get_all_users(self):
         return [User.from_json(u) for u in self.users_col.find()]
@@ -317,3 +322,26 @@ class Dao(object):
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
+
+    # adding a bunch of code for session management
+    def check_creds_and_get_session_id(self, username, password):
+        for u in get_all_users():
+            if u.username == username:
+                expected_hash = hashlib.pbkdf2_hmac('sha256', password, u.salt, 100000)
+                if expected_hash and expected_hash == u.hashed_password:
+                    session_id = b64encode(os.urandom(128))
+                    update_session_id_for_user(u.id, session_id)
+                else:
+                    return None
+
+    def update_session_id_for_user(self, user_id, session_id):
+        # do mongo stuff now
+        # assume there's a mongo column which has user_ids -> session_id
+        # insert into it, overwriting old session_id (unary sessions ftw)
+        # make sure to check the uid exists
+
+    def logout_user(self, session_id):
+        # mongo stuff, we should delete the entire entry from the session table to prevent "" attacks
+
+
+
