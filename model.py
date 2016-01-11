@@ -36,6 +36,7 @@ class TrueskillRating(object):
 
         return cls(trueskill.Rating(mu=json_dict['mu'], sigma=json_dict['sigma']))
 
+
 class MatchResult(object):
     def __init__(self, winner=None, loser=None):
         '''
@@ -576,5 +577,31 @@ class Merge(object):
                 json_dict['base_player_obj_id'],
                 json_dict['player_to_be_merged_obj_id'],
                 json_dict['time'],
+                id=json_dict['_id'] if '_id' in json_dict else None
+                )
+
+class SessionMapping(object)
+    def __init__(self, session_id, user_id):
+        self.session_id = session_id
+        self.user_id = user_id
+
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['session_id'] = self.session_id
+        json_dict['user_id'] = self.user_id
+        if self.id: json_dict['_id'] = self.id
+
+        return json_dict
+
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+                json_dict['session_id'],
+                json_dict['user_id'],
                 id=json_dict['_id'] if '_id' in json_dict else None
                 )

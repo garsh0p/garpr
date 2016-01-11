@@ -34,7 +34,7 @@ class UpdateTournamentException(Exception):
     pass
 
 #TODO create RegionSpecificDao object
-#TODO yeah rn we pass in norcal for a buncha things we dont need to
+# yeah rn we pass in norcal for a buncha things we dont need to
 class Dao(object):
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
         self.mongo_client = mongo_client
@@ -49,7 +49,7 @@ class Dao(object):
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.pending_merges_col = mongo_client[database_name][PENDING_MERGES_COLLECTION_NAME]
-
+        self.sessions_col = mongo_client[database_name][SESSIONS_COLLECTION_NAME]
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -292,18 +292,6 @@ class Dao(object):
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
 
-''' were not letting people create/modify users from the serverside now
-    def insert_user(self, user):
-        return self.users_col.insert(user.get_json_dict())
-'''
-
-    def get_user_by_id(self, id):
-        query = {'_id': id}
-        return User.from_json(self.users_col.find(query=query))
-'''
-    def update_user(self, user):
-        return self.users_col.update({'_id': user.id}, user.get_json_dict())
-'''
 
     def get_all_users(self):
         return [User.from_json(u) for u in self.users_col.find()]
@@ -323,25 +311,52 @@ class Dao(object):
             return False
         return True
 
-    # adding a bunch of code for session management
-    def check_creds_and_get_session_id(self, username, password):
-        for u in get_all_users():
-            if u.username == username:
-                expected_hash = hashlib.pbkdf2_hmac('sha256', password, u.salt, 100000)
-                if expected_hash and expected_hash == u.hashed_password:
-                    session_id = b64encode(os.urandom(128))
-                    update_session_id_for_user(u.id, session_id)
-                else:
-                    return None
+
+    # session management
+
+    def get_user_by_id_or_none(self, id):
+        result = users_col.find({"_id": id})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE MULTIPLE USERS WITH THE SAME UID"
+        return User.from_json(result[0])
+
+    def get_user_by_session_id_or_none(self, session_id):
+        # mongo magic here, go through and get a user by session_id if they exist, otherwise return none
+        result = sessions_col.find({"session_id": session_id})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE MULTIPLE MAPPINGS FOR THE SAME SESSION_ID"
+        user_id = result[0]["user_id"]
+        return get_user_by_id_or_none(user_id)
+
+    def check_creds_and_get_session_id_or_none(self, username, password):
+        result = users_col.find({"username": username})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
+        user = User.from_json(result[0])
+        assert user, "mongo has stopped being consistent, abort ship"
+        expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, 100000)
+        if expected_hash and expected_hash == user.hashed_password:
+            session_id = b64encode(os.urandom(128))
+            update_session_id_for_user(user.id, session_id)
+            return session_id
+        else:
+            return None
 
     def update_session_id_for_user(self, user_id, session_id):
-        # do mongo stuff now
-        # assume there's a mongo column which has user_ids -> session_id
-        # insert into it, overwriting old session_id (unary sessions ftw)
-        # make sure to check the uid exists
+        #lets force people to have only one session at a time
+        result = sessions_col.delete_many({"user_id": user_id})
+        session_mapping = SessionMapping(session_id, user_id)
+        sessions_col.insert(session_mapping.get_json_dict())
 
-    def logout_user(self, session_id):
-        # mongo stuff, we should delete the entire entry from the session table to prevent "" attacks
+    def logout_user_or_none(self, session_id):
+        user = get_user_by_session_id_or_none(session_id)
+        if user: 
+            sessions_col.delete_many({"user_id": user.id})
+            return True
+        return None
 
 
 

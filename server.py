@@ -102,7 +102,7 @@ def get_user_from_session_id_or_none(headers, dao):
         cookie_string = headers['Cookie']
         C = Cookie.SimpleCookie()
         session_id = C['session_id'].value
-        return dao.get_user_by_session_id()
+        return dao.get_user_by_session_id_or_none()
     except (KeyError, CookieError):
         return None
 
