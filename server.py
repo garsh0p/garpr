@@ -31,7 +31,7 @@ mongo_client = MongoClient(host=config.get_mongo_url())
 print "parsed config: ", config.get_mongo_url()
 
 app = Flask(__name__)
-cors = CORS(app, origins='*', headers=['Authorization', 'Content-Type']) #TODO: security
+cors = CORS(app, origins='whensgarpr.com')
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
@@ -758,19 +758,8 @@ class MatchesResource(restful.Resource):
         return return_dict
 
 
-class CurrentUserResource(restful.Resource):
-    ''' this just tells you your uid '''
-    def get(self):
-        # TODO region doesn't matter, remove hardcode
-        dao = Dao('norcal', mongo_client=mongo_client)
-        user = get_user_from_session_id_or_none(request.headers, dao)
-        if not user:
-            return 'you are not a real user', 400
-        return_dict = user.get_json_dict()
-        return_dict['id'] = return_dict['_id']
-        del return_dict['_id']
 
-        return return_dict
+    
 
 class PendingMergesResource(restful.Resource):
     def get(self):
@@ -820,7 +809,7 @@ class SessionResource(restful.Resource):
     def put(self): 
         args = session_put_parser.parse_args() #parse args
         dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
-        session_id = dao.check_creds_and_get_session_id(args['username'], args['password'])
+        session_id = dao.check_creds_and_get_session_id_or_none(args['username'], args['password'])
         if not session_id:
             return 'Permission denied', 403
         return 'success', 200, {'Set-Cookie': "session_id=" + session_id + " ; Secure; HttpOnly"}
@@ -829,12 +818,22 @@ class SessionResource(restful.Resource):
     def delete(self):
         args = session_delete_put_parser.parse_args()
         dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
-        logout_success = dao.logout_user(args['session_id'])
+        logout_success = dao.logout_user_or_none(args['session_id'])
         if not logout_success:
             return 'who is you', 404
         return 'logout success', 200, {'Set-Cookie': "session_id=deleted; expires=Thu, 01 Jan 1970 00:00:00 GMT"}
 
+    def get(self):
+        # TODO region doesn't matter, remove hardcode
+        dao = Dao('norcal', mongo_client=mongo_client)
+        user = get_user_from_session_id_or_none(request.headers, dao)
+        if not user:
+            return 'you are not a real user', 400
+        return_dict = user.get_json_dict()
+        return_dict['id'] = return_dict['_id']
+        del return_dict['_id']
 
+        return return_dict
 
 
 api.add_resource(PendingMergesResource, '/<string:region>/merges')
@@ -858,7 +857,6 @@ api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pe
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 api.add_resource(CurrentUserResource, '/users/me')
-
 api.add_resource(SessionResource, '/users/session')
 
 if __name__ == '__main__':
