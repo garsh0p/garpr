@@ -528,9 +528,8 @@ class User(object):
         json_dict['_id'] = self.id
         json_dict['username'] = self.username
         json_dict['admin_regions'] = self.admin_regions
-        json_dict['username'] = self.username
         json_dict['salt'] = self.salt
-        json_dict['hashed_passwd'] = self.hashed_passwd
+        json_dict['hashed_password'] = self.hashed_password
 
         return json_dict
 

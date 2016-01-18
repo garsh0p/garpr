@@ -31,7 +31,7 @@ mongo_client = MongoClient(host=config.get_mongo_url())
 print "parsed config: ", config.get_mongo_url()
 
 app = Flask(__name__)
-cors = CORS(app, origins='whensgarpr.com')
+cors = CORS(app, origins='whensgarpr.com') #im not 100% sure on all this
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
@@ -856,7 +856,6 @@ api.add_resource(TournamentImportResource, '/<string:region>/tournaments/new')
 api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
-api.add_resource(CurrentUserResource, '/users/me')
 api.add_resource(SessionResource, '/users/session')
 
 if __name__ == '__main__':
