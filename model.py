@@ -513,7 +513,7 @@ class Region(object):
                 json_dict['display_name'])
 
 class User(object):
-    def __init__(self, id, admin_regions, username, salt, hashed_password):
+    def __init__(self, id=None, admin_regions, username, salt, hashed_password):
         self.id = id
         self.admin_regions = admin_regions
         self.username = username

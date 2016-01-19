@@ -17,6 +17,7 @@ USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
 SESSIONS_COLLECTION_NAME = 'sessions'
+ITERATION_COUNT = 100000
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -337,7 +338,7 @@ class Dao(object):
         assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
         user = User.from_json(result[0])
         assert user, "mongo has stopped being consistent, abort ship"
-        expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, 100000)
+        expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT)
         if expected_hash and expected_hash == user.hashed_password:
             session_id = b64encode(os.urandom(128))
             update_session_id_for_user(user.id, session_id)
