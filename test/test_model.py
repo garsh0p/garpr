@@ -623,6 +623,8 @@ class TestUser(unittest.TestCase):
         self.id = '123abc'
         self.admin_regions = ['norcal', 'texas']
         self.username = 'ASDF fdsa'
+        self.salt = 0
+        self.hashed_password = 0
         #    def __init__(self, id, admin_regions, username, salt, hashed_password):
         self.user = User(self.id, self.admin_regions, self.username, 0, 0)
 
@@ -631,7 +633,9 @@ class TestUser(unittest.TestCase):
         self.user_json_dict = {
                 '_id': self.id,
                 'username': self.username,
-                'admin_regions': self.admin_regions
+                'admin_regions': self.admin_regions,
+                'salt' : self.salt,
+                'hashed_password' : self.hashed_password
         }
 
 
