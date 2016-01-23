@@ -12,6 +12,8 @@ import requests
 from datetime import datetime
 import facebook
 import string
+from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT
+
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -37,6 +39,7 @@ class TestServer(unittest.TestCase):
         self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client)
 
         self._import_files()
+        self._create_users(self.mongo_client)
 
         now = datetime(2014, 11, 1)
         rankings.generate_ranking(self.norcal_dao, now=now)
@@ -75,6 +78,18 @@ class TestServer(unittest.TestCase):
                         {dao.region_id: TrueskillRating()},
                         [dao.region_id])
                 dao.insert_player(db_player)
+
+    def _create_users(self, mongo_client):
+        salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
+        # does this need to be encoded before its passed into hashlib?
+        hashed_password = hashlib.pbkdf2_hmac('sha256', 'whensgarpr', salt, ITERATION_COUNT)
+        users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
+        gar = User(id=None, 'norcal', 'gar', salt, hashed_password)
+        users_col.insert(gar.get_json_dict())
+
+
+
+### start of actual test
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
@@ -1638,6 +1653,16 @@ class TestServer(unittest.TestCase):
 
     @patch('server.get_user_from_access_token')
     def test_post_tournament_from_challonge(self, mock_get_user_from_access_token):
+        pass
+
+    def test_put_session(self):
+        username = "whensgarpr"
+        passwd = "rip"
+        raw_dict = {}
+        raw_dict['username'] = username
+        raw_dict['password'] = passwd
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
         pass
 
     #TODOskis
