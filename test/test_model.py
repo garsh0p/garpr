@@ -622,43 +622,30 @@ class TestUser(unittest.TestCase):
     def setUp(self):
         self.id = '123abc'
         self.admin_regions = ['norcal', 'texas']
-        self.user = User(self.id, self.admin_regions)
+        self.username = 'ASDF fdsa'
+        #    def __init__(self, id, admin_regions, username, salt, hashed_password):
+        self.user = User(self.id, self.admin_regions, self.username, 0, 0)
 
-        self.full_name = 'ASDF fdsa'
-        self.user_with_name = User(self.id, self.admin_regions, full_name=self.full_name)
+        #self.user_with_name = User(self.id, self.admin_regions, full_name=self.full_name)
 
         self.user_json_dict = {
                 '_id': self.id,
-                'full_name': '',
+                'username': self.username,
                 'admin_regions': self.admin_regions
         }
 
-        self.user_with_name_json_dict = {
-                '_id': self.id,
-                'full_name': self.full_name,
-                'admin_regions': self.admin_regions
-        }
 
     def test_to_string(self):
-        expected_string = "%s %s %s" % (self.id, '', self.admin_regions)
+        expected_string = "%s %s %s" % (self.id, self.username, self.admin_regions)
         self.assertEquals(str(self.user), expected_string)
-
-        expected_string = "%s %s %s" % (self.id, self.full_name, self.admin_regions)
-        self.assertEquals(str(self.user_with_name), expected_string)
 
     def test_get_json_dict(self):
         self.assertEquals(self.user.get_json_dict(), self.user_json_dict)
-        self.assertEquals(self.user_with_name.get_json_dict(), self.user_with_name_json_dict)
 
     def test_from_json(self):
         user = User.from_json(self.user_json_dict)
         self.assertEquals(user.id, self.id)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, self.admin_regions)
-
-        user = User.from_json(self.user_with_name_json_dict)
-        self.assertEquals(user.id, self.id)
-        self.assertEquals(user.full_name, self.full_name)
+        self.assertEquals(user.username, self.username)
         self.assertEquals(user.admin_regions, self.admin_regions)
 
     def test_from_json_none(self):

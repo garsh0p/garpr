@@ -84,7 +84,7 @@ class TestServer(unittest.TestCase):
         # does this need to be encoded before its passed into hashlib?
         hashed_password = hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT)
         users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
-        gar = User(id=None, 'norcal', 'gar', salt, hashed_password)
+        gar = User(None, 'norcal', 'gar', salt, hashed_password)
         users_col.insert(gar.get_json_dict())
 
 

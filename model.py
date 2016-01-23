@@ -513,7 +513,7 @@ class Region(object):
                 json_dict['display_name'])
 
 class User(object):
-    def __init__(self, id=None, admin_regions, username, salt, hashed_password):
+    def __init__(self, id, admin_regions, username, salt, hashed_password):
         self.id = id
         self.admin_regions = admin_regions
         self.username = username
@@ -576,10 +576,10 @@ class Merge(object):
                 json_dict['base_player_obj_id'],
                 json_dict['player_to_be_merged_obj_id'],
                 json_dict['time'],
-                id=json_dict['_id'] if '_id' in json_dict else None
+                id=(json_dict['_id'] if '_id' in json_dict else None)
                 )
 
-class SessionMapping(object)
+class SessionMapping(object):
     def __init__(self, session_id, user_id):
         self.session_id = session_id
         self.user_id = user_id
