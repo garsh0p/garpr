@@ -82,7 +82,7 @@ class TestServer(unittest.TestCase):
     def _create_users(self, mongo_client):
         salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
         # does this need to be encoded before its passed into hashlib?
-        hashed_password = hashlib.pbkdf2_hmac('sha256', 'whensgarpr', salt, ITERATION_COUNT)
+        hashed_password = hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT)
         users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
         gar = User(id=None, 'norcal', 'gar', salt, hashed_password)
         users_col.insert(gar.get_json_dict())
@@ -1656,14 +1656,49 @@ class TestServer(unittest.TestCase):
         pass
 
     def test_put_session(self):
-        username = "whensgarpr"
+        username = "gar"
         passwd = "rip"
         raw_dict = {}
         raw_dict['username'] = username
         raw_dict['password'] = passwd
         the_data = json.dumps(raw_dict)
-        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
-        pass
+        response = self.app.post('/users/session', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 200, msg=response.data)
+        self.assertTrue('Set-Cookie:' in response.headers)
+        cookie_string = response.headers['Set-Cookie']
+        #ugh okay, time to parse sessionID from cookie header
+        #example cookie string:
+        #Set-Cookie: sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT
+        my_cookie = cookie_string.split()[1].split("=")[1].rstrip(';')
+        #fabricate a cookie header using it
+        mock_cookie = "session_id=" + my_cookie
+        fake_headers = {}
+        fake_headers['Cookie'] = mock_cookie
+        gar = server.get_user_by_session_id_or_none(fake_headers)
+        self.assertTrue(gar)
+
+
+    def test_put_session_bad_creds(self):
+        username = "gar"
+        passwd = "stillworksongarpr"
+        raw_dict = {}
+        raw_dict['username'] = username
+        raw_dict['password'] = passwd
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/users/session', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 403, msg=response.data)
+    
+    def test_put_session_bad_user(self): #this test is to make sure we dont have username enumeration (up to a timing attack anyway)
+        username = "evilgar"
+        passwd = "stillworksongarpr"
+        raw_dict = {}
+        raw_dict['username'] = username
+        raw_dict['password'] = passwd
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/users/session', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 403, msg=response.data)
+
+
 
     #TODOskis
     #okay first, try sending a valid challonge tournament and seeing if it works
