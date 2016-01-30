@@ -52,9 +52,10 @@ class TestAliasService(unittest.TestCase):
         self.players = [self.player_1, self.player_2, self.player_3, self.player_4]
 
         self.user_id_1 = 'abc123'
-        self.user_full_name_1 = 'Full Name'
         self.user_admin_regions_1 = ['norcal']
-        self.user_1 = User(self.user_id_1, self.user_admin_regions_1, full_name=self.user_full_name_1)
+        self.username1 = 'Full Name'
+        #    def __init__(self, id, admin_regions, username, salt, hashed_password):
+        self.user_1 = User(self.user_id_1, self.user_admin_regions_1, self.username1, 0, 0)
 
         self.users = [self.user_1]
 
@@ -65,8 +66,6 @@ class TestAliasService(unittest.TestCase):
         for player in self.players:
             self.norcal_dao.insert_player(player)
 
-        for user in self.users:
-            self.norcal_dao.insert_user(user)
 
     def tearDown(self):
         self.mongo_client.drop_database(DATABASE_NAME)

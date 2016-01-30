@@ -111,6 +111,21 @@ class Dao(object):
     def update_player(self, player):
         return self.players_col.update({'_id': player.id}, player.get_json_dict())
 
+    def insert_user(self, user):
+        '''    #TODO: validate regions all exist
+        salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
+        # does this need to be encoded before its passed into hashlib?
+        hashed_password = hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT)
+        the_user = User(None, regions, username, salt, hashed_password)
+        users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
+        # let's validate that no user exists currently
+        if users_col.find_one({'username': username}):
+            print "already a user with that username in the db, exiting"
+            return None        '''
+        return self.users_col.insert(user.get_json_dict())
+
+
+
     # TODO bulk update
     def update_players(self, players):
         pass
