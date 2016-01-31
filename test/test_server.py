@@ -12,7 +12,7 @@ import requests
 from datetime import datetime
 import facebook
 import string
-from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT
+from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
 
 
 #this is gonna need major refactoring due to new auth model
@@ -53,6 +53,7 @@ class TestServer(unittest.TestCase):
         self.user_admin_regions = ['norcal', 'nyc']
         self.user = User(self.user_id, self.user_admin_regions, self.user_full_name, 0, 0)
         self.norcal_dao.insert_user(self.user)
+        self.users_col = self.mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
 
     def _import_files(self):
         for f in NORCAL_FILES:
@@ -86,9 +87,9 @@ class TestServer(unittest.TestCase):
         salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
         # does this need to be encoded before its passed into hashlib?
         hashed_password = hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT)
-        users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
+        self.users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
         gar = User(None, 'norcal', 'gar', salt, hashed_password)
-        users_col.insert(gar.get_json_dict())
+        self.users_col.insert(gar.get_json_dict())
 
 
 
@@ -229,11 +230,12 @@ class TestServer(unittest.TestCase):
         self.assertTrue(json_data['ratings']['texas']['mu'] > 44.5)
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
 
-    #start of auth testing
+    #start of auth testing sentinel
     def test_put_player_region(self):
         the_user = self.user
-        the_cookie = CookieSomething(the_user)
-        cookie_header={""}
+        session_id = self.norcal_dao.get_session_id_by_user_or_none(User)
+        self.assertTrue(session_id)
+        cookie_header={"Cookie" , "session_id=" + session_id}
         player = self.norcal_dao.get_player_by_alias('gar')
         self.assertEquals(player.regions, ['norcal'])
 
