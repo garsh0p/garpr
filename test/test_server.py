@@ -16,6 +16,7 @@ from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT
 
 
 #this is gonna need major refactoring due to new auth model
+#time to get rid of get_user_by_access_token
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -50,7 +51,7 @@ class TestServer(unittest.TestCase):
         self.user_id = 'asdf'
         self.user_full_name = 'full name'
         self.user_admin_regions = ['norcal', 'nyc']
-        self.user = User(self.user_id, self.user_admin_regions, self.user_full_name)
+        self.user = User(self.user_id, self.user_admin_regions, self.user_full_name, 0, 0)
         self.norcal_dao.insert_user(self.user)
 
     def _import_files(self):
@@ -91,7 +92,7 @@ class TestServer(unittest.TestCase):
 
 
 
-### start of actual test
+### start of actual test cases
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
@@ -228,13 +229,15 @@ class TestServer(unittest.TestCase):
         self.assertTrue(json_data['ratings']['texas']['mu'] > 44.5)
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
 
-    @patch('server.get_user_from_access_token')
-    def test_put_player_region(self, mock_get_user_from_access_token):
-        mock_get_user_from_access_token.return_value = self.user
+    #start of auth testing
+    def test_put_player_region(self):
+        the_user = self.user
+        the_cookie = CookieSomething(the_user)
+        cookie_header={""}
         player = self.norcal_dao.get_player_by_alias('gar')
         self.assertEquals(player.regions, ['norcal'])
 
-        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc')
+        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc', headers=cookie_header)
         json_data = json.loads(response.data)
 
         player = self.norcal_dao.get_player_by_alias('gar')

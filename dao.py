@@ -346,6 +346,16 @@ class Dao(object):
         user_id = result[0]["user_id"]
         return get_user_by_id_or_none(user_id)
 
+    #### FOR INTERNAL USE ONLY ####
+    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking 
+    def get_session_id_by_user_or_none(self, User):
+        results = sessions_col.find()
+        for session_mapping in results:
+            if session_mapping.user_id == User.user_id:
+                return session_mapping.session_id
+        return None
+    #### END OF YELLING #####
+
     def check_creds_and_get_session_id_or_none(self, username, password):
         result = users_col.find({"username": username})
         if result.count() == 0:
