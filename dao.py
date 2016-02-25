@@ -6,6 +6,7 @@ from model import *
 import trueskill
 import re
 import hashlib
+from passlib.hash import sha256_crypt
 
 DEFAULT_RATING = TrueskillRating()
 DATABASE_NAME = 'admin' #should be garpr but uhh i fucked up setting up my db -jh
@@ -17,7 +18,6 @@ USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
 SESSIONS_COLLECTION_NAME = 'sessions'
-ITERATION_COUNT = 100000
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -331,7 +331,7 @@ class Dao(object):
     # session management
 
     def get_user_by_id_or_none(self, id):
-        result = users_col.find({"_id": id})
+        result = self.users_col.find({"_id": id})
         if result.count() == 0:
             return None
         assert result.count() == 1, "WE HAVE MULTIPLE USERS WITH THE SAME UID"
@@ -339,12 +339,12 @@ class Dao(object):
 
     def get_user_by_session_id_or_none(self, session_id):
         # mongo magic here, go through and get a user by session_id if they exist, otherwise return none
-        result = sessions_col.find({"session_id": session_id})
+        result = self.sessions_col.find({"session_id": session_id})
         if result.count() == 0:
             return None
         assert result.count() == 1, "WE HAVE MULTIPLE MAPPINGS FOR THE SAME SESSION_ID"
         user_id = result[0]["user_id"]
-        return get_user_by_id_or_none(user_id)
+        return self.get_user_by_id_or_none(user_id)
 
     #### FOR INTERNAL USE ONLY ####
     #XXX: this method must NEVER be publicly routeable, or you have session-hijacking 
@@ -356,31 +356,33 @@ class Dao(object):
         return None
     #### END OF YELLING #####
 
+
     def check_creds_and_get_session_id_or_none(self, username, password):
-        result = users_col.find({"username": username})
+        result = self.users_col.find({"username": username})
         if result.count() == 0:
             return None
         assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
         user = User.from_json(result[0])
         assert user, "mongo has stopped being consistent, abort ship"
-        expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT)
-        if expected_hash and expected_hash == user.hashed_password:
+        # expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT)
+        # if expected_hash and expected_hash == user.hashed_password:
+        if sha256_crypt.verify(password, user.hashed_password):
             session_id = b64encode(os.urandom(128))
-            update_session_id_for_user(user.id, session_id)
+            self.update_session_id_for_user(user.id, session_id)
             return session_id
         else:
             return None
 
     def update_session_id_for_user(self, user_id, session_id):
         #lets force people to have only one session at a time
-        result = sessions_col.delete_many({"user_id": user_id})
+        result = self.sessions_col.remove({"user_id": user_id})
         session_mapping = SessionMapping(session_id, user_id)
-        sessions_col.insert(session_mapping.get_json_dict())
+        self.sessions_col.insert(session_mapping.get_json_dict())
 
     def logout_user_or_none(self, session_id):
-        user = get_user_by_session_id_or_none(session_id)
+        user = self.get_user_by_session_id_or_none(session_id)
         if user: 
-            sessions_col.delete_many({"user_id": user.id})
+            self.sessions_col.remove({"user_id": user.id})
             return True
         return None
 

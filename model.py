@@ -3,6 +3,9 @@ import json
 import trueskill
 import hashlib
 import os
+from passlib.hash import sha256_crypt
+
+ITERATION_COUNT = 100000
 
 class TrueskillRating(object):
     def __init__(self, trueskill_rating=None):
@@ -533,6 +536,13 @@ class User(object):
 
         return json_dict
 
+    @property
+    def clean_user(self):
+        ret = self.get_json_dict()
+        for field in ["hashed_password", "salt"]:
+            ret.pop(field, None)
+        return ret
+
     @classmethod
     def from_json(cls, json_dict):
         if json_dict == None:
@@ -545,6 +555,13 @@ class User(object):
                 json_dict['salt'],
                 json_dict['hashed_password']
                 )
+
+    @classmethod
+    def create_with_default_values(cls, regions, username, password):
+        salt = os.urandom(16)
+        # hashed_password = hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT)
+        hashed_password = sha256_crypt.encrypt(password, rounds=ITERATION_COUNT)
+        return cls("userid--" + username, regions, username, "", hashed_password)
 
 class Merge(object):
     # when base_player and player_to_be_merged are merged, ONLY base_player remains
@@ -590,8 +607,6 @@ class SessionMapping(object):
 
         json_dict['session_id'] = self.session_id
         json_dict['user_id'] = self.user_id
-        if self.id: json_dict['_id'] = self.id
-
         return json_dict
 
     @classmethod

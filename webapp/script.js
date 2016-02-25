@@ -138,61 +138,47 @@ app.service('SessionService', function($http) {
     var service ={
         loggedIn: false,
         userInfo: null,
-        accessToken: null,
         authenticatedGet: function(url, successCallback) {
-            if (this.accessToken != null) {
-                config = {
-                    headers: {
-                        'Authorization': this.accessToken
-                    }
+            config = {
+                "headers": { 
+                    "withCredentials": true, 
+                    "Access-Control-Allow-Credentials": true
                 }
-                $http.get(url, config).success(successCallback);
-            }
-            else {
-                $http.get(url).success(successCallback);
-            }
+            };
+            $http.get(url, config).success(successCallback)
         },
         authenticatedPost: function(url, data, successCallback, failureCallback) {
-            if (this.accessToken != null) {
-                config = {
-                    headers: {
-                        'Authorization': this.accessToken
-                    }
+            config = {
+                "headers": { 
+                    "withCredentials": true, 
+                    "Access-Control-Allow-Credentials": true
                 }
-                $http.post(url, data, config).success(successCallback).error(failureCallback);
-            }
-            else {
-                $http.post(url, data).success(successCallback).error(failureCallback);
-            }
+            };
+            $http.post(url, data, config).success(successCallback).error(failureCallback);
         },
-        authenticatedPut: function(url, successCallback, data) {
+        authenticatedPut: function(url, successCallback, data, failureCallback) {
             if (data === undefined) {
                 data = {};
             }
-            if (this.accessToken != null) {
-                config = {
-                    headers: {
-                        'Authorization': this.accessToken
-                    }
+            config = {
+                "headers": { 
+                    "withCredentials": true, 
+                    "Access-Control-Allow-Credentials": true
                 }
-                $http.put(url, data, config).success(successCallback);
+            };
+            if (failureCallback === undefined) {
+                failureCallback = function(data) {}            
             }
-            else {
-                $http.put(url, data).success(successCallback);
-            }
+            $http.put(url, data, config).success(successCallback).error(failureCallback);
         },
         authenticatedDelete: function(url, successCallback) {
-            if (this.accessToken != null) {
-                config = {
-                    headers: {
-                        'Authorization': this.accessToken
-                    }
+            config = {
+                "headers": { 
+                    "withCredentials": true, 
+                    "Access-Control-Allow-Credentials": true
                 }
-                $http.delete(url, config).success(successCallback);
-            }
-            else {
-                $http.delete(url).success(successCallback);
-            }
+            };
+            $http.delete(url, config).success(successCallback);
         },
         isAdmin: function() {
             if (!this.loggedIn) {
@@ -218,11 +204,12 @@ app.service('SessionService', function($http) {
     return service;
 });
 
-app.config(function(FacebookProvider) {
-    FacebookProvider.init({
-        appId: '328340437351153',
-        cookie: false
-    });
+app.config(function ($httpProvider) {
+    $httpProvider.defaults.withCredentials = true;
+    $httpProvider.defaults.useXDomain = true;
+    $httpProvider.defaults.headers.common = 'Content-Type: application/json';
+    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    //rest of route code
 });
 
 app.config(['$routeProvider', function($routeProvider) {
@@ -265,43 +252,69 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
-app.controller("AuthenticationController", function($scope, Facebook, SessionService, RegionService) {
+app.controller("AuthenticationController", function($scope, $modal, Facebook, SessionService, RegionService) {
     $scope.sessionService = SessionService;
     $scope.regionService = RegionService;
+    $scope.postParams = {};
+    $scope.errorTxt = "";
 
-    // Monitor the authResponseChange event so we can refresh expired access tokens
-    $scope.$on('Facebook:authResponseChange', function(event, response) {
-        $scope.handleAuthResponse(response);
-    });
-
-    $scope.handleAuthResponse = function(response) {
+    $scope.handleAuthResponse = function(response, status, headers, bleh) {
+        console.log(response)
         if (response.status == 'connected') {
-            $scope.sessionService.accessToken = response.authResponse.accessToken;
-            $scope.sessionService.authenticatedGet(hostname + 'users/me',
-                function(data) {
-                    $scope.sessionService.loggedIn = true;
-                    $scope.sessionService.userInfo = data;
-                    $scope.regionService.populateDataForCurrentRegion();
-                }
-            );
+            $scope.errorTxt = "";
+            $scope.getSessionInfo(function() {
+                $scope.closeLoginModal();
+            });
         }
         else {
             $scope.sessionService.loggedIn = false;
             $scope.sessionService.userInfo = null;
-            $scope.sessionService.accessToken = null;
+            $scope.errorTxt = "Login Failed";
         }
     };
 
+    $scope.getSessionInfo = function(callback) {
+        $scope.sessionService.authenticatedGet(hostname + 'users/session',
+            function(data) {
+                console.log("session data")
+                console.log(data)
+                $scope.sessionService.loggedIn = true;
+                $scope.sessionService.userInfo = data;
+                $scope.regionService.populateDataForCurrentRegion();
+                if (callback) { callback(); }
+            }
+        );
+    }
+
+    $scope.closeLoginModal = function() {
+        $scope.modalInstance.close()
+    };
+
+    $scope.openLoginModal = function() {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'login_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+    };
+
     $scope.login = function() {
-        Facebook.login();
+        console.log("logging in user")
+        console.log($scope.postParams)
+        url = hostname + 'users/session'
+        $scope.sessionService.authenticatedPut(url, $scope.handleAuthResponse, $scope.postParams,
+            $scope.handleAuthResponse);
     };
 
     $scope.logout = function() {
-        Facebook.logout();
+        console.log("logging out user")
+        url = hostname + 'users/session'
+        $scope.sessionService.authenticatedDelete(url, $scope.handleAuthResponse, $scope.postParams,
+            $scope.handleAuthResponse);
     };
 
     // Initial login
-    Facebook.getLoginStatus();
+    $scope.getSessionInfo();
 });
 
 app.controller("NavbarController", function($scope, $route, $location, RegionService, PlayerService) {
