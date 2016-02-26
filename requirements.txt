@@ -36,5 +36,6 @@ six==1.8.0
 skills==0.1.0
 trueskill==0.4.2
 uritemplate==0.6
+uwsgi==2.0.9
 wsgiref==0.1.2
 zope.interface==4.1.1
