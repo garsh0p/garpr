@@ -5,7 +5,7 @@ if (dev) {
     var hostname = 'http://localhost:3000/';
 }
 else {
-    var hostname = 'http://192.168.111.222/api/'; //whensgarpr.gg:3000
+    var hostname = 'http://192.241.188.80/api/'; //whensgarpr.gg:3000
 }
 
 app.directive('onReadFile', function ($parse) {
