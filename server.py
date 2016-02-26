@@ -653,7 +653,7 @@ class FinalizeTournamentResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        if not is_user_admin_for_region(user, pending_tournament.regions):
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
             return 'Permission denied', 403
 
         new_player_names = []
