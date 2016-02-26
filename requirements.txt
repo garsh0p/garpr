@@ -23,7 +23,7 @@ mock==1.0.1
 mongomock==2.0.0
 nose==1.3.4
 oauth2client==1.3.2
-passlib=1.6.5
+passlib==1.6.5
 pyasn1==0.1.7
 pyasn1-modules==0.0.5
 pymongo==2.7.1
