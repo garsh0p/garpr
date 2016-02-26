@@ -165,8 +165,8 @@ class Dao(object):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
 
     def update_pending_tournament(self, pending_tournament):
-        if len(pending_tournament.raw) == 0:
-            raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
+        # if len(pending_tournament.raw) == 0:
+        #     raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
         return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
 
     def delete_pending_tournament(self, pending_tournament):
@@ -205,8 +205,8 @@ class Dao(object):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
-        if len(tournament.raw) == 0:
-            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
+        # if len(tournament.raw) == 0:
+        #     raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 

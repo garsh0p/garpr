@@ -794,12 +794,10 @@ class PendingMergesResource(restful.Resource):
 
         #get curr time
         now = datetime.now()
-        #create a new merge object
-        the_merge = Merge(requesting_user.id, base_player_id, to_be_merged_player_id, now)
-        #store it in the dao
-        merge_id = dao.insert_pending_merge(the_merge)
-        string_rep = str(merge_id)
-        return_dict = {'id': string_rep}
+        base_player = dao.get_player_by_id(base_player_id)
+        to_be_merged_player = dao.get_player_by_id(to_be_merged_player_id)
+        dao.merge_players(base_player, to_be_merged_player)
+        return_dict = {'status': "success"}
         return return_dict, 200
 
 
