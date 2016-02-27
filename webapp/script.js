@@ -94,8 +94,8 @@ app.service('PlayerService', function($http) {
             return null;
         },
         getPlayerListFromQuery: function(query, filter_fn) {
-            // region doesn't matter here, so we hardcode norcal
-            url = hostname + 'norcal/players';
+            // region doesn't matter here, so we hardcode newjersey
+            url = hostname + 'newjersey/players';
             params = {
                 params: {
                     query: query
@@ -248,7 +248,7 @@ app.config(['$routeProvider', function($routeProvider) {
         activeTab: 'about'
     }).
     otherwise({
-        redirectTo: '/norcal/rankings'
+        redirectTo: '/newjersey/rankings'
     });
 }]);
 
