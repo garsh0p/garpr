@@ -25,6 +25,7 @@ import Cookie
 from Cookie import CookieError
 
 TYPEAHEAD_PLAYER_LIMIT = 20
+BASE_REGION = 'newjersey'
 
 # parse config file
 config = Config()
@@ -805,7 +806,7 @@ class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
     def put(self): 
         args = session_put_parser.parse_args() #parse args
-        dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(BASE_REGION, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
         session_id = dao.check_creds_and_get_session_id_or_none(args['username'], args['password'])
         if not session_id:
             return 'Permission denied', 403
@@ -816,7 +817,7 @@ class SessionResource(restful.Resource):
     ''' logout, destroys session_id mapping on client and server side '''
     def delete(self):
         args = session_delete_parser.parse_args()
-        dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(BASE_REGION, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
         logout_success = dao.logout_user_or_none(args['session_id'])
         if not logout_success:
             return 'who is you', 404
@@ -824,7 +825,7 @@ class SessionResource(restful.Resource):
 
     def get(self):
         # TODO region doesn't matter, remove hardcode
-        dao = Dao('norcal', mongo_client=mongo_client)
+        dao = Dao(BASE_REGION, mongo_client=mongo_client)
         user = get_user_from_request(request, dao)
         if not user:
             return 'you are not a real user', 400
