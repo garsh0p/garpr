@@ -5,7 +5,7 @@ if (dev) {
     var hostname = 'http://localhost:3000/';
 }
 else {
-    var hostname = 'http://192.241.188.80/api/'; //whensgarpr.gg:3000
+    var hostname = 'http://njssbm.com/api/'; //whensgarpr.gg:3000
 }
 
 app.directive('onReadFile', function ($parse) {
@@ -531,6 +531,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     }
 
     $scope.updateData = function(data) {
+        console.log(data)
         $scope.tournament = data;
         if ($scope.tournament.hasOwnProperty('alias_to_id_map')) {
             $scope.isPendingTournament = true;
@@ -615,8 +616,8 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         params = {"base_player_id": $scope.playerId, "to_be_merged_player_id": $scope.mergePlayer.id};
         console.log(params);
         $scope.sessionService.authenticatedPost(url, params, 
-            function() {alert("Your merge request has been sent. A site admin will process it soon.")}, 
-            function() {alert("Your merge request didn't go through. Please try again later.")});
+            function() {alert("These two accounts have been merged.")},
+            function() {alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.")});
     };
 
     $scope.getMergePlayers = function(viewValue) {

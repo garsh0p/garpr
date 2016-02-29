@@ -314,8 +314,13 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
-        day_limit = 45
-        num_tourneys = 1
+        day_limit = 60
+        num_tourneys = 2
+
+        # special case for Westchester
+        if self.region_id == "westchester":
+            day_limit = 1500
+            num_tourneys = 1
 
         # special case for NYC
         if self.region_id == "nyc":
