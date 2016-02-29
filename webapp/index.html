@@ -59,7 +59,7 @@
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li ng-repeat="r in regionService.regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
+                                <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
                             </ul>
                         </li>
                     </ul>

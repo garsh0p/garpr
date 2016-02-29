@@ -74,11 +74,11 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
         }
     };
 
-    // service.regionsPromise.success(function(data) {
-    //     service.regions = data.regions;
-    // });
+    service.regionsPromise.success(function(data) {
+        service.regions = data.regions;
+    });
     // only allow New Jersey to show in UI
-    service.regions = [{"id": "newjersey", "display_name": "New Jersey"}];
+    service.display_regions = [{"id": "newjersey", "display_name": "New Jersey"}];
 
     return service;
 });
