@@ -51,6 +51,14 @@ coverage.xml
 *.log
 *.pot
 
+# Vagrant && ubuntu development VM things
+.vagrant/**
+.bash_logout
+.bashrc
+.profile
+.ssh/
+.DS_Store
+
 # Sphinx documentation
 docs/_build/
 
