@@ -1,6 +1,5 @@
 #!/bin/bash
 # General setup script
-#   Brings in the project files
 
 set -e # Exit script immediately on first error.
 
@@ -10,5 +9,8 @@ sudo apt-get update
 echo "Installing GIT..."
 sudo apt-get install -y git
 
-echo "rsyncing synced folder to vagrant user..."
+echo "Installing Python tools..."
+sudo apt-get install -y python-dev libxml2-dev libxslt1-dev zlib1g-dev python-virtualenv
+
+echo "rsyncing default Vagrant synced folder to vagrant user home..."
 rsync -a /vagrant/ /home/vagrant

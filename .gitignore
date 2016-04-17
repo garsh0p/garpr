@@ -57,7 +57,7 @@ coverage.xml
 .bashrc
 .profile
 .ssh/
-.DS_Store
+.DS_Store 
 
 # Sphinx documentation
 docs/_build/

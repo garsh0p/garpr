@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 PROJECT_NAME = "garpr-dev"
+PRIVATE_NETWORK_IP = "192.168.33.10"
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -25,8 +26,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :shell, path: "./scripts/vagrant/mongo_install.sh", privileged: false
   config.vm.provision :shell, path: "./scripts/vagrant/mongo_start.sh", privileged: false, run: "always"
 
+  # Project
+  config.vm.provision :shell, path: "./scripts/vagrant/project_setup.sh", privileged: false
+
   # Create a private network, which allows host-only access to the machine
-  config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: PRIVATE_NETWORK_IP
+
+  # Ports
+  config.vm.network "forwarded_port", guest: 8000, host: 8000  # webapp
 
   # Enable SSH agent forwarding (for github key)
   config.ssh.forward_agent = true
@@ -36,6 +43,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.name = PROJECT_NAME
 
     # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "512"]
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
   end
 end
