@@ -14,3 +14,7 @@ sudo apt-get install -y python-dev libxml2-dev libxslt1-dev zlib1g-dev python-vi
 
 echo "rsyncing default Vagrant synced folder to vagrant user home..."
 rsync -a /vagrant/ /home/vagrant
+
+# This will create an alias for running the rsync command
+# to sync the project files in the VM with the files on the host
+echo "alias sync_vm='rsync -r --delete --exclude=.* --exclude=env --exclude=config/config.ini /vagrant/ /home/vagrant'" >> ~/.bashrc

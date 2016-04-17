@@ -32,9 +32,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a private network, which allows host-only access to the machine
   config.vm.network "private_network", ip: PRIVATE_NETWORK_IP
 
-  # Ports
-  config.vm.network "forwarded_port", guest: 8000, host: 8000  # webapp
-
   # Enable SSH agent forwarding (for github key)
   config.ssh.forward_agent = true
 
