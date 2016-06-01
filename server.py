@@ -485,28 +485,21 @@ class TournamentResource(restful.Resource):
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
     def delete(self, region, id):
-        """ Deletes a pending tournament.
-            If a (non-pending) tournament with this id exists, tell the user they can't do that.
-            Route restricted to admins for this region. """
+        """ Deletes a tournament.
+            Route restricted to admins for this region.
+            Be VERY careful when using this """
         dao = Dao(region, mongo_client=mongo_client)
 
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
 
-        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
-
-        if not pending_tournament:
-            tournament = dao.get_tournament_by_id(ObjectId(id))
-            if not tournament:
-                return "No pending tournament found with that id.", 400
-            else:
-                if not is_user_admin_for_regions(user, tournament.regions):
-                    return 'Permission denied', 403
-                else:
-                    return "Cannot delete a finalized tournament.", 400
-
-        if not is_user_admin_for_regions(user, pending_tournament.regions):
+        tournament_to_delete = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not tournament_to_delete: #if there's no pending tournament with that ID, it must be a finalized tournament
+            tournament_to_delete = dao.get_tournament_by_id(ObjectId(id))
+        if not tournament_to_delete: #can't find anything, whoops
+            return "No tournament (pending or finalized) found with that id.", 400
+        if not is_user_admin_for_regions(user, tournament_to_delete.regions):
             return 'Permission denied', 403
 
         dao.delete_pending_tournament(pending_tournament)
