@@ -278,11 +278,15 @@ class Dao(object):
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
             re.split(special_chars, alias_lower)[-1].strip(),
+            # regex nonsense to deal with pool prefixes
             re.split(re_test_1, alias_lower)[2],
             re.split(re_test_2, alias_lower)[2],
+            # well, we're using set, so why not
+            re.split(re_test_1, alias_lower)[2].strip(),
+            re.split(re_test_2, alias_lower)[2].strip(),
+            # because fuck it
             re.split()
         ]))
-        # add in some stripped versions of the tags
         
         ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
         return [Player.from_json(p) for p in ret]
