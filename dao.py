@@ -269,8 +269,8 @@ class Dao(object):
         alias_lower = alias.lower()
 
         #here be regex dragons
-        re_test_1 = '([1-9]*.[1-9]*.)(.+)' # to match '1 1 slox'
-        re_test_2 = '(.[1-9]*.[1-9].)(.+)' # to match 'p1s1 slox'
+        re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
+        re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
 
         similar_aliases = list(set([
             alias_lower,
@@ -285,7 +285,7 @@ class Dao(object):
             re.split(re_test_1, alias_lower)[2].strip(),
             re.split(re_test_2, alias_lower)[2].strip(),
             # because fuck it
-            re.split()
+            re.split(" ", alias_lower)
         ]))
         
         ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
