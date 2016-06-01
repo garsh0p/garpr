@@ -432,6 +432,10 @@ class TournamentResource(restful.Resource):
             response = convert_tournament_to_response(tournament, dao)
         else:
             pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+            if not user:
+                return 'Permission denied', 403
+            if not is_user_admin_for_regions(user, tournament.regions):
+                return 'Permission denied', 403
             response = convert_pending_tournament_to_response(pending_tournament, dao)
             
         return response
