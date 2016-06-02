@@ -272,7 +272,7 @@ class Dao(object):
         re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
         re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
 
-        similar_aliases = list(set([
+        similar_aliases = set([
             alias_lower,
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
@@ -284,14 +284,12 @@ class Dao(object):
             # well, we're using set, so why not
             re.split(re_test_1, alias_lower)[2].strip(),
             re.split(re_test_2, alias_lower)[2].strip(),
-        ]))
+        ])
 
-        # XXX add in all the components, sort of a last ditch hack. possibly take this out if its getting too many false positives
-        for s in re.split(" ", alias_lower):
-            if s not in similiar_aliases:
-                similar_aliases.append(s)
-        
-        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
+        alias_words = alias_lower.split()
+        similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
+
+        ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
         return [Player.from_json(p) for p in ret]
 
     def insert_pending_merge(self, the_merge):
