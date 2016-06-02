@@ -785,3 +785,4 @@ class TestDAO(unittest.TestCase):
         self.assertTrue("gaR" in dao.get_players_with_similar_alias("GOOG| gar"))
         self.assertTrue("gaR" in dao.get_players_with_similar_alias("GOOG | gar"))
         self.assertTrue("gaR" in dao.get_players_with_similar_alias("p1s2 GOOG| gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("garpr goog youtube gar"))

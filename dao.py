@@ -286,6 +286,7 @@ class Dao(object):
             re.split(re_test_2, alias_lower)[2].strip(),
         ])
 
+        #add suffixes of the string
         alias_words = alias_lower.split()
         similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
 
