@@ -3,13 +3,9 @@
 
 set -e # Exit script immediately on first error.
 
-# echo "Creating/activating a Python virtual environment..."
-virtualenv env
-source env/bin/activate
-
 echo "Installing project dependencies..."
-pip install -r requirements.txt
-pip install git+https://github.com/vmalloc/mongomock.git@master # use master instead of 2.0.0
+sudo pip install -r requirements.txt
+sudo pip install git+https://github.com/vmalloc/mongomock.git@master # use master instead of 2.0.0
 
 # NOTE: if config/config.ini.template changes, this needs to change also
 echo "Generating config file for development..." 
