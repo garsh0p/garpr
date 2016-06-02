@@ -281,6 +281,7 @@ class Dao(object):
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
             re.split(special_chars, alias_lower)[-1].strip(),
+<<<<<<< cd8db23ddebdca75a69c28281a81f6526fb8d2ca
 <<<<<<< 8bb8a71a2b5d994325f9a424229a6468e7a97291
         ])
 
@@ -299,7 +300,6 @@ class Dao(object):
         similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
 
         ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
-
         return [Player.from_json(p) for p in ret]
 
     def insert_pending_merge(self, the_merge):

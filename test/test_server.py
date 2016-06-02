@@ -1586,6 +1586,34 @@ class TestServer(unittest.TestCase):
 
 
 
+    @patch('server.get_user_from_access_token')
+    def test_delete_finalized_tournament(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        pass
+
+    @patch('server.get_user_from_access_token')
+    def test_delete_pending_tournament(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        pass
+
+    @patch('server.get_user_from_access_token')
+    def test_delete_pending_tournament_unauth(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.unauth_user
+        dao = self.norcal_dao
+
+    @patch('server.get_user_from_access_token')
+    def test_delete_finalized_tournament_unauth(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.unauth_user
+        dao = self.norcal_dao
+
+    def test_delete_pending_tournament_noauth(self):
+        dao = self.norcal_dao
+
+    def test_delete_finalized_tournament_noauth(self):
+        dao = self.norcal_dao
+
     #TODOskis
     #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
