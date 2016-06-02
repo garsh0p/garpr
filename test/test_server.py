@@ -11,6 +11,12 @@ from bson.objectid import ObjectId
 import requests
 from datetime import datetime
 import facebook
+import string
+from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
+
+
+#this is gonna need major refactoring due to new auth model
+#time to get rid of get_user_by_access_token
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -36,6 +42,7 @@ class TestServer(unittest.TestCase):
         self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client)
 
         self._import_files()
+        self._create_users(self.mongo_client)
 
         now = datetime(2014, 11, 1)
         rankings.generate_ranking(self.norcal_dao, now=now)
@@ -44,8 +51,9 @@ class TestServer(unittest.TestCase):
         self.user_id = 'asdf'
         self.user_full_name = 'full name'
         self.user_admin_regions = ['norcal', 'nyc']
-        self.user = User(self.user_id, self.user_admin_regions, full_name=self.user_full_name)
+        self.user = User(self.user_id, self.user_admin_regions, self.user_full_name, 0, 0)
         self.norcal_dao.insert_user(self.user)
+        self.users_col = self.mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
 
     def _import_files(self):
         for f in NORCAL_FILES:
@@ -74,6 +82,18 @@ class TestServer(unittest.TestCase):
                         {dao.region_id: TrueskillRating()},
                         [dao.region_id])
                 dao.insert_player(db_player)
+
+    def _create_users(self, mongo_client):
+        salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
+        # does this need to be encoded before its passed into hashlib?
+        hashed_password = hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT)
+        self.users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
+        gar = User(None, 'norcal', 'gar', salt, hashed_password)
+        self.users_col.insert(gar.get_json_dict())
+
+
+
+### start of actual test cases
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
@@ -210,13 +230,16 @@ class TestServer(unittest.TestCase):
         self.assertTrue(json_data['ratings']['texas']['mu'] > 44.5)
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
 
-    @patch('server.get_user_from_access_token')
-    def test_put_player_region(self, mock_get_user_from_access_token):
-        mock_get_user_from_access_token.return_value = self.user
+    #start of auth testing sentinel
+    def test_put_player_region(self):
+        the_user = self.user
+        session_id = self.norcal_dao.get_session_id_by_user_or_none(User)
+        self.assertTrue(session_id)
+        cookie_header={"Cookie" , "session_id=" + session_id}
         player = self.norcal_dao.get_player_by_alias('gar')
         self.assertEquals(player.regions, ['norcal'])
 
-        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc')
+        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc', headers=cookie_header)
         json_data = json.loads(response.data)
 
         player = self.norcal_dao.get_player_by_alias('gar')
@@ -492,6 +515,216 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
+    def setup_finalize_tournament_fixtures(self):
+        player_1_id = ObjectId()
+        player_2_id = ObjectId()
+        player_3_id = ObjectId()
+        player_4_id = ObjectId()
+        player_1 = Player(
+            'C9 Mango',
+            ['C9 Mango'],
+            {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
+            ['norcal', 'texas'],
+            id=player_1_id)
+        player_2 = Player(
+            '[A]rmada',
+            ['[A]rmada'],
+            {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
+            ['norcal', 'texas'],
+            id=player_2_id)
+        player_3 = Player(
+            'Liquid`Hungrybox',
+            ['Liquid`Hungrybox'],
+            {'norcal': TrueskillRating()},
+            ['norcal'],
+            id=player_3_id)
+        player_4 = Player(
+            'Poor | Zhu',
+            ['Poor | Zhu'],
+            {'norcal': TrueskillRating()},
+            ['norcal'],
+            id=player_4_id)
+
+        players = [player_1, player_2, player_3, player_4]
+
+        player_1_name = 'Mango'
+        player_2_name = 'Armada'
+        player_3_name = 'Hungrybox'
+        player_4_name = 'Zhu'
+        new_player_name = 'Scar' 
+
+        # pending tournament that can be finalized
+        pending_tournament_id_1 = ObjectId()
+        pending_tournament_players_1 = [player_1_name, player_2_name, player_3_name, player_4_name]
+        pending_tournament_matches_1 = [
+                MatchResult(winner=player_2_name, loser=player_1_name),
+                MatchResult(winner=player_3_name, loser=player_4_name),
+                MatchResult(winner=player_1_name, loser=player_3_name),
+                MatchResult(winner=player_1_name, loser=player_2_name),
+                MatchResult(winner=player_1_name, loser=player_2_name),
+                MatchResult(winner=player_4_name, loser=new_player_name),
+        ]
+
+        pending_tournament_1 = PendingTournament( 'tio',
+                                                  'raw',
+                                                  datetime(2009, 7, 10),
+                                                  'Genesis top 5',
+                                                  pending_tournament_players_1,
+                                                  pending_tournament_matches_1,
+                                                  ['norcal'],
+                                                  id=pending_tournament_id_1)
+
+        pending_tournament_1.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_1.set_alias_id_mapping(player_2_name, player_2_id)
+        pending_tournament_1.set_alias_id_mapping(player_3_name, player_3_id)
+        pending_tournament_1.set_alias_id_mapping(player_4_name, player_4_id)
+
+        # set id mapping to None for a player that doesn't exist
+        pending_tournament_1.set_alias_id_mapping(new_player_name, None)
+
+        # pending tournament in wrong region
+        pending_tournament_id_2 = ObjectId()
+        pending_tournament_players_2 = [player_1_name, player_2_name]
+        pending_tournament_matches_2 = [
+                MatchResult(winner=player_2_name, loser=player_1_name),
+        ]
+
+        pending_tournament_2 = PendingTournament( 'tio',
+                                                  'raw',
+                                                  datetime(2014, 7, 10),
+                                                  'Fake Texas Tournament',
+                                                  pending_tournament_players_2,
+                                                  pending_tournament_matches_2,
+                                                  ['texas'],
+                                                  id=pending_tournament_id_2)
+
+        pending_tournament_2.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_2.set_alias_id_mapping(player_2_name, player_2_id)
+
+        # incompletely mapped pending tournament
+        pending_tournament_id_3 = ObjectId()
+        pending_tournament_3 = PendingTournament( 'tio',
+                                                  'raw',
+                                                  datetime(2009, 7, 10),
+                                                  'Genesis top 4 incomplete',
+                                                  pending_tournament_players_1,
+                                                  pending_tournament_matches_1,
+                                                  ['norcal'],
+                                                  id=pending_tournament_id_3)
+
+        pending_tournament_3.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_3.set_alias_id_mapping(player_2_name, player_2_id)
+        # Note that Hungrybox and Zhu are unmapped
+
+        for player in players:
+            self.norcal_dao.insert_player(player)
+
+        self.norcal_dao.insert_pending_tournament(pending_tournament_1)
+        self.norcal_dao.insert_pending_tournament(pending_tournament_3)
+        self.texas_dao.insert_pending_tournament(pending_tournament_2)
+
+        # return players and pending tournaments for test use and cleanup
+        # pending tournaments are padded by 0 so indices work out nicely
+        return {
+            "players": players,
+            "pending_tournaments": (0, pending_tournament_1, pending_tournament_2, pending_tournament_3)
+        }
+
+    def cleanup_finalize_tournament_fixtures(self, fixtures):
+        for player in fixtures["players"]:
+            self.norcal_dao.delete_player(player)
+        new_player = self.norcal_dao.get_player_by_alias('Scar')
+        if new_player:
+            self.norcal_dao.delete_player(new_player)
+        tmp, pending_tournament_1, pending_tournament_2, pending_tournament_3 = fixtures["pending_tournaments"]
+
+        self.norcal_dao.delete_pending_tournament(pending_tournament_1)
+        self.norcal_dao.delete_pending_tournament(pending_tournament_3)
+        self.texas_dao.delete_pending_tournament(pending_tournament_2)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_tournament_incorrect_region(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+        mock_get_user_from_access_token.return_value = self.user
+
+        # incorrect region
+        no_permissions_response = self.app.post(
+            '/texas/tournaments/' + str(fixture_pending_tournaments[2].id) + '/finalize')
+        self.assertEquals(no_permissions_response.status_code, 403)
+        self.assertEquals(no_permissions_response.data, '"Permission denied"')
+
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_nonexistent_tournament(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        mock_get_user_from_access_token.return_value = self.user
+
+        # no pending tournament with this id
+        missing_response = self.app.post('/norcal/tournaments/' + str(ObjectId()) + '/finalize')
+        self.assertEquals(missing_response.status_code, 400)
+        self.assertEquals(missing_response.data,
+            '"No pending tournament found with that id."')
+
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_incompletely_mapped_tournament(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+        mock_get_user_from_access_token.return_value = self.user
+
+        # alias_to_id_map doesn't map each alias
+        incomplete_response = self.app.post(
+            '/norcal/tournaments/' + str(fixture_pending_tournaments[3].id) + '/finalize')
+        self.assertEquals(incomplete_response.status_code, 400)
+        self.assertEquals(incomplete_response.data,
+            '"Not all player aliases in this pending tournament have been mapped to player ids."')
+
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_access_token')
+    def test_finalize_tournament(self, mock_get_user_from_access_token):
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+        mock_get_user_from_access_token.return_value = self.user
+
+        # finalize first pending tournament
+        success_response = self.app.post(
+            '/norcal/tournaments/' + str(fixture_pending_tournaments[1].id) + '/finalize')
+        self.assertEquals(success_response.status_code, 200)
+        success_response_data = json.loads(success_response.data)
+        self.assertTrue(success_response_data['success'])
+        self.assertTrue('tournament_id' in success_response_data)
+        new_tournament_id = success_response_data['tournament_id']
+        # finalized tournament gets the same id
+        self.assertIsNotNone(new_tournament_id)
+        self.assertEquals(new_tournament_id, str(fixture_pending_tournaments[1].id))
+
+        # check final list of tournaments
+        tournaments_list_response = self.app.get('/norcal/tournaments?includePending=false')
+        self.assertEquals(tournaments_list_response.status_code, 200)
+        tournaments_data = json.loads(tournaments_list_response.data)
+        tournaments_ids = set([str(tournament['id']) for tournament in tournaments_data['tournaments']])
+        self.assertTrue(str(new_tournament_id) in tournaments_ids)
+        self.assertFalse(str(fixture_pending_tournaments[3].id) in tournaments_ids)
+
+        pending_tournaments_list_response = self.app.get('/norcal/tournaments?includePending=true')
+        self.assertEquals(pending_tournaments_list_response.status_code, 200)
+        pending_tournaments_data = json.loads(pending_tournaments_list_response.data)
+        pending_tournaments_ids = set([str(tournament['id']) for tournament in pending_tournaments_data['tournaments']])
+
+        self.assertTrue(str(new_tournament_id) in pending_tournaments_ids)
+        self.assertTrue(str(fixture_pending_tournaments[3].id) in pending_tournaments_ids)
+
+        new_player_name = 'Scar'
+        new_player = self.norcal_dao.get_player_by_alias(new_player_name)
+        self.assertIsNotNone(new_player)
+        self.assertEquals(new_player.name, new_player_name)
+
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
     def test_get_tournament(self):
         tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(tournament.id)).data
@@ -635,6 +868,31 @@ class TestServer(unittest.TestCase):
         response = self.app.delete('/norcal/tournaments/' + str(tournament.id) + '/region/texas')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
+
+    @patch('server.get_user_from_access_token')
+    def test_put_alias_mapping(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        self.assertEquals(pending_tournament.regions, ['norcal'])
+
+        player_tag = pending_tournament.players[0]
+        real_player = self.norcal_dao.get_all_players()[0]
+        mapping = {"player_alias": player_tag, "player_id": real_player.id}
+        self.assertFalse(mapping in pending_tournament.alias_to_id_map)
+
+        pending_tournament.set_alias_id_mapping(player_tag, real_player.id)
+        pending_tournament_json = server.convert_pending_tournament_to_response(pending_tournament, self.norcal_dao)
+
+        # test put
+        response = self.app.put('/norcal/pending_tournaments/' + str(pending_tournament.id), 
+            data=json.dumps(pending_tournament_json), content_type='application/json')
+        json_data = json.loads(response.data)
+
+        self.assertEquals(str(pending_tournament.id), json_data['id'])
+
+        pending_tournament_from_db = self.norcal_dao.get_pending_tournament_by_id(ObjectId(json_data['id']))
+        self.assertIsNotNone(pending_tournament)
+        self.assertTrue(mapping in pending_tournament_from_db.alias_to_id_map)
 
     def test_get_rankings(self):
         data = self.app.get('/norcal/rankings').data
@@ -792,6 +1050,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(match['tournament_name'], tournament.name)
         self.assertEquals(match['tournament_date'], tournament.date.strftime("%x"))
 
+    '''
     @patch('server.requests', spec=requests)
     def test_get_user_from_access_token(self, mock_requests):
         user_id = 'asdf'
@@ -822,7 +1081,8 @@ class TestServer(unittest.TestCase):
         mock_requests.get.assert_called_once_with(expected_url)
 
         mock_dao.get_or_create_user_by_id.assert_called_once_with(user_id)
-
+    '''
+    '''
     @patch('server.requests', spec=requests)
     @patch('server.facebook', spec=facebook)
     def test_get_user_from_access_token_populate_user_full_name(self, mock_facebook, mock_requests):
@@ -903,6 +1163,7 @@ class TestServer(unittest.TestCase):
 
         expected_url = server.DEBUG_TOKEN_URL % (auth_header, server.config.get_fb_app_token())
         mock_requests.get.assert_called_once_with(expected_url)
+    '''
 
     def test_get_user_from_access_token_missing_auth_header(self):
         retrieved_user = server.get_user_from_access_token({}, None)
@@ -983,13 +1244,31 @@ class TestServer(unittest.TestCase):
         raw_dict = {'name': new_tourney_name, 'date': new_date.toordinal(), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
         test_data = json.dumps(raw_dict)
 
+        # add new players to dao
+        player1_obj = Player('testshroomed', ['testshroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=player1)
+        player2_obj = Player('testpewpewu', ['testpewpewu'], {'norcal': TrueskillRating()}, ['norcal', 'socal'], id=player2)
+        dao.insert_player(player1_obj)
+        dao.insert_player(player2_obj)
+
         # try overwriting all its writeable attributes: date players matches regions
         rv = self.app.put('/norcal/tournaments/' + str(tourney_id), data=test_data, content_type='application/json')
         self.assertEqual(rv.status, '200 OK')
+        json_data = json.loads(rv.data)
+
+        # check that things are correct
+        self.assertEquals(json_data['name'], new_tourney_name)
+        self.assertEquals(json_data['date'], new_date.strftime('%m/%d/%y'))
+        for m1, m2 in zip(json_data['matches'], new_matches):
+            self.assertEqual(m1['winner_id'], str(m2.winner))
+            self.assertEqual(m1['loser_id'], str(m2.loser))
+        for p1, p2 in zip(json_data['players'], new_players):
+            self.assertEqual(p1['id'], str(p2))
+        self.assertEquals(set(json_data['regions']), set(new_regions))
+
         the_tourney = dao.get_tournament_by_id(tourney_id)
-        self.assertEquals(the_tourney.name, new_tourney_name)
+        self.assertEquals(new_tourney_name, the_tourney.name)
         self.assertEquals(new_date.toordinal(), the_tourney.date.toordinal())
-        for m1,m2 in zip(new_matches, the_tourney.matches):
+        for m1, m2 in zip(new_matches, the_tourney.matches):
             self.assertEqual(m1.winner, m2.winner)
             self.assertEqual(m1.loser, m2.loser)
 
@@ -1329,3 +1608,113 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
+
+    @patch('server.get_user_from_access_token')
+    def test_post_tournament_from_tio(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #then try sending a valid tio tournament and see if it works
+        with open('test/data/Justice4.tio') as f:
+            raw_dict['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
+        raw_dict['tournament_name'] = "Justice4"
+        raw_dict['bracket_type'] = "tio"
+        raw_dict['tio_bracket_name'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 201, msg=response.data)
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['pending_tournament_id']))
+
+        self.assertEqual(the_tourney.name, "Justice4")
+        self.assertEqual(len(the_tourney.players), 48)
+
+        self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
+        self.assertEquals(the_tourney.type, 'tio')
+        self.assertEquals(the_tourney.regions, ['norcal'])
+
+        #let's spot check and make sure hax vs armada happens twice
+        sweden_wins_count = 0
+        for m in the_tourney.matches:
+            if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+                sweden_wins_count += 1
+        self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
+        pass
+
+    @patch('server.get_user_from_access_token')
+    def test_post_tournament_from_tio_without_trim(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #then try sending a valid tio tournament and see if it works
+        with open('test/data/Justice4.tio') as f:
+            raw_dict['tio_file'] = f.read() #NO TRIM BB
+        raw_dict['tournament_name'] = "Justice4"
+        raw_dict['bracket_type'] = "tio"
+        raw_dict['tio_bracket_name'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 400, msg=response.data)
+        pass
+
+    @patch('server.get_user_from_access_token')
+    def test_post_tournament_from_challonge(self, mock_get_user_from_access_token):
+        pass
+
+    def test_put_session(self):
+        username = "gar"
+        passwd = "rip"
+        raw_dict = {}
+        raw_dict['username'] = username
+        raw_dict['password'] = passwd
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/users/session', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 200, msg=response.data)
+        self.assertTrue('Set-Cookie:' in response.headers)
+        cookie_string = response.headers['Set-Cookie']
+        #ugh okay, time to parse sessionID from cookie header
+        #example cookie string:
+        #Set-Cookie: sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT
+        my_cookie = cookie_string.split()[1].split("=")[1].rstrip(';')
+        #fabricate a cookie header using it
+        mock_cookie = "session_id=" + my_cookie
+        fake_headers = {}
+        fake_headers['Cookie'] = mock_cookie
+        gar = server.get_user_by_session_id_or_none(fake_headers)
+        self.assertTrue(gar)
+
+
+    def test_put_session_bad_creds(self):
+        username = "gar"
+        passwd = "stillworksongarpr"
+        raw_dict = {}
+        raw_dict['username'] = username
+        raw_dict['password'] = passwd
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/users/session', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 403, msg=response.data)
+    
+    def test_put_session_bad_user(self): #this test is to make sure we dont have username enumeration (up to a timing attack anyway)
+        username = "evilgar"
+        passwd = "stillworksongarpr"
+        raw_dict = {}
+        raw_dict['username'] = username
+        raw_dict['password'] = passwd
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/users/session', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 403, msg=response.data)
+
+
+
+    #TODOskis
+    #okay first, try sending a valid challonge tournament and seeing if it works
+        #then try type mismatch, sending challonge but give tio data
+        #then try type mismatch send tio but give challonge
+        #try tio w/o tio_file
+        #try tio w/o bracket_name
+        #try tio with invalid tio data
+        #try challonge w/o challonge_url

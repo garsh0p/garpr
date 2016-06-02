@@ -33,4 +33,15 @@
             </table>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-2">
+            <label class="control-label">Merge with player: </label>
+        </div>
+        <div class="col-md-8">    
+            <input type="text" class="form-control" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.name for p in getMergePlayers($viewValue)">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-danger" ng-click="submitMerge()">Send Merge Request</button>
+        </div>
+    </div>
 </div>

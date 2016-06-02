@@ -45,11 +45,11 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown" dropdown ng-controller="AuthenticationController">
                             <a class="dropdown-toggle" dropdown-toggle>
-                                {{sessionService.loggedIn ? sessionService.userInfo.full_name : "Login"}}
+                                {{sessionService.loggedIn ? sessionService.userInfo.username : "Login"}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                               <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="login()">Login with Facebook</a></li>
+                               <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
                                <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
                             </ul>
                         </li>
