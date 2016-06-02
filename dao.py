@@ -267,14 +267,30 @@ class Dao(object):
     # basically, get players who have an alias similar to the given alias
     def get_players_with_similar_alias(self, alias):
         alias_lower = alias.lower()
-        similar_aliases = list(set([
+
+        #here be regex dragons
+        re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
+        re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
+
+        similar_aliases = set([
             alias_lower,
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
-            re.split(special_chars, alias_lower)[-1].strip()
-        ]))
-        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
+            re.split(special_chars, alias_lower)[-1].strip(),
+            # regex nonsense to deal with pool prefixes
+            re.split(re_test_1, alias_lower)[2],
+            re.split(re_test_2, alias_lower)[2],
+            # well, we're using set, so why not
+            re.split(re_test_1, alias_lower)[2].strip(),
+            re.split(re_test_2, alias_lower)[2].strip(),
+        ])
+
+        #add suffixes of the string
+        alias_words = alias_lower.split()
+        similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
+
+        ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
         return [Player.from_json(p) for p in ret]
 
     def insert_pending_merge(self, the_merge):

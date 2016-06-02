@@ -777,3 +777,12 @@ class TestDAO(unittest.TestCase):
     def test_get_non_existant_merge(self):
         dao = self.norcal_dao
         self.assertIsNone(dao.get_pending_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
+
+    def test_get_players_with_similar_alias(self):
+        dao = self.norcal_dao
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("1 1 gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("p1s1 gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("GOOG| gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("GOOG | gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("p1s2 GOOG| gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("garpr goog youtube gar"))
