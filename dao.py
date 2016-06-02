@@ -284,9 +284,12 @@ class Dao(object):
             # well, we're using set, so why not
             re.split(re_test_1, alias_lower)[2].strip(),
             re.split(re_test_2, alias_lower)[2].strip(),
-            # because fuck it
-            re.split(" ", alias_lower)
         ]))
+
+        # XXX add in all the components, sort of a last ditch hack. possibly take this out if its getting too many false positives
+        for s in re.split(" ", alias_lower):
+            if s not in similiar_aliases:
+                similar_aliases.append(s)
         
         ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
         return [Player.from_json(p) for p in ret]
