@@ -2,6 +2,7 @@ import unittest
 import alias_service
 from mock import patch, Mock
 import mongomock
+from ConfigParser import ConfigParser
 from dao import Dao
 from model import *
 import json
@@ -9,16 +10,22 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 
 DATABASE_NAME = 'garpr_test'
+CONFIG_LOCATION = 'config/config.ini'
 
 class TestAliasService(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
-        MongoClient().drop_database(DATABASE_NAME)
+    def setUpClass(self):
+        config = ConfigParser()
+        config.read(CONFIG_LOCATION)
+        username = config.get('database', 'user')
+        host = config.get('database', 'host')
+        auth_db = config.get('database', 'auth_db')
+        password = config.get('database', 'password')
+        self.mongo_client = MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
 
     def setUp(self):
         self.maxDiff = None
-        self.mongo_client = MongoClient()
-
+        
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
         self.player_3_id = ObjectId()
@@ -52,9 +59,10 @@ class TestAliasService(unittest.TestCase):
         self.players = [self.player_1, self.player_2, self.player_3, self.player_4]
 
         self.user_id_1 = 'abc123'
-        self.user_full_name_1 = 'Full Name'
         self.user_admin_regions_1 = ['norcal']
-        self.user_1 = User(self.user_id_1, self.user_admin_regions_1, full_name=self.user_full_name_1)
+        self.username1 = 'Full Name'
+        #    def __init__(self, id, admin_regions, username, salt, hashed_password):
+        self.user_1 = User(self.user_id_1, self.user_admin_regions_1, self.username1, 0, 0)
 
         self.users = [self.user_1]
 
@@ -65,8 +73,6 @@ class TestAliasService(unittest.TestCase):
         for player in self.players:
             self.norcal_dao.insert_player(player)
 
-        for user in self.users:
-            self.norcal_dao.insert_user(user)
 
     def tearDown(self):
         self.mongo_client.drop_database(DATABASE_NAME)

@@ -67,8 +67,6 @@ class ChallongeScraper(object):
                 for p in self.get_raw()['participants']]
 
     def _check_for_200(self, response):
-        if response.status_code != 200:
-            raise Exception('Received status code of %d' % response.status_code)
-
+        response.raise_for_status()
         return response
 
