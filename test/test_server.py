@@ -777,7 +777,9 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), len(tournament.players))
         self.assertEquals(len(json_data['matches']), len(tournament.matches))
 
-    def test_get_tournament_pending(self):
+    @patch('server.get_user_from_request') 
+    def test_get_tournament_pending(self,mock_get_user_from_request): 
+        mock_get_user_from_request.return_value = self.user
         pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
         json_data = json.loads(data)
@@ -795,6 +797,11 @@ class TestServer(unittest.TestCase):
         # spot check 1 match
         match = json_data['matches'][0]
         self.assertEquals(len(match.keys()), 2)
+
+    def test_get_tournament_pending_unauth(self):
+        pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
+        self.assertEqual(data, '"Permission denied"', msg=data)
 
     @patch('server.get_user_from_request')
     def test_put_tournament_region(self, mock_get_user_from_request):
@@ -1585,7 +1592,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 403, msg=response.data)
 
 
-
+    '''
     @patch('server.get_user_from_access_token')
     def test_delete_finalized_tournament(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
@@ -1613,7 +1620,7 @@ class TestServer(unittest.TestCase):
 
     def test_delete_finalized_tournament_noauth(self):
         dao = self.norcal_dao
-
+    '''
     #TODOskis
     #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
