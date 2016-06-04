@@ -106,7 +106,20 @@ def get_user_from_request(request, dao):
     return dao.get_user_by_session_id_or_none(session_id)
 
 def is_user_admin_for_region(user, region):
-    return region in user.admin_regions
+    print "doing the access check" #thebest
+    print "region:", region
+    print "admin regions:", user.admin_regions
+    if not region:
+        print "region was null"
+        return False
+    if not user.admin_regions:
+        print "admin_regions was null"
+        return False
+    if "".join(region) in user.admin_regions:
+        print "found region in admin regions, returning true"
+        return True
+    print "default return false"
+    return False #mystery
 
 def is_user_admin_for_regions(user, regions):
     '''
@@ -650,10 +663,15 @@ class FinalizeTournamentResource(restful.Resource):
         pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
         if not pending_tournament:
             return 'No pending tournament found with that id.', 400
+        print "the request we got:", request #mag fucking neto
+        print "headers:", request.headers
+        print "body:", request.data
         user = get_user_from_request(request, dao)
         if not user:
+            print "user not found"
             return 'Permission denied', 403
         if not is_user_admin_for_region(user, pending_tournament.regions):
+            print "failed admin for region"
             return 'Permission denied', 403
 
         new_player_names = []
@@ -795,7 +813,7 @@ class PendingMergesResource(restful.Resource):
         #get curr time
         now = datetime.now()
         #create a new merge object
-        the_merge = Merge(requesting_user.id, base_player_id, to_be_merged_player_id, now)
+        the_merge = Merge(user.id, base_player_id, to_be_merged_player_id, now)
         #store it in the dao
         merge_id = dao.insert_pending_merge(the_merge)
         string_rep = str(merge_id)
@@ -813,6 +831,9 @@ class SessionResource(restful.Resource):
             return 'Permission denied', 403
         resp = jsonify({"status": "connected"})
         resp.set_cookie('session_id', session_id)
+        print "approved! going to print response"
+        print "headers:" + str(resp.headers)
+        print "body:" + str(resp.data) 
         return resp
 
     ''' logout, destroys session_id mapping on client and server side '''
@@ -841,7 +862,7 @@ class SessionResource(restful.Resource):
 def add_cors(resp):
     """ Ensure all responses have the CORS headers. This ensures any failures are also accessible
         by the client. """
-    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*')
+    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*') #!!! this needs to be tightened down to only the domains we're expecting
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET, PUT, DELETE'
     resp.headers['Access-Control-Allow-Headers'] = request.headers.get( 

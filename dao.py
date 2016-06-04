@@ -1,6 +1,6 @@
 from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
-from base64 import b64encode
+import base64
 from datetime import datetime, timedelta
 from model import *
 import trueskill
@@ -272,19 +272,27 @@ class Dao(object):
         re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
         re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
 
+        alias_set_1 = re.split(re_test_1, alias_lower)
+        alias_set_2 = re.split(re_test_2, alias_lower)
+
         similar_aliases = set([
             alias_lower,
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
             re.split(special_chars, alias_lower)[-1].strip(),
-            # regex nonsense to deal with pool prefixes
-            re.split(re_test_1, alias_lower)[2],
-            re.split(re_test_2, alias_lower)[2],
-            # well, we're using set, so why not
-            re.split(re_test_1, alias_lower)[2].strip(),
-            re.split(re_test_2, alias_lower)[2].strip(),
+
         ])
+
+        # regex nonsense to deal with pool prefixes
+        # prevent index OOB errors when dealing with tags that don't split well
+        if len(alias_set_1) == 4:
+            similar_aliases.update(alias_set_1[2])
+            similar_aliases.update(alias_set_1[2].strip())
+        if len(alias_set_2) == 4:
+            similar_aliases.update(alias_set_2[2])
+            similar_aliases.update(alias_set_2[2].strip())
+
 
         #add suffixes of the string
         alias_words = alias_lower.split()
@@ -374,19 +382,24 @@ class Dao(object):
 
 
     def check_creds_and_get_session_id_or_none(self, username, password):
+        print "craig here:", username, password
         result = self.users_col.find({"username": username})
         if result.count() == 0:
             return None
         assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
         user = User.from_json(result[0])
+        print "craig found a user, and just one"
         assert user, "mongo has stopped being consistent, abort ship"
-        # expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT)
-        # if expected_hash and expected_hash == user.hashed_password:
-        if sha256_crypt.verify(password, user.hashed_password):
-            session_id = b64encode(os.urandom(128))
+        the_hash = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT))
+        print "the submitted hash", the_hash
+        print "the stored hash", user.hashed_password
+        if the_hash and the_hash == user.hashed_password: # timing oracle on this... good luck
+            print "craig approves, open sessame"
+            session_id = base64.b64encode(os.urandom(128))
             self.update_session_id_for_user(user.id, session_id)
             return session_id
         else:
+            print "craig says no, go away"
             return None
 
     def update_session_id_for_user(self, user_id, session_id):
