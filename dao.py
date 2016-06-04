@@ -382,24 +382,18 @@ class Dao(object):
 
 
     def check_creds_and_get_session_id_or_none(self, username, password):
-        print "craig here:", username, password
         result = self.users_col.find({"username": username})
         if result.count() == 0:
             return None
         assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
         user = User.from_json(result[0])
-        print "craig found a user, and just one"
         assert user, "mongo has stopped being consistent, abort ship"
         the_hash = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT))
-        print "the submitted hash", the_hash
-        print "the stored hash", user.hashed_password
         if the_hash and the_hash == user.hashed_password: # timing oracle on this... good luck
-            print "craig approves, open sessame"
             session_id = base64.b64encode(os.urandom(128))
             self.update_session_id_for_user(user.id, session_id)
             return session_id
         else:
-            print "craig says no, go away"
             return None
 
     def update_session_id_for_user(self, user_id, session_id):

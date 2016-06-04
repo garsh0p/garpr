@@ -233,17 +233,13 @@ class TestServer(unittest.TestCase):
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
 
     #start of auth testing sentinel
-    @patch('server.get_user_from_request') #currently failing
+    @patch('server.get_user_from_request') 
     def test_put_player_region(self, mock_get_user_from_request): #HSF
         mock_get_user_from_request.return_value = self.user
-     #   the_user = self.user
-     #   session_id = self.norcal_dao.get_session_id_by_user_or_none(the_user)
-     #   self.assertTrue(session_id)
-     #   cookie_header={"Cookie" , "session_id=" + session_id}
         player = self.norcal_dao.get_player_by_alias('gar')
         self.assertEquals(player.regions, ['norcal'])
 
-        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc')#, headers=cookie_header)
+        response = self.app.put('/norcal/players/' + str(player.id) + '/region/nyc')
         json_data = json.loads(response.data)
 
         player = self.norcal_dao.get_player_by_alias('gar')
@@ -676,7 +672,7 @@ class TestServer(unittest.TestCase):
         self.cleanup_finalize_tournament_fixtures(fixtures)
 
     @patch('server.get_user_from_request')
-    def test_finalize_incompletely_mapped_tournament(self, mock_get_user_from_request): #currently failing
+    def test_finalize_incompletely_mapped_tournament(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         fixtures = self.setup_finalize_tournament_fixtures()
         fixture_pending_tournaments = fixtures["pending_tournaments"]
@@ -691,7 +687,7 @@ class TestServer(unittest.TestCase):
         self.cleanup_finalize_tournament_fixtures(fixtures)
 
     @patch('server.get_user_from_request')
-    def test_finalize_tournament(self, mock_get_user_from_request): # currently failing
+    def test_finalize_tournament(self, mock_get_user_from_request):
         fixtures = self.setup_finalize_tournament_fixtures()
         fixture_pending_tournaments = fixtures["pending_tournaments"]
         mock_get_user_from_request.return_value = self.user
@@ -1059,8 +1055,7 @@ class TestServer(unittest.TestCase):
     @patch('server.get_user_from_request')
     def test_get_current_user(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
-        data = self.app.get('/users/session').data #currently this 404's 
-        print "data recv'd:", data
+        data = self.app.get('/users/session').data 
         json_data = json.loads(data)
 
         self.assertEquals(json_data['id'], self.user_id)
@@ -1547,12 +1542,11 @@ class TestServer(unittest.TestCase):
 
     @patch('server.get_user_from_request')
     def test_post_tournament_from_challonge(self, mock_get_user_from_request):
+        #TODO
         pass
 
 
-    def test_put_session(self): #
-        #okay lets start by seeing if gar is even in the DB as a user
-        #we'll need a dao, and a garID
+    def test_put_session(self): 
         result = self.users_col.find({"username": "gar"})
         self.assertTrue(result.count() == 1, msg=result)
         username = "gar"
@@ -1563,19 +1557,10 @@ class TestServer(unittest.TestCase):
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
         self.assertEquals(response.status_code, 200, msg=response.headers)
-        print str(response) 
-        self.assertTrue('Set-Cookie' in response.headers.keys(), msg=str(response.headers)) #failing here,
+        self.assertTrue('Set-Cookie' in response.headers.keys(), msg=str(response.headers)) 
         cookie_string = response.headers['Set-Cookie']
-        print "cookie string:" + cookie_string
         my_cookie = cookie_string.split('"')[1] #split sessionID out of cookie string
-        print "the session we're gonna lookup is:", my_cookie
-        print "here's the entire sessions db"
-        cursor = self.sessions_col.find({})
-        for document in cursor:
-            print(document)
-
         result = self.sessions_col.find({"session_id": my_cookie})
-
         self.assertTrue(result.count() == 1, msg=str(result))
 
 
