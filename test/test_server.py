@@ -777,7 +777,9 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), len(tournament.players))
         self.assertEquals(len(json_data['matches']), len(tournament.matches))
 
-    def test_get_tournament_pending(self):
+    @patch('server.get_user_from_request')
+    def test_get_tournament_pending(self,mock_get_user_from_request): 
+        mock_get_user_from_request.return_value = self.user
         pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
         json_data = json.loads(data)
@@ -795,6 +797,11 @@ class TestServer(unittest.TestCase):
         # spot check 1 match
         match = json_data['matches'][0]
         self.assertEquals(len(match.keys()), 2)
+
+    def test_get_tournament_pending_unauth(self):
+        pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
+        self.assertEqual(data, '"Permission denied"', msg=data)
 
     @patch('server.get_user_from_request')
     def test_put_tournament_region(self, mock_get_user_from_request):
@@ -1540,12 +1547,6 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 400, msg=response.data)
         pass
 
-    @patch('server.get_user_from_request')
-    def test_post_tournament_from_challonge(self, mock_get_user_from_request):
-        #TODO
-        pass
-
-
     def test_put_session(self): 
         result = self.users_col.find({"username": "gar"})
         self.assertTrue(result.count() == 1, msg=result)
@@ -1562,7 +1563,6 @@ class TestServer(unittest.TestCase):
         my_cookie = cookie_string.split('"')[1] #split sessionID out of cookie string
         result = self.sessions_col.find({"session_id": my_cookie})
         self.assertTrue(result.count() == 1, msg=str(result))
-
 
     def test_put_session_bad_creds(self):
         username = "gar"
@@ -1583,9 +1583,40 @@ class TestServer(unittest.TestCase):
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
         self.assertEquals(response.status_code, 403, msg=response.data)
+    
+    @patch('server.get_user_from_request')
+    def test_delete_finalized_tournament(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
+        response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(self.norcal_dao.get_tournament_by_id(tournament.id) is None, msg=self.norcal_dao.get_tournament_by_id(tournament.id))
+        
+    @patch('server.get_user_from_request')
+    def test_delete_pending_tournament(self, mock_get_user_from_access_token):
+        mock_get_user_from_access_token.return_value = self.user
+        tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
+        self.assertEquals(response.status_code, 200, msg=response.status_code)
+        self.assertTrue(self.norcal_dao.get_pending_tournament_by_id(tournament.id) is None, msg=self.norcal_dao.get_pending_tournament_by_id(tournament.id))
+
+    def test_delete_pending_tournament_unauth(self):
+        tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
+        response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
+        self.assertEquals(response.status_code, 403, msg=response.status_code)
+
+    def test_delete_finalized_tournament_unauth(self):
+        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
+        response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
+        self.assertEquals(response.status_code, 403)
+
+    @patch('server.get_user_from_request')
+    def test_post_tournament_from_challonge(self, mock_get_user_from_request):
+        #TODO
+        pass
 
 
-
+    '''
     #TODOskis
     #okay first, try sending a valid challonge tournament and seeing if it works
         #then try type mismatch, sending challonge but give tio data
@@ -1594,3 +1625,4 @@ class TestServer(unittest.TestCase):
         #try tio w/o bracket_name
         #try tio with invalid tio data
         #try challonge w/o challonge_url
+    '''

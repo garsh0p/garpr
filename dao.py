@@ -210,7 +210,6 @@ class Dao(object):
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-    # used only in tests
     def delete_tournament(self, tournament):
         return self.tournaments_col.remove({'_id': tournament.id})
 
@@ -280,8 +279,7 @@ class Dao(object):
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
-            re.split(special_chars, alias_lower)[-1].strip(),
-
+            re.split(special_chars, alias_lower)[-1].strip()
         ])
 
         # regex nonsense to deal with pool prefixes
