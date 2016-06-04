@@ -1,12 +1,15 @@
 from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
+import base64
 from datetime import datetime, timedelta
 from model import *
 import trueskill
 import re
+import hashlib
+from passlib.hash import sha256_crypt
 
 DEFAULT_RATING = TrueskillRating()
-DATABASE_NAME = 'garpr'
+DATABASE_NAME = 'admin' #should be garpr but uhh i fucked up setting up my db -jh
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
@@ -14,8 +17,10 @@ REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
+SESSIONS_COLLECTION_NAME = 'sessions'
 
 special_chars = re.compile("[^\w\s]*")
+
 
 class RegionNotFoundException(Exception):
     pass
@@ -30,6 +35,7 @@ class UpdateTournamentException(Exception):
     pass
 
 #TODO create RegionSpecificDao object
+# yeah rn we pass in norcal for a buncha things we dont need to
 class Dao(object):
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
         self.mongo_client = mongo_client
@@ -44,6 +50,7 @@ class Dao(object):
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.pending_merges_col = mongo_client[database_name][PENDING_MERGES_COLLECTION_NAME]
+        self.sessions_col = mongo_client[database_name][SESSIONS_COLLECTION_NAME]
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -104,6 +111,21 @@ class Dao(object):
     def update_player(self, player):
         return self.players_col.update({'_id': player.id}, player.get_json_dict())
 
+    def insert_user(self, user):
+        '''    #TODO: validate regions all exist
+        salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
+        # does this need to be encoded before its passed into hashlib?
+        hashed_password = hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT)
+        the_user = User(None, regions, username, salt, hashed_password)
+        users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
+        # let's validate that no user exists currently
+        if users_col.find_one({'username': username}):
+            print "already a user with that username in the db, exiting"
+            return None        '''
+        return self.users_col.insert(user.get_json_dict())
+
+
+
     # TODO bulk update
     def update_players(self, players):
         pass
@@ -127,6 +149,17 @@ class Dao(object):
 
         player.name = name
         return self.update_player(player)
+#jiang code
+    def insert_pending_tournament(self, tournament):
+        the_json = tournament.get_json_dict()
+        return self.pending_tournaments_col.insert(the_json)
+
+    def update_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+
+    def get_all_pending_tournament_jsons(self, regions=None):
+        query_dict = {'regions': {'$in': regions}} if regions else {}
+        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
 
     def insert_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
@@ -134,8 +167,10 @@ class Dao(object):
     def update_pending_tournament(self, pending_tournament):
         if len(pending_tournament.raw) == 0:
             raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
-
         return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
+
+    def delete_pending_tournament(self, pending_tournament):
+        return self.pending_tournaments_col.remove({'_id': pending_tournament.id})
 
     def get_all_pending_tournaments(self, regions=None):
         '''players is a list of Players'''
@@ -161,6 +196,7 @@ class Dao(object):
 
         return [PendingTournament.from_json(t) for t in pending_tournaments]
 
+
     def get_pending_tournament_by_id(self, id):
         '''id must be an ObjectId'''
         return PendingTournament.from_json(self.pending_tournaments_col.find_one({'_id': id}))
@@ -173,6 +209,10 @@ class Dao(object):
             raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+
+    # used only in tests
+    def delete_tournament(self, tournament):
+        return self.tournaments_col.remove({'_id': tournament.id})
 
     def get_all_tournament_ids(self, players=None, regions=None):
         '''players is a list of Players'''
@@ -227,14 +267,37 @@ class Dao(object):
     # basically, get players who have an alias similar to the given alias
     def get_players_with_similar_alias(self, alias):
         alias_lower = alias.lower()
-        similar_aliases = list(set([
+
+        #here be regex dragons
+        re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
+        re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
+
+        alias_set_1 = re.split(re_test_1, alias_lower)
+        alias_set_2 = re.split(re_test_2, alias_lower)
+
+        similar_aliases = set([
             alias_lower,
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
             re.split(special_chars, alias_lower)[-1].strip()
-        ]))
-        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
+        ])
+
+        # regex nonsense to deal with pool prefixes
+        # prevent index OOB errors when dealing with tags that don't split well
+        if len(alias_set_1) == 4:
+            similar_aliases.update(alias_set_1[2])
+            similar_aliases.update(alias_set_1[2].strip())
+        if len(alias_set_2) == 4:
+            similar_aliases.update(alias_set_2[2])
+            similar_aliases.update(alias_set_2[2].strip())
+
+
+        #add suffixes of the string
+        alias_words = alias_lower.split()
+        similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
+
+        ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
         return [Player.from_json(p) for p in ret]
 
     def insert_pending_merge(self, the_merge):
@@ -268,17 +331,6 @@ class Dao(object):
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
 
-    def insert_user(self, user):
-        return self.users_col.insert(user.get_json_dict())
-
-    def get_or_create_user_by_id(self, id):
-        query = {'_id': id}
-        update = {'$setOnInsert': {'admin_regions': [], 'full_name': ''}}
-
-        return User.from_json(self.users_col.find_and_modify(query=query, update=update, new=True, upsert=True))
-
-    def update_user(self, user):
-        return self.users_col.update({'_id': user.id}, user.get_json_dict())
 
     def get_all_users(self):
         return [User.from_json(u) for u in self.users_col.find()]
@@ -297,3 +349,64 @@ class Dao(object):
         if len(qualifying_tournaments) >= num_tourneys:
             return False
         return True
+
+
+    # session management
+
+    def get_user_by_id_or_none(self, id):
+        result = self.users_col.find({"_id": id})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE MULTIPLE USERS WITH THE SAME UID"
+        return User.from_json(result[0])
+
+    def get_user_by_session_id_or_none(self, session_id):
+        # mongo magic here, go through and get a user by session_id if they exist, otherwise return none
+        result = self.sessions_col.find({"session_id": session_id})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE MULTIPLE MAPPINGS FOR THE SAME SESSION_ID"
+        user_id = result[0]["user_id"]
+        return self.get_user_by_id_or_none(user_id)
+
+    #### FOR INTERNAL USE ONLY ####
+    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking 
+    def get_session_id_by_user_or_none(self, User):
+        results = self.sessions_col.find()
+        for session_mapping in results:
+            if session_mapping.user_id == User.user_id:
+                return session_mapping.session_id
+        return None
+    #### END OF YELLING #####
+
+
+    def check_creds_and_get_session_id_or_none(self, username, password):
+        result = self.users_col.find({"username": username})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
+        user = User.from_json(result[0])
+        assert user, "mongo has stopped being consistent, abort ship"
+        the_hash = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT))
+        if the_hash and the_hash == user.hashed_password: # timing oracle on this... good luck
+            session_id = base64.b64encode(os.urandom(128))
+            self.update_session_id_for_user(user.id, session_id)
+            return session_id
+        else:
+            return None
+
+    def update_session_id_for_user(self, user_id, session_id):
+        #lets force people to have only one session at a time
+        result = self.sessions_col.remove({"user_id": user_id})
+        session_mapping = SessionMapping(session_id, user_id)
+        self.sessions_col.insert(session_mapping.get_json_dict())
+
+    def logout_user_or_none(self, session_id):
+        user = self.get_user_by_session_id_or_none(session_id)
+        if user: 
+            self.sessions_col.remove({"user_id": user.id})
+            return True
+        return None
+
+
+

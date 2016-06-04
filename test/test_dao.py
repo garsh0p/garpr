@@ -134,12 +134,13 @@ class TestDAO(unittest.TestCase):
 
         self.user_id_1 = 'abc123'
         self.user_admin_regions_1 = ['norcal', 'texas']
-        self.user_1 = User(self.user_id_1, self.user_admin_regions_1)
+        #    def __init__(self, id, admin_regions, username, salt, hashed_password):
+        self.user_1 = User(self.user_id_1, self.user_admin_regions_1, 'user1', 0,0)
 
         self.user_id_2 = 'asdfasdf'
         self.user_full_name_2 = 'Full Name'
         self.user_admin_regions_2 = []
-        self.user_2 = User(self.user_id_2, self.user_admin_regions_2, full_name=self.user_full_name_2)
+        self.user_2 = User(self.user_id_2, self.user_admin_regions_2, self.user_full_name_2 , 0, 0)
 
         self.users = [self.user_1, self.user_2]
 
@@ -388,6 +389,12 @@ class TestDAO(unittest.TestCase):
 
         self.assertIsNone(self.norcal_dao.get_tournament_by_id(ObjectId()))
 
+    def test_delete_pending_tournament(self):
+        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.norcal_dao.delete_pending_tournament(pending_tournament)
+        deleted_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
+        self.assertIsNone(deleted_tournament)
+
     def test_update_tournament(self):
         tournament_1 = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
         self.assertEquals(tournament_1.id, self.tournament_id_1)
@@ -443,6 +450,13 @@ class TestDAO(unittest.TestCase):
 
         with self.assertRaises(UpdateTournamentException):
             self.norcal_dao.update_tournament(tournament_2)
+            
+
+    def test_delete_tournament(self):
+        tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
+        self.norcal_dao.delete_tournament(tournament)
+        deleted_tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
+        self.assertIsNone(deleted_tournament)
 
     def test_get_all_tournament_ids(self):
         tournament_ids = self.norcal_dao.get_all_tournament_ids()
@@ -645,78 +659,6 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(rankings[1], self.ranking_entry_2)
         self.assertEquals(rankings[2], self.ranking_entry_4)
 
-    def test_get_or_create_user_by_id_new_user(self):
-        users = self.norcal_dao.get_all_users()
-        self.assertEquals(len(users), 2)
-
-        new_id = 'lol'
-
-        user = self.norcal_dao.get_or_create_user_by_id(new_id)
-        users = self.norcal_dao.get_all_users()
-
-        self.assertEquals(len(users), 3)
-
-        self.assertEquals(user.id, new_id)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, [])
-
-        # make sure none of the old users have been modified
-        user = users[0]
-        self.assertEquals(user.id, self.user_id_1)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
-
-        user = users[1]
-        self.assertEquals(user.id, self.user_id_2)
-        self.assertEquals(user.full_name, self.user_full_name_2)
-        self.assertEquals(user.admin_regions, self.user_admin_regions_2)
-
-        user = users[2]
-        self.assertEquals(user.id, new_id)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, [])
-
-    def test_get_or_create_user_by_id_existing_user(self):
-        users = self.norcal_dao.get_all_users()
-        self.assertEquals(len(users), 2)
-
-        user = self.norcal_dao.get_or_create_user_by_id(self.user_id_1)
-        users = self.norcal_dao.get_all_users()
-
-        # the number of users shouldn't have changed
-        self.assertEquals(len(users), 2)
-
-        self.assertEquals(user.id, self.user_id_1)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
-
-        # make sure none of the old users have been modified
-        user = users[0]
-        self.assertEquals(user.id, self.user_id_1)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
-
-        user = users[1]
-        self.assertEquals(user.id, self.user_id_2)
-        self.assertEquals(user.full_name, self.user_full_name_2)
-        self.assertEquals(user.admin_regions, self.user_admin_regions_2)
-
-    def test_update_user(self):
-        user = self.norcal_dao.get_or_create_user_by_id(self.user_id_1)
-        self.assertEquals(user.id, self.user_id_1)
-        self.assertEquals(user.full_name, '')
-        self.assertEquals(user.admin_regions, self.user_admin_regions_1)
-
-        new_name = 'new name'
-        new_regions = ['norcal']
-        user.full_name = new_name
-        user.admin_regions = new_regions
-        self.norcal_dao.update_user(user)
-
-        user = self.norcal_dao.get_or_create_user_by_id(self.user_id_1)
-        self.assertEquals(user.id, self.user_id_1)
-        self.assertEquals(user.full_name, new_name)
-        self.assertEquals(user.admin_regions, new_regions)
 
     def test_get_all_users(self):
         users = self.norcal_dao.get_all_users()
@@ -724,12 +666,12 @@ class TestDAO(unittest.TestCase):
         
         user = users[0]
         self.assertEquals(user.id, self.user_id_1)
-        self.assertEquals(user.full_name, '')
+        self.assertEquals(user.username, '')
         self.assertEquals(user.admin_regions, self.user_admin_regions_1)
 
         user = users[1]
         self.assertEquals(user.id, self.user_id_2)
-        self.assertEquals(user.full_name, self.user_full_name_2)
+        self.assertEquals(user.username, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
 
     def test_get_and_insert_pending_merge(self):
@@ -761,3 +703,12 @@ class TestDAO(unittest.TestCase):
     def test_get_non_existant_merge(self):
         dao = self.norcal_dao
         self.assertIsNone(dao.get_pending_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
+
+    def test_get_players_with_similar_alias(self):
+        dao = self.norcal_dao
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("1 1 gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("p1s1 gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("GOOG| gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("GOOG | gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("p1s2 GOOG| gar"))
+        self.assertTrue("gaR" in dao.get_players_with_similar_alias("garpr goog youtube gar"))
