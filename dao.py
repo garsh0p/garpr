@@ -280,9 +280,7 @@ class Dao(object):
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
-            re.split(special_chars, alias_lower)[-1].strip(),
-<<<<<<< cd8db23ddebdca75a69c28281a81f6526fb8d2ca
-<<<<<<< 8bb8a71a2b5d994325f9a424229a6468e7a97291
+            re.split(special_chars, alias_lower)[-1].strip()
         ])
 
         # regex nonsense to deal with pool prefixes
