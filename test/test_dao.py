@@ -1,6 +1,7 @@
 import unittest
 from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException, UpdateTournamentException
 from bson.objectid import ObjectId
+from ConfigParser import ConfigParser
 from model import *
 from ming import mim
 import trueskill
@@ -9,14 +10,20 @@ from pymongo.errors import DuplicateKeyError
 from pymongo import MongoClient
 
 DATABASE_NAME = 'garpr_test'
+CONFIG_LOCATION = 'config/config.ini'
 
 class TestDAO(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
-        MongoClient().drop_database(DATABASE_NAME)
+    def setUpClass(self):
+        config = ConfigParser()
+        config.read(CONFIG_LOCATION)
+        username = config.get('database', 'user')
+        host = config.get('database', 'host')
+        auth_db = config.get('database', 'auth_db')
+        password = config.get('database', 'password')
+        self.mongo_client = MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
 
     def setUp(self):
-        self.mongo_client = MongoClient()
 
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
