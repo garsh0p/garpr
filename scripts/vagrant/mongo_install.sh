@@ -12,7 +12,7 @@ sudo apt-get update
 sudo apt-get install -y mongodb-org
 
 # Add development user
-mongo admin --eval "db.createUser({user:'devuser',pwd:'devpass01',roles:[{role:'userAdminAnyDatabase',db:'admin'}]})"
+mongo admin --eval "db.createUser({user:'devuser',pwd:'devpass01',roles:[{role:'root',db:'admin'}]})"
 
 # Turn on authentication (off by default)
 echo '' | sudo tee --append /etc/mongod.conf

@@ -2,6 +2,7 @@ import unittest
 import alias_service
 from mock import patch, Mock
 import mongomock
+from ConfigParser import ConfigParser
 from dao import Dao
 from model import *
 import json
@@ -9,16 +10,23 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 
 DATABASE_NAME = 'garpr_test'
+CONFIG_LOCATION = 'config/config.ini'
 
 class TestAliasService(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
-        MongoClient().drop_database(DATABASE_NAME)
+    def setUpClass(self):
+        config = ConfigParser()
+        config.read(CONFIG_LOCATION)
+        username = config.get('database', 'user')
+        host = config.get('database', 'host')
+        auth_db = config.get('database', 'auth_db')
+        password = config.get('database', 'password')
+        self.mongo_client = MongoClient(host='mongodb://%s:%s@%s/%s' % (username, password, host, auth_db))
+        self.mongo_client.drop_database(DATABASE_NAME)
 
     def setUp(self):
         self.maxDiff = None
-        self.mongo_client = MongoClient()
-
+        
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()
         self.player_3_id = ObjectId()
