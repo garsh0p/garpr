@@ -1,6 +1,6 @@
 from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
-from base64 import b64encode
+import base64
 from datetime import datetime, timedelta
 from model import *
 import trueskill
@@ -210,7 +210,6 @@ class Dao(object):
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
-    # used only in tests
     def delete_tournament(self, tournament):
         return self.tournaments_col.remove({'_id': tournament.id})
 
@@ -267,14 +266,37 @@ class Dao(object):
     # basically, get players who have an alias similar to the given alias
     def get_players_with_similar_alias(self, alias):
         alias_lower = alias.lower()
-        similar_aliases = list(set([
+
+        #here be regex dragons
+        re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
+        re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
+
+        alias_set_1 = re.split(re_test_1, alias_lower)
+        alias_set_2 = re.split(re_test_2, alias_lower)
+
+        similar_aliases = set([
             alias_lower,
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
             re.split(special_chars, alias_lower)[-1].strip()
-        ]))
-        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
+        ])
+
+        # regex nonsense to deal with pool prefixes
+        # prevent index OOB errors when dealing with tags that don't split well
+        if len(alias_set_1) == 4:
+            similar_aliases.update(alias_set_1[2])
+            similar_aliases.update(alias_set_1[2].strip())
+        if len(alias_set_2) == 4:
+            similar_aliases.update(alias_set_2[2])
+            similar_aliases.update(alias_set_2[2].strip())
+
+
+        #add suffixes of the string
+        alias_words = alias_lower.split()
+        similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
+
+        ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
         return [Player.from_json(p) for p in ret]
 
     def insert_pending_merge(self, the_merge):
@@ -369,10 +391,9 @@ class Dao(object):
         assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
         user = User.from_json(result[0])
         assert user, "mongo has stopped being consistent, abort ship"
-        # expected_hash = hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT)
-        # if expected_hash and expected_hash == user.hashed_password:
-        if sha256_crypt.verify(password, user.hashed_password):
-            session_id = b64encode(os.urandom(128))
+        the_hash = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT))
+        if the_hash and the_hash == user.hashed_password: # timing oracle on this... good luck
+            session_id = base64.b64encode(os.urandom(128))
             self.update_session_id_for_user(user.id, session_id)
             return session_id
         else:

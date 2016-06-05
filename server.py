@@ -107,7 +107,13 @@ def get_user_from_request(request, dao):
     return dao.get_user_by_session_id_or_none(session_id)
 
 def is_user_admin_for_region(user, region):
-    return region in user.admin_regions
+    if not region:
+        return False
+    if not user.admin_regions:
+        return False
+    if "".join(region) in user.admin_regions:
+        return True
+    return False
 
 def is_user_admin_for_regions(user, regions):
     '''
@@ -432,7 +438,12 @@ class TournamentResource(restful.Resource):
         if tournament is not None:
             response = convert_tournament_to_response(tournament, dao)
         else:
+            user = get_user_from_request(request, dao)
             pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+            if not user:
+                return 'Permission denied', 403
+            if not is_user_admin_for_regions(user, pending_tournament.regions):
+                return 'Permission denied', 403
             response = convert_pending_tournament_to_response(pending_tournament, dao)
             
         return response
@@ -481,31 +492,27 @@ class TournamentResource(restful.Resource):
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
     def delete(self, region, id):
-        """ Deletes a pending tournament.
-            If a (non-pending) tournament with this id exists, tell the user they can't do that.
-            Route restricted to admins for this region. """
+        """ Deletes a tournament.
+            Route restricted to admins for this region.
+            Be VERY careful when using this """
         dao = Dao(region, mongo_client=mongo_client)
-
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
 
-        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
-
-        if not pending_tournament:
-            tournament = dao.get_tournament_by_id(ObjectId(id))
-            if not tournament:
-                return "No pending tournament found with that id.", 400
-            else:
-                if not is_user_admin_for_regions(user, tournament.regions):
-                    return 'Permission denied', 403
-                else:
-                    return "Cannot delete a finalized tournament.", 400
-
-        if not is_user_admin_for_regions(user, pending_tournament.regions):
-            return 'Permission denied', 403
-
-        dao.delete_pending_tournament(pending_tournament)
+        tournament_to_delete = dao.get_pending_tournament_by_id(ObjectId(id))
+        if tournament_to_delete: #its a pending tournament
+            if not is_user_admin_for_regions(user, tournament_to_delete.regions):
+                return 'Permission denied', 403
+            dao.delete_pending_tournament(tournament_to_delete)
+        else:  #not a pending tournament, might be a finalized tournament
+            tournament_to_delete = dao.get_tournament_by_id(ObjectId(id))
+            if not tournament_to_delete: #can't find anything, whoops
+                return "No tournament (pending or finalized) found with that id.", 400
+            if not is_user_admin_for_regions(user, tournament_to_delete.regions):
+                return 'Permission denied', 403
+            resp = dao.delete_tournament(tournament_to_delete)
+        
         return {"success": True}
         
 class TournamentRegionResource(restful.Resource):
@@ -533,6 +540,8 @@ class TournamentRegionResource(restful.Resource):
             return 'Permission denied', 403
 
         tournament = dao.get_tournament_by_id(ObjectId(id))
+        if not tournament:
+            return 'Tournament not found', 404
         if region_to_change in tournament.regions:
             tournament.regions.remove(region_to_change)
             dao.update_tournament(tournament)
@@ -840,7 +849,7 @@ class SessionResource(restful.Resource):
 def add_cors(resp):
     """ Ensure all responses have the CORS headers. This ensures any failures are also accessible
         by the client. """
-    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*')
+    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*') #!!! this needs to be tightened down to only the domains we're expecting
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET, PUT, DELETE'
     resp.headers['Access-Control-Allow-Headers'] = request.headers.get( 

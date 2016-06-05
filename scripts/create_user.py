@@ -4,7 +4,7 @@ from sys import argv
 import hashlib
 from model import User
 from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT
-
+import base64
 
 
 if __name__ == "__main__":
@@ -19,10 +19,9 @@ if __name__ == "__main__":
 
 	#TODO: validate regions all exist
 
-	salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
-	# does this need to be encoded before its passed into hashlib?
+	salt = base64.b64encode(os.urandom(16)) #more bytes of randomness? i think 16 bytes is sufficient for a salt
 
-	hashed_password = hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT)
+	hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT))
 	the_user = User(id=None, regions, username, salt, hashed_password)
 	users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
 
