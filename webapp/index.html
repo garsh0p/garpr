@@ -22,7 +22,7 @@
         <div class="navbar navbar-inverse" role="navigation" ng-controller="NavbarController">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand">GAR PR</a>
+                    <a class="navbar-brand">NJ GARPR</a>
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
@@ -59,7 +59,7 @@
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li ng-repeat="r in regionService.regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
+                                <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -72,7 +72,7 @@
             </div>
         </div>
         <div>
-            <alert type="danger">GAR PR is slowly making progress on administration features and adding new regions. Please be patient!</alert>
+            <alert type="danger">NJ GARPR is in super alpha mode. Tread carefully</alert>
         </div>
         <div ng-view></div>
     </body>

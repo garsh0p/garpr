@@ -1,11 +1,11 @@
 var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook']);
 
-var dev = true;
+var dev = false;
 if (dev) {
     var hostname = 'http://localhost:3000/';
 }
 else {
-    var hostname = 'http://localhost:3000/'; //whensgarpr.gg:3000
+    var hostname = 'http://njssbm.com/api/'; //whensgarpr.gg:3000
 }
 
 app.directive('onReadFile', function ($parse) {
@@ -77,6 +77,8 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
     service.regionsPromise.success(function(data) {
         service.regions = data.regions;
     });
+    // only allow New Jersey to show in UI
+    service.display_regions = [{"id": "newjersey", "display_name": "New Jersey"}];
 
     return service;
 });
@@ -94,8 +96,8 @@ app.service('PlayerService', function($http) {
             return null;
         },
         getPlayerListFromQuery: function(query, filter_fn) {
-            // region doesn't matter here, so we hardcode norcal
-            url = hostname + 'norcal/players';
+            // region doesn't matter here, so we hardcode newjersey
+            url = hostname + 'newjersey/players';
             params = {
                 params: {
                     query: query
@@ -248,7 +250,7 @@ app.config(['$routeProvider', function($routeProvider) {
         activeTab: 'about'
     }).
     otherwise({
-        redirectTo: '/norcal/rankings'
+        redirectTo: '/newjersey/rankings'
     });
 }]);
 
@@ -531,6 +533,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     }
 
     $scope.updateData = function(data) {
+        console.log(data)
         $scope.tournament = data;
         if ($scope.tournament.hasOwnProperty('alias_to_id_map')) {
             $scope.isPendingTournament = true;
@@ -615,8 +618,8 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         params = {"base_player_id": $scope.playerId, "to_be_merged_player_id": $scope.mergePlayer.id};
         console.log(params);
         $scope.sessionService.authenticatedPost(url, params, 
-            function() {alert("Your merge request has been sent. A site admin will process it soon.")}, 
-            function() {alert("Your merge request didn't go through. Please try again later.")});
+            function() {alert("These two accounts have been merged.")},
+            function() {alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.")});
     };
 
     $scope.getMergePlayers = function(viewValue) {

@@ -9,7 +9,7 @@ import hashlib
 from passlib.hash import sha256_crypt
 
 DEFAULT_RATING = TrueskillRating()
-DATABASE_NAME = 'admin' #should be garpr but uhh i fucked up setting up my db -jh
+DATABASE_NAME = 'garpr'
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
@@ -165,8 +165,8 @@ class Dao(object):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
 
     def update_pending_tournament(self, pending_tournament):
-        if len(pending_tournament.raw) == 0:
-            raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
+        # if len(pending_tournament.raw) == 0:
+        #     raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
         return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
 
     def delete_pending_tournament(self, pending_tournament):
@@ -205,8 +205,8 @@ class Dao(object):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
-        if len(tournament.raw) == 0:
-            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
+        # if len(tournament.raw) == 0:
+        #     raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
@@ -336,8 +336,13 @@ class Dao(object):
 
     # TODO this is untested
     def is_inactive(self, player, now):
-        day_limit = 45
-        num_tourneys = 1
+        day_limit = 60
+        num_tourneys = 2
+
+        # special case for Westchester
+        if self.region_id == "westchester":
+            day_limit = 1500
+            num_tourneys = 1
 
         # special case for NYC
         if self.region_id == "nyc":

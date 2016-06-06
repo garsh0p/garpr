@@ -25,6 +25,7 @@ import Cookie
 from Cookie import CookieError
 
 TYPEAHEAD_PLAYER_LIMIT = 20
+BASE_REGION = 'newjersey'
 
 # parse config file
 config = Config()
@@ -639,7 +640,7 @@ class PendingTournamentResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        if not is_user_admin_for_region(user, pending_tournament.regions):
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
             return 'Permission denied', 403
 
         args = pending_tournament_put_parser.parse_args()
@@ -662,7 +663,7 @@ class FinalizeTournamentResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        if not is_user_admin_for_region(user, pending_tournament.regions):
+        if not is_user_admin_for_regions(user, pending_tournament.regions):
             return 'Permission denied', 403
 
         new_player_names = []
@@ -803,12 +804,10 @@ class PendingMergesResource(restful.Resource):
 
         #get curr time
         now = datetime.now()
-        #create a new merge object
-        the_merge = Merge(user.id, base_player_id, to_be_merged_player_id, now)
-        #store it in the dao
-        merge_id = dao.insert_pending_merge(the_merge)
-        string_rep = str(merge_id)
-        return_dict = {'id': string_rep}
+        base_player = dao.get_player_by_id(base_player_id)
+        to_be_merged_player = dao.get_player_by_id(to_be_merged_player_id)
+        dao.merge_players(base_player, to_be_merged_player)
+        return_dict = {'status': "success"}
         return return_dict, 200
 
 
@@ -816,7 +815,7 @@ class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
     def put(self): 
         args = session_put_parser.parse_args() #parse args
-        dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(BASE_REGION, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
         session_id = dao.check_creds_and_get_session_id_or_none(args['username'], args['password'])
         if not session_id:
             return 'Permission denied', 403
@@ -827,7 +826,7 @@ class SessionResource(restful.Resource):
     ''' logout, destroys session_id mapping on client and server side '''
     def delete(self):
         args = session_delete_parser.parse_args()
-        dao = Dao('norcal', mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(BASE_REGION, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
         logout_success = dao.logout_user_or_none(args['session_id'])
         if not logout_success:
             return 'who is you', 404
@@ -835,7 +834,7 @@ class SessionResource(restful.Resource):
 
     def get(self):
         # TODO region doesn't matter, remove hardcode
-        dao = Dao('norcal', mongo_client=mongo_client)
+        dao = Dao(BASE_REGION, mongo_client=mongo_client)
         user = get_user_from_request(request, dao)
         if not user:
             return 'you are not a real user', 400
