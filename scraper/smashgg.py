@@ -107,6 +107,11 @@ class SmashGGScraper(object):
     def log(self, msg):
         return "    [SmashGG] " + msg
 
+    @staticmethod
+    def get_tournament_id_from_url(url):
+        id = url[url.rfind('/') + 1:]
+        return int(id)
+
 class SmashGGPlayer(object):
     def __init__(self, smashgg_id, name, smash_tag, region):
         self.smashgg_id = smashgg_id

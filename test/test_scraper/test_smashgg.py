@@ -8,7 +8,8 @@ from datetime import datetime
 from model import MatchResult
 from scraper.smashgg import SmashGGPlayer
 from scraper.smashgg import SmashGGScraper
-
+TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
+TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
 TEST_TOURNAMENT_ID_1 = 11226
 TEST_TOURNAMENT_ID_2 = 70949
 TEST_PLAYER_ID_1 = 13932
@@ -19,10 +20,11 @@ class TestSmashGGScraper(unittest.TestCase):
         self.tournament1 = SmashGGScraper(TEST_TOURNAMENT_ID_1)
         self.tournament2 = SmashGGScraper(TEST_TOURNAMENT_ID_2)
 
-    def test_tournament_creation(self):
-        players = self.tournament1.get_smashgg_players()
-        player = self.tournament1.get_player_by_id(TEST_PLAYER_ID_1)
-        tags = self.tournament1.get_players()
+    def test_get_tournament_id_from_url1(self):
+        self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_1), 6529)
+
+    def test_get_tournament_id_from_url2(self):
+        self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_2), 70949)
 
     def test_get_player_by_id1(self):
         player = self.tournament1.get_player_by_id(TEST_PLAYER_ID_1)
