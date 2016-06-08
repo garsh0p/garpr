@@ -14,6 +14,8 @@ DUMP_SETTINGS = "?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=ma
 class SmashGGScraper(object):
     def __init__(self, tournament_id):
         self.tournament_id = tournament_id
+        self.players = []
+
         self.raw_dict = None
         self.get_raw()
 
@@ -27,8 +29,21 @@ class SmashGGScraper(object):
             self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
         return self.raw_dict
 
+    def get_matches(self):
+        matches = []
+
+        return matches
+
+    def resolve_player_by_id(self, id):
+        if self.players is None or len(self.players) == 0:
+            self.get_players(self.tournament_id)
+
+        for player in self.players:
+            if id == player.smashgg_id:
+                return player
+
     def get_players(self):
-        players = []
+        self.players = []
         seeds = self.get_raw()['smashgg']['entities']['seeds']
         for seed in seeds:
             this_player = seed['mutations']['players']
@@ -37,23 +52,22 @@ class SmashGGScraper(object):
 
             try:
                 tag = this_player[id]['gamerTag'].strip()
-            except:
-                print 'No smashtag found for ID: ' + str(id.strip())
-                continue
-
-            #COLLECT ADDITIONAL INFORMATION PROVIDED BY API
-            #MAYBE USE LATER ON
-            #THIS NEEDS BETTER ERR HANDLING / LOGGING
-            try:
                 name = this_player[id]['name'].strip()
                 region = this_player[id]['region'].strip()
             except:
                 print 'Data for player ' + id + ' not found'
+                continue
 
-            #player = Player(tag, [], {}, region, 0)
-            players.append(tag)
-        return players
+            player = SmashGGPlayer(name, tag, region)
+            self.players.append(player)
 
     def _check_for_200(self, response):
         response.raise_for_status()
         return response
+
+class SmashGGPlayer(object):
+    def __init__(self, smashgg_id, name, smash_tag, region):
+        self.smashgg_id = smashgg_id
+        self.name = name
+        self.smash_tag = smash_tag
+        self.region = region
