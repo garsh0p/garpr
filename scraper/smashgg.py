@@ -25,7 +25,8 @@ class SmashGGScraper(object):
             
             base_url = TOURNAMENT_URL % self.tournament_id
             url = base_url + DUMP_SETTINGS
-            
+
+            self.log('API Call to ' + str(url) + ' executing')
             self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
         return self.raw_dict
 
@@ -35,6 +36,10 @@ class SmashGGScraper(object):
         for set in sets:
             winner_id = set['winnerId']
             loser_id = set['loserId']
+            #CHECK FOR A BYE
+            if loser_id is None:
+                continue
+
             match = MatchResult(winner_id, loser_id)
             matches.append(match)
         return matches
@@ -65,13 +70,31 @@ class SmashGGScraper(object):
             for player_id in this_player:
                 id = player_id
 
+            #EXTRACT SMASH TAG
             try:
                 tag = this_player[id]['gamerTag'].strip()
-                name = this_player[id]['name'].strip()
-                region = this_player[id]['region'].strip()
             except:
-                print self.log('Data for player ' + id + ' not found')
+                print self.log('Player for id ' + str(id) + ' not found')
                 continue
+
+            #EXTRACT NAME
+            try:
+                name = this_player[id]['name'].strip()
+            except Exception as e:
+                name = None
+                print self.log('SmashGGPlayer ' + tag + ': name | ' + str(e))
+
+            #EXTRACT REGION
+            try:
+                region = this_player[id]['region'].strip()
+            except Exception as e:
+                print self.log('SmashGGPlayer ' + tag + ': region | ' + str(e))
+                try:
+                    print self.log('Region not found. Trying state...')
+                    region = this_player[id]['state'].strip()
+                except Exception as e2:
+                    print self.log('SmashGGPlayer ' + tag + ': state | ' + str(e2))
+                    region = None
 
             player = SmashGGPlayer(id, name, tag, region)
             self.players.append(player)
