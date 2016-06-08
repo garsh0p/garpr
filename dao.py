@@ -41,7 +41,7 @@ class Dao(object):
         self.mongo_client = mongo_client
         self.region_id = region_id
 
-        if not region_id in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
+        if region_id and region_id not in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
 
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
@@ -69,7 +69,7 @@ class Dao(object):
     def get_player_by_alias(self, alias):
         '''Converts alias to lowercase'''
         return Player.from_json(self.players_col.find_one({
-            'aliases': {'$in': [alias.lower()]}, 
+            'aliases': {'$in': [alias.lower()]},
             'regions': {'$in': [self.region_id]}
         }))
 
@@ -144,7 +144,7 @@ class Dao(object):
         # ensure this name is already an alias
         if not name.lower() in player.aliases:
             raise InvalidNameException(
-                    'Player %s does not have %s as an alias already, cannot change name.' 
+                    'Player %s does not have %s as an alias already, cannot change name.'
                     % (player, name))
 
         player.name = name
@@ -205,8 +205,8 @@ class Dao(object):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
-        # if len(tournament.raw) == 0:
-        #     raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
+        if len(tournament.raw) == 0:
+            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
@@ -334,10 +334,11 @@ class Dao(object):
     def get_all_users(self):
         return [User.from_json(u) for u in self.users_col.find()]
 
-    # TODO this is untested
-    def is_inactive(self, player, now):
-        day_limit = 60
-        num_tourneys = 2
+    # TODO add more tests
+    def is_inactive(self, player, now, day_limit, num_tourneys):
+
+        # TODO: handle special cases somewhere properly
+        #       (probably in rankings.generate_ranking)
 
         # special case for Westchester
         if self.region_id == "westchester":
@@ -374,7 +375,7 @@ class Dao(object):
         return self.get_user_by_id_or_none(user_id)
 
     #### FOR INTERNAL USE ONLY ####
-    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking 
+    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking
     def get_session_id_by_user_or_none(self, User):
         results = self.sessions_col.find()
         for session_mapping in results:
@@ -407,10 +408,7 @@ class Dao(object):
 
     def logout_user_or_none(self, session_id):
         user = self.get_user_by_session_id_or_none(session_id)
-        if user: 
+        if user:
             self.sessions_col.remove({"user_id": user.id})
             return True
         return None
-
-
-

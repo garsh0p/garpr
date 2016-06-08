@@ -40,4 +40,3 @@ uritemplate==0.6
 uwsgi==2.0.9
 wsgiref==0.1.2
 zope.interface==4.1.1
-passlib==1.6.5

@@ -5,7 +5,7 @@ import trueskill
 
 DEFAULT_RATING = TrueskillRating()
 
-def generate_ranking(dao, now=datetime.now()):
+def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2):
     player_date_map = {}
     player_id_to_player_map = {}
 
@@ -30,23 +30,23 @@ def generate_ranking(dao, now=datetime.now()):
 
             winner = player_id_to_player_map[match.winner]
             loser = player_id_to_player_map[match.loser]
-            
+
             rating_calculators.update_trueskill_ratings(dao.region_id, winner=winner, loser=loser)
 
     print 'Checking for player inactivity...'
-    i = 1
+    rank = 1
     players = player_id_to_player_map.values()
     sorted_players = sorted(
-            players, 
+            players,
             key=lambda player: trueskill.expose(player.ratings[dao.region_id].trueskill_rating), reverse=True)
     ranking = []
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
-        if player_last_active_date == None or dao.is_inactive(player, now) or not dao.region_id in player.regions:
+        if player_last_active_date == None or dao.is_inactive(player, now, day_limit, num_tourneys) or not dao.region_id in player.regions:
             pass # do nothing, skip this player
         else:
-            ranking.append(RankingEntry(i, player.id, trueskill.expose(player.ratings[dao.region_id].trueskill_rating)))
-            i += 1
+            ranking.append(RankingEntry(rank, player.id, trueskill.expose(player.ratings[dao.region_id].trueskill_rating)))
+            rank += 1
 
     print 'Updating players...'
     for i, p in enumerate(players, start=1):

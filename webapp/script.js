@@ -1,8 +1,9 @@
 var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook']);
 
-var dev = false;
+var defaultRegion = 'newjersey'
+var dev = true;
 if (dev) {
-    var hostname = 'http://localhost:3000/';
+    var hostname = 'http://192.168.33.10:3000/';
 }
 else {
     var hostname = 'http://njssbm.com/api/'; //whensgarpr.gg:3000
@@ -96,8 +97,7 @@ app.service('PlayerService', function($http) {
             return null;
         },
         getPlayerListFromQuery: function(query, filter_fn) {
-            // region doesn't matter here, so we hardcode newjersey
-            url = hostname + 'newjersey/players';
+            url = hostname + defaultRegion + '/players';
             params = {
                 params: {
                     query: query
@@ -142,8 +142,8 @@ app.service('SessionService', function($http) {
         userInfo: null,
         authenticatedGet: function(url, successCallback) {
             config = {
-                "headers": { 
-                    "withCredentials": true, 
+                "headers": {
+                    "withCredentials": true,
                     "Access-Control-Allow-Credentials": true
                 }
             };
@@ -151,8 +151,8 @@ app.service('SessionService', function($http) {
         },
         authenticatedPost: function(url, data, successCallback, failureCallback) {
             config = {
-                "headers": { 
-                    "withCredentials": true, 
+                "headers": {
+                    "withCredentials": true,
                     "Access-Control-Allow-Credentials": true
                 }
             };
@@ -163,20 +163,20 @@ app.service('SessionService', function($http) {
                 data = {};
             }
             config = {
-                "headers": { 
-                    "withCredentials": true, 
+                "headers": {
+                    "withCredentials": true,
                     "Access-Control-Allow-Credentials": true
                 }
             };
             if (failureCallback === undefined) {
-                failureCallback = function(data) {}            
+                failureCallback = function(data) {}
             }
             $http.put(url, data, config).success(successCallback).error(failureCallback);
         },
         authenticatedDelete: function(url, successCallback) {
             config = {
-                "headers": { 
-                    "withCredentials": true, 
+                "headers": {
+                    "withCredentials": true,
                     "Access-Control-Allow-Credentials": true
                 }
             };
@@ -250,7 +250,7 @@ app.config(['$routeProvider', function($routeProvider) {
         activeTab: 'about'
     }).
     otherwise({
-        redirectTo: '/newjersey/rankings'
+        redirectTo: '/' + defaultRegion + '/rankings'
     });
 }]);
 
@@ -617,13 +617,13 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         url = hostname + $routeParams.region + '/merges';
         params = {"base_player_id": $scope.playerId, "to_be_merged_player_id": $scope.mergePlayer.id};
         console.log(params);
-        $scope.sessionService.authenticatedPost(url, params, 
+        $scope.sessionService.authenticatedPost(url, params,
             function() {alert("These two accounts have been merged.")},
             function() {alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.")});
     };
 
     $scope.getMergePlayers = function(viewValue) {
-        players = $scope.playerService.getPlayerListFromQuery(viewValue, 
+        players = $scope.playerService.getPlayerListFromQuery(viewValue,
             function(player) {return player.id != $scope.playerId});
         return players;
     }
@@ -651,7 +651,7 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
 
     $scope.onChange = function() {
         if ($scope.player1 != null && $scope.player2 != null) {
-            $http.get(hostname + $routeParams.region + 
+            $http.get(hostname + $routeParams.region +
                 '/matches/' + $scope.player1.id + '?opponent=' + $scope.player2.id).
                 success(function(data) {
                     $scope.playerName = $scope.player1.name;
@@ -663,4 +663,3 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
         }
     };
 });
-
