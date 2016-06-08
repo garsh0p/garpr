@@ -133,6 +133,33 @@ class SmashGGScraper(object):
         return self.players
 
     '''
+    Return a list of SmashGGMatch objects that encapsulate more data about the match
+    than just the winner and loser. Could be useful for additional ranking metrics
+    like how far into the tournament or how many matches were played.
+    '''
+    def get_smashgg_matches(self):
+        self.matches = []
+        sets = self.get_raw()['smashgg']['entities']['sets']
+        for set in sets:
+            winner_id = set['winnerId']
+            loser_id = set['loserId']
+            # CHECK FOR A BYE
+            if loser_id is None:
+                continue
+
+            try:
+                round = set['round']
+                bestOf = set['bestOf']
+            except:
+                print self.log('Could not find extra details for match')
+                round = None
+                bestOf = None
+
+            match = SmashGGMatch(winner_id, loser_id, round, bestOf)
+            self.matches.append(match)
+        return self.matches
+
+    '''
     Returns the body response from a successful http call
     '''
     def _check_for_200(self, response):
@@ -174,3 +201,16 @@ class SmashGGPlayer(object):
         self.name = name
         self.smash_tag = smash_tag
         self.region = region
+
+class SmashGGMatch(object):
+    def __init__(self, winner_id, loser_id, round, bestOf):
+        '''
+        :param winner_id: Entrant id of the winner of the match
+        :param loser_id:  Entrant id of the loser of the match
+        :param round:     Round of the bracket this match took place
+        :param bestOf:    Best of this many matches
+        '''
+        self.winner_id = winner_id
+        self.loser_id = loser_id
+        self.round = round
+        self.bestOf = bestOf
