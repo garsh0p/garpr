@@ -34,12 +34,12 @@ class SmashGGScraper(object):
 
         return matches
 
-    def resolve_player_by_id(self, id):
+    def get_player_by_id(self, id):
         if self.players is None or len(self.players) == 0:
             self.get_players(self.tournament_id)
 
         for player in self.players:
-            if id == player.smashgg_id:
+            if id == int(player.smashgg_id):
                 return player
 
     def get_players(self):
@@ -58,7 +58,7 @@ class SmashGGScraper(object):
                 print 'Data for player ' + id + ' not found'
                 continue
 
-            player = SmashGGPlayer(name, tag, region)
+            player = SmashGGPlayer(id, name, tag, region)
             self.players.append(player)
 
     def _check_for_200(self, response):
