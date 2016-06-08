@@ -8,17 +8,32 @@ from datetime import datetime
 from model import MatchResult
 from scraper.smashgg import SmashGGPlayer
 from scraper.smashgg import SmashGGScraper
+
 TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
 TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
+TEST_DATA1 = 'test/test_scraper/data/smashgg.json'
+TEST_DATA2 = 'test/test_scraper/data/smashgg2.json'
 TEST_TOURNAMENT_ID_1 = 11226
 TEST_TOURNAMENT_ID_2 = 70949
-TEST_PLAYER_ID_1 = 13932
-TEST_PLAYER_ID_2 = 4442
+TEST_PLAYER_ENTRANTID_1 = 52273
+TEST_PLAYER_ENTRANTID_2 = 110555
+TEST_PLAYER_SMASHGGID_1 = 13932
+TEST_PLAYER_SMASHGGID_2 = 4442
 
 class TestSmashGGScraper(unittest.TestCase):
     def setUp(self):
         self.tournament1 = SmashGGScraper(TEST_TOURNAMENT_ID_1)
         self.tournament2 = SmashGGScraper(TEST_TOURNAMENT_ID_2)
+
+    def test_get_raw1(self):
+        with open(TEST_DATA1) as data1:
+            self.tournament1_json_dict = json.load(data1)
+        self.assertEqual(self.tournament1.get_raw()['smashgg'], self.tournament1_json_dict)
+
+    def test_get_raw2(self):
+        with open(TEST_DATA2) as data2:
+            self.tournament2_json_dict = json.load(data2)
+        self.assertEqual(self.tournament2.get_raw()['smashgg'], self.tournament2_json_dict)
 
     def test_get_tournament_id_from_url1(self):
         self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_1), 6529)
@@ -26,14 +41,26 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_tournament_id_from_url2(self):
         self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_2), 70949)
 
-    def test_get_player_by_id1(self):
-        player = self.tournament1.get_player_by_id(TEST_PLAYER_ID_1)
+    def test_get_player_by_entrant_id1(self):
+        player = self.tournament1.get_player_by_entrant_id(TEST_PLAYER_ENTRANTID_1)
         self.assertEqual(player.name, 'Jose Angel Aldama')
         self.assertEqual(player.smash_tag, 'Lucky')
         self.assertEqual(player.region, 'SoCal')
 
-    def test_get_player_by_id2(self):
-        player = self.tournament2.get_player_by_id(TEST_PLAYER_ID_2)
+    def test_get_player_by_entrant_id2(self):
+        player = self.tournament2.get_player_by_entrant_id(TEST_PLAYER_ENTRANTID_2)
+        self.assertEqual(player.name, 'Sami Muhanna')
+        self.assertEqual(player.smash_tag, 'Druggedfox')
+        self.assertEqual(player.region, 'GA')
+
+    def test_get_player_by_smashgg_id1(self):
+        player = self.tournament1.get_player_by_smashgg_id(TEST_PLAYER_SMASHGGID_1)
+        self.assertEqual(player.name, 'Jose Angel Aldama')
+        self.assertEqual(player.smash_tag, 'Lucky')
+        self.assertEqual(player.region, 'SoCal')
+
+    def test_get_player_by_smashgg_id2(self):
+        player = self.tournament2.get_player_by_smashgg_id(TEST_PLAYER_SMASHGGID_2)
         self.assertEqual(player.name, 'Sami Muhanna')
         self.assertEqual(player.smash_tag, 'Druggedfox')
         self.assertEqual(player.region, 'GA')
