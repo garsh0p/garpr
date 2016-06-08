@@ -41,6 +41,12 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_tournament_id_from_url2(self):
         self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_2), 70949)
 
+    def test_get_tournament_name_from_url1(self):
+        self.assertEqual(SmashGGScraper.get_tournament_name_from_url(TEST_URL_1), 'htc throwdown')
+
+    def test_get_tournament_name_from_url2(self):
+        self.assertEqual(SmashGGScraper.get_tournament_name_from_url(TEST_URL_2), 'tiger smash 4')
+
     def test_get_player_by_entrant_id1(self):
         player = self.tournament1.get_player_by_entrant_id(TEST_PLAYER_ENTRANTID_1)
         self.assertEqual(player.name, 'Jose Angel Aldama')

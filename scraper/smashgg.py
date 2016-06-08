@@ -153,6 +153,13 @@ class SmashGGScraper(object):
         id = url[url.rfind('/') + 1:]
         return int(id)
 
+    @staticmethod
+    def get_tournament_name_from_url(url):
+        tStr = 'tournament/'
+        startIndex = url.rfind(tStr) + len(tStr)
+        name = url[startIndex: url.index('/', startIndex)]
+        return name.replace('-', ' ')
+
 class SmashGGPlayer(object):
     def __init__(self, smashgg_id, entrant_id, name, smash_tag, region):
         '''
