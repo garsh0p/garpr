@@ -148,6 +148,7 @@ class SmashGGScraper(object):
                 continue
 
             try:
+                name = set['fullRoundText']
                 round = set['round']
                 bestOf = set['bestOf']
             except:
@@ -155,7 +156,7 @@ class SmashGGScraper(object):
                 round = None
                 bestOf = None
 
-            match = SmashGGMatch(winner_id, loser_id, round, bestOf)
+            match = SmashGGMatch(name, winner_id, loser_id, round, bestOf)
             self.matches.append(match)
         return self.matches
 
@@ -180,6 +181,9 @@ class SmashGGScraper(object):
         id = url[url.rfind('/') + 1:]
         return int(id)
 
+    '''
+    Parses a url and retrieves the name of the tournament in question
+    '''
     @staticmethod
     def get_tournament_name_from_url(url):
         tStr = 'tournament/'
@@ -203,14 +207,15 @@ class SmashGGPlayer(object):
         self.region = region
 
 class SmashGGMatch(object):
-    def __init__(self, winner_id, loser_id, round, bestOf):
+    def __init__(self, roundName, winner_id, loser_id, roundNumber, bestOf):
         '''
         :param winner_id: Entrant id of the winner of the match
         :param loser_id:  Entrant id of the loser of the match
         :param round:     Round of the bracket this match took place
         :param bestOf:    Best of this many matches
         '''
+        self.roundName = roundName
         self.winner_id = winner_id
         self.loser_id = loser_id
-        self.round = round
+        self.roundNumber = roundNumber
         self.bestOf = bestOf
