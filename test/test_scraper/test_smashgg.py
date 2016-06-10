@@ -1,19 +1,12 @@
 import unittest
-import requests
 import os
 import json
-import pytz
-import scraper.smashgg
-from mock import patch, Mock
-from datetime import datetime
-from model import MatchResult
-from scraper.smashgg import SmashGGPlayer
 from scraper.smashgg import SmashGGScraper
 
 TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
 TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
-TEST_DATA1 = os.path.abspath('data' + os.sep + 'smashgg.json')#os.path.join(os.path.dirname(os.path.realpath('test_smashgg.json')), 'data' + os.sep  + 'smashgg.json')
-TEST_DATA2 = os.path.abspath('data' + os.sep + 'smashgg2.json')#os.path.join(os.path.dirname(os.path.realpath('test_smashgg2.json')), 'data' + os.sep + 'smashgg2.json')
+TEST_DATA1 = os.path.abspath('data' + os.sep + 'smashgg.json')
+TEST_DATA2 = os.path.abspath('data' + os.sep + 'smashgg2.json')
 TEST_TOURNAMENT_ID_1 = 11226
 TEST_TOURNAMENT_ID_2 = 70949
 TEST_PLAYER_ENTRANTID_1 = 52273
