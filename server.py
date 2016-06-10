@@ -821,7 +821,7 @@ class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
     def put(self):
         args = session_put_parser.parse_args() #parse args
-        dao = Dao(None, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(None, mongo_client=mongo_client)
         session_id = dao.check_creds_and_get_session_id_or_none(args['username'], args['password'])
         if not session_id:
             return 'Permission denied', 403
@@ -832,7 +832,7 @@ class SessionResource(restful.Resource):
     ''' logout, destroys session_id mapping on client and server side '''
     def delete(self):
         args = session_delete_parser.parse_args()
-        dao = Dao(None, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(None, mongo_client=mongo_client) 
         logout_success = dao.logout_user_or_none(args['session_id'])
         if not logout_success:
             return 'who is you', 404

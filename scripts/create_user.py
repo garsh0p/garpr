@@ -1,35 +1,27 @@
-from pymongo import MongoClient, DESCENDING
+import os
+import sys
+
+from pymongo import MongoClient
+
+# add root directory to python path
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../'))
+
 from config.config import Config
-from sys import argv
-import hashlib
-from model import User
-from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT
-import base64
+from dao import Dao
 
-
+# script to create new user in db
 if __name__ == "__main__":
-	if len(argv) < 4:
-		print "incorrect number of arguments!"
-		print "usage: python create_user.py username password region1 [region2] [region3]...."
-	username = argv[1]
-	password = argv[2]
-	regions =  argv[3:]
-	config = Config()
-	mongo_client = MongoClient(host=config.get_mongo_url())
+    if len(sys.argv) < 4:
+        print "incorrect number of arguments!"
+        print "usage: python create_user.py username password region1 [region2] [region3]...."
+        sys.exit()
 
-	#TODO: validate regions all exist
+    username = sys.argv[1]
+    password = sys.argv[2]
+    regions =  sys.argv[3:]
 
-	salt = base64.b64encode(os.urandom(16)) #more bytes of randomness? i think 16 bytes is sufficient for a salt
-
-	hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT))
-	the_user = User(id=None, regions, username, salt, hashed_password)
-	users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
-
-	# let's validate that no user exists currently
-	if users_col.find_one({'username': username}):
-		print "already a user with that username in the db, exiting"
-		return
-		
-	users_col.insert(the_user.get_json_dict())
-
-
+    config = Config()
+    mongo_client = MongoClient(host=config.get_mongo_url())
+    dao = Dao(None, mongo_client)
+    if dao.create_user(username, password, regions):
+        print "user created:", username
