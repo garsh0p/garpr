@@ -5,8 +5,8 @@ from scraper.smashgg import SmashGGScraper
 
 TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
 TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
-TEST_DATA1 = os.path.abspath('data' + os.sep + 'smashgg.json')
-TEST_DATA2 = os.path.abspath('data' + os.sep + 'smashgg2.json')
+TEST_DATA1 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg.json')
+TEST_DATA2 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg2.json')
 TEST_TOURNAMENT_ID_1 = 11226
 TEST_TOURNAMENT_ID_2 = 70949
 TEST_PLAYER_ENTRANTID_1 = 52273
