@@ -440,6 +440,8 @@ class TournamentResource(restful.Resource):
         else:
             user = get_user_from_request(request, dao)
             pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+            if not pending_tournament:
+                return 'Not found!', 404
             if not user:
                 return 'Permission denied', 403
             if not is_user_admin_for_regions(user, pending_tournament.regions):

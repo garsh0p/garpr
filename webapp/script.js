@@ -418,6 +418,24 @@ app.controller("TournamentsController", function($scope, $routeParams, $modal, R
     $scope.loadFile = function(fileContents) {
         $scope.postParams.data = fileContents;
     };
+
+    $scope.openDeleteTournamentModal = function(tournamentId) {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'delete_tournament_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+    $scope.tournamentId = tournamentId;
+    };
+
+    $scope.deleteTournament = function() {
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId;
+        successCallback = function(data) {
+            window.location.reload();
+        };
+        $scope.sessionService.authenticatedDelete(url, successCallback);
+    };
+
 });
 
 app.controller("TournamentDetailController", function($scope, $routeParams, $http, $modal, RegionService, SessionService, PlayerService) {
