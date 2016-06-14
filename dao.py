@@ -25,7 +25,13 @@ special_chars = re.compile("[^\w\s]*")
 class RegionNotFoundException(Exception):
     pass
 
+class InvalidRegionsException(Exception):
+    pass
+
 class DuplicateAliasException(Exception):
+    pass
+
+class DuplicateUsernameException(Exception):
     pass
 
 class InvalidNameException(Exception):
@@ -34,6 +40,18 @@ class InvalidNameException(Exception):
 class UpdateTournamentException(Exception):
     pass
 
+def gen_password(password):
+    # more bytes of randomness? i think 16 bytes is sufficient for a salt
+    salt = base64.b64encode(os.urandom(16))
+    hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT))
+
+    return salt, hashed_password
+
+def verify_password(password, salt, hashed_password):
+    the_hash = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT))
+    return (the_hash and the_hash==hashed_password)
+
+
 #TODO create RegionSpecificDao object
 # yeah rn we pass in norcal for a buncha things we dont need to
 class Dao(object):
@@ -41,7 +59,7 @@ class Dao(object):
         self.mongo_client = mongo_client
         self.region_id = region_id
 
-        if not region_id in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
+        if region_id and region_id not in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
             raise RegionNotFoundException("%s is not a valid region id!" % region_id)
 
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
@@ -69,7 +87,7 @@ class Dao(object):
     def get_player_by_alias(self, alias):
         '''Converts alias to lowercase'''
         return Player.from_json(self.players_col.find_one({
-            'aliases': {'$in': [alias.lower()]}, 
+            'aliases': {'$in': [alias.lower()]},
             'regions': {'$in': [self.region_id]}
         }))
 
@@ -111,21 +129,6 @@ class Dao(object):
     def update_player(self, player):
         return self.players_col.update({'_id': player.id}, player.get_json_dict())
 
-    def insert_user(self, user):
-        '''    #TODO: validate regions all exist
-        salt = os.urandom(16) #more bytes of randomness? i think 16 bytes is sufficient for a salt
-        # does this need to be encoded before its passed into hashlib?
-        hashed_password = hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT)
-        the_user = User(None, regions, username, salt, hashed_password)
-        users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
-        # let's validate that no user exists currently
-        if users_col.find_one({'username': username}):
-            print "already a user with that username in the db, exiting"
-            return None        '''
-        return self.users_col.insert(user.get_json_dict())
-
-
-
     # TODO bulk update
     def update_players(self, players):
         pass
@@ -144,7 +147,7 @@ class Dao(object):
         # ensure this name is already an alias
         if not name.lower() in player.aliases:
             raise InvalidNameException(
-                    'Player %s does not have %s as an alias already, cannot change name.' 
+                    'Player %s does not have %s as an alias already, cannot change name.'
                     % (player, name))
 
         player.name = name
@@ -205,8 +208,8 @@ class Dao(object):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
     def update_tournament(self, tournament):
-        # if len(tournament.raw) == 0:
-        #     raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
+        if len(tournament.raw) == 0:
+            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
@@ -330,14 +333,11 @@ class Dao(object):
     def get_latest_ranking(self):
         return Ranking.from_json(self.rankings_col.find({'region': self.region_id}).sort('time', DESCENDING)[0])
 
+    # TODO add more tests
+    def is_inactive(self, player, now, day_limit, num_tourneys):
 
-    def get_all_users(self):
-        return [User.from_json(u) for u in self.users_col.find()]
-
-    # TODO this is untested
-    def is_inactive(self, player, now):
-        day_limit = 60
-        num_tourneys = 2
+        # TODO: handle special cases somewhere properly
+        #       (probably in rankings.generate_ranking)
 
         # special case for Westchester
         if self.region_id == "westchester":
@@ -357,11 +357,55 @@ class Dao(object):
 
     # session management
 
+
+    def insert_user(self, user):
+        # validate that no user with same username exists currently
+        if self.users_col.find_one({'username': user.username}):
+            raise DuplicateUsernameException("already a user with that username in the db, exiting")
+
+        return self.users_col.insert(user.get_json_dict())
+
+    def create_user(self, username, password, regions):
+        valid_regions = [region.id for region in Dao.get_all_regions(self.mongo_client)]
+
+        for region in regions:
+            if region not in valid_regions:
+                print 'Invalid region name:', region
+
+        regions = [region for region in regions if region in valid_regions]
+        if len(regions) == 0:
+            raise InvalidRegionsException("No valid region for new user")
+
+        salt, hashed_password = gen_password(password)
+        the_user = User("userid--" + username,
+                        regions,
+                        username,
+                        salt,
+                        hashed_password)
+
+        return self.insert_user(the_user)
+
+    def change_passwd(self, username, password):
+        salt, hashed_password = gen_password(password)
+
+        # modifies the users password, or returns None if it couldnt find the user
+        return self.users_col.find_and_modify(query={'username': username}, update={"$set": {'hashed_password': hashed_password, 'salt': salt}})
+
+    def get_all_users(self):
+        return [User.from_json(u) for u in self.users_col.find()]
+
     def get_user_by_id_or_none(self, id):
         result = self.users_col.find({"_id": id})
         if result.count() == 0:
             return None
         assert result.count() == 1, "WE HAVE MULTIPLE USERS WITH THE SAME UID"
+        return User.from_json(result[0])
+
+    def get_user_by_username_or_none(self, username):
+        result = self.users_col.find({"username": username})
+        if result.count() == 0:
+            return None
+        assert result.count() == 1, "WE HAVE MULTIPLE USERS WITH THE SAME USERNAME"
         return User.from_json(result[0])
 
     def get_user_by_session_id_or_none(self, session_id):
@@ -374,7 +418,7 @@ class Dao(object):
         return self.get_user_by_id_or_none(user_id)
 
     #### FOR INTERNAL USE ONLY ####
-    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking 
+    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking
     def get_session_id_by_user_or_none(self, User):
         results = self.sessions_col.find()
         for session_mapping in results:
@@ -391,8 +435,9 @@ class Dao(object):
         assert result.count() == 1, "WE HAVE DUPLICATE USERNAMES IN THE DB"
         user = User.from_json(result[0])
         assert user, "mongo has stopped being consistent, abort ship"
-        the_hash = base64.b64encode(hashlib.pbkdf2_hmac('sha256', password, user.salt, ITERATION_COUNT))
-        if the_hash and the_hash == user.hashed_password: # timing oracle on this... good luck
+
+         # timing oracle on this... good luck
+        if verify_password(password, user.salt, user.hashed_password):
             session_id = base64.b64encode(os.urandom(128))
             self.update_session_id_for_user(user.id, session_id)
             return session_id
@@ -407,10 +452,7 @@ class Dao(object):
 
     def logout_user_or_none(self, session_id):
         user = self.get_user_by_session_id_or_none(session_id)
-        if user: 
+        if user:
             self.sessions_col.remove({"user_id": user.id})
             return True
         return None
-
-
-

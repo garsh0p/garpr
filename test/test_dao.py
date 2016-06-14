@@ -1,5 +1,7 @@
 import unittest
-from dao import Dao, RegionNotFoundException, DuplicateAliasException, InvalidNameException, UpdateTournamentException
+from dao import Dao, RegionNotFoundException, InvalidRegionsException, \
+    InvalidNameException, DuplicateAliasException, DuplicateUsernameException, \
+    UpdateTournamentException, gen_password, verify_password
 from bson.objectid import ObjectId
 from ConfigParser import ConfigParser
 from model import *
@@ -32,22 +34,22 @@ class TestDAO(unittest.TestCase):
         self.player_4_id = ObjectId()
         self.player_5_id = ObjectId()
         self.player_1 = Player(
-                'gaR', 
-                ['gar', 'garr'], 
-                {'norcal': TrueskillRating(), 'texas': TrueskillRating()}, 
-                ['norcal', 'texas'], 
+                'gaR',
+                ['gar', 'garr'],
+                {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
+                ['norcal', 'texas'],
                 id=self.player_1_id)
         self.player_2 = Player(
-                'sfat', 
-                ['sfat', 'miom | sfat'], 
-                {'norcal': TrueskillRating()}, 
-                ['norcal'], 
+                'sfat',
+                ['sfat', 'miom | sfat'],
+                {'norcal': TrueskillRating()},
+                ['norcal'],
                 id=self.player_2_id)
         self.player_3 = Player(
-                'mango', 
-                ['mango', 'gar'], 
-                {'norcal': TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3))}, 
-                ['socal'], 
+                'mango',
+                ['mango', 'gar'],
+                {'norcal': TrueskillRating(trueskill_rating=trueskill.Rating(mu=2, sigma=3))},
+                ['socal'],
                 id=self.player_3_id)
         self.player_4 = Player('shroomed', ['shroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=self.player_4_id)
         self.player_5 = Player('pewpewu', ['pewpewu'], {'norcal': TrueskillRating()}, ['norcal', 'socal'], id=self.player_5_id)
@@ -82,7 +84,7 @@ class TestDAO(unittest.TestCase):
 
         self.tournament_1 = Tournament(self.tournament_type_1,
                                        self.tournament_raw_1,
-                                       self.tournament_date_1, 
+                                       self.tournament_date_1,
                                        self.tournament_name_1,
                                        self.tournament_players_1,
                                        self.tournament_matches_1,
@@ -91,7 +93,7 @@ class TestDAO(unittest.TestCase):
 
         self.tournament_2 = Tournament(self.tournament_type_2,
                                        self.tournament_raw_2,
-                                       self.tournament_date_2, 
+                                       self.tournament_date_2,
                                        self.tournament_name_2,
                                        self.tournament_players_2,
                                        self.tournament_matches_2,
@@ -115,7 +117,7 @@ class TestDAO(unittest.TestCase):
 
         self.pending_tournament_1 = PendingTournament(self.pending_tournament_type_1,
                                                       self.pending_tournament_raw_1,
-                                                      self.pending_tournament_date_1, 
+                                                      self.pending_tournament_date_1,
                                                       self.pending_tournament_name_1,
                                                       self.pending_tournament_players_1,
                                                       self.pending_tournament_matches_1,
@@ -131,18 +133,17 @@ class TestDAO(unittest.TestCase):
 
         self.ranking_time_1 = datetime(2013, 4, 20)
         self.ranking_time_2 = datetime(2013, 4, 21)
-        self.ranking_1 = Ranking('norcal', self.ranking_time_1, self.tournament_ids, 
+        self.ranking_1 = Ranking('norcal', self.ranking_time_1, self.tournament_ids,
                                  [self.ranking_entry_1, self.ranking_entry_2, self.ranking_entry_3])
-        self.ranking_2 = Ranking('norcal', self.ranking_time_2, self.tournament_ids, 
+        self.ranking_2 = Ranking('norcal', self.ranking_time_2, self.tournament_ids,
                                  [self.ranking_entry_1, self.ranking_entry_2, self.ranking_entry_4])
-        self.ranking_3 = Ranking('texas', self.ranking_time_2, self.tournament_ids, 
+        self.ranking_3 = Ranking('texas', self.ranking_time_2, self.tournament_ids,
                                  [self.ranking_entry_1, self.ranking_entry_2])
 
         self.rankings = [self.ranking_1, self.ranking_2, self.ranking_3]
 
         self.user_id_1 = 'abc123'
         self.user_admin_regions_1 = ['norcal', 'texas']
-        #    def __init__(self, id, admin_regions, username, salt, hashed_password):
         self.user_1 = User(self.user_id_1, self.user_admin_regions_1, 'user1', 0,0)
 
         self.user_id_2 = 'asdfasdf'
@@ -274,10 +275,10 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(self.norcal_dao.get_player_by_id(self.player_3_id), self.player_3)
 
         player_1_clone = Player(
-                'gaR', 
-                ['gar', 'garr'], 
-                {'norcal': TrueskillRating(), 'texas': TrueskillRating()}, 
-                ['norcal', 'texas'], 
+                'gaR',
+                ['gar', 'garr'],
+                {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
+                ['norcal', 'texas'],
                 id=self.player_1_id)
         player_1_clone.name = 'garrr'
         player_1_clone.aliases.append('garrr')
@@ -458,7 +459,7 @@ class TestDAO(unittest.TestCase):
 
         with self.assertRaises(UpdateTournamentException):
             self.norcal_dao.update_tournament(tournament_2)
-            
+
 
     def test_delete_tournament(self):
         tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
@@ -538,7 +539,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
         self.assertEquals(tournament_2.regions, self.tournament_regions_2)
-        
+
     def test_get_all_tournaments_containing_players(self):
         players = [self.player_5]
 
@@ -645,7 +646,7 @@ class TestDAO(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             self.norcal_dao.merge_players(target=self.player_1)
-    
+
     def test_merge_players_same_player(self):
         with self.assertRaises(ValueError):
             self.norcal_dao.merge_players(source=self.player_1, target=self.player_1)
@@ -661,7 +662,7 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(latest_ranking.tournaments, self.tournament_ids)
 
         rankings = latest_ranking.ranking
-        
+
         self.assertEquals(len(rankings), 3)
         self.assertEquals(rankings[0], self.ranking_entry_1)
         self.assertEquals(rankings[1], self.ranking_entry_2)
@@ -671,7 +672,7 @@ class TestDAO(unittest.TestCase):
     def test_get_all_users(self):
         users = self.norcal_dao.get_all_users()
         self.assertEquals(len(users), 2)
-        
+
         user = users[0]
         self.assertEquals(user.id, self.user_id_1)
         self.assertEquals(user.username, 'user1')
@@ -681,6 +682,58 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(user.id, self.user_id_2)
         self.assertEquals(user.username, self.user_full_name_2)
         self.assertEquals(user.admin_regions, self.user_admin_regions_2)
+
+    def test_create_user(self):
+        username = 'abra'
+        password = 'cadabra'
+        regions = ['nyc', 'newjersey']
+
+        self.norcal_dao.create_user(username, password, regions)
+
+        users = self.norcal_dao.get_all_users()
+        self.assertEquals(len(users), 3)
+
+        user = users[-1]
+        self.assertEquals(user.username, username)
+        self.assertEquals(user.admin_regions, regions)
+
+    def test_create_duplicate_user(self):
+        username = 'abra'
+        password = 'cadabra'
+        regions = ['nyc', 'newjersey']
+
+        self.norcal_dao.create_user(username, password, regions)
+        with self.assertRaises(DuplicateUsernameException):
+            self.norcal_dao.create_user(username, password, regions)
+
+    def test_create_user_invalid_regions(self):
+        username = 'abra'
+        password = 'cadabra'
+        regions = ['canadia', 'bahstahn']
+
+        with self.assertRaises(InvalidRegionsException):
+            self.norcal_dao.create_user(username, password, regions)
+
+    def test_change_password(self):
+        username = 'abra'
+        password = 'cadabra'
+        new_password = 'whoops'
+        regions = ['newjersey']
+
+        self.norcal_dao.create_user(username, password, regions)
+        user = self.norcal_dao.get_user_by_username_or_none(username)
+        old_salt = user.salt
+        old_hash = user.hashed_password
+        self.assertTrue(verify_password(password, old_salt, old_hash))
+
+        self.norcal_dao.change_passwd(username, new_password)
+        new_user = self.norcal_dao.get_user_by_username_or_none(username)
+        new_salt = new_user.salt
+        new_hash = new_user.hashed_password
+
+        self.assertNotEquals(old_salt, new_salt)
+        self.assertTrue(verify_password(new_password, new_salt, new_hash))
+
 
     def test_get_and_insert_pending_merge(self):
         dao = self.norcal_dao

@@ -78,8 +78,8 @@ class TestServer(unittest.TestCase):
             db_player = dao.get_player_by_alias(player)
             if db_player is None:
                 db_player = Player(
-                        player, 
-                        [player.lower()], 
+                        player,
+                        [player.lower()],
                         {dao.region_id: TrueskillRating()},
                         [dao.region_id])
                 dao.insert_player(db_player)
@@ -163,7 +163,7 @@ class TestServer(unittest.TestCase):
     def test_get_player_list_with_query(self):
         data = self.app.get('/norcal/players?query=AND').data
         json_data = json.loads(data)
-        
+
         self.assertEquals(len(json_data['players']), 3)
 
         json_player = json_data['players'][0]
@@ -206,7 +206,7 @@ class TestServer(unittest.TestCase):
 
         json_player = json_data['players'][0]
         self.assertEquals(json_player['name'], 'CT Denti')
-        
+
     def test_get_player(self):
         player = self.norcal_dao.get_player_by_alias('gar')
         data = self.app.get('/norcal/players/' + str(player.id)).data
@@ -233,7 +233,7 @@ class TestServer(unittest.TestCase):
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
 
     #start of auth testing sentinel
-    @patch('server.get_user_from_request') 
+    @patch('server.get_user_from_request')
     def test_put_player_region(self, mock_get_user_from_request): #HSF
         mock_get_user_from_request.return_value = self.user
         player = self.norcal_dao.get_player_by_alias('gar')
@@ -553,7 +553,7 @@ class TestServer(unittest.TestCase):
         player_2_name = 'Armada'
         player_3_name = 'Hungrybox'
         player_4_name = 'Zhu'
-        new_player_name = 'Scar' 
+        new_player_name = 'Scar'
 
         # pending tournament that can be finalized
         pending_tournament_id_1 = ObjectId()
@@ -778,7 +778,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['matches']), len(tournament.matches))
 
     @patch('server.get_user_from_request')
-    def test_get_tournament_pending(self,mock_get_user_from_request): 
+    def test_get_tournament_pending(self,mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
         data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
@@ -893,7 +893,7 @@ class TestServer(unittest.TestCase):
         pending_tournament_json = server.convert_pending_tournament_to_response(pending_tournament, self.norcal_dao)
 
         # test put
-        response = self.app.put('/norcal/pending_tournaments/' + str(pending_tournament.id), 
+        response = self.app.put('/norcal/pending_tournaments/' + str(pending_tournament.id),
             data=json.dumps(pending_tournament_json), content_type='application/json')
         json_data = json.loads(response.data)
 
@@ -921,7 +921,8 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
-        self.assertTrue(ranking_entry['rating'] > 33.2)
+        print ranking_entry['rating']
+        self.assertTrue(ranking_entry['rating'] > 24.3)
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
         self.assertEquals(len(ranking_entry.keys()), 4)
@@ -955,7 +956,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
-        self.assertTrue(ranking_entry['rating'] > 33.2)
+        self.assertTrue(ranking_entry['rating'] > 24.3)
 
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
@@ -1062,7 +1063,7 @@ class TestServer(unittest.TestCase):
     @patch('server.get_user_from_request')
     def test_get_current_user(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
-        data = self.app.get('/users/session').data 
+        data = self.app.get('/users/session').data
         json_data = json.loads(data)
 
         self.assertEquals(json_data['id'], self.user_id)
@@ -1435,11 +1436,13 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.status, '200 OK', msg=rv.data)
+        print rv.data, rv.status
         data_dict = json.loads(rv.data)
         merge_id = data_dict['id']
         self.assertTrue(merge_id, msg=merge_id)
-        #okay, now look in the dao and see if the merge is actually in there
+        # okay, now look in the dao and see if the merge is actually in there
         the_merge = dao.get_pending_merge(ObjectId(merge_id))
+        print merge_id, the_merge
         # assert the correct player is in the correct place
         self.assertTrue(the_merge, msg=merge_id)
         self.assertEquals(the_merge.base_player_obj_id, player_one.id)
@@ -1547,7 +1550,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 400, msg=response.data)
         pass
 
-    def test_put_session(self): 
+    def test_put_session(self):
         result = self.users_col.find({"username": "gar"})
         self.assertTrue(result.count() == 1, msg=result)
         username = "gar"
@@ -1558,7 +1561,7 @@ class TestServer(unittest.TestCase):
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
         self.assertEquals(response.status_code, 200, msg=response.headers)
-        self.assertTrue('Set-Cookie' in response.headers.keys(), msg=str(response.headers)) 
+        self.assertTrue('Set-Cookie' in response.headers.keys(), msg=str(response.headers))
         cookie_string = response.headers['Set-Cookie']
         my_cookie = cookie_string.split('"')[1] #split sessionID out of cookie string
         result = self.sessions_col.find({"session_id": my_cookie})
@@ -1573,7 +1576,7 @@ class TestServer(unittest.TestCase):
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
         self.assertEquals(response.status_code, 403, msg=response.data)
-    
+
     def test_put_session_bad_user(self): #this test is to make sure we dont have username enumeration (up to a timing attack anyway)
         username = "evilgar"
         passwd = "stillworksongarpr"
@@ -1583,7 +1586,7 @@ class TestServer(unittest.TestCase):
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
         self.assertEquals(response.status_code, 403, msg=response.data)
-    
+
     @patch('server.get_user_from_request')
     def test_delete_finalized_tournament(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
@@ -1591,7 +1594,7 @@ class TestServer(unittest.TestCase):
         response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
         self.assertEquals(response.status_code, 200)
         self.assertTrue(self.norcal_dao.get_tournament_by_id(tournament.id) is None, msg=self.norcal_dao.get_tournament_by_id(tournament.id))
-        
+
     @patch('server.get_user_from_request')
     def test_delete_pending_tournament(self, mock_get_user_from_access_token):
         mock_get_user_from_access_token.return_value = self.user
