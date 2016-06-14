@@ -656,6 +656,28 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
             $scope.matches = data.matches.reverse();
         });
 
+    $scope.openEditNameModal = function(tournamentId) {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'edit_name_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.tournamentId = tournamentId;
+    };
+
+
+    $scope.editName = function() {
+        url = hostname + $routeParams.region + '/players/' + $scope.player.id;
+        data = {
+          id: $scope.player.id,
+          name: $('.edit-name-input').val()
+        };
+        successCallback = function(data) {
+            window.location.reload();
+        };
+        $scope.sessionService.authenticatedPut(url, successCallback, data);
+    };
+
 });
 
 app.controller("HeadToHeadController", function($scope, $http, $routeParams, RegionService, PlayerService) {
