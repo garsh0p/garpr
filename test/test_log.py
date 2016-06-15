@@ -65,8 +65,19 @@ class TestLog(unittest.TestCase):
 
         self.assertEqual(logtime in str(l) and TEST_STRING in str(l), True)
 
-    def test_write_default(self):
-        Log.log('THIS IS A TEST')
+    def test_write_default1(self):
+        Log.log('TEST', 'THIS IS A TEST')
+        logtime = str(time.strftime("%Y-%m-%d %H:%M", localtime()))
+        l = None
+        with open(os.path.join(os.path.dirname(__file__), '../logging/garpr.log'), 'r') as f:
+            for line in f:
+                l = line
+            f.close()
+        self.assertEqual(logtime in str(l) and '[TEST]' in str(l) and 'THIS IS A TEST' in str(l), True)
+        self.LOG_FLAG = True
+
+    def test_write_default2(self):
+        Log.log(None, 'THIS IS A TEST')
         logtime = str(time.strftime("%Y-%m-%d %H:%M", localtime()))
         l = None
         with open(os.path.join(os.path.dirname(__file__), '../logging/garpr.log'), 'r') as f:

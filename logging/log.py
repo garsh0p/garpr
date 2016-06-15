@@ -30,12 +30,15 @@ class Log:
         self.f.write(logtime + " | " + msg + "\n")
         self.f.close()
 
-    @staticmethod
-    def log(message):
-        l = Log(None, None)
-        l.write(message)
+    #@staticmethod
+    #def log(message):
+    #    l = Log(None, None)
+    #    l.write(message)
 
     @staticmethod
     def log(module, message):
         l = Log(None, None)
-        l.write('['+module+'] '+message)
+        if module is not None:
+            l.write('['+module+'] '+message)
+        else:
+            l.write(message)
