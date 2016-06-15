@@ -60,7 +60,7 @@ class TestLog(unittest.TestCase):
         self.log2.write(TEST_STRING)
         logtime = str(time.strftime("%Y-%m-%d %H:%M", localtime()))
         l = None
-        with open(TEST_NAME, 'r') as f:
+        with open(os.path.join(TEST_DIR2, TEST_NAME), 'r') as f:
             for line in f:
                 l = line
                 break
