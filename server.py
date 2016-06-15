@@ -337,7 +337,7 @@ class TournamentListResource(restful.Resource):
         parser.add_argument('bracket', type=str, location='json')
         args = parser.parse_args()
 
-       
+
 
         print "in server post, actually got this far!"
 
@@ -383,14 +383,14 @@ def convert_tournament_to_response(tournament, dao):
     return_dict['date'] = return_dict['date'].strftime("%x")
 
     return_dict['players'] = [{
-            'id': str(p), 
+            'id': str(p),
             'name': dao.get_player_by_id(p).name
         } for p in return_dict['players']]
 
     return_dict['matches'] = [{
-            'winner_id': str(m['winner']), 
-            'loser_id': str(m['loser']), 
-            'winner_name': dao.get_player_by_id(m['winner']).name, 
+            'winner_id': str(m['winner']),
+            'loser_id': str(m['loser']),
+            'winner_name': dao.get_player_by_id(m['winner']).name,
             'loser_name': dao.get_player_by_id(m['loser']).name
         } for m in return_dict['matches']]
 
@@ -423,7 +423,7 @@ def convert_request_to_pending_tournament(data):
     alias_to_id_map = []
     for player_alias, player_id in data["alias_to_id_map"].items():
         alias_to_id_map.append({
-            "player_alias": player_alias, 
+            "player_alias": player_alias,
             "player_id": ObjectId(player_id) if player_id is not None else player_id
         })
     data["alias_to_id_map"] = alias_to_id_map
@@ -440,12 +440,14 @@ class TournamentResource(restful.Resource):
         else:
             user = get_user_from_request(request, dao)
             pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+            if not pending_tournament:
+                return 'Not found!', 404
             if not user:
                 return 'Permission denied', 403
             if not is_user_admin_for_regions(user, pending_tournament.regions):
                 return 'Permission denied', 403
             response = convert_pending_tournament_to_response(pending_tournament, dao)
-            
+
         return response
 
     def put(self, region, id):
@@ -512,9 +514,9 @@ class TournamentResource(restful.Resource):
             if not is_user_admin_for_regions(user, tournament_to_delete.regions):
                 return 'Permission denied', 403
             resp = dao.delete_tournament(tournament_to_delete)
-        
+
         return {"success": True}
-        
+
 class TournamentRegionResource(restful.Resource):
     def put(self, region, id, region_to_change):
         dao = Dao(region, mongo_client=mongo_client)
@@ -547,7 +549,7 @@ class TournamentRegionResource(restful.Resource):
             dao.update_tournament(tournament)
 
         return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
-    
+
 
 class PendingTournamentListResource(restful.Resource):
     def get(self, region):
@@ -648,7 +650,7 @@ class PendingTournamentResource(restful.Resource):
         pending_tournament.alias_to_id_map = data["alias_to_id_map"]
         dao.update_pending_tournament(pending_tournament)
         response = convert_pending_tournament_to_response(pending_tournament, dao)
-        return response 
+        return response
 
 class FinalizeTournamentResource(restful.Resource):
     """ Converts a pending tournament to a tournament.
@@ -677,7 +679,7 @@ class FinalizeTournamentResource(restful.Resource):
             pending_tournament.set_alias_id_mapping(player_name, player_id)
 
         dao.update_pending_tournament(pending_tournament)
-        
+
         try:
             tournament = Tournament.from_pending_tournament(pending_tournament)
             tournament_id = dao.insert_tournament(tournament)
@@ -768,7 +770,7 @@ class MatchesResource(restful.Resource):
 
 
 
-    
+
 
 class PendingMergesResource(restful.Resource):
     def get(self):
@@ -806,16 +808,22 @@ class PendingMergesResource(restful.Resource):
         now = datetime.now()
         base_player = dao.get_player_by_id(base_player_id)
         to_be_merged_player = dao.get_player_by_id(to_be_merged_player_id)
-        dao.merge_players(base_player, to_be_merged_player)
-        return_dict = {'status': "success"}
+        the_merge = Merge(user.id,
+                          base_player_id,
+                          to_be_merged_player_id,
+                          now,
+                          id=ObjectId())
+        dao.insert_pending_merge(the_merge)
+        return_dict = {'status': "success",
+                       'id': str(the_merge.id)}
         return return_dict, 200
 
 
 class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
-    def put(self): 
+    def put(self):
         args = session_put_parser.parse_args() #parse args
-        dao = Dao(BASE_REGION, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(None, mongo_client=mongo_client)
         session_id = dao.check_creds_and_get_session_id_or_none(args['username'], args['password'])
         if not session_id:
             return 'Permission denied', 403
@@ -826,7 +834,7 @@ class SessionResource(restful.Resource):
     ''' logout, destroys session_id mapping on client and server side '''
     def delete(self):
         args = session_delete_parser.parse_args()
-        dao = Dao(BASE_REGION, mongo_client=mongo_client) # lol this doesn't matter, b/c we're just trying to log a user
+        dao = Dao(None, mongo_client=mongo_client) 
         logout_success = dao.logout_user_or_none(args['session_id'])
         if not logout_success:
             return 'who is you', 404
@@ -834,7 +842,7 @@ class SessionResource(restful.Resource):
 
     def get(self):
         # TODO region doesn't matter, remove hardcode
-        dao = Dao(BASE_REGION, mongo_client=mongo_client)
+        dao = Dao(None, mongo_client=mongo_client)
         user = get_user_from_request(request, dao)
         if not user:
             return 'you are not a real user', 400
@@ -852,7 +860,7 @@ def add_cors(resp):
     resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*') #!!! this needs to be tightened down to only the domains we're expecting
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET, PUT, DELETE'
-    resp.headers['Access-Control-Allow-Headers'] = request.headers.get( 
+    resp.headers['Access-Control-Allow-Headers'] = request.headers.get(
         'Access-Control-Request-Headers', 'Authorization' )
     resp.headers["Access-Control-Expose-Headers"] = "Set-Cookie"
     # set low for debugging
@@ -884,4 +892,3 @@ api.add_resource(SessionResource, '/users/session')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))
-

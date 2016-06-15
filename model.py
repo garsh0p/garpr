@@ -115,10 +115,10 @@ class Player(object):
 
     def __str__(self):
         return "%s %s %s %s %s" % (
-                self.id, 
-                self.name, 
-                {reg: str(rat) for reg, rat in self.ratings.iteritems()}, 
-                self.aliases, 
+                self.id,
+                self.name,
+                {reg: str(rat) for reg, rat in self.ratings.iteritems()},
+                self.aliases,
                 self.regions)
 
     def __eq__(self, other):
@@ -161,10 +161,10 @@ class Player(object):
             return None
 
         return cls(
-                json_dict['name'], 
-                json_dict['aliases'], 
+                json_dict['name'],
+                json_dict['aliases'],
                 {region: TrueskillRating.from_json(rating_dict) for region, rating_dict in json_dict['ratings'].iteritems()},
-                json_dict['regions'], 
+                json_dict['regions'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
 class Tournament(object):
@@ -233,12 +233,12 @@ class Tournament(object):
             return None
 
         return cls(
-                json_dict['type'], 
-                json_dict['raw'], 
-                json_dict['date'], 
-                json_dict['name'], 
-                json_dict['players'], 
-                [MatchResult.from_json(m) for m in json_dict['matches']], 
+                json_dict['type'],
+                json_dict['raw'],
+                json_dict['date'],
+                json_dict['name'],
+                json_dict['players'],
+                [MatchResult.from_json(m) for m in json_dict['matches']],
                 json_dict['regions'],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
@@ -360,7 +360,7 @@ class PendingTournament(object):
             if mapping['player_alias'] == alias:
                 self.alias_to_id_map.remove(mapping)
                 return mapping
-            
+
     @classmethod
     def from_scraper(cls, type, scraper, region_id):
         players = scraper.get_players()
@@ -436,8 +436,8 @@ class Ranking(object):
 
         return cls(
                 json_dict['region'],
-                json_dict['time'], 
-                json_dict['tournaments'], 
+                json_dict['time'],
+                json_dict['tournaments'],
                 [RankingEntry.from_json(r) for r in json_dict['ranking']],
                 id=json_dict['_id'] if '_id' in json_dict else None)
 
@@ -556,6 +556,7 @@ class User(object):
                 json_dict['hashed_password']
                 )
 
+    # probably shouldn't use this method, doesn't salt
     @classmethod
     def create_with_default_values(cls, regions, username, password):
         salt = os.urandom(16)
