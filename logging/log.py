@@ -34,3 +34,8 @@ class Log:
     def log(message):
         l = Log(None, None)
         l.write(message)
+
+    @staticmethod
+    def log(module, message):
+        l = Log(None, None)
+        l.write('['+module+'] '+message)
