@@ -20,6 +20,9 @@ class Config(object):
     def get_auth_db_name(self):
         return self.config.get('database', 'auth_db')
 
+    def get_db_name(self):
+        return self.config.get('database', 'db')
+
     def get_db_user(self):
         return self.config.get('database', 'user')
 

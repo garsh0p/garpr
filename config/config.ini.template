@@ -1,5 +1,6 @@
 [database]
 host=HOSTNAME
+db=DB
 auth_db=AUTH_DB
 user=USER
 password=PASSWORD
