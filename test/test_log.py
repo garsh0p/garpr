@@ -14,7 +14,6 @@ TEST_STRING = 'This is a test. Hello World. Unplug your controller dawg, unplug 
 class TestLog(unittest.TestCase):
 
     def setUp(self):
-        print 'setup'
         self.LOG_FLAG = False
         self.log1 = Log(TEST_DIR1, TEST_NAME)
         self.log2 = Log(TEST_DIR2, TEST_NAME)
