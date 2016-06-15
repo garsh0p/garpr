@@ -1,7 +1,7 @@
 import os
 import unittest
 import time
-from logging.log import Log
+from garprLogging.log import Log
 from time import strftime, localtime
 
 LOG_FLAG = False
@@ -10,6 +10,7 @@ TEST_DIR2 = os.path.dirname(__file__)
 TEST_DIR3 = None
 TEST_NAME = 'testlog.log'
 TEST_STRING = 'This is a test. Hello World. Unplug your controller dawg, unplug your controller'
+DEFAULT_PATH = '../garprLogging/garpr.log'
 
 class TestLog(unittest.TestCase):
 
@@ -27,16 +28,19 @@ class TestLog(unittest.TestCase):
         if (os.path.exists(os.path.join(TEST_DIR2, TEST_NAME))):
             os.remove(os.path.join(TEST_DIR2, TEST_NAME))
 
+        # THIS IS SUPPOSED TO DELETE THE LAST LINES IN THE DEFAULT LOG FILE (MADE BY THE TESTS)
+        # TODO Doesn't work but really should. Doesn't hurt for now
+        print self.LOG_FLAG
         if self.LOG_FLAG is True:
-            if os.path.exists(os.path.join(os.path.dirname(__file__), '../logging/garpr.log')):
+            if os.path.exists(os.path.join(os.path.dirname(__file__), '../garprLogging/garpr.log')):
                 line = None
                 lines = None
                 # REBUILD DEFAULT LOG FILE
-                with open(os.path.join(os.path.dirname(__file__), '../logging/garpr.log'), 'r') as f:
+                with open(os.path.join(os.path.dirname(__file__), '../garprLogging/garpr.log'), 'r') as f:
                     lines = f.readlines()
                     f.close()
-                with open(os.path.join(os.path.dirname(__file__), '../logging/garpr.log'), 'r+') as f:
-                    f.writelines([item for item in lines[:-1]])
+                with open(os.path.join(os.path.dirname(__file__), '../garprLogging/garpr.log'), 'r+') as f:
+                    f.writelines([item for item in lines[:len(lines)-1]])
                     f.close()
         print 'teardown complete'
 
@@ -68,7 +72,7 @@ class TestLog(unittest.TestCase):
         Log.log('TEST', 'THIS IS A TEST')
         logtime = str(time.strftime("%Y-%m-%d %H:%M", localtime()))
         l = None
-        with open(os.path.join(os.path.dirname(__file__), '../logging/garpr.log'), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), DEFAULT_PATH), 'r') as f:
             for line in f:
                 l = line
             f.close()
@@ -79,7 +83,7 @@ class TestLog(unittest.TestCase):
         Log.log(None, 'THIS IS A TEST')
         logtime = str(time.strftime("%Y-%m-%d %H:%M", localtime()))
         l = None
-        with open(os.path.join(os.path.dirname(__file__), '../logging/garpr.log'), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), DEFAULT_PATH), 'r') as f:
             for line in f:
                 l = line
             f.close()
