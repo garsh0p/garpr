@@ -4,7 +4,7 @@ This comes in handy when you have a lot of things happening and an error occurs.
 
 ### Functions
 If you wish to write to the log file you may perform one of the following methods after using
-from logging.log import Log
+```from garprLogging.log import Log```
 
 #### Default Logging
 - call ```Log.log(string moduleName, string logMessage)```
