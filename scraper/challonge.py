@@ -59,7 +59,6 @@ class ChallongeScraper(object):
                 loser = player_map[loser_id]
                 match_result = MatchResult(winner=winner, loser=loser)
                 matches.append(match_result)
-
         return matches
 
     def get_players(self):
