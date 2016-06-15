@@ -58,7 +58,7 @@ class TestSmashGGScraper(unittest.TestCase):
 
     @unittest.skip('test is failing, May be API agile iterations manipulating data. Need to revisit')
     def test_get_raw_sub2(self):
-        tournament = self.tournament3
+        tournament = self.tournament2
         self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['sets'])
         seeds = self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['seeds'])
         seeds = tournament.get_raw()['smashgg']['entities']['seeds']

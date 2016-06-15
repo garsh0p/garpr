@@ -38,19 +38,22 @@ class SmashGGScraper(object):
         played in the given bracket, including who won and who lost
         """
         matches = []
-        sets = self.get_raw()['smashgg']['entities']['sets']
-        for set in sets:
-            winner_id = set['winnerId']
-            loser_id = set['loserId']
-            # CHECK FOR A BYE
-            if loser_id is None:
-                continue
+        try:
+            sets = self.get_raw()['smashgg']['entities']['sets']
+            for set in sets:
+                winner_id = set['winnerId']
+                loser_id = set['loserId']
+                # CHECK FOR A BYE
+                if loser_id is None:
+                    continue
 
-            winner = self.get_player_by_entrant_id(winner_id)
-            loser = self.get_player_by_entrant_id(loser_id)
+                winner = self.get_player_by_entrant_id(winner_id)
+                loser = self.get_player_by_entrant_id(loser_id)
 
-            match = MatchResult(winner.smash_tag, loser.smash_tag)
-            matches.append(match)
+                match = MatchResult(winner.smash_tag, loser.smash_tag)
+                matches.append(match)
+        except Exception as ex:
+            msg = 'An error occured in the retrieval of matches: ' + str(ex)
         return matches
 
     def get_player_by_entrant_id(self, id):
