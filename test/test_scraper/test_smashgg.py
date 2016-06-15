@@ -14,6 +14,10 @@ TEST_PLAYER_ENTRANTID_2 = 110555
 TEST_PLAYER_SMASHGGID_1 = 13932
 TEST_PLAYER_SMASHGGID_2 = 4442
 
+# TO ACCESS THE SMASHGG DUMPS USED HERE, THE FOLLOWING LINKS WILL GET YOU THERE
+# https://api.smash.gg/phase_group/11226?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches
+# https://api.smash.gg/phase_group/70949?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches
+
 class TestSmashGGScraper(unittest.TestCase):
     def setUp(self):
         self.tournament1 = SmashGGScraper(TEST_TOURNAMENT_ID_1)
@@ -28,6 +32,12 @@ class TestSmashGGScraper(unittest.TestCase):
         with open(TEST_DATA2) as data2:
             self.tournament2_json_dict = json.load(data2)
         self.assertEqual(self.tournament2.get_raw()['smashgg'], self.tournament2_json_dict)
+
+    def test_get_raw_sub1(self):
+        pass
+
+    def test_get_raw_sub2(self):
+        pass
 
     def test_get_tournament_id_from_url1(self):
         self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_1), 6529)

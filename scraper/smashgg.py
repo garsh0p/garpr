@@ -1,11 +1,6 @@
 import requests
-import re
 import os
-import iso8601
 from model import MatchResult
-from model import Player
-from bs4 import BeautifulSoup
-from config import config
 
 BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
@@ -13,16 +8,20 @@ DUMP_SETTINGS = "?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=ma
 
 class SmashGGScraper(object):
     def __init__(self, tournament_id):
+        """
+        :param tournament_id:
+        """
         self.tournament_id = tournament_id
         self.players = []
 
         self.raw_dict = None
         self.get_raw()
 
-    '''
-    Retrieve the JSON dump that the api call returns
-    '''
+
     def get_raw(self):
+        """
+        :return: the JSON dump that the api call returns
+        """
         if self.raw_dict == None:
             self.raw_dict = {}
             
@@ -33,17 +32,17 @@ class SmashGGScraper(object):
             self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
         return self.raw_dict
 
-    '''
-    Return the list of MatchResult objects that represents every match
-    played in the given bracket, including who won and who lost
-    '''
     def get_matches(self):
+        """
+        :return: the list of MatchResult objects that represents every match
+        played in the given bracket, including who won and who lost
+        """
         matches = []
         sets = self.get_raw()['smashgg']['entities']['sets']
         for set in sets:
             winner_id = set['winnerId']
             loser_id = set['loserId']
-            #CHECK FOR A BYE
+            # CHECK FOR A BYE
             if loser_id is None:
                 continue
 
@@ -54,10 +53,11 @@ class SmashGGScraper(object):
             matches.append(match)
         return matches
 
-    '''
-    Return a SmashGGPlayer object that belongs to the given tournament entrant number
-    '''
     def get_player_by_entrant_id(self, id):
+        """
+        :param id: id of the entrant for the current tournament
+        :return: a SmashGGPlayer object that belongs to the given tournament entrant number
+        """
         if self.players is None or len(self.players) == 0:
             self.get_smashgg_players()
 
@@ -65,10 +65,11 @@ class SmashGGScraper(object):
             if id == int(player.entrant_id):
                 return player
 
-    '''
-    Return a SmashGGPlayer object that belongs to the given smashgg id number
-    '''
     def get_player_by_smashgg_id(self, id):
+        """
+        :param id: id of the smashGG  player's account
+        :return: a SmashGGPlayer object that belongs to the given smashgg id number
+        """
         if self.players is None or len(self.players) == 0:
             self.get_smashgg_players()
 
@@ -76,10 +77,10 @@ class SmashGGScraper(object):
             if id == int(player.smashgg_id):
                 return player
 
-    '''
-    Return the smash tags of every player who is in the given bracket
-    '''
     def get_players(self):
+        """
+        :return: the smash tags of every player who is in the given bracket
+        """
         if self.players is None or len(self.players) == 0:
             self.get_smashgg_players()
 
@@ -88,12 +89,12 @@ class SmashGGScraper(object):
             tags.append(str(player.smash_tag).strip())
         return tags
 
-    '''
-    Return and edit the local list of SmashGGPlayer objects that encapsulate important information about
-    the participants of the tournament, including their name, region, smashtag,
-    tournament entrant id, and overall smashgg id
-    '''
     def get_smashgg_players(self):
+        """
+        :return: and edit the local list of SmashGGPlayer objects that encapsulate important information about
+        the participants of the tournament, including their name, region, smashtag,
+        tournament entrant id, and overall smashgg id
+        """
         self.players = []
         seeds = self.get_raw()['smashgg']['entities']['seeds']
         for seed in seeds:
@@ -150,12 +151,12 @@ class SmashGGScraper(object):
             self.players.append(player)
         return self.players
 
-    '''
-    Return a list of SmashGGMatch objects that encapsulate more data about the match
-    than just the winner and loser. Could be useful for additional ranking metrics
-    like how far into the tournament or how many matches were played.
-    '''
     def get_smashgg_matches(self):
+        """
+        :return: a list of SmashGGMatch objects that encapsulate more data about the match
+        than just the winner and loser. Could be useful for additional ranking metrics
+        like how far into the tournament or how many matches were played.
+        """
         self.matches = []
         sets = self.get_raw()['smashgg']['entities']['sets']
         for set in sets:
@@ -178,32 +179,38 @@ class SmashGGScraper(object):
             self.matches.append(match)
         return self.matches
 
-    '''
-    Returns the body response from a successful http call
-    '''
     def _check_for_200(self, response):
+        """
+        :param response: http response to check for correct http code
+        :return: the body response from a successful http call
+        """
         response.raise_for_status()
         return response
 
-    '''
-    Returns a string that can be used for logging
-    '''
     def log(self, msg):
+        """
+        :param msg: error or log message to print or write
+        :return: a string that can be used for logging
+        """
         return "    [SmashGG] " + msg
 
-    '''
-    Parses a url and retrieves the unique id of the bracket in question
-    '''
     @staticmethod
     def get_tournament_id_from_url(url):
+        """
+        Parses a url and retrieves the unique id of the bracket in question
+        :param url: url to parse the tournament id from
+        :return: the unique id of the bracket in question
+        """
         id = url[url.rfind('/') + 1:]
         return int(id)
 
-    '''
-    Parses a url and retrieves the name of the tournament in question
-    '''
     @staticmethod
     def get_tournament_name_from_url(url):
+        """
+        Parses a url and retrieves the name of the tournament in question
+        :param url: url to parse the tournament name from
+        :return: the name of the tournament in question
+        """
         tStr = 'tournament/'
         startIndex = url.rfind(tStr) + len(tStr)
         name = url[startIndex: url.index('/', startIndex)]
@@ -211,13 +218,13 @@ class SmashGGScraper(object):
 
 class SmashGGPlayer(object):
     def __init__(self, smashgg_id, entrant_id, name, smash_tag, region, country, state):
-        '''
+        """
         :param smashgg_id: The Global id that a player is mapped to on the website
         :param entrant_id: The id assigned to an entrant for the given tournament
         :param name:       The real name of the player
         :param smash_tag:  The Smash Tag of the player
         :param region:     The region the player belongs to
-        '''
+        """
         self.smashgg_id = smashgg_id
         self.entrant_id = entrant_id
         self.name = name
@@ -228,12 +235,12 @@ class SmashGGPlayer(object):
 
 class SmashGGMatch(object):
     def __init__(self, roundName, winner_id, loser_id, roundNumber, bestOf):
-        '''
+        """
         :param winner_id: Entrant id of the winner of the match
         :param loser_id:  Entrant id of the loser of the match
         :param round:     Round of the bracket this match took place
         :param bestOf:    Best of this many matches
-        '''
+        """
         self.roundName = roundName
         self.winner_id = winner_id
         self.loser_id = loser_id
