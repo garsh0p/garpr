@@ -35,7 +35,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Enable SSH agent forwarding (for github key)
   config.ssh.forward_agent = true
 
-  # virtual box provider config  
+  # virtual box provider config
   config.vm.provider "virtualbox" do |vb|
     vb.name = PROJECT_NAME
 

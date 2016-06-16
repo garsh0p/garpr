@@ -1,15 +1,19 @@
-from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
-import base64
 from datetime import datetime, timedelta
-from model import *
-import trueskill
-import re
+from pymongo import MongoClient, DESCENDING
+
+import base64
 import hashlib
-from passlib.hash import sha256_crypt
+import re
+import trueskill
+
+from config.config import Config
+from model import *
+
+config = Config()
 
 DEFAULT_RATING = TrueskillRating()
-DATABASE_NAME = 'garpr'
+DATABASE_NAME = config.get_db_name()
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'

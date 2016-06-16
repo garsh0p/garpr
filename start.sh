@@ -1,11 +1,6 @@
 #!/bin/bash
-if [ -z "$VIRTUAL_ENV" ] 
-	then
-		echo "activating venv"
-		source ./env/bin/activate
-	else
-		echo "venv already active"
-fi
+source config/config.ini
+
 if [[ "$(ps aux | grep mongo)" == *"mongod"* ]]
 	then
 		echo "mongod is already running"
@@ -18,13 +13,13 @@ if [[ "$(ps aux | grep server.py)" == *"python server.py"* ]]
 		echo "backend is already running"
 	else
 		echo "starting backend"
-		python server.py 3000 True &
+		python server.py $api_port True &
 fi
 if [[ "$(ps aux | grep SimpleHTTPServer)" == *"python -m SimpleHTTPServer"* ]]
 	then
 		echo "frontend is already running"
 	else
 		echo "starting frontend"
-		pushd webapp; python -m SimpleHTTPServer ; popd &
+		pushd webapp; python -m SimpleHTTPServer $web_port; popd &
 fi
-echo "everything started, try http://localhost:8000"
+echo "everything started, try http://localhost:$web_port"
