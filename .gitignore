@@ -66,6 +66,7 @@ docs/_build/
 challonge_api_key.txt
 config/config.ini
 webapp/script-config.js
+*.pid
 *.lnk
 .idea/garpr.iml
 .idea/misc.xml
