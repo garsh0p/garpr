@@ -14,11 +14,23 @@ class Config(object):
                 self.get_db_host(),
                 self.get_auth_db_name())
 
+    def get_environment_name(self):
+        return self.config.get('environment', 'name')
+
+    def get_environment_web_port(self):
+        return self.config.get('environment', 'web_port')
+
+    def get_environment_api_port(self):
+        return self.config.get('environment', 'api_port')
+
     def get_db_host(self):
         return self.config.get('database', 'host')
 
     def get_auth_db_name(self):
         return self.config.get('database', 'auth_db')
+
+    def get_db_name(self):
+        return self.config.get('database', 'db')
 
     def get_db_user(self):
         return self.config.get('database', 'user')

@@ -9,18 +9,8 @@ sudo pip install git+https://github.com/vmalloc/mongomock.git@master # use maste
 
 # NOTE: if config/config.ini.template changes, this needs to change also
 #       the challonge api key is for a throw-away dev account
-echo "Generating config file for development..." 
-cat > ./config/config.ini <<'EOB'
-[database]
-host=127.0.0.1
-auth_db=admin
-user=devuser
-password=devpass01
+echo "Generating config file for development..."
+cp ./config/dev-config.ini ./config/config.ini
 
-[challonge]
-api_key=H3rbHCGvVMjlZMo4CcaY3lMU6KS8kpfXN2I7arw8
-
-[facebook]
-app_id=123temporaryKey2
-app_token=123temporaryToken1
-EOB
+echo "Generating javascript config file for development"
+cp ./webapp/dev-script-config.js ./webapp/script-config.js

@@ -1,5 +1,11 @@
+[environment]
+name=NAME
+web_port=WEB_PORT
+api_port=API_PORT
+
 [database]
 host=HOSTNAME
+db=DB
 auth_db=AUTH_DB
 user=USER
 password=PASSWORD

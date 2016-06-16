@@ -1169,7 +1169,7 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         # try sending one with an invalid tourney ID
         rv = self.app.put('/norcal/tournaments/' + str(ObjectId()), data=test_data, content_type='application/json')
-        self.assertEquals(rv.status, '400 BAD REQUEST')
+        self.assertEquals(rv.status, '404 NOT FOUND')
 
     @patch('server.get_user_from_request')
     def test_put_tournament_invalid_player_name(self, mock_get_user_from_request):
@@ -1381,7 +1381,7 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         #test player not found
         rv = self.app.put('/norcal/players/' + str(ObjectId()), data=test_data, content_type='application/json')
-        self.assertEquals(rv.status, '400 BAD REQUEST')
+        self.assertEquals(rv.status, '404 NOT FOUND')
 
     @patch('server.get_user_from_request')
     def test_put_player_nonstring_aliases(self, mock_get_user_from_request):
@@ -1499,29 +1499,28 @@ class TestServer(unittest.TestCase):
         self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
 
     @patch('server.get_user_from_request')
-    def test_post_tournament_from_tio(self, mock_get_user_from_request):
+    def test_post_tournament_from_tio(self, mock_get_user_from_request): #TODO: rewrite to use new endpoints
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
         raw_dict = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
-            raw_dict['tio_file'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
-        raw_dict['tournament_name'] = "Justice4"
-        raw_dict['bracket_type'] = "tio"
-        raw_dict['tio_bracket_name'] = 'Bracket'
+            raw_dict['data'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
+        raw_dict['type'] = "tio"
+        raw_dict['bracket'] = 'Bracket'
         the_data = json.dumps(raw_dict)
-        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
+        response = self.app.post('/norcal/tournaments', data=the_data, content_type='application/json')
         for x in response.data:
             self.assertTrue(x in string.printable)
-        self.assertEquals(response.status_code, 201, msg=response.data)
+        self.assertEquals(response.status_code, 200, msg=str(response.data) + str(response.status_code))
         the_dict = json.loads(response.data)
-        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['pending_tournament_id']))
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['id']))
 
-        self.assertEqual(the_tourney.name, "Justice4")
+        self.assertEqual(the_tourney.name, u'Justice 4')
         self.assertEqual(len(the_tourney.players), 48)
 
-        self.assertEquals(the_dict['pending_tournament_id'], str(the_tourney.id))
+        self.assertEquals(the_dict['id'], str(the_tourney.id))
         self.assertEquals(the_tourney.type, 'tio')
         self.assertEquals(the_tourney.regions, ['norcal'])
 
@@ -1531,24 +1530,22 @@ class TestServer(unittest.TestCase):
             if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
                 sweden_wins_count += 1
         self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??")
-        pass
 
     @patch('server.get_user_from_request')
-    def test_post_tournament_from_tio_without_trim(self, mock_get_user_from_request):
+    def test_post_tournament_from_tio_without_trim(self, mock_get_user_from_request): #TODO: rewrite to use new endpoint
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
         raw_dict = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
-            raw_dict['tio_file'] = f.read() #NO TRIM BB
-        raw_dict['tournament_name'] = "Justice4"
-        raw_dict['bracket_type'] = "tio"
-        raw_dict['tio_bracket_name'] = 'Bracket'
+            raw_dict['data'] = f.read() #NO TRIM BB
+       # raw_dict['tournament_name'] = "Justice4"
+        raw_dict['type'] = "tio"
+        raw_dict['bracket'] = 'Bracket'
         the_data = json.dumps(raw_dict)
-        response = self.app.post('/norcal/tournaments/new', data=the_data, content_type='application/json')
-        self.assertEquals(response.status_code, 400, msg=response.data)
-        pass
+        response = self.app.post('/norcal/tournaments', data=the_data, content_type='application/json')
+        self.assertEquals(response.status_code, 503, msg=response.data)
 
     def test_put_session(self):
         result = self.users_col.find({"username": "gar"})

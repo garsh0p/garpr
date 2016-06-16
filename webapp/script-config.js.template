@@ -1,0 +1,3 @@
+var defaultRegion = 'REGION'
+var env = 'ENV';
+var hostname = 'HOSTNAME';
