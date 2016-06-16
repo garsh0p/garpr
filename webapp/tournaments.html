@@ -9,10 +9,12 @@
             <tr>
                 <td>Date</td>
                 <td>Name</td>
+                <td></td>
             </tr>
             <tr ng-repeat="tournament in tournamentService.tournamentList">
                 <td>{{tournament.date}}</td>
                 <td ng-class="{'pending': tournament.pending}"><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
+                <td ng-show="sessionService.isAdminForRegion(regionService.region.id)"><a ng-click="openDeleteTournamentModal(tournament.id)">Delete</a></td>
             </tr>
         </table>
     </div>

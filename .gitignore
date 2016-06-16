@@ -51,8 +51,23 @@ coverage.xml
 *.log
 *.pot
 
+# Vagrant && ubuntu development VM things
+.vagrant/**
+.bash_logout
+.bashrc
+.profile
+.ssh/
+.DS_Store 
+
 # Sphinx documentation
 docs/_build/
 
+# GarPR specific stuff
 challonge_api_key.txt
 config/config.ini
+*.lnk
+.idea/garpr.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml

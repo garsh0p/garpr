@@ -3,15 +3,15 @@ from model import MatchResult
 from dateutil import parser
 
 class TioScraper(object):
-    def __init__(self, text, bracket_name):
+
+    def __init__(self, raw, bracket_name):
         self.bracket_name = bracket_name
         self.name = None
         self.date = None
         self.matches = None
         self.players = None
 
-        self.text = text
-
+        self.text = raw
         self.soup = BeautifulSoup(self.text, 'xml')
 
     @classmethod
