@@ -11,6 +11,11 @@ sudo pip install git+https://github.com/vmalloc/mongomock.git@master # use maste
 #       the challonge api key is for a throw-away dev account
 echo "Generating config file for development..."
 cat > ./config/config.ini <<'EOB'
+[environment]
+name=dev
+web_port=8000
+api_port=3000
+
 [database]
 host=127.0.0.1
 db=garpr
