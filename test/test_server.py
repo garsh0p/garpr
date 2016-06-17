@@ -38,7 +38,9 @@ class TestServer(unittest.TestCase):
         Dao.insert_region(self.texas_region, self.mongo_client)
 
         self.norcal_dao = Dao(NORCAL_REGION_NAME, mongo_client=self.mongo_client)
+        self.assertIsNotNone(self.norcal_dao)
         self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client)
+        self.assertIsNotNone(self.texas_dao)
 
         self._import_files()
         self._create_users(self.mongo_client)
@@ -1095,7 +1097,7 @@ class TestServer(unittest.TestCase):
         rv = self.app.put('/norcal/tournaments/' + str(tourney_id), data=test_data, content_type='application/json')
         self.assertEqual(rv.status, '200 OK')
         the_tourney = dao.get_tournament_by_id(tourney_id)
-        self.assertEquals(the_tourney.name, new_tourney_name)
+        self.assertEquals(the_tourney.name, new_tourney_name, msg=rv.data)
         self.assertEquals(old_date, the_tourney.date)
         self.assertEquals(old_matches, the_tourney.matches)
         self.assertEquals(old_players, the_tourney.players)
