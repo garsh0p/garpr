@@ -382,19 +382,21 @@ class TournamentListResource(restful.Resource):
 
         type = args['type']
         data = args['data']
-
-        if type == 'tio':
-            if args['bracket'] is None:
-                return "Missing bracket name", 400
-            data_bytes = bytes(data)
-            if data_bytes[0] == '\xef':
-                data = data[:3]
-            scraper = TioScraper(data, args['bracket'])
-        elif type == 'challonge':
-            scraper = ChallongeScraper(data)
-        else:
-            return "Unknown type", 400
-
+        try:
+            if type == 'tio':
+                if args['bracket'] is None:
+                    return "Missing bracket name", 400
+                data_bytes = bytes(data)
+                if data_bytes[0] == '\xef':
+                    data = data[:3]
+                scraper = TioScraper(data, args['bracket'])
+            elif type == 'challonge':
+                scraper = ChallongeScraper(data)
+            else:
+                return "Unknown type", 400
+        except:
+            return 'Scraper encountered an error', 400
+            
         pending_tournament = PendingTournament.from_scraper(type, scraper, region)
         pending_tournament.alias_to_id_map = alias_service.get_alias_to_id_map_in_list_format(
                 dao, pending_tournament.players)
