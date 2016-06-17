@@ -13,25 +13,33 @@ class SmashGGScraper(object):
         :param tournament_id:
         """
         self.tournament_id = tournament_id
+        self.raw_dict = None
         self.players = []
 
-        self.raw_dict = None
-        self.get_raw()
+        try:
+            self.get_raw()
+        except Exception as ex:
+            return ex.message
 
 
     def get_raw(self):
         """
         :return: the JSON dump that the api call returns
         """
-        if self.raw_dict == None:
-            self.raw_dict = {}
-            
-            base_url = TOURNAMENT_URL % self.tournament_id
-            url = base_url + DUMP_SETTINGS
+        try:
+            if self.raw_dict == None:
+                self.raw_dict = {}
 
-            self.log('API Call to ' + str(url) + ' executing')
-            self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
-        return self.raw_dict
+                base_url = TOURNAMENT_URL % self.tournament_id
+                url = base_url + DUMP_SETTINGS
+
+                self.log('API Call to ' + str(url) + ' executing')
+                self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
+            return self.raw_dict
+        except Exception as ex:
+            msg = 'An error occurred in the retrieval of data from SmashGG: ' + str(ex)
+            Log.log('SmashGG', msg)
+            return msg
 
     def get_matches(self):
         """
@@ -289,3 +297,7 @@ class SmashGGMatch(object):
         self.loser_id = loser_id
         self.roundNumber = roundNumber
         self.bestOf = bestOf
+
+class SmashGGException(Exception):
+    def __init__(self, message):
+        self.message = message
