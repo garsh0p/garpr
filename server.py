@@ -19,6 +19,7 @@ from model import MatchResult, Tournament, PendingTournament, Merge, User, Playe
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
+from scraper.smashgg import SmashGGScraper
 import alias_service
 from StringIO import StringIO
 import Cookie

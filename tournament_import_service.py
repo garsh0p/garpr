@@ -47,11 +47,12 @@ def import_tournament_from_challonge(region, path, name, dao):
     return dao.insert_pending_tournament(pending)
 
 def import_tournament_from_smashgg(region, path, name, dao):
-    tourney_id = SmashGGScraper.get_tournament_id_from_url(path)
-    scraper = SmashGGScraper(tourney_id)
+    scraper = SmashGGScraper(path)
+    pending = PendingTournament.from_scraper('smashgg', scraper, region)
+    if name:
+        pending.name = name
 
-    # tournament = Tournament('smashgg', raw, date, name, players, matches, regions, id=None)
-    name = SmashGGScraper.get_tournament_name_from_url(path)
+    return dao.insert_pending_tournament(pending)
 
 def get_pending_tournaments(region, dao):
     return dao.get_all_pending_tournament_jsons([region])

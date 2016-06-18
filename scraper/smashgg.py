@@ -1,6 +1,7 @@
 import requests
 import os
 from model import MatchResult
+from garprLogging.log import Log
 
 BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
@@ -45,6 +46,7 @@ class SmashGGScraper(object):
     def get_name(self):
         SmashGGScraper.get_tournament_name_from_url(self.path)
 
+    # The JSON scrape doesn't give us the Date of the tournament currently
     def get_name(self):
         return None
 
