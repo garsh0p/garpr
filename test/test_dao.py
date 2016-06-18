@@ -1,5 +1,5 @@
 import unittest
-from dao import Dao, RegionNotFoundException, InvalidRegionsException, \
+from dao import Dao, InvalidRegionsException, \
     InvalidNameException, DuplicateAliasException, DuplicateUsernameException, \
     UpdateTournamentException, gen_password, verify_password
 from bson.objectid import ObjectId
@@ -185,9 +185,8 @@ class TestDAO(unittest.TestCase):
         # create a dao with an existing region
         Dao('norcal', self.mongo_client, database_name=DATABASE_NAME)
 
-        # create a dao with a new region
-        with self.assertRaises(RegionNotFoundException):
-            Dao('newregion', self.mongo_client, database_name=DATABASE_NAME)
+        # create a dao with a non existant region, should return none
+        self.assertIsNone(Dao('newregion', self.mongo_client, database_name=DATABASE_NAME))
 
     def test_get_all_regions(self):
         # add another region
