@@ -7,11 +7,13 @@ TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
 DUMP_SETTINGS = "?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches"
 
 class SmashGGScraper(object):
-    def __init__(self, tournament_id):
+    def __init__(self, path):
         """
-        :param tournament_id:
+        :param path: url to go to the bracket
         """
-        self.tournament_id = tournament_id
+        self.path = path
+        self.tournament_id = SmashGGScraper.get_tournament_id_from_url(self.path)
+        self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
         self.raw_dict = None
         self.players = []
 
@@ -39,6 +41,12 @@ class SmashGGScraper(object):
             msg = 'An error occurred in the retrieval of data from SmashGG: ' + str(ex)
             Log.log('SmashGG', msg)
             return msg
+
+    def get_name(self):
+        SmashGGScraper.get_tournament_name_from_url(self.path)
+
+    def get_name(self):
+        return None
 
     def get_matches(self):
         """

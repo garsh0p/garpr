@@ -170,7 +170,7 @@ class Player(object):
 class Tournament(object):
     def __init__(self, type, raw, date, name, players, matches, regions, id=None):
         '''
-        :param type: string, either "tio" or "challonge"
+        :param type: string, either "tio", "challonge", or "smashgg"
         :param raw: for tio, this is an xml string. for challonge its a dict from string --> string
         :param date: datetime
         :param name: string
@@ -284,8 +284,9 @@ class PendingTournament(object):
        Used during tournament import, before aliases are mapped to player ids.'''
     def __init__(self, type, raw, date, name, players, matches, regions, alias_to_id_map=None, id=None):
         '''
-        :param type: string, either "tio" or "challonge"
-        :param raw: for tio, this is an xml string. for challonge its a dict from string --> string
+        :param type: string, either "tio", "challonge", "smashgg"
+        :param raw: for tio, this is an xml string. for challonge its a dict from string --> string.
+                    for smashgg its a dictionary of string-->string or string-->array[string]
         :param date: datetime
         :param name: string
         :param players: list of ObjectIDs
