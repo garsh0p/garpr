@@ -1,6 +1,8 @@
 #!/bin/bash
 source config/config.ini
 
+set -e # Exit script immediately on first error.
+
 if [[ "$(ps aux | grep mongo)" == *"mongod"* ]]
   then
     echo "mongod is already running"

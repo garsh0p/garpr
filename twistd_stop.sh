@@ -1,6 +1,8 @@
 #!/bin/bash
 echo "assuming you don't want mongod killed"
 
+set -e # Exit script immediately on first error.
+
 if [[ -f "backend.pid" ]]
   then
     echo "shutting down backend"
