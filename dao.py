@@ -26,22 +26,28 @@ SESSIONS_COLLECTION_NAME = 'sessions'
 special_chars = re.compile("[^\w\s]*")
 
 
-class RegionNotFoundException(Exception):
-    pass
+
+#make sure all the exception here are properly caught, or the server code knows about them.
+
 
 class InvalidRegionsException(Exception):
+    #safe, only used from script
     pass
 
 class DuplicateAliasException(Exception):
+    #safe, only used in dead code
     pass
 
 class DuplicateUsernameException(Exception):
+    #safe, only used from script
     pass
 
 class InvalidNameException(Exception):
+    #safe only used in dead code
     pass
 
 class UpdateTournamentException(Exception):
+    # this is actually used, all uses of update_tournament now have try/except blocks
     pass
 
 def gen_password(password):
@@ -56,16 +62,16 @@ def verify_password(password, salt, hashed_password):
     return (the_hash and the_hash==hashed_password)
 
 
-#TODO create RegionSpecificDao object
-# yeah rn we pass in norcal for a buncha things we dont need to
+#TODO create RegionSpecificDao object rn we pass in norcal for a buncha things we dont need to
 class Dao(object):
+
+    # here lies some serious abuse of magic methods, here be dragons
+    def __new__(cls, region_id, mongo_client, database_name=DATABASE_NAME): #use __new__ so that we can return None
+        if region_id and region_id not in [r.id for r in Dao.get_all_regions(mongo_client, database_name=database_name)]:
+            return None
+        return super(Dao, cls).__new__(cls, region_id, mongo_client, database_name) #this is how we call __init__
+
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
-        self.mongo_client = mongo_client
-        self.region_id = region_id
-
-        if region_id and region_id not in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
-            raise RegionNotFoundException("%s is not a valid region id!" % region_id)
-
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
@@ -73,6 +79,8 @@ class Dao(object):
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.pending_merges_col = mongo_client[database_name][PENDING_MERGES_COLLECTION_NAME]
         self.sessions_col = mongo_client[database_name][SESSIONS_COLLECTION_NAME]
+        self.mongo_client = mongo_client
+        self.region_id = region_id
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -137,6 +145,7 @@ class Dao(object):
     def update_players(self, players):
         pass
 
+    # unused, if you use this, make sure to surround it in a try block!
     def add_alias_to_player(self, player, alias):
         lowercase_alias = alias.lower()
 
@@ -147,6 +156,7 @@ class Dao(object):
 
         return self.update_player(player)
 
+    # unused, if you use this, make sure to surround it in a try block!
     def update_player_name(self, player, name):
         # ensure this name is already an alias
         if not name.lower() in player.aliases:
@@ -170,11 +180,6 @@ class Dao(object):
 
     def insert_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
-
-    def update_pending_tournament(self, pending_tournament):
-        # if len(pending_tournament.raw) == 0:
-        #     raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
-        return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
 
     def delete_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.remove({'_id': pending_tournament.id})
@@ -211,6 +216,7 @@ class Dao(object):
     def insert_tournament(self, tournament):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
+    #all uses of this MUST use a try/except block!
     def update_tournament(self, tournament):
         if len(tournament.raw) == 0:
             raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
@@ -314,6 +320,7 @@ class Dao(object):
         return Merge.from_json(info)
 
     # TODO reduce db calls for this
+    # this can throw errors, but thats okay cause its only called from scripts
     def merge_players(self, source=None, target=None):
         if source is None or target is None:
             raise TypeError("source or target can't be none!");
@@ -361,7 +368,7 @@ class Dao(object):
 
     # session management
 
-
+    # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
         # validate that no user with same username exists currently
         if self.users_col.find_one({'username': user.username}):
@@ -369,6 +376,7 @@ class Dao(object):
 
         return self.users_col.insert(user.get_json_dict())
 
+    # throws invalidRegionsException, which is okay, as this is only used by a script
     def create_user(self, username, password, regions):
         valid_regions = [region.id for region in Dao.get_all_regions(self.mongo_client)]
 
