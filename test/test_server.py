@@ -15,7 +15,6 @@ import base64
 import string
 from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
 
-
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
 NORCAL_PENDING_FILES = [('test/data/pending1.tio', 'bam 6 singles')]
@@ -97,6 +96,45 @@ class TestServer(unittest.TestCase):
 
 
 ### start of actual test cases
+
+    def test_cors_checker(self):
+        self.assertTrue(server.is_allowed_origin("http://njssbm.com"))
+        self.assertTrue(server.is_allowed_origin("https://njssbm.com"))
+        self.assertTrue(server.is_allowed_origin("http://njssbm.com:3000"))
+        self.assertTrue(server.is_allowed_origin("https://njssbm.com:3000"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.10"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.10"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.10:433"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.10:433"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.1"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.1"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.1:433"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.1:433"))
+        self.assertTrue(server.is_allowed_origin("http://notgarpr.com:433"))
+        self.assertTrue(server.is_allowed_origin("https://notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("https://notgarpr.com:420"))
+        self.assertTrue(server.is_allowed_origin("http://notgarpr.com"))
+        self.assertFalse(server.is_allowed_origin("http://garpr.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://192.168.33.1.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://192.168.33.1:445.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:445.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\x00.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\r\n.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\n.evil.com"))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def test_get_region_list(self):

@@ -34,8 +34,6 @@ mongo_client = MongoClient(host=config.get_mongo_url())
 print "parsed config: ", config.get_mongo_url()
 
 app = Flask(__name__)
-# cors = CORS(app, origins='whensgarpr.com') #im not 100% sure on all this
-cors = CORS(app, origins='localhost', headers=['Authorization', 'Content-Type'])
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
@@ -92,6 +90,10 @@ session_delete_parser.add_argument('session_id', location='cookies', type=str)
 
 class InvalidAccessToken(Exception):
     pass
+
+def is_allowed_origin(origin): 
+    dragon = r"http(s)?:\/\/(notgarpr\.com|192\.168\.33\.1(0)?|njssbm\.com)(\:[\d]*)?$"
+    return re.match(dragon, origin)
 
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
@@ -911,16 +913,26 @@ class SessionResource(restful.Resource):
 
         return return_dict
 
+@app.after_request
+def add_security_headers(resp):
+    resp.headers['Strict-Transport-Security'] = "max-age=31536000; includeSubdomains"
+    resp.headers['Content-Security-Policy'] = "default-src https: data: 'unsafe-inline' 'unsafe-eval'"
+    resp.headers['X-Frame-Options'] = "DENY"
+    resp.headers['X-XSS-Protection'] = "1; mode=block"
+    resp.headers['X-Content-Type-Options'] = "nosniff"
+    return resp
 
 @app.after_request
 def add_cors(resp):
     """ Ensure all responses have the CORS headers. This ensures any failures are also accessible
         by the client. """
-    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*') #!!! this needs to be tightened down to only the domains we're expecting
+    the_origin = request.headers.get('Origin','*')
+    if not is_allowed_origin(the_origin):
+        return resp
+    resp.headers['Access-Control-Allow-Origin'] =  the_origin
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET, PUT, DELETE'
-    resp.headers['Access-Control-Allow-Headers'] = request.headers.get(
-        'Access-Control-Request-Headers', 'Authorization' )
+    resp.headers['Access-Control-Allow-Headers'] = request.headers.get('Access-Control-Request-Headers', 'Authorization' )
     resp.headers["Access-Control-Expose-Headers"] = "Set-Cookie"
     # set low for debugging
     if app.debug:
