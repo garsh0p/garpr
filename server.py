@@ -92,7 +92,7 @@ class InvalidAccessToken(Exception):
     pass
 
 def is_allowed_origin(origin): 
-    dragon = r"http(s)?:\/\/(notgarpr\.com|192\.168\.33\.1(0)?|njssbm\.com)(\:[\d]*)?$"
+    dragon = r"http(s)?:\/\/(stage\.|www\.)?(notgarpr\.com|192\.168\.33\.1(0)?|njssbm\.com)(\:[\d]*)?$"
     return re.match(dragon, origin)
 
 def convert_object_id(json_dict):

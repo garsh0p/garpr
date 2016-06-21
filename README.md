@@ -1,13 +1,17 @@
 Welcome to GarPR Development
 
-Our dev environment uses vagrant. here are the details.
+Our dev environment uses vagrant. 
 we have a CI cycle, with a big test suite, and auto-push to
 production based on jenkins when we push to master and pass all tests
 
+garpr is written using Restful Flask on the backend, with an AngularJS frontend
+
 Developers should make changes in a branch, and then make a pull request 
+
 Admins or users, submit bug reports on the [issues page](https://github.com/ripgarpr/garpr/issues).
 
 Interested in getting GarPR in your region? Contact one of the devs. 
+
 Interested in being a dev? Also contact one of us. We have an active slack channel :D
 
 Local Development Using Vagrant

@@ -114,6 +114,12 @@ class TestServer(unittest.TestCase):
         self.assertTrue(server.is_allowed_origin("https://notgarpr.com"))
         self.assertTrue(server.is_allowed_origin("https://notgarpr.com:420"))
         self.assertTrue(server.is_allowed_origin("http://notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("http://stage.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("http://www.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("https://stage.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("https://www.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("http://stage.notgarpr.com:44"))
+        self.assertTrue(server.is_allowed_origin("http://www.notgarpr.com:919"))
         self.assertFalse(server.is_allowed_origin("http://garpr.com"))
         self.assertFalse(server.is_allowed_origin("http://notgarpr.com.evil.com"))
         self.assertFalse(server.is_allowed_origin("http://192.168.33.1.evil.com"))
@@ -122,20 +128,6 @@ class TestServer(unittest.TestCase):
         self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\x00.evil.com"))
         self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\r\n.evil.com"))
         self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\n.evil.com"))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
@@ -1539,7 +1531,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
 
     @patch('server.get_user_from_request')
-    def test_post_tournament_from_tio(self, mock_get_user_from_request): #TODO: rewrite to use new endpoints
+    def test_post_tournament_from_tio(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
@@ -1650,11 +1642,40 @@ class TestServer(unittest.TestCase):
         response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
         self.assertEquals(response.status_code, 403)
 
+    """
     @patch('server.get_user_from_request')
     def test_post_tournament_from_challonge(self, mock_get_user_from_request):
-        #TODO
-        pass
+        mock_get_user_from_request.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #craft this for challonge
+        raw_dict['data'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
+        raw_dict['type'] = "tio"
+        raw_dict['bracket'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments', data=the_data, content_type='application/json')
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 200, msg=str(response.data) + str(response.status_code))
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['id']))
 
+        #all these need to be changed
+        #self.assertEqual(the_tourney.name, u'Justice 4')
+        #self.assertEqual(len(the_tourney.players), 48)
+
+        #self.assertEquals(the_dict['id'], str(the_tourney.id))
+        #self.assertEquals(the_tourney.type, 'tio')
+        #self.assertEquals(the_tourney.regions, ['norcal'])
+
+        #let's spot check and make sure hax vs armada happens twice
+        #sweden_wins_count = 0
+        #for m in the_tourney.matches:
+        #    if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+        #        sweden_wins_count += 1
+        #self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??
+    """
 
     '''
     #TODOskis
