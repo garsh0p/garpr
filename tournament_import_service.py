@@ -1,6 +1,7 @@
 import click
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
+from scraper.smashgg import SmashGGScraper
 from model import *
 from dao import Dao
 import rankings
@@ -40,6 +41,14 @@ def import_tournament_from_tio_filestream(region, stream, bracket, name, dao):
 def import_tournament_from_challonge(region, path, name, dao):
     scraper = ChallongeScraper(path)
     pending = PendingTournament.from_scraper('challonge', scraper, region)
+    if name:
+        pending.name = name
+
+    return dao.insert_pending_tournament(pending)
+
+def import_tournament_from_smashgg(region, path, name, dao):
+    scraper = SmashGGScraper(path)
+    pending = PendingTournament.from_scraper('smashgg', scraper, region)
     if name:
         pending.name = name
 

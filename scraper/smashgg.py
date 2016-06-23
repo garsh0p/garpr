@@ -1,37 +1,56 @@
 import requests
 import os
 from model import MatchResult
+from garprLogging.log import Log
 
 BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
 DUMP_SETTINGS = "?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches"
 
-class SmashGGScraper(object):
-    def __init__(self, tournament_id):
-        """
-        :param tournament_id:
-        """
-        self.tournament_id = tournament_id
-        self.players = []
 
+
+
+class SmashGGScraper(object):
+    def __init__(self, path):
+        """
+        :param path: url to go to the bracket
+        """
+        self.path = path
+        self.tournament_id = SmashGGScraper.get_tournament_id_from_url(self.path)
+        self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
         self.raw_dict = None
+        self.players = []
         self.get_raw()
+        #we don't use a try/except block here, if something goes wrong, we *should* throw an exception
 
 ######### START OF SCRAPER API
+
 
     def get_raw(self):
         """
         :return: the JSON dump that the api call returns
         """
-        if self.raw_dict == None:
-            self.raw_dict = {}
-            
-            base_url = TOURNAMENT_URL % self.tournament_id
-            url = base_url + DUMP_SETTINGS
+        try:
+            if self.raw_dict == None:
+                self.raw_dict = {}
 
-            self.log('API Call to ' + str(url) + ' executing')
-            self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
-        return self.raw_dict
+                base_url = TOURNAMENT_URL % self.tournament_id
+                url = base_url + DUMP_SETTINGS
+
+                self.log('API Call to ' + str(url) + ' executing')
+                self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
+            return self.raw_dict
+        except Exception as ex:
+            msg = 'An error occurred in the retrieval of data from SmashGG: ' + str(ex)
+            Log.log('SmashGG', msg)
+            return msg
+
+    def get_name(self):
+        SmashGGScraper.get_tournament_name_from_url(self.path)
+
+    # The JSON scrape doesn't give us the Date of the tournament currently
+    def get_date(self):
+        return None
 
     def get_matches(self):
         """
@@ -59,6 +78,7 @@ class SmashGGScraper(object):
         #we dont try/except, we throw when we have an issue
 
 ####### END OF SCRAPER API
+
 
     def get_player_by_entrant_id(self, id):
         """
@@ -253,3 +273,7 @@ class SmashGGMatch(object):
         self.loser_id = loser_id
         self.roundNumber = roundNumber
         self.bestOf = bestOf
+
+class SmashGGException(Exception):
+    def __init__(self, message):
+        self.message = message
