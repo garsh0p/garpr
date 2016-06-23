@@ -19,6 +19,7 @@ from model import MatchResult, Tournament, PendingTournament, Merge, User, Playe
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
+from scraper.smashgg import SmashGGScraper
 import alias_service
 from StringIO import StringIO
 import Cookie
@@ -328,6 +329,8 @@ class TournamentListResource(restful.Resource):
             include_pending_tournaments = user and is_user_admin_for_region(user, region)
 
         tournaments = dao.get_all_tournaments(regions=[region])
+        if not tournaments:
+            return 'Dao couldnt find any tournaments, not good man, not good', 404
         all_tournament_jsons = [t.get_json_dict() for t in tournaments]
 
         if include_pending_tournaments:
@@ -336,11 +339,12 @@ class TournamentListResource(restful.Resource):
                 t['pending'] = False
 
             pending_tournaments = dao.get_all_pending_tournaments(regions=[region])
-            for p in pending_tournaments:
-                p = p.get_json_dict()
-                p['pending'] = True
-                del p['alias_to_id_map']
-                all_tournament_jsons.append(p)
+            if pending_tournaments:
+                for p in pending_tournaments:
+                    p = p.get_json_dict()
+                    p['pending'] = True
+                    del p['alias_to_id_map']
+                    all_tournament_jsons.append(p)
 
         return_dict = {}
         return_dict['tournaments'] = all_tournament_jsons
@@ -384,6 +388,8 @@ class TournamentListResource(restful.Resource):
 
         type = args['type']
         data = args['data']
+        pending_tournament = None
+
         try:
             if type == 'tio':
                 if args['bracket'] is None:
@@ -394,21 +400,32 @@ class TournamentListResource(restful.Resource):
                 scraper = TioScraper(data, args['bracket'])
             elif type == 'challonge':
                 scraper = ChallongeScraper(data)
+            elif type == 'smashgg':
+                scraper = SmashGGScraper(data)
             else:
                 return "Unknown type", 400
+            pending_tournament = PendingTournament.from_scraper(type, scraper, region)
         except:
             return 'Scraper encountered an error', 400
-            
-        pending_tournament = PendingTournament.from_scraper(type, scraper, region)
-        pending_tournament.alias_to_id_map = alias_service.get_alias_to_id_map_in_list_format(
-                dao, pending_tournament.players)
-        new_id = dao.insert_pending_tournament(pending_tournament)
+    
+        if not pending_tournament:
+            return 'Scraper encountered an error', 400
 
-        return_dict = {
+        try:
+            pending_tournament.alias_to_id_map = alias_service.get_alias_to_id_map_in_list_format(dao, pending_tournament.players)
+        except:
+            return 'Alias service encountered an error', 400
+
+        try:
+            new_id = dao.insert_pending_tournament(pending_tournament)
+            return_dict = {
                 'id': str(new_id)
-        }
+            }
+            return return_dict
+        except:
+            return 'Dao insert_pending_tournament encountered an error', 400
 
-        return return_dict
+        return 'Unknown error!', 400
 
 def convert_tournament_to_response(tournament, dao):
     return_dict = tournament.get_json_dict()
@@ -636,7 +653,11 @@ class PendingTournamentListResource(restful.Resource):
         if not dao:
             return 'Dao not found', 404
         return_dict = {}
-        the_tourney = tournament_import.get_pending_tournaments(region, dao)
+        the_tourney = None
+        try:
+            tournament_import.get_pending_tournaments(region, dao)
+        except:
+            return 'Error in get_pending_tournaments', 400
         if not the_tourney:
             return 'Not found', 404
         return_dict['pending_tournaments'] = the_tourney
@@ -685,9 +706,12 @@ class PendingTournamentResource(restful.Resource):
         if not data:
             return 'Request couldnt be converted to pending tournament', 400
         pending_tournament.alias_to_id_map = data["alias_to_id_map"]
-        dao.update_pending_tournament(pending_tournament)
-        response = convert_pending_tournament_to_response(pending_tournament, dao)
-        return response
+        try:
+            dao.update_pending_tournament(pending_tournament)
+            response = convert_pending_tournament_to_response(pending_tournament, dao)
+            return response
+        except:
+            return 'Encountered an error inserting pending tournament', 400
 
 class FinalizeTournamentResource(restful.Resource):
     """ Converts a pending tournament to a tournament.
@@ -721,15 +745,16 @@ class FinalizeTournamentResource(restful.Resource):
             player_id = dao.insert_player(player)
             pending_tournament.set_alias_id_mapping(player_name, player_id)
 
-        dao.update_pending_tournament(pending_tournament)
-
         try:
+            dao.update_pending_tournament(pending_tournament)
             tournament = Tournament.from_pending_tournament(pending_tournament)
             tournament_id = dao.insert_tournament(tournament)
             dao.delete_pending_tournament(pending_tournament)
             return {"success": True, "tournament_id": str(tournament_id)}
         except ValueError:
             return 'Not all player aliases in this pending tournament have been mapped to player ids.', 400
+        except:
+            return 'Dao threw an error somewhere', 400
 
 class RankingsResource(restful.Resource):
     def get(self, region):
@@ -737,6 +762,8 @@ class RankingsResource(restful.Resource):
         if not dao:
             return 'Dao not found', 404
         return_dict = dao.get_latest_ranking().get_json_dict()
+        if not return_dict:
+            return 'Dao couldnt give us rankings', 400
         del return_dict['_id']
         return_dict['time'] = str(return_dict['time'])
         return_dict['tournaments'] = [str(t) for t in return_dict['tournaments']]
@@ -800,6 +827,8 @@ class MatchesResource(restful.Resource):
         return_dict['losses'] = 0
 
         tournaments = dao.get_all_tournaments(players=player_list)
+        if not tournaments:
+            return 'No tournaments found', 400
         for tournament in tournaments:
             for match in tournament.matches:
                 if (opponent_id is not None and match.contains_players(player.id, opponent.id)) or \
@@ -868,11 +897,12 @@ class PendingMergesResource(restful.Resource):
                           to_be_merged_player_id,
                           now,
                           id=ObjectId())
-        dao.insert_pending_merge(the_merge)
-        return_dict = {'status': "success",
-                       'id': str(the_merge.id)}
-        return return_dict, 200
-
+        try:
+            dao.insert_pending_merge(the_merge)
+            return_dict = {'status': "success", 'id': str(the_merge.id)}
+            return return_dict, 200
+        except:
+            return 'error inserting pending merge', 400
 
 class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
@@ -900,7 +930,6 @@ class SessionResource(restful.Resource):
         return 'logout success', 200, {'Set-Cookie': "session_id=deleted; expires=Thu, 01 Jan 1970 00:00:00 GMT"}
 
     def get(self):
-        # TODO region doesn't matter, remove hardcode
         dao = Dao(None, mongo_client=mongo_client)
         if not dao:
             return 'Dao not found', 404
