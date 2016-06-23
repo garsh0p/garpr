@@ -17,6 +17,7 @@ class SmashGGScraper(object):
         self.raw_dict = None
         self.get_raw()
 
+######### START OF SCRAPER API
 
     def get_raw(self):
         """
@@ -55,6 +56,9 @@ class SmashGGScraper(object):
         except Exception as ex:
             msg = 'An error occured in the retrieval of matches: ' + str(ex)
         return matches
+        #we dont try/except, we throw when we have an issue
+
+####### END OF SCRAPER API
 
     def get_player_by_entrant_id(self, id):
         """
