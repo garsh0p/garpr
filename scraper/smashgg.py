@@ -1,3 +1,4 @@
+import datetime
 import requests
 import os
 from model import MatchResult
@@ -46,11 +47,18 @@ class SmashGGScraper(object):
             return msg
 
     def get_name(self):
-        SmashGGScraper.get_tournament_name_from_url(self.path)
+        return self.name
 
     # The JSON scrape doesn't give us the Date of the tournament currently
+    # Get date from earliest start time of a set
     def get_date(self):
-        return None
+        sets = self.get_raw()['smashgg']['entities']['sets']
+        start_times = [t['startedAt'] for t in sets if t['startedAt']]
+
+        if not start_times:
+            return None
+        else:
+            return datetime.datetime.fromtimestamp(min(start_times))
 
     def get_matches(self):
         """

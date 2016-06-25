@@ -92,7 +92,7 @@ session_delete_parser.add_argument('session_id', location='cookies', type=str)
 class InvalidAccessToken(Exception):
     pass
 
-def is_allowed_origin(origin): 
+def is_allowed_origin(origin):
     dragon = r"http(s)?:\/\/(stage\.|www\.)?(notgarpr\.com|192\.168\.33\.1(0)?|njssbm\.com)(\:[\d]*)?$"
     return re.match(dragon, origin)
 
@@ -351,7 +351,7 @@ class TournamentListResource(restful.Resource):
         convert_object_id_list(return_dict['tournaments'])
 
         for t in return_dict['tournaments']:
-            t['date'] = t['date'].strftime("%x")
+            t['date'] = t['date'].strftime("%x") if t['date'] else '20XX'
 
             # remove extra fields
             del t['raw']
@@ -407,7 +407,7 @@ class TournamentListResource(restful.Resource):
             pending_tournament = PendingTournament.from_scraper(type, scraper, region)
         except:
             return 'Scraper encountered an error', 400
-    
+
         if not pending_tournament:
             return 'Scraper encountered an error', 400
 
@@ -431,7 +431,7 @@ def convert_tournament_to_response(tournament, dao):
     return_dict = tournament.get_json_dict()
     convert_object_id(return_dict)
 
-    return_dict['date'] = return_dict['date'].strftime("%x")
+    return_dict['date'] = return_dict['date'].strftime("%x") if return_dict['date'] else '20XX'
 
     return_dict['players'] = [{
             'id': str(p),
@@ -454,7 +454,7 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
     return_dict = pending_tournament.get_json_dict()
     convert_object_id(return_dict)
 
-    return_dict['date'] = return_dict['date'].strftime("%x")
+    return_dict['date'] = return_dict['date'].strftime("%x") if return_dict['date'] else '20XX'
 
     # convert the alias_to_id_map from a list to mongo to an actual map
     alias_to_id_map = {}
@@ -664,7 +664,7 @@ class PendingTournamentListResource(restful.Resource):
         convert_object_id_list(return_dict['pending_tournaments'])
 
         for t in return_dict['pending_tournaments']:
-            t['date'] = t['date'].strftime("%x")
+            t['date'] = t['date'].strftime("%x") if t['date'] else '20XX'
             # whether all aliases have been mapped to players or not
             # necessary condition for the tournament to be ready to be finalized
             t['alias_mapping_finished'] = t.are_all_aliases_mapped()
@@ -800,7 +800,7 @@ class MatchesResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         if not dao:
-            return 'Dao not found', 404        
+            return 'Dao not found', 404
         args = matches_get_parser.parse_args()
         return_dict = {}
 
@@ -921,7 +921,7 @@ class SessionResource(restful.Resource):
     ''' logout, destroys session_id mapping on client and server side '''
     def delete(self):
         args = session_delete_parser.parse_args()
-        dao = Dao(None, mongo_client=mongo_client) 
+        dao = Dao(None, mongo_client=mongo_client)
         if not dao:
             return 'Dao not found', 404
         logout_success = dao.logout_user_or_none(args['session_id'])

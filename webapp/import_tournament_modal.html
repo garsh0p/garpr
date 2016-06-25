@@ -33,6 +33,17 @@
                 <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
             </form>
         </tab>
+        <tab heading="SmashGG" select="setBracketType('smashgg')">
+            <p>Enter the URL to your SmashGG bracket (e.g. <a href = https://smash.gg/tournament/genesis-3/brackets/10617/3860/15833>https://smash.gg/tournament/genesis-3/brackets/10617/3860/15833</a>):</p>
+            <form ng-submit="submit()">
+                <div class="form-group">
+                    <label for="bracket">SmashGG Bracket URL</label>
+                    <input type="text" class="form-control" ng-model="postParams.data">
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
+                <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
+            </form>
+        </tab>
     </tabset>
 </div>
 

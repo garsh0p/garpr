@@ -125,7 +125,7 @@ class TestSmashGGScraper(unittest.TestCase):
 
     def test_get_matches1(self):
         self.assertEqual(len(self.tournament1.get_matches()), 58)
-        # spot check that mang0 got double elim'd 
+        # spot check that mang0 got double elim'd
         mango_count = 0
         for m in self.tournament1.get_matches():
             if m.loser == 'Mang0':
@@ -147,3 +147,18 @@ class TestSmashGGScraper(unittest.TestCase):
 
     def test_get_smashgg_matches2(self):
         self.assertEqual(len(self.tournament2.get_smashgg_matches()), 46)
+
+    def test_get_date(self):
+        date = self.tournament1.get_date()
+        self.assertEqual(date.year, 2015)
+        self.assertEqual(date.month, 9)
+        self.assertEqual(date.day, 19)
+
+        date = self.tournament2.get_date()
+        self.assertEqual(date.year, 2016)
+        self.assertEqual(date.month, 3)
+        self.assertEqual(date.day, 27)
+
+    def test_get_name(self):
+        self.assertEqual(self.tournament1.get_name(), 'htc throwdown')
+        self.assertEqual(self.tournament2.get_name(), 'tiger smash 4')
