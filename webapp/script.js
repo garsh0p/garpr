@@ -149,7 +149,7 @@ app.service('SessionService', function($http) {
             };
             $http.post(url, data, config).success(successCallback).error(failureCallback);
         },
-        authenticatedPut: function(url, successCallback, data, failureCallback) {
+        authenticatedPut: function(url, data, successCallback, failureCallback) {
             if (data === undefined) {
                 data = {};
             }
@@ -295,8 +295,7 @@ app.controller("AuthenticationController", function($scope, $modal, Facebook, Se
         console.log("logging in user")
         console.log($scope.postParams)
         url = hostname + 'users/session'
-        $scope.sessionService.authenticatedPut(url, $scope.handleAuthResponse, $scope.postParams,
-            $scope.handleAuthResponse);
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
     };
 
     $scope.logout = function() {
@@ -442,17 +441,56 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.playerData = {}
     $scope.playerCheckboxState = {};
 
-    $scope.openRegionModal = function() {
+    $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
-            templateUrl: 'tournament_region_modal.html',
+            templateUrl: 'tournament_details_modal.html',
             scope: $scope,
             size: 'lg'
         });
-        $scope.tournamentRegionCheckbox = {}
+        $scope.postParams = {name: $scope.tournament.name,
+                             date: $scope.tournament.date};
+        $scope.tournamentRegionCheckbox = {};
+
+        $scope.sessionService.getAdminRegions().forEach(
+            function(regionId){
+                if($scope.isTournamentInRegion(regionId)){
+                    $scope.tournamentRegionCheckbox[regionId] = "IN_REGION";
+                }else{
+                    $scope.tournamentRegionCheckbox[regionId] = "NOT_IN_REGION";
+                }
+            });
+
+        $scope.disableButtons = false;
+        $scope.errorMessage = false;
     };
 
-    $scope.closeRegionModal = function() {
+    $scope.closeDetailsModal = function() {
         $scope.modalInstance.close()
+    };
+
+    $scope.updateTournamentDetails = function() {
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId;
+        $scope.disableButtons = true;
+
+        tournamentInRegion = function(regionId){
+            return $scope.tournamentRegionCheckbox[regionId]!=="NOT_IN_REGION";
+        };
+
+        $scope.postParams['regions'] = $scope.sessionService.getAdminRegions().filter(tournamentInRegion);
+
+        successCallback = function(data) {
+            $scope.tournament = data;
+            $scope.closeDetailsModal();
+        };
+
+        failureCallback = function(data) {
+            $scope.disableButtons = false;
+            $scope.errorMessage = true;
+        };
+
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, successCallback, failureCallback);
+
+        return;
     };
 
     $scope.openSubmitPendingTournamentModal = function() {
@@ -461,7 +499,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
             scope: $scope,
             size: 'lg'
         });
-        $scope.tournamentRegionCheckbox = {}
+        $scope.tournamentRegionCheckbox = {};
     };
 
     $scope.closeSubmitPendingTournamentModal = function() {
@@ -478,20 +516,6 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
 
     $scope.isTournamentInRegion = function(regionId) {
         return $scope.tournament.regions.indexOf(regionId) > -1
-    };
-
-    $scope.onCheckboxChange = function(regionId) {
-        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/region/' + regionId;
-        successCallback = function(data) {
-            $scope.tournament = data;
-        };
-
-        if ($scope.tournamentRegionCheckbox[regionId]) {
-            $scope.sessionService.authenticatedPut(url, successCallback);
-        }
-        else {
-            $scope.sessionService.authenticatedDelete(url, successCallback);
-        }
     };
 
     $scope.onPlayerCheckboxChange = function(playerAlias) {
@@ -538,7 +562,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         $scope.update_alias_map_from_ui()
         console.log($scope.tournament.alias_to_id_map);
         url = hostname + $routeParams.region + '/pending_tournaments/' + $scope.tournamentId;
-        $scope.sessionService.authenticatedPut(url, $scope.updateData, $scope.tournament);
+        $scope.sessionService.authenticatedPut(url, $scope.tournament, $scope.updateData);
     }
 
     $scope.updateData = function(data) {
@@ -611,7 +635,7 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         };
 
         if ($scope.playerRegionCheckbox[regionId]) {
-            $scope.sessionService.authenticatedPut(url, successCallback);
+            $scope.sessionService.authenticatedPut(url, {}, successCallback);
         }
         else {
             $scope.sessionService.authenticatedDelete(url, successCallback);
@@ -666,7 +690,7 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         successCallback = function(data) {
             window.location.reload();
         };
-        $scope.sessionService.authenticatedPut(url, successCallback, data);
+        $scope.sessionService.authenticatedPut(url, data, successCallback);
     };
 
 });

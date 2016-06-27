@@ -57,7 +57,7 @@ player_put_parser.add_argument('regions', type=list)
 
 tournament_put_parser = reqparse.RequestParser()
 tournament_put_parser.add_argument('name', type=str)
-tournament_put_parser.add_argument('date', type=int)
+tournament_put_parser.add_argument('date', type=str)
 tournament_put_parser.add_argument('players', type=list)
 tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
@@ -510,7 +510,6 @@ class TournamentResource(restful.Resource):
         return response
 
     def put(self, region, id):
-        print "tournamentresource put"
         dao = Dao(region, mongo_client=mongo_client)
         if not dao:
             return 'Dao not found', 404
@@ -530,13 +529,17 @@ class TournamentResource(restful.Resource):
             return 'Permission denied', 403
 
         args = tournament_put_parser.parse_args()
+        print args
 
         #TODO: should we do validation that matches and players are compatible here?
         try:
             if args['name']:
                 tournament.name = args['name']
             if args['date']:
-                tournament.date = datetime.fromordinal(args['date'])
+                try:
+                    tournament.date = datetime.strptime(args['date'].strip(), '%m/%d/%y')
+                except:
+                    return "Invalid date format", 400
             if args['players']:
                 for p in args['players']:
                     if not isinstance(p, unicode):
@@ -558,6 +561,7 @@ class TournamentResource(restful.Resource):
                 tournament.regions = args['regions']
         except:
             return 'Invalid ObjectID', 400
+
         try:
             dao.update_tournament(tournament)
         except:

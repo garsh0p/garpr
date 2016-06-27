@@ -1158,7 +1158,7 @@ class TestServer(unittest.TestCase):
         new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
         new_date = datetime.now()
         new_regions = ("norcal", "socal")
-        raw_dict = {'name': new_tourney_name, 'date': new_date.toordinal(), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
+        raw_dict = {'name': new_tourney_name, 'date': new_date.strftime("%m/%d/%y"), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
         test_data = json.dumps(raw_dict)
 
         # add new players to dao
