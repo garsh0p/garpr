@@ -448,7 +448,8 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
             size: 'lg'
         });
         $scope.postParams = {name: $scope.tournament.name,
-                             date: $scope.tournament.date};
+                             date: $scope.tournament.date,
+                             pending: $scope.isPendingTournament};
         $scope.tournamentRegionCheckbox = {};
 
         $scope.sessionService.getAdminRegions().forEach(

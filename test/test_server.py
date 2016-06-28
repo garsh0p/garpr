@@ -1305,7 +1305,7 @@ class TestServer(unittest.TestCase):
         dao = self.texas_dao
         tournaments_from_db = dao.get_all_tournaments(regions=['texas'])
         the_tourney = tournaments_from_db[0]
-        response = self.app.put('/texas/tournaments/' + str(the_tourney.id), content_type='application/json')
+        response = self.app.put('/texas/tournaments/' + str(the_tourney.id), data = '{}', content_type='application/json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 

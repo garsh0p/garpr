@@ -61,6 +61,7 @@ tournament_put_parser.add_argument('date', type=str)
 tournament_put_parser.add_argument('players', type=list)
 tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
+tournament_put_parser.add_argument('pending', type=bool)
 
 merges_put_parser = reqparse.RequestParser()
 merges_put_parser.add_argument('base_player_id', type=str)
@@ -514,8 +515,15 @@ class TournamentResource(restful.Resource):
         if not dao:
             return 'Dao not found', 404
         tournament = None
+
+        args = tournament_put_parser.parse_args()
+
         try:
-            tournament = dao.get_tournament_by_id(ObjectId(id))
+            if args['pending']:
+                tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+                print tournament
+            else:
+                tournament = dao.get_tournament_by_id(ObjectId(id))
         except:
             return 'Invalid ObjectID', 400
         if not tournament:
@@ -528,8 +536,6 @@ class TournamentResource(restful.Resource):
         if not is_user_admin_for_regions(user, tournament.regions):
             return 'Permission denied', 403
 
-        args = tournament_put_parser.parse_args()
-        print args
 
         #TODO: should we do validation that matches and players are compatible here?
         try:
@@ -563,10 +569,17 @@ class TournamentResource(restful.Resource):
             return 'Invalid ObjectID', 400
 
         try:
-            dao.update_tournament(tournament)
+            if args['pending']:
+                dao.update_pending_tournament(tournament)
+            else:
+                dao.update_tournament(tournament)
         except:
             return 'Update Tournament Error', 400
-        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
+
+        if args['pending']:
+            return convert_pending_tournament_to_response(dao.get_pending_tournament_by_id(tournament.id), dao)
+        else:
+            return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
     def delete(self, region, id):
         """ Deletes a tournament.
