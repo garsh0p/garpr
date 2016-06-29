@@ -611,57 +611,6 @@ class TournamentResource(restful.Resource):
 
         return {"success": True}
 
-class TournamentRegionResource(restful.Resource):
-    def put(self, region, id, region_to_change):
-        dao = Dao(region, mongo_client=mongo_client)
-        if not dao:
-            return 'Dao not found', 404
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region_to_change):
-            return 'Permission denied', 403
-
-        tournament = None
-        try:
-            tournament = dao.get_tournament_by_id(ObjectId(id))
-        except:
-            return 'Invalid ObjectID', 400
-        if not tournament:
-            return 'Tournament not found', 404
-        if not region_to_change in tournament.regions:
-            tournament.regions.append(region_to_change)
-            try:
-                dao.update_tournament(tournament)
-            except:
-                return 'Tournament Update Error', 400
-
-        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
-
-    def delete(self, region, id, region_to_change):
-        dao = Dao(region, mongo_client=mongo_client)
-        if not dao:
-            return 'Dao not found', 404
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region_to_change):
-            return 'Permission denied', 403
-        tournament = None
-        try:
-            tournament = dao.get_tournament_by_id(ObjectId(id))
-        except:
-            return 'Invalid ObjectID', 400
-        if not tournament:
-            return 'Tournament not found', 404
-        if region_to_change in tournament.regions:
-            tournament.regions.remove(region_to_change)
-            try:
-                dao.update_tournament(tournament)
-            except:
-                return 'Tournament Update Error', 400
-        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
-
 
 class PendingTournamentListResource(restful.Resource):
     def get(self, region):
@@ -997,7 +946,6 @@ api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
-api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
 api.add_resource(PendingTournamentResource, '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource, '/<string:region>/tournaments/<string:id>/finalize')
 
