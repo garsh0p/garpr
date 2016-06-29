@@ -15,7 +15,6 @@ import base64
 import string
 from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
 
-
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
 NORCAL_PENDING_FILES = [('test/data/pending1.tio', 'bam 6 singles')]
@@ -98,6 +97,37 @@ class TestServer(unittest.TestCase):
 
 ### start of actual test cases
 
+    def test_cors_checker(self):
+        self.assertTrue(server.is_allowed_origin("http://njssbm.com"))
+        self.assertTrue(server.is_allowed_origin("https://njssbm.com"))
+        self.assertTrue(server.is_allowed_origin("http://njssbm.com:3000"))
+        self.assertTrue(server.is_allowed_origin("https://njssbm.com:3000"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.10"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.10"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.10:433"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.10:433"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.1"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.1"))
+        self.assertTrue(server.is_allowed_origin("https://192.168.33.1:433"))
+        self.assertTrue(server.is_allowed_origin("http://192.168.33.1:433"))
+        self.assertTrue(server.is_allowed_origin("http://notgarpr.com:433"))
+        self.assertTrue(server.is_allowed_origin("https://notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("https://notgarpr.com:420"))
+        self.assertTrue(server.is_allowed_origin("http://notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("http://stage.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("http://www.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("https://stage.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("https://www.notgarpr.com"))
+        self.assertTrue(server.is_allowed_origin("http://stage.notgarpr.com:44"))
+        self.assertTrue(server.is_allowed_origin("http://www.notgarpr.com:919"))
+        self.assertFalse(server.is_allowed_origin("http://garpr.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://192.168.33.1.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://192.168.33.1:445.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:445.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\x00.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\r\n.evil.com"))
+        self.assertFalse(server.is_allowed_origin("http://notgarpr.com:443\n.evil.com"))
 
     def test_get_region_list(self):
         data = self.app.get('/regions').data
@@ -806,81 +836,6 @@ class TestServer(unittest.TestCase):
         self.assertEqual(data, '"Permission denied"', msg=data)
 
     @patch('server.get_user_from_request')
-    def test_put_tournament_region(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
-        self.assertEquals(tournament.regions, ['norcal'])
-
-        response = self.app.put('/norcal/tournaments/' + str(tournament.id) + '/region/nyc')
-        json_data = json.loads(response.data)
-
-        tournament = self.norcal_dao.get_tournament_by_id(tournament.id)
-        self.assertEquals(set(tournament.regions), set(['norcal', 'nyc']))
-
-        self.assertEquals(len(json_data.keys()), 7)
-        self.assertEquals(set(json_data['regions']), set(['norcal', 'nyc']))
-
-    @patch('server.get_user_from_request')
-    def test_put_tournament_region_already_exists(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
-        self.assertEquals(tournament.regions, ['norcal'])
-
-        response = self.app.put('/norcal/tournaments/' + str(tournament.id) + '/region/norcal')
-        json_data = json.loads(response.data)
-
-        self.assertEquals(tournament.regions, ['norcal'])
-
-        self.assertEquals(len(json_data.keys()), 7)
-        self.assertEquals(json_data['regions'], ['norcal'])
-
-    @patch('server.get_user_from_request')
-    def test_put_tournament_region_invalid_permissions(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
-        response = self.app.put('/norcal/tournaments/' + str(tournament.id) + '/region/texas')
-        self.assertEquals(response.status_code, 403)
-        self.assertEquals(response.data, '"Permission denied"')
-
-    @patch('server.get_user_from_request')
-    def test_delete_tournament_region(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
-        self.assertEquals(tournament.regions, ['norcal'])
-
-        response = self.app.delete('/norcal/tournaments/' + str(tournament.id) + '/region/norcal')
-        json_data = json.loads(response.data)
-
-        tournament = self.norcal_dao.get_tournament_by_id(tournament.id)
-        self.assertEquals(tournament.regions, [])
-
-        self.assertEquals(len(json_data.keys()), 7)
-        self.assertEquals(json_data['regions'], [])
-
-    @patch('server.get_user_from_request')
-    def test_delete_tournament_region_does_not_exist(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
-        self.assertEquals(tournament.regions, ['norcal'])
-
-        response = self.app.delete('/norcal/tournaments/' + str(tournament.id) + '/region/nyc')
-        json_data = json.loads(response.data)
-
-        tournament = self.norcal_dao.get_tournament_by_id(tournament.id)
-        self.assertEquals(tournament.regions, ['norcal'])
-
-        self.assertEquals(len(json_data.keys()), 7)
-        self.assertEquals(json_data['regions'], ['norcal'])
-
-    @patch('server.get_user_from_request')
-    def test_delete_tournament_region_invalid_permissions(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
-        response = self.app.delete('/norcal/tournaments/' + str(tournament.id) + '/region/texas')
-        self.assertEquals(response.status_code, 403)
-        self.assertEquals(response.data, '"Permission denied"')
-
-    @patch('server.get_user_from_request')
     def test_put_alias_mapping(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         pending_tournament = self.norcal_dao.get_all_pending_tournaments(regions=['norcal'])[0]
@@ -1128,7 +1083,7 @@ class TestServer(unittest.TestCase):
         new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
         new_date = datetime.now()
         new_regions = ("norcal", "socal")
-        raw_dict = {'name': new_tourney_name, 'date': new_date.toordinal(), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
+        raw_dict = {'name': new_tourney_name, 'date': new_date.strftime("%m/%d/%y"), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
         test_data = json.dumps(raw_dict)
 
         # add new players to dao
@@ -1275,7 +1230,7 @@ class TestServer(unittest.TestCase):
         dao = self.texas_dao
         tournaments_from_db = dao.get_all_tournaments(regions=['texas'])
         the_tourney = tournaments_from_db[0]
-        response = self.app.put('/texas/tournaments/' + str(the_tourney.id), content_type='application/json')
+        response = self.app.put('/texas/tournaments/' + str(the_tourney.id), data = '{}', content_type='application/json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
@@ -1501,7 +1456,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
 
     @patch('server.get_user_from_request')
-    def test_post_tournament_from_tio(self, mock_get_user_from_request): #TODO: rewrite to use new endpoints
+    def test_post_tournament_from_tio(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
@@ -1612,11 +1567,40 @@ class TestServer(unittest.TestCase):
         response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
         self.assertEquals(response.status_code, 403)
 
+    """
     @patch('server.get_user_from_request')
     def test_post_tournament_from_challonge(self, mock_get_user_from_request):
-        #TODO
-        pass
+        mock_get_user_from_request.return_value = self.user
+        dao = self.norcal_dao
+        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+        raw_dict = {}
+        #craft this for challonge
+        raw_dict['data'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
+        raw_dict['type'] = "tio"
+        raw_dict['bracket'] = 'Bracket'
+        the_data = json.dumps(raw_dict)
+        response = self.app.post('/norcal/tournaments', data=the_data, content_type='application/json')
+        for x in response.data:
+            self.assertTrue(x in string.printable)
+        self.assertEquals(response.status_code, 200, msg=str(response.data) + str(response.status_code))
+        the_dict = json.loads(response.data)
+        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['id']))
 
+        #all these need to be changed
+        #self.assertEqual(the_tourney.name, u'Justice 4')
+        #self.assertEqual(len(the_tourney.players), 48)
+
+        #self.assertEquals(the_dict['id'], str(the_tourney.id))
+        #self.assertEquals(the_tourney.type, 'tio')
+        #self.assertEquals(the_tourney.regions, ['norcal'])
+
+        #let's spot check and make sure hax vs armada happens twice
+        #sweden_wins_count = 0
+        #for m in the_tourney.matches:
+        #    if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
+        #        sweden_wins_count += 1
+        #self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??
+    """
 
     '''
     #TODOskis

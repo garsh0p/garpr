@@ -364,17 +364,13 @@ class PendingTournament(object):
 
     @classmethod
     def from_scraper(cls, type, scraper, region_id):
-        players = scraper.get_players()
-        matches = scraper.get_matches()
         regions = [region_id]
-
-
         return cls(
                 type,
                 scraper.get_raw(),
                 scraper.get_date(),
                 scraper.get_name(),
-                players,
+                scraper.get_players(),
                 scraper.get_matches(),
                 regions)
 

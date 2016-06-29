@@ -96,7 +96,7 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_player_by_entrant_id1(self):
         player = self.tournament1.get_player_by_entrant_id(TEST_PLAYER_ENTRANTID_1)
         self.assertEqual(player.name, 'Joseph Marquez')
-        self.assertEqual(player.smash_tag, 'Mango')
+        self.assertEqual(player.smash_tag, 'Mang0')
         self.assertEqual(player.region, 'SoCal')
 
     def test_get_player_by_entrant_id2(self):
@@ -108,7 +108,7 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_player_by_smashgg_id1(self):
         player = self.tournament1.get_player_by_smashgg_id(TEST_PLAYER_SMASHGGID_1)
         self.assertEqual(player.name, 'Joseph Marquez')
-        self.assertEqual(player.smash_tag, 'Mango')
+        self.assertEqual(player.smash_tag, 'Mang0')
         self.assertEqual(player.region, 'SoCal')
 
     def test_get_player_by_smashgg_id2(self):
@@ -125,12 +125,40 @@ class TestSmashGGScraper(unittest.TestCase):
 
     def test_get_matches1(self):
         self.assertEqual(len(self.tournament1.get_matches()), 58)
+        # spot check that mang0 got double elim'd
+        mango_count = 0
+        for m in self.tournament1.get_matches():
+            if m.loser == 'Mang0':
+                mango_count += 1
+        self.assertEqual(2, mango_count, msg="mango didnt get double elim'd?")
 
     def test_get_matches2(self):
         self.assertEquals(len(self.tournament2.get_matches()), 46)
+        # spot check that Druggedfox was only in 5 matches, and that he won all of them
+        sami_count = 0
+        for m in self.tournament2.get_matches():
+            if m.winner == 'Druggedfox':
+                sami_count += 1
+            self.assertFalse(m.loser == 'Druggedfox')
+        self.assertEqual(5, sami_count)
 
     def test_get_smashgg_matches1(self):
         self.assertEqual(len(self.tournament1.get_smashgg_matches()), 58)
 
     def test_get_smashgg_matches2(self):
         self.assertEqual(len(self.tournament2.get_smashgg_matches()), 46)
+
+    def test_get_date(self):
+        date = self.tournament1.get_date()
+        self.assertEqual(date.year, 2015)
+        self.assertEqual(date.month, 9)
+        self.assertEqual(date.day, 19)
+
+        date = self.tournament2.get_date()
+        self.assertEqual(date.year, 2016)
+        self.assertEqual(date.month, 3)
+        self.assertEqual(date.day, 27)
+
+    def test_get_name(self):
+        self.assertEqual(self.tournament1.get_name(), 'htc throwdown')
+        self.assertEqual(self.tournament2.get_name(), 'tiger smash 4')

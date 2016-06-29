@@ -1,3 +1,4 @@
+import datetime
 import requests
 import os
 from model import MatchResult
@@ -6,6 +7,9 @@ from garprLogging.log import Log
 BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
 DUMP_SETTINGS = "?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches"
+
+
+
 
 class SmashGGScraper(object):
     def __init__(self, path):
@@ -17,11 +21,10 @@ class SmashGGScraper(object):
         self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
         self.raw_dict = None
         self.players = []
+        self.get_raw()
+        #we don't use a try/except block here, if something goes wrong, we *should* throw an exception
 
-        try:
-            self.get_raw()
-        except Exception as ex:
-            return ex.message
+######### START OF SCRAPER API
 
 
     def get_raw(self):
@@ -44,11 +47,18 @@ class SmashGGScraper(object):
             return msg
 
     def get_name(self):
-        SmashGGScraper.get_tournament_name_from_url(self.path)
+        return self.name
 
     # The JSON scrape doesn't give us the Date of the tournament currently
-    def get_name(self):
-        return None
+    # Get date from earliest start time of a set
+    def get_date(self):
+        sets = self.get_raw()['smashgg']['entities']['sets']
+        start_times = [t['startedAt'] for t in sets if t['startedAt']]
+
+        if not start_times:
+            return None
+        else:
+            return datetime.datetime.fromtimestamp(min(start_times))
 
     def get_matches(self):
         """
@@ -73,6 +83,10 @@ class SmashGGScraper(object):
         except Exception as ex:
             msg = 'An error occured in the retrieval of matches: ' + str(ex)
         return matches
+        #we dont try/except, we throw when we have an issue
+
+####### END OF SCRAPER API
+
 
     def get_player_by_entrant_id(self, id):
         """
