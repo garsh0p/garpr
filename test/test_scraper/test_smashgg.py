@@ -121,7 +121,7 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEqual(len(self.tournament1.get_players()), 48)
 
     def test_get_players2(self):
-        self.assertEquals(len(self.tournament2.get_players()), 24)
+        self.assertEquals(len(self.tournament2.get_players()), 27)
 
     def test_get_matches1(self):
         self.assertEqual(len(self.tournament1.get_matches()), 58)

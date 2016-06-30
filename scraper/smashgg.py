@@ -139,14 +139,14 @@ class SmashGGScraper(object):
             country         = None
             region          = None
             entrant_id      = None
-            player_id       = None
+            smashgg_id       = None
             final_placement = None
 
             try:
                 #ACCESS PLAYER ID's AND INFORMATION
                 entrant_id = player['id']
                 for e_id, p_id in player['playerIds'].items():
-                    player_id = p_id
+                    smashgg_id = p_id
             except Exception as ex:
                 print str(ex)
 
@@ -191,7 +191,7 @@ class SmashGGScraper(object):
                 except Exception as ex:
                     print self.log('SmashGGPlayer ' + tag + ': final placement | ' + str(ex))
 
-            player = SmashGGPlayer(smashgg_id=id, entrant_id=entrant_id, name=name, smash_tag=tag, region=region,
+            player = SmashGGPlayer(smashgg_id=smashgg_id, entrant_id=entrant_id, name=name, smash_tag=tag, region=region,
                                    state=state, country=country, final_placement=final_placement)
             self.players.append(player)
         return self.players
