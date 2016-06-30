@@ -19,6 +19,10 @@ class SmashGGScraper(object):
         self.path = path
         self.tournament_id = SmashGGScraper.get_tournament_id_from_url(self.path)
         self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
+
+        base_url = TOURNAMENT_URL % self.tournament_id
+        self.apiurl = base_url + DUMP_SETTINGS
+
         self.raw_dict = None
         self.players = []
         self.get_raw()
@@ -34,12 +38,8 @@ class SmashGGScraper(object):
         try:
             if self.raw_dict == None:
                 self.raw_dict = {}
-
-                base_url = TOURNAMENT_URL % self.tournament_id
-                url = base_url + DUMP_SETTINGS
-
-                self.log('API Call to ' + str(url) + ' executing')
-                self.raw_dict['smashgg'] = self._check_for_200(requests.get(url)).json()
+                self.log('API Call to ' + str(self.apiurl) + ' executing')
+                self.raw_dict['smashgg'] = self._check_for_200(requests.get(self.apiurl)).json()
             return self.raw_dict
         except Exception as ex:
             msg = 'An error occurred in the retrieval of data from SmashGG: ' + str(ex)
@@ -131,58 +131,68 @@ class SmashGGScraper(object):
         tournament entrant id, and overall smashgg id
         """
         self.players = []
-        seeds = self.get_raw()['smashgg']['entities']['seeds']
-        for seed in seeds:
-            tag = None
-            name = None
-            state = None
-            country = None
-            region = None
-
-            #ACCESS THE PLAYERS IN THE JSON AND EXTRACT THE SMASHTAG
-            #IF NO SMASHTAG, WE SHOULD SKIP TO THE NEXT ITERATION
-            entrant_id = seed['entrantId']
-            this_player = seed['mutations']['players']
-            for player_id in this_player:
-                id = player_id
+        entrants = self.get_raw()['smashgg']['entities']['entrants']
+        for player in entrants:
+            tag             = None
+            name            = None
+            state           = None
+            country         = None
+            region          = None
+            entrant_id      = None
+            smashgg_id       = None
+            final_placement = None
 
             try:
-                tag = this_player[id]['gamerTag'].strip()
-            except:
-                print self.log('Player for id ' + str(id) + ' not found')
-                continue
+                #ACCESS PLAYER ID's AND INFORMATION
+                entrant_id = player['id']
+                for e_id, p_id in player['playerIds'].items():
+                    smashgg_id = p_id
+            except Exception as ex:
+                print str(ex)
 
-            #EXTRACT EXTRA DATA FROM SMASHGG WE MAY WANT TO USE LATER
-            #ENCAPSULATE IN A SMASHGG SPECIFIC MODEL
-            try:
-                name = this_player[id]['name'].strip()
-            except Exception as e:
-                name = None
-                print self.log('SmashGGPlayer ' + tag + ': name | ' + str(e))
+            for this_player in player['mutations']['players']:
+                #ACCESS THE PLAYERS IN THE JSON AND EXTRACT THE SMASHTAG
+                #IF NO SMASHTAG, WE SHOULD SKIP TO THE NEXT ITERATION
+                try:
+                    tag = player['mutations']['players'][this_player]['gamerTag'].strip()
+                except Exception as ex:
+                    print self.log('Player for id ' + str(id) + ' not found')
+                    continue
 
-            try:
-                region = this_player[id]['region'].strip()
-            except Exception as regionEx:
-                print self.log('SmashGGPlayer ' + tag + ': region | ' + str(regionEx))
+                #EXTRACT EXTRA DATA FROM SMASHGG WE MAY WANT TO USE LATER
+                #ENCAPSULATE IN A SMASHGG SPECIFIC MODEL
+                try:
+                    name = player['mutations']['players'][this_player]['name'].strip()
+                except Exception as e:
+                    name = None
+                    print self.log('SmashGGPlayer ' + tag + ': name | ' + str(e))
 
-            try:
-                state = this_player[id]['state'].strip()
-                if region is None:
-                    region = state
-            except Exception as stateEx:
-                print self.log('SmashGGPlayer ' + tag + ': state | ' + str(stateEx))
+                try:
+                    region = player['mutations']['players'][this_player]['region'].strip()
+                except Exception as regionEx:
+                    print self.log('SmashGGPlayer ' + tag + ': region | ' + str(regionEx))
 
-            try:
-                country = this_player[id]['country'].strip()
-                if region is None:
-                    region = country
-            except Exception as countryEx:
-                print self.log('SmashGGPlayer ' + tag + ': country | ' + str(countryEx))
+                try:
+                    state = player['mutations']['players'][this_player]['state'].strip()
+                    if region is None:
+                        region = state
+                except Exception as stateEx:
+                    print self.log('SmashGGPlayer ' + tag + ': state | ' + str(stateEx))
 
+                try:
+                    country = player['mutations']['players'][this_player]['country'].strip()
+                    if region is None:
+                        region = country
+                except Exception as countryEx:
+                    print self.log('SmashGGPlayer ' + tag + ': country | ' + str(countryEx))
 
+                try:
+                    final_placement = player['finalPlacement']
+                except Exception as ex:
+                    print self.log('SmashGGPlayer ' + tag + ': final placement | ' + str(ex))
 
-            player = SmashGGPlayer(smashgg_id=id, entrant_id=entrant_id, name=name, smash_tag=tag, region=region,
-                                   state=state, country=country)
+            player = SmashGGPlayer(smashgg_id=smashgg_id, entrant_id=entrant_id, name=name, smash_tag=tag, region=region,
+                                   state=state, country=country, final_placement=final_placement)
             self.players.append(player)
         return self.players
 
@@ -252,13 +262,16 @@ class SmashGGScraper(object):
         return name.replace('-', ' ')
 
 class SmashGGPlayer(object):
-    def __init__(self, smashgg_id, entrant_id, name, smash_tag, region, country, state):
+    def __init__(self, smashgg_id, entrant_id, name, smash_tag, region, country, state, final_placement):
         """
-        :param smashgg_id: The Global id that a player is mapped to on the website
-        :param entrant_id: The id assigned to an entrant for the given tournament
-        :param name:       The real name of the player
-        :param smash_tag:  The Smash Tag of the player
-        :param region:     The region the player belongs to
+        :param smashgg_id:      The Global id that a player is mapped to on the website
+        :param entrant_id:      The id assigned to an entrant for the given tournament
+        :param name:            The real name of the player
+        :param smash_tag:       The Smash Tag of the player
+        :param region:          The region the player belongs to
+        :param country:
+        :param state:
+        :param final_placement:
         """
         self.smashgg_id = smashgg_id
         self.entrant_id = entrant_id

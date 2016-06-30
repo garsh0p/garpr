@@ -121,7 +121,7 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEqual(len(self.tournament1.get_players()), 48)
 
     def test_get_players2(self):
-        self.assertEquals(len(self.tournament2.get_players()), 24)
+        self.assertEquals(len(self.tournament2.get_players()), 27)
 
     def test_get_matches1(self):
         self.assertEqual(len(self.tournament1.get_matches()), 58)
@@ -162,3 +162,17 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_name(self):
         self.assertEqual(self.tournament1.get_name(), 'htc throwdown')
         self.assertEqual(self.tournament2.get_name(), 'tiger smash 4')
+
+    def test_duplicate_tags1(self):
+        tags = self.tournament1.get_players()
+        temp = []
+        for tag in tags:
+            self.assertEqual(tag in temp, False)
+            temp.append(tag)
+
+    def test_duplicate_tags2(self):
+        tags = self.tournament2.get_players()
+        temp = []
+        for tag in tags:
+            self.assertEqual(tag in temp, False)
+            temp.append(tag)

@@ -68,8 +68,13 @@ config/config.ini
 webapp/script-config.js
 *.pid
 *.lnk
+
+#JetBrains PyCharm Files
 .idea/garpr.iml
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
+
+#cookiE's Server py file
+server_cookiE_edit.py
