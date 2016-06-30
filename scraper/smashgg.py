@@ -8,9 +8,6 @@ BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
 DUMP_SETTINGS = "?expand[0]=sets&expand[1]=groups&expand[2]=entrants&expand[3]=matches&expand[4]=seeds"
 
-
-
-
 class SmashGGScraper(object):
     def __init__(self, path):
         """
@@ -238,6 +235,24 @@ class SmashGGScraper(object):
         :return: a string that can be used for logging
         """
         return "    [SmashGG] " + msg
+
+    def get_groups(self):
+        if self.raw_dict is None:
+            self.get_raw()
+
+        groups = ['smashgg']['entities']['groups']
+        return groups
+
+    def get_phase_id(self):
+        if self.raw_dict is None:
+            self.get_raw()
+
+        phase = None
+        groups = self.get_groups()
+        for group in groups:
+            phase = group['phaseId']
+
+        return phase
 
     @staticmethod
     def get_tournament_id_from_url(url):
