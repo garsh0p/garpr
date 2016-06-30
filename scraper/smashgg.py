@@ -6,7 +6,7 @@ from garprLogging.log import Log
 
 BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
-DUMP_SETTINGS = "?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches"
+DUMP_SETTINGS = "?expand[0]=sets&expand[1]=groups&expand[2]=entrants&expand[3]=matches&expand[4]=seeds"
 
 
 
