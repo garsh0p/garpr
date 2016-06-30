@@ -147,8 +147,6 @@ class SmashGGScraper(object):
                 entrant_id = player['id']
                 for e_id, p_id in player['playerIds'].items():
                     player_id = p_id
-
-
             except Exception as ex:
                 print str(ex)
 
@@ -164,7 +162,7 @@ class SmashGGScraper(object):
                 #EXTRACT EXTRA DATA FROM SMASHGG WE MAY WANT TO USE LATER
                 #ENCAPSULATE IN A SMASHGG SPECIFIC MODEL
                 try:
-                    name = player['name'].strip()
+                    name = player['mutations']['players'][this_player]['name'].strip()
                 except Exception as e:
                     name = None
                     print self.log('SmashGGPlayer ' + tag + ': name | ' + str(e))
