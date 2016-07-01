@@ -176,3 +176,10 @@ class TestSmashGGScraper(unittest.TestCase):
         for tag in tags:
             self.assertEqual(tag in temp, False)
             temp.append(tag)
+
+    def test_get_phase_ids1(self):
+        phase_ids = self.tournament1.get_phase_ids()
+
+
+    def test_get_phase_ids2(self):
+        phase_ids = self.tournament2.get_phase_ids()

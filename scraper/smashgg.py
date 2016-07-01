@@ -4,9 +4,11 @@ import os
 from model import MatchResult
 from garprLogging.log import Log
 
-BASE_SMASHGG_API_URL = "https://api.smash.gg/phase_group/"
-TOURNAMENT_URL = os.path.join(BASE_SMASHGG_API_URL, '%s')
-DUMP_SETTINGS = "?expand[0]=sets&expand[1]=groups&expand[2]=entrants&expand[3]=matches&expand[4]=seeds"
+BASE_SMASHGG_EVENT_API_URL = "https://api.smash.gg/event/"
+BASE_SMASHGG_PHASE_API_URL = "https://api.smash.gg/phase_group/"
+TOURNAMENT_URL = os.path.join(BASE_SMASHGG_PHASE_API_URL, '%s')
+GROUPS_DUMP_SETTINGS = "?expand[0]=groups"
+ALL_DUMP_SETTINGS = "?expand[0]=sets&expand[1]=entrants&expand[2]=matches&expand[3]=seeds"
 
 class SmashGGScraper(object):
     def __init__(self, path):
@@ -21,12 +23,12 @@ class SmashGGScraper(object):
         self.apiurl = base_url + DUMP_SETTINGS
 
         self.raw_dict = None
+        self.phase_ids = None
         self.players = []
         self.get_raw()
         #we don't use a try/except block here, if something goes wrong, we *should* throw an exception
 
 ######### START OF SCRAPER API
-
 
     def get_raw(self):
         """
@@ -243,19 +245,21 @@ class SmashGGScraper(object):
         groups = ['smashgg']['entities']['groups']
         return groups
 
-    def get_phase_id(self):
-        if self.raw_dict is None:
-            self.get_raw()
+    def get_phase_ids(self):
+        phase_ids = []
+        event_url = BASE_SMASHGG_EVENT_API_URL + "/" + \
+                    SmashGGScraper.get_tournament_event_id_from_url(self.path)
 
+        self.phase_ids = self._check_for_200(event_url)
         phase = None
         groups = self.get_groups()
         for group in groups:
-            phase = group['phaseId']
-
-        return phase
+            #EACH ID REPRESENTS A POOL
+            phase_ids.append(group['id'].strip())
+        return phase_ids
 
     @staticmethod
-    def get_tournament_id_from_url(url):
+    def get_tournament_event_id_from_url(url):
         """
         Parses a url and retrieves the unique id of the bracket in question
         :param url: url to parse the tournament id from
