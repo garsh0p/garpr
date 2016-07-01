@@ -26,6 +26,7 @@ class SmashGGScraper(object):
         self.apiurl = base_url + DUMP_SETTINGS_ALL
         self.raw_dict = None
         self.phase_ids = None
+        self.pools = []
         self.players = []
 
         self.get_raw()
@@ -225,6 +226,14 @@ class SmashGGScraper(object):
             match = SmashGGMatch(name, winner_id, loser_id, round, bestOf)
             self.matches.append(match)
         return self.matches
+
+    def get_pools_data(self):
+        if self.phase_ids is None:
+            self.phase_ids = self.get_phase_ids()
+
+        for id in self.phase_ids:
+            pool_url = BASE_SMASHGG_PHASE_API_URL % str(id)
+            pool = SmashGGScraper(pool_url)
 
     def _check_for_200(self, response):
         """
