@@ -4,6 +4,7 @@ import os
 from model import MatchResult
 from garprLogging.log import Log
 
+### SMASHGG URLS: https://smash.gg/tournament/<tournament-name>/brackets/<event-id>/<group-id>/<phase-group-id>
 BASE_SMASHGG_EVENT_API_URL = "https://api.smash.gg/event/"
 BASE_SMASHGG_PHASE_API_URL = "https://api.smash.gg/phase_group/"
 EVENT_URL = os.path.join(BASE_SMASHGG_EVENT_API_URL, '%s')
@@ -227,13 +228,16 @@ class SmashGGScraper(object):
             self.matches.append(match)
         return self.matches
 
-    def get_pools_data(self):
+    def get_pools(self):
+        if self.raw_dict is None:
+            self.raw_dict = self.get_raw()
         if self.phase_ids is None:
             self.phase_ids = self.get_phase_ids()
 
         for id in self.phase_ids:
             pool_url = BASE_SMASHGG_PHASE_API_URL % str(id)
             pool = SmashGGScraper(pool_url)
+            self.pools.append(pool)
 
     def _check_for_200(self, response):
         """
@@ -250,25 +254,28 @@ class SmashGGScraper(object):
         """
         return "    [SmashGG] " + msg
 
-    def get_groups(self):
-        if self.raw_dict is None:
-            self.get_raw()
+    def remove_list_repeats(self, list):
+        temp = []
+        for item in list:
+            if item not in temp:
+                temp.append(item)
+        return temp
 
-        groups = ['smashgg']['entities']['groups']
+    def get_groups(self, raw):
+        groups = raw['entities']['groups']
         return groups
 
     def get_phase_ids(self):
         phase_ids = []
-        event_url = BASE_SMASHGG_EVENT_API_URL + "/" + \
-                    SmashGGScraper.get_tournament_event_id_from_url(self.path)
+        event_id = SmashGGScraper.get_tournament_event_id_from_url(self.path)
+        event_url = BASE_SMASHGG_EVENT_API_URL + str(event_id) + DUMP_SETTINGS_GROUPS
 
-        self.phase_ids = self._check_for_200(event_url)
-        phase = None
-        groups = self.get_groups()
+        event_raw = self._check_for_200(requests.get(event_url)).json()
+        groups = self.get_groups(event_raw)
         for group in groups:
             #EACH ID REPRESENTS A POOL
-            phase_ids.append(group['id'].strip())
-        return phase_ids
+            phase_ids.append(str(group['id']).strip())
+        return self.remove_list_repeats(phase_ids)
 
     @staticmethod
     def get_tournament_event_id_from_url(url):
@@ -278,9 +285,12 @@ class SmashGGScraper(object):
 
         flag = False
         for split in splits:
+            #IF THIS IS TRUE WE HAVE REACHED THE EVENT ID
             if flag is True:
                 return int(split)
 
+            #SET FLAG TRUE IF CURRENT WORD IS 'BRACKETS'
+            #THE NEXT ELEMENT WILL BE OUR EVENT ID
             if 'brackets' in split:
                 flag = True
 
