@@ -7,8 +7,8 @@ from garprLogging.log import Log
 BASE_SMASHGG_EVENT_API_URL = "https://api.smash.gg/event/"
 BASE_SMASHGG_PHASE_API_URL = "https://api.smash.gg/phase_group/"
 TOURNAMENT_URL = os.path.join(BASE_SMASHGG_PHASE_API_URL, '%s')
-GROUPS_DUMP_SETTINGS = "?expand[0]=groups"
-ALL_DUMP_SETTINGS = "?expand[0]=sets&expand[1]=entrants&expand[2]=matches&expand[3]=seeds"
+DUMP_SETTINGS_GROUPS = "?expand[0]=groups"
+DUMP_SETTINGS_ALL = "?expand[0]=sets&expand[1]=entrants&expand[2]=matches&expand[3]=seeds"
 
 class SmashGGScraper(object):
     def __init__(self, path):
@@ -20,7 +20,7 @@ class SmashGGScraper(object):
         self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
 
         base_url = TOURNAMENT_URL % self.tournament_id
-        self.apiurl = base_url + DUMP_SETTINGS
+        self.apiurl = base_url + DUMP_SETTINGS_ALL
 
         self.raw_dict = None
         self.phase_ids = None
