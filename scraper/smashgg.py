@@ -143,7 +143,7 @@ class SmashGGScraper(object):
             country         = None
             region          = None
             entrant_id      = None
-            smashgg_id       = None
+            smashgg_id      = None
             final_placement = None
 
             try:
@@ -235,9 +235,10 @@ class SmashGGScraper(object):
             self.phase_ids = self.get_phase_ids()
 
         for id in self.phase_ids:
-            pool_url = BASE_SMASHGG_PHASE_API_URL % str(id)
+            pool_url = BASE_SMASHGG_PHASE_API_URL + str(id)
             pool = SmashGGScraper(pool_url)
             self.pools.append(pool)
+        return self.pools
 
     def _check_for_200(self, response):
         """

@@ -179,3 +179,11 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_phase_ids2(self):
         phase_ids = self.tournament2.get_phase_ids()
         self.assertEqual(len(phase_ids), 10)
+
+    def test_get_pools1(self):
+        pools = self.tournament1.get_pools()
+        self.assertEqual(len(pools), 35)
+
+    def test_get_pools2(self):
+        pools = self.tournament2.get_pools()
+        self.assertEqual(len(pools), 10)
