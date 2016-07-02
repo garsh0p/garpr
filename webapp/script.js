@@ -22,7 +22,7 @@ app.directive('onReadFile', function ($parse) {
     };
 });
 
-app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService, SessionService) {
+app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService, MergeService, SessionService) {
     var service = {
         regionsPromise: $http.get(hostname + 'regions'),
         regions: [],
@@ -34,6 +34,7 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
                     PlayerService.playerList = null;
                     TournamentService.tournamentList = null;
                     RankingsService.rankingsList = null;
+                    MergeService.mergeList = null;
                     service.populateDataForCurrentRegion();
                 });
             }
@@ -62,6 +63,13 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
             $http.get(hostname + this.region.id + '/rankings').
                 success(function(data) {
                     RankingsService.rankingsList = data;
+                });
+
+            SessionService.authenticatedGet(hostname + this.region.id + '/merges',
+                function(data) {
+                    console.log("success merges!");
+                    console.log(data);
+                    MergeService.mergeList = data;
                 });
         }
     };
@@ -109,6 +117,13 @@ app.service('PlayerService', function($http) {
                 return players;
             });
         }
+    };
+    return service;
+});
+
+app.service('MergeService', function($http) {
+    var service = {
+        mergeList: null
     };
     return service;
 });
@@ -229,6 +244,11 @@ app.config(['$routeProvider', function($routeProvider) {
     when('/:region/tournaments/:tournamentId', {
         templateUrl: 'tournament_detail.html',
         controller: 'TournamentDetailController',
+        activeTab: 'tournaments'
+    }).
+    when('/:region/merges', {
+        templateUrl: 'merges.html',
+        controller: 'MergesController',
         activeTab: 'tournaments'
     }).
     when('/:region/headtohead', {
@@ -649,11 +669,20 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
             return;
         }
         url = hostname + $routeParams.region + '/merges';
-        params = {"base_player_id": $scope.playerId, "to_be_merged_player_id": $scope.mergePlayer.id};
+        params = {"source_player_id": $scope.playerId, "target_player_id": $scope.mergePlayer.id};
         console.log(params);
-        $scope.sessionService.authenticatedPost(url, params,
-            function() {alert("These two accounts have been merged.")},
-            function() {alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.")});
+
+        successCallback = function(data) {
+            alert("These two accounts have been merged.");
+            window.location.reload();
+        };
+
+        failureCallback = function(data) {
+            alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.");
+        };
+        $scope.sessionService.authenticatedPut(url, params,
+            successCallback,
+            failureCallback);
     };
 
     $scope.getMergePlayers = function(viewValue) {
@@ -665,6 +694,13 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
     $http.get(hostname + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
             $scope.player = data;
+            console.log(data);
+            if($scope.player.merged){
+                $http.get(hostname + $routeParams.region + '/players/' + $scope.player.merge_parent).
+                    success(function(data) {
+                        $scope.mergeParent = data;
+                    });
+            }
         });
 
     $http.get(hostname + $routeParams.region + '/matches/' + $routeParams.playerId).
@@ -694,6 +730,24 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         $scope.sessionService.authenticatedPut(url, data, successCallback);
     };
 
+});
+
+app.controller("MergesController", function($scope, $routeParams, $modal, RegionService, MergeService, SessionService) {
+    RegionService.setRegion($routeParams.region);
+    $scope.regionService = RegionService;
+    $scope.mergeService = MergeService;
+    $scope.sessionService = SessionService;
+
+    $scope.undoMerge = function(mergeID) {
+        url = hostname + $routeParams.region + '/merges/' + mergeID;
+
+        successCallback = function(data) {
+            alert("The accounts have successfully been unmerged.");
+            window.location.reload();
+        };
+
+        $scope.sessionService.authenticatedDelete(url, successCallback);
+    };
 });
 
 app.controller("HeadToHeadController", function($scope, $http, $routeParams, RegionService, PlayerService) {

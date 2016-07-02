@@ -1,0 +1,14 @@
+<div class="container">
+    <table class="table table-striped table-condensed">
+        <tr>
+            <td>Source</td>
+            <td>Target</td>
+            <td></td>
+        </tr>
+        <tr ng-repeat="merge in mergeService.mergeList.merges">
+            <td><a href="#/{{regionService.region.id}}/players/{{merge.source_player_obj_id}}">{{merge.source_player_name}}</a></td>
+            <td><a href="#/{{regionService.region.id}}/players/{{merge.target_player_obj_id}}">{{merge.target_player_name}}</a></td>
+            <td ng-show="sessionService.isAdminForRegion(regionService.region.id)"><a ng-click="undoMerge(merge.id)">Undo Merge</a></td>
+        </tr>
+    </table>
+</div>

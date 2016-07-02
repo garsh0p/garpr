@@ -149,7 +149,7 @@ class TestServer(unittest.TestCase):
             self.assertEquals(len(players_list), len(players_from_db))
 
             for player in players_list:
-                expected_keys = set(['id', 'name'])
+                expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent'])
                 self.assertEquals(set(player.keys()), expected_keys)
                 self.assertEquals(ObjectId(player['id']), dao.get_player_by_alias(player['name']).id)
 
@@ -171,7 +171,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), 1)
 
         json_player = json_data['players'][0]
-        expected_keys = set(['id', 'name'])
+        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent'])
         self.assertEquals(set(json_player.keys()), expected_keys)
         self.assertEquals(ObjectId(json_player['id']), player.id)
 
@@ -183,7 +183,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), 1)
 
         json_player = json_data['players'][0]
-        expected_keys = set(['id', 'name'])
+        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent'])
         self.assertEquals(set(json_player.keys()), expected_keys)
         self.assertEquals(ObjectId(json_player['id']), player.id)
 
@@ -244,25 +244,29 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/players/' + str(player.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['id'], str(player.id))
         self.assertEquals(json_data['name'], 'gar')
         self.assertEquals(json_data['aliases'], ['gar'])
         self.assertEquals(json_data['regions'], ['norcal'])
         self.assertTrue(json_data['ratings']['norcal']['mu'] > 25.9)
         self.assertTrue(json_data['ratings']['norcal']['sigma'] > 3.89)
+        self.assertEquals(json_data['merged'], False)
+        self.assertEquals(json_data['merge_parent'], None)
 
         player = self.texas_dao.get_player_by_alias('wobbles')
         data = self.app.get('/texas/players/' + str(player.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['id'], str(player.id))
         self.assertEquals(json_data['name'], 'Wobbles')
         self.assertEquals(json_data['aliases'], ['wobbles'])
         self.assertEquals(json_data['regions'], ['texas'])
         self.assertTrue(json_data['ratings']['texas']['mu'] > 44.5)
         self.assertTrue(json_data['ratings']['texas']['sigma'] > 3.53)
+        self.assertEquals(json_data['merged'], False)
+        self.assertEquals(json_data['merge_parent'], None)
 
     #start of auth testing sentinel
     @patch('server.get_user_from_request')
@@ -277,7 +281,7 @@ class TestServer(unittest.TestCase):
         player = self.norcal_dao.get_player_by_alias('gar')
         self.assertEquals(set(player.regions), set(['norcal', 'nyc']))
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(set(json_data['regions']), set(['norcal', 'nyc']))
 
     @patch('server.get_user_from_request')
@@ -291,7 +295,7 @@ class TestServer(unittest.TestCase):
 
         self.assertEquals(player.regions, ['norcal'])
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['regions'], ['norcal'])
 
     @patch('server.get_user_from_request')
@@ -314,7 +318,7 @@ class TestServer(unittest.TestCase):
         player = self.norcal_dao.get_player_by_id(player.id)
         self.assertEquals(player.regions, [])
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['regions'], [])
 
     @patch('server.get_user_from_request')
@@ -329,7 +333,7 @@ class TestServer(unittest.TestCase):
         player = self.norcal_dao.get_player_by_alias('gar')
         self.assertEquals(player.regions, ['norcal'])
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['regions'], ['norcal'])
 
     @patch('server.get_user_from_request')
@@ -1383,30 +1387,34 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.data, '"Permission denied"')
 
     @patch('server.get_user_from_request')
-    def test_post_pending_merge(self, mock_get_user_from_request):
+    def test_put_merge(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         all_players = dao.get_all_players()
         player_one = all_players[0]
-        player_two = all_players[1]
-        raw_dict = {'base_player_id': str(player_one.id), 'to_be_merged_player_id' : str(player_two.id) }
+
+        # dummy player to merge
+        player_two = Player('blah', ['blah'], dict(), ['norcal'], id=ObjectId())
+        dao.insert_player(player_two)
+
+        raw_dict = {'target_player_id': str(player_one.id), 'source_player_id' : str(player_two.id) }
         test_data = json.dumps(raw_dict)
-        rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.status, '200 OK', msg=rv.data)
         print rv.data, rv.status
         data_dict = json.loads(rv.data)
         merge_id = data_dict['id']
         self.assertTrue(merge_id, msg=merge_id)
         # okay, now look in the dao and see if the merge is actually in there
-        the_merge = dao.get_pending_merge(ObjectId(merge_id))
+        the_merge = dao.get_merge(ObjectId(merge_id))
         print merge_id, the_merge
         # assert the correct player is in the correct place
         self.assertTrue(the_merge, msg=merge_id)
-        self.assertEquals(the_merge.base_player_obj_id, player_one.id)
-        self.assertEquals(the_merge.player_to_be_merged_obj_id, player_two.id)
+        self.assertEquals(the_merge.target_player_obj_id, player_one.id)
+        self.assertEquals(the_merge.source_player_obj_id, player_two.id)
 
     @patch('server.get_user_from_request')
-    def test_post_not_admin(self, mock_get_user_from_request):
+    def test_put_merge_not_admin(self, mock_get_user_from_request):
         old_admin_regions = self.user.admin_regions
         self.user.admin_regions = []
         mock_get_user_from_request.return_value = self.user
@@ -1414,46 +1422,46 @@ class TestServer(unittest.TestCase):
         all_players = dao.get_all_players()
         player_one = all_players[0]
         player_two = all_players[1]
-        raw_dict = {'base_player_id': str(player_one.id), 'to_be_merged_player_id' : str(player_two.id) }
+        raw_dict = {'target_player_id': str(player_one.id), 'source_player_id' : str(player_two.id) }
         test_data = json.dumps(raw_dict)
-        rv = self.app.post('/texas/merges', data=str(test_data), content_type='application/json')
+        rv = self.app.put('/texas/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.data, "\"user is not an admin\"")
         self.user.admin_regions = old_admin_regions
 
     @patch('server.get_user_from_request')
-    def test_post_merge_invalid_id(self, mock_get_user_from_request):
+    def test_put_merge_invalid_id(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
-        raw_dict = {'base_player_id': "abcd", 'to_be_merged_player_id' : "adskj" }
+        raw_dict = {'target_player_id': "abcd", 'source_player_id' : "adskj" }
         test_data = json.dumps(raw_dict)
-        rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.data, "\"invalid ids, that wasn't an ObjectID\"", msg=rv.data)
 
 
     @patch('server.get_user_from_request')
-    def test_post_merge_p1_not_found(self, mock_get_user_from_request):
+    def test_put_merge_target_not_found(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         all_players = dao.get_all_players()
         player_one = all_players[0]
         player_two = all_players[1]
-        raw_dict = {'base_player_id': "552f53650181b84aaaa01051", 'to_be_merged_player_id' : str(player_two.id)  }
+        raw_dict = {'target_player_id': "552f53650181b84aaaa01051", 'source_player_id' : str(player_two.id)  }
         test_data = json.dumps(raw_dict)
-        rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
-        self.assertEquals(rv.data, "\"base_player not found\"", msg=rv.data)
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.data, "\"target_player not found\"", msg=rv.data)
 
 
     @patch('server.get_user_from_request')
-    def test_post_merge_p2_not_found(self, mock_get_user_from_request):
+    def test_put_merge_source_not_found(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
         all_players = dao.get_all_players()
         player_one = all_players[0]
         player_two = all_players[1]
-        raw_dict = {'base_player_id': str(player_one.id), 'to_be_merged_player_id' : "552f53650181b84aaaa01051"  }
+        raw_dict = {'target_player_id': str(player_one.id), 'source_player_id' : "552f53650181b84aaaa01051"  }
         test_data = json.dumps(raw_dict)
-        rv = self.app.post('/norcal/merges', data=str(test_data), content_type='application/json')
-        self.assertEquals(rv.data, "\"to_be_merged_player not found\"", msg=rv.data)
+        rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
+        self.assertEquals(rv.data, "\"source_player not found\"", msg=rv.data)
 
     @patch('server.get_user_from_request')
     def test_post_tournament_from_tio(self, mock_get_user_from_request):
