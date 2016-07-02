@@ -99,7 +99,7 @@ class SmashGGScraper(object):
                 #CONDITION TO PREVENT DOUBLE COUNTING MATCHES
                 if pool.tournament_id == self.tournament_id:
                     continue
-                    
+
                 pool_matches = pool.get_matches()
                 for match in pool_matches:
                     matches.append(match)
@@ -223,7 +223,7 @@ class SmashGGScraper(object):
         than just the winner and loser. Could be useful for additional ranking metrics
         like how far into the tournament or how many matches were played.
         """
-        self.matches = []
+        matches = []
         sets = self.get_raw()['smashgg']['entities']['sets']
         for set in sets:
             winner_id = set['winnerId']
@@ -242,8 +242,22 @@ class SmashGGScraper(object):
                 bestOf = None
 
             match = SmashGGMatch(name, winner_id, loser_id, round, bestOf)
-            self.matches.append(match)
-        return self.matches
+            matches.append(match)
+        # RECURSIVELY DIG AND RETRIEVE MATCHES FROM OTHER PHASES
+        # WE ONLY WANT TO FETCH POOLS OF THE TOP BRACKET OTHERWISE
+        # WE GET CAUGHT IN INFINITE RECURSION
+        if self.is_pool is False:
+            if len(self.pools) is 0:
+                self.get_pools()
+            for pool in self.pools:
+                # CONDITION TO PREVENT DOUBLE COUNTING MATCHES
+                if pool.tournament_id == self.tournament_id:
+                    continue
+
+                pool_matches = pool.get_smashgg_matches()
+                for match in pool_matches:
+                    matches.append(match)
+        return matches
 
     def get_pool_by_phase_id(self, id):
         if id is None:
