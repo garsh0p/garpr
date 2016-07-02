@@ -4,7 +4,7 @@ from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
 from werkzeug.datastructures import FileStorage
 from dao import Dao
-from bson.json_util import dumps
+from bson import json_util
 from bson.objectid import ObjectId
 import sys
 import rankings
@@ -64,8 +64,8 @@ tournament_put_parser.add_argument('regions', type=list)
 tournament_put_parser.add_argument('pending', type=bool)
 
 merges_put_parser = reqparse.RequestParser()
-merges_put_parser.add_argument('base_player_id', type=str)
-merges_put_parser.add_argument('to_be_merged_player_id', type=str)
+merges_put_parser.add_argument('source_player_id', type=str)
+merges_put_parser.add_argument('target_player_id', type=str)
 
 tournament_import_parser = reqparse.RequestParser()
 tournament_import_parser.add_argument('tournament_name', type=str, required=True, help="Tournament must have a name.")
@@ -203,11 +203,16 @@ class PlayerListResource(restful.Resource):
 
         convert_object_id_list(return_dict['players'])
 
+        # TODO: write convert_player_to_response function
         # remove extra fields
         for player in return_dict['players']:
             del player['regions']
             del player['aliases']
             del player['ratings']
+
+            player['merge_parent'] = str(player['merge_parent'])
+            player['merge_children'] = [str(child) for child in player['merge_children']]
+
 
         return return_dict
 
@@ -226,6 +231,9 @@ class PlayerResource(restful.Resource):
 
         return_dict = player.get_json_dict()
         convert_object_id(return_dict)
+        if not return_dict['merge_parent'] is None:
+            return_dict['merge_parent'] = str(return_dict['merge_parent'])
+        return_dict['merge_children'] = [str(child) for child in return_dict['merge_children']]
 
         return return_dict
 
@@ -359,6 +367,8 @@ class TournamentListResource(restful.Resource):
             del t['matches']
             del t['players']
             del t['type']
+            if 'orig_ids' in t:
+                del t['orig_ids']
 
         return return_dict
 
@@ -448,6 +458,7 @@ def convert_tournament_to_response(tournament, dao):
 
     # remove extra fields
     del return_dict['raw']
+    del return_dict['orig_ids']
 
     return return_dict
 
@@ -775,6 +786,8 @@ class MatchesResource(restful.Resource):
             player = dao.get_player_by_id(ObjectId(id))
         except:
             return 'Invalid ObjectID', 400
+
+
         return_dict['player'] = {'id': str(player.id), 'name': player.name}
         player_list = [player]
 
@@ -791,6 +804,10 @@ class MatchesResource(restful.Resource):
         return_dict['matches'] = match_list
         return_dict['wins'] = 0
         return_dict['losses'] = 0
+
+        if player.merged:
+            # no need to look up tournaments for merged players
+            return return_dict
 
         tournaments = dao.get_all_tournaments(players=player_list)
         if not tournaments:
@@ -820,12 +837,8 @@ class MatchesResource(restful.Resource):
         return return_dict
 
 
-class PendingMergesResource(restful.Resource):
-    def get(self):
-        #TODO: decide if we want to implement this
-        pass
-
-    def post(self, region):
+class MergeListResource(restful.Resource):
+    def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
         if not dao:
             return 'Dao not found', 404
@@ -833,22 +846,59 @@ class PendingMergesResource(restful.Resource):
 
         if not user:
             return 'Permission denied', 403
-        if not user.admin_regions: #wow, such auth -- fixed, now we actually do more auth checking later
+        if not user.admin_regions:
             return "user is not an admin", 403
-        args = merges_put_parser.parse_args() #parse args
+
+        return_dict = {}
+        return_dict['merges'] = [m.get_json_dict() for m in dao.get_all_merges()]
+
+        for merge in return_dict['merges']:
+            # TODO: store names in merge object
+            source_player = dao.get_player_by_id(merge['source_player_obj_id'])
+            target_player = dao.get_player_by_id(merge['target_player_obj_id'])
+
+            merge['source_player_name'] = source_player.name
+            merge['target_player_name'] = target_player.name
+            merge['requester_name'] = user.username;
+
+            # cast objectIDs to strings
+            merge['source_player_obj_id'] = str(merge['source_player_obj_id'])
+            merge['target_player_obj_id'] = str(merge['target_player_obj_id'])
+            merge['requester_user_id'] = str(merge['requester_user_id'])
+            del merge['time']
+
+        convert_object_id_list(return_dict['merges'])
+        return return_dict
+
+
+
+    def put(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+
+        if not user:
+            return 'Permission denied', 403
+        if not user.admin_regions:
+            return "user is not an admin", 403
+
+        args = merges_put_parser.parse_args()
         try:
-            base_player_id = ObjectId(args['base_player_id'])
-            to_be_merged_player_id = ObjectId(args['to_be_merged_player_id'])
+            print args
+            source_player_id = ObjectId(args['source_player_id'])
+            target_player_id = ObjectId(args['target_player_id'])
         except:
             return "invalid ids, that wasn't an ObjectID", 400
         # the above should validate that we have real objectIDs
         # now lets validate that both of those players exist
-        player1 = dao.get_player_by_id(base_player_id)
+        player1 = dao.get_player_by_id(source_player_id)
+        player2 = dao.get_player_by_id(target_player_id)
+
         if not player1:
-            return "base_player not found", 400
-        player2 = dao.get_player_by_id(to_be_merged_player_id)
+            return "source_player not found", 400
         if not player2:
-            return "to_be_merged_player not found", 400
+            return "target_player not found", 400
         if not is_user_admin_for_regions(user, player1.regions):
             return "Permission denied", 403
         if not is_user_admin_for_regions(user, player2.regions):
@@ -856,19 +906,47 @@ class PendingMergesResource(restful.Resource):
 
         #get curr time
         now = datetime.now()
-        base_player = dao.get_player_by_id(base_player_id)
-        to_be_merged_player = dao.get_player_by_id(to_be_merged_player_id)
         the_merge = Merge(user.id,
-                          base_player_id,
-                          to_be_merged_player_id,
+                          source_player_id,
+                          target_player_id,
                           now,
                           id=ObjectId())
         try:
-            dao.insert_pending_merge(the_merge)
+            dao.insert_merge(the_merge)
             return_dict = {'status': "success", 'id': str(the_merge.id)}
             return return_dict, 200
+        except Exception as e:
+            print 'error merging players: ' + str(e)
+            return 'error merging players: ' + str(e), 400
+
+class MergeResource(restful.Resource):
+    def get(self, region, id):
+        # TODO: decide if we want this
+        pass
+
+    def delete(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+
+        if not user:
+            return 'Permission denied', 403
+        if not user.admin_regions:
+            return "user is not an admin", 403
+
+        try:
+            merge_id = ObjectId(id)
         except:
-            return 'error inserting pending merge', 400
+            return "invalid ids, that wasn't an ObjectID", 400
+
+        try:
+            the_merge = dao.get_merge(merge_id)
+            dao.undo_merge(the_merge)
+            return "successfully undid merge", 200
+        except Exception as e:
+            print 'error merging players: ' + str(e)
+            return 'error merging players: ' + str(e), 400
 
 class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
@@ -934,7 +1012,9 @@ def add_cors(resp):
         resp.headers['Access-Control-Max-Age'] = '1'
     return resp
 
-api.add_resource(PendingMergesResource, '/<string:region>/merges')
+
+api.add_resource(MergeResource, '/<string:region>/merges/<string:id>')
+api.add_resource(MergeListResource, '/<string:region>/merges')
 
 api.add_resource(RegionListResource, '/regions')
 
