@@ -1,5 +1,17 @@
+[environment]
+name=NAME
+host=HOST
+web_port=WEB_PORT
+api_port=API_PORT
+http_redirect_port=HTTP_REDIRECT_PORT
+
+[ssl]
+key_path=KEY_PATH
+cert_path=CERT_PATH
+
 [database]
 host=HOSTNAME
+db=DB
 auth_db=AUTH_DB
 user=USER
 password=PASSWORD

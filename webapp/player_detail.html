@@ -8,41 +8,48 @@
             <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="open()">Edit Regions</button></h1>
         </div>
     </div>
-    <div class="row">
-        <div class="player-rating col-md-12">
-            <h2><span tooltip-placement="right"
-                      tooltip-html-unsafe="Skill: {{player.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{player.ratings[regionService.region.id].sigma | number:3}}">
-                Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
-            </span></h2>
-        </div>
-    </div>
-    <div class="row">
+    <div class="row" ng-show="player.merged">
         <div class="col-md-12">
-            <table class="table table-condensed">
-                <tr>
-                    <td>Date</td>
-                    <td>Tournament</td>
-                    <td>Opponent</td>
-                    <td>Result</td>
-                </tr>
-                <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
-                    <td>{{match.tournament_date}}</td>
-                    <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
-                    <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
-                    <td>{{match.result == 'win' ? "W" : "L"}}</td>
-                </tr>
-            </table>
+            <h2><em>This player has been merged into player <a href="#/{{regionService.region.id}}/players/{{player.merge_parent}}">{{mergeParent.name}}</a>.</em></h2>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-2">
-            <label class="control-label">Merge with player: </label>
+    <div ng-show="!player.merged">
+        <div class="row">
+            <div class="player-rating col-md-12">
+                <h2><span tooltip-placement="right"
+                          tooltip-html-unsafe="Skill: {{player.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{player.ratings[regionService.region.id].sigma | number:3}}">
+                    Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
+                </span></h2>
+            </div>
         </div>
-        <div class="col-md-8">
-            <input type="text" class="form-control" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.name for p in getMergePlayers($viewValue)">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-condensed">
+                    <tr>
+                        <td>Date</td>
+                        <td>Tournament</td>
+                        <td>Opponent</td>
+                        <td>Result</td>
+                    </tr>
+                    <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
+                        <td>{{match.tournament_date}}</td>
+                        <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
+                        <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
+                        <td>{{match.result == 'win' ? "W" : "L"}}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
-        <div class="col-md-2">
-            <button type="button" class="btn btn-danger" ng-click="submitMerge()">Send Merge Request</button>
+        <div class="row" ng-show="sessionService.isAdmin()">
+            <div class="col-md-2">
+                <label class="control-label">Merge with player: </label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" class="form-control" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.name for p in getMergePlayers($viewValue)">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger"  ng-click="submitMerge()">Send Merge Request</button>
+            </div>
         </div>
     </div>
 </div>

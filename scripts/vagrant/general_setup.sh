@@ -19,4 +19,4 @@ rsync -a /vagrant/ /home/vagrant
 
 # This will create an alias for running the rsync command
 # to sync the project files in the VM with the files on the host
-echo "alias sync_vm='rsync -r --delete --exclude=.* --exclude=env --exclude=config/config.ini /vagrant/ /home/vagrant'" >> ~/.bashrc
+echo "alias sync_vm='rsync -r --delete --exclude=.* --exclude=env --exclude=config/config.ini --exclude=webapp/script-config.js /vagrant/ /home/vagrant'" >> ~/.bashrc

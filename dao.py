@@ -1,43 +1,53 @@
-from pymongo import MongoClient, DESCENDING
 from bson.objectid import ObjectId
-import base64
 from datetime import datetime, timedelta
-from model import *
-import trueskill
-import re
+from pymongo import MongoClient, DESCENDING
+
+import base64
 import hashlib
-from passlib.hash import sha256_crypt
+import re
+import trueskill
+
+from config.config import Config
+from model import *
+
+config = Config()
 
 DEFAULT_RATING = TrueskillRating()
-DATABASE_NAME = 'garpr'
+DATABASE_NAME = config.get_db_name()
 PLAYERS_COLLECTION_NAME = 'players'
 TOURNAMENTS_COLLECTION_NAME = 'tournaments'
 RANKINGS_COLLECTION_NAME = 'rankings'
 REGIONS_COLLECTION_NAME = 'regions'
 USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
-PENDING_MERGES_COLLECTION_NAME = 'pending_merges'
+MERGES_COLLECTION_NAME = 'merges'
 SESSIONS_COLLECTION_NAME = 'sessions'
 
 special_chars = re.compile("[^\w\s]*")
 
 
-class RegionNotFoundException(Exception):
-    pass
+
+#make sure all the exception here are properly caught, or the server code knows about them.
+
 
 class InvalidRegionsException(Exception):
+    #safe, only used from script
     pass
 
 class DuplicateAliasException(Exception):
+    #safe, only used in dead code
     pass
 
 class DuplicateUsernameException(Exception):
+    #safe, only used from script
     pass
 
 class InvalidNameException(Exception):
+    #safe only used in dead code
     pass
 
 class UpdateTournamentException(Exception):
+    # this is actually used, all uses of update_tournament now have try/except blocks
     pass
 
 def gen_password(password):
@@ -52,23 +62,25 @@ def verify_password(password, salt, hashed_password):
     return (the_hash and the_hash==hashed_password)
 
 
-#TODO create RegionSpecificDao object
-# yeah rn we pass in norcal for a buncha things we dont need to
+#TODO create RegionSpecificDao object rn we pass in norcal for a buncha things we dont need to
 class Dao(object):
+
+    # here lies some serious abuse of magic methods, here be dragons
+    def __new__(cls, region_id, mongo_client, database_name=DATABASE_NAME): #use __new__ so that we can return None
+        if region_id and region_id not in [r.id for r in Dao.get_all_regions(mongo_client, database_name=database_name)]:
+            return None
+        return super(Dao, cls).__new__(cls, region_id, mongo_client, database_name) #this is how we call __init__
+
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
-        self.mongo_client = mongo_client
-        self.region_id = region_id
-
-        if region_id and region_id not in [r.id for r in Dao.get_all_regions(self.mongo_client, database_name=database_name)]:
-            raise RegionNotFoundException("%s is not a valid region id!" % region_id)
-
         self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
-        self.pending_merges_col = mongo_client[database_name][PENDING_MERGES_COLLECTION_NAME]
+        self.merges_col = mongo_client[database_name][MERGES_COLLECTION_NAME]
         self.sessions_col = mongo_client[database_name][SESSIONS_COLLECTION_NAME]
+        self.mongo_client = mongo_client
+        self.region_id = region_id
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
@@ -113,12 +125,16 @@ class Dao(object):
 
         return player_alias_to_player_id_map
 
-    def get_all_players(self, all_regions=False):
+    def get_all_players(self, all_regions=False, include_merged=False):
         '''Sorts by name in lexographical order.'''
-        if all_regions:
-            return [Player.from_json(p) for p in self.players_col.find().sort([('name', 1)])]
-        else:
-            return [Player.from_json(p) for p in self.players_col.find({'regions': {'$in': [self.region_id]}}).sort([('name', 1)])]
+        mongo_request = {}
+        if not all_regions:
+            mongo_request['regions'] = {'$in': [self.region_id]}
+        if not include_merged:
+            mongo_request['merged'] = False
+
+        return [Player.from_json(p) for p in self.players_col.find(mongo_request).sort([('name', 1)])]
+
 
     def insert_player(self, player):
         return self.players_col.insert(player.get_json_dict())
@@ -133,6 +149,7 @@ class Dao(object):
     def update_players(self, players):
         pass
 
+    # unused, if you use this, make sure to surround it in a try block!
     def add_alias_to_player(self, player, alias):
         lowercase_alias = alias.lower()
 
@@ -143,6 +160,7 @@ class Dao(object):
 
         return self.update_player(player)
 
+    # unused, if you use this, make sure to surround it in a try block!
     def update_player_name(self, player, name):
         # ensure this name is already an alias
         if not name.lower() in player.aliases:
@@ -166,11 +184,6 @@ class Dao(object):
 
     def insert_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
-
-    def update_pending_tournament(self, pending_tournament):
-        # if len(pending_tournament.raw) == 0:
-        #     raise UpdateTournamentException("Can't update a pending tournament with an empty 'raw' field because it will be overwritten!")
-        return self.pending_tournaments_col.update({'_id': pending_tournament.id}, pending_tournament.get_json_dict())
 
     def delete_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.remove({'_id': pending_tournament.id})
@@ -207,9 +220,10 @@ class Dao(object):
     def insert_tournament(self, tournament):
         return self.tournaments_col.insert(tournament.get_json_dict())
 
+    #all uses of this MUST use a try/except block!
     def update_tournament(self, tournament):
-        if len(tournament.raw) == 0:
-            raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
+        # if len(tournament.raw) == 0:
+        #     raise UpdateTournamentException("Can't update a tournament with an empty 'raw' field because it will be overwritten!")
 
         return self.tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
 
@@ -302,30 +316,106 @@ class Dao(object):
         ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
         return [Player.from_json(p) for p in ret]
 
-    def insert_pending_merge(self, the_merge):
-        return self.pending_merges_col.insert(the_merge.get_json_dict())
+    # inserts and merges players!
+    # TODO: add support for pending merges
+    def insert_merge(self, the_merge):
+        self.merge_players(the_merge)
+        return self.merges_col.insert(the_merge.get_json_dict())
 
-    def get_pending_merge(self, merge_id):
-        info = self.pending_merges_col.find_one({'_id' : merge_id})
+    def get_merge(self, merge_id):
+        info = self.merges_col.find_one({'_id' : merge_id})
         return Merge.from_json(info)
 
-    # TODO reduce db calls for this
-    def merge_players(self, source=None, target=None):
+    def get_all_merges(self):
+        return [Merge.from_json(m) for m in self.merges_col.find().sort([('time', 1)])]
+
+    def undo_merge(self, the_merge):
+        self.unmerge_players(the_merge)
+        self.merges_col.remove({'_id': the_merge.id})
+
+    def merge_players(self, merge):
+        if merge is None:
+            raise TypeError("merge cannot be none")
+
+        source = self.get_player_by_id(merge.source_player_obj_id)
+        target = self.get_player_by_id(merge.target_player_obj_id)
+
         if source is None or target is None:
-            raise TypeError("source or target can't be none!");
+            raise TypeError("source or target can't be none!")
 
-        if source == target:
-            raise ValueError("source and target can't be the same!")
+        # check if already merged
+        if source.merged:
+            raise ValueError("source is already merged")
 
-        target.merge_with_player(source)
+        if target.merged:
+            raise ValueError("target is already merged")
+
+        if (source in target.merge_children) or (target in source.merge_children):
+            raise ValueError("source and target already merged")
+
+        # check if these two players have ever played each other
+        # (can't merge players who've played each other)
+        # TODO: reduce db calls for this
+        for tournament_id in self.get_all_tournament_ids():
+            tournament = self.get_tournament_by_id(tournament_id)
+            if source.id in tournament.players and target.id in tournament.players:
+                raise ValueError("source and target have played each other")
+
+
+        # update target and source players
+        target.aliases = list(set(source.aliases+target.aliases))
+        target.regions = list(set(source.regions+target.regions))
+
+        target.merge_children = target.merge_children + source.merge_children
+        source.merge_parent = target.id
+        source.merged = True
+
+        self.update_player(source)
         self.update_player(target)
 
+        # replace source with target in all tournaments that contain source
+        # TODO: reduce db calls for this (index tournaments by players)
         for tournament_id in self.get_all_tournament_ids():
             tournament = self.get_tournament_by_id(tournament_id)
             tournament.replace_player(player_to_remove=source, player_to_add=target)
             self.update_tournament(tournament)
 
-        self.delete_player(source)
+    def unmerge_players(self, merge):
+        source = self.get_player_by_id(merge.source_player_obj_id)
+        target = self.get_player_by_id(merge.target_player_obj_id)
+
+        if source is None or target is None:
+            raise TypeError("source or target can't be none!")
+
+        if source.merge_parent != target.id:
+            raise ValueError("source not merged into target")
+
+        if target.merged:
+            raise ValueError("target has been merged; undo that merge first")
+
+        # TODO: unmerge aliases and regions
+        # (probably best way to do this is to store which aliases and regions were merged in the merge Object)
+        source.merge_parent = None
+        source.merged = False
+        target.merge_children = [child for child in target.merge_children if child not in source.merge_children]
+
+        self.update_player(source)
+        self.update_player(target)
+
+        # unmerge source from target
+        # TODO: reduce db calls for this (index tournaments by players)
+        for tournament_id in self.get_all_tournament_ids():
+            tournament = self.get_tournament_by_id(tournament_id)
+
+            if target.id in tournament.players:
+                print "unmerging tournament", tournament
+                # check if original id now belongs to source
+                if any([child in tournament.orig_ids for child in source.merge_children]):
+                    # replace target with source in tournament
+                    tournament.replace_player(player_to_remove=target, player_to_add=source)
+                    self.update_tournament(tournament)
+
+
 
     def insert_ranking(self, ranking):
         return self.rankings_col.insert(ranking.get_json_dict())
@@ -357,7 +447,7 @@ class Dao(object):
 
     # session management
 
-
+    # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
         # validate that no user with same username exists currently
         if self.users_col.find_one({'username': user.username}):
@@ -365,6 +455,7 @@ class Dao(object):
 
         return self.users_col.insert(user.get_json_dict())
 
+    # throws invalidRegionsException, which is okay, as this is only used by a script
     def create_user(self, username, password, regions):
         valid_regions = [region.id for region in Dao.get_all_regions(self.mongo_client)]
 

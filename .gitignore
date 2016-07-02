@@ -57,7 +57,7 @@ coverage.xml
 .bashrc
 .profile
 .ssh/
-.DS_Store 
+.DS_Store
 
 # Sphinx documentation
 docs/_build/
@@ -65,9 +65,16 @@ docs/_build/
 # GarPR specific stuff
 challonge_api_key.txt
 config/config.ini
+webapp/script-config.js
+*.pid
 *.lnk
+
+#JetBrains PyCharm Files
 .idea/garpr.iml
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
+
+#cookiE's Server py file
+server_cookiE_edit.py

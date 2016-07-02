@@ -4,7 +4,7 @@ from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
 from werkzeug.datastructures import FileStorage
 from dao import Dao
-from bson.json_util import dumps
+from bson import json_util
 from bson.objectid import ObjectId
 import sys
 import rankings
@@ -19,6 +19,7 @@ from model import MatchResult, Tournament, PendingTournament, Merge, User, Playe
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
+from scraper.smashgg import SmashGGScraper
 import alias_service
 from StringIO import StringIO
 import Cookie
@@ -34,8 +35,6 @@ mongo_client = MongoClient(host=config.get_mongo_url())
 print "parsed config: ", config.get_mongo_url()
 
 app = Flask(__name__)
-# cors = CORS(app, origins='whensgarpr.com') #im not 100% sure on all this
-cors = CORS(app, origins='localhost', headers=['Authorization', 'Content-Type'])
 api = restful.Api(app)
 
 player_list_get_parser = reqparse.RequestParser()
@@ -58,14 +57,15 @@ player_put_parser.add_argument('regions', type=list)
 
 tournament_put_parser = reqparse.RequestParser()
 tournament_put_parser.add_argument('name', type=str)
-tournament_put_parser.add_argument('date', type=int)
+tournament_put_parser.add_argument('date', type=str)
 tournament_put_parser.add_argument('players', type=list)
 tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
+tournament_put_parser.add_argument('pending', type=bool)
 
 merges_put_parser = reqparse.RequestParser()
-merges_put_parser.add_argument('base_player_id', type=str)
-merges_put_parser.add_argument('to_be_merged_player_id', type=str)
+merges_put_parser.add_argument('source_player_id', type=str)
+merges_put_parser.add_argument('target_player_id', type=str)
 
 tournament_import_parser = reqparse.RequestParser()
 tournament_import_parser.add_argument('tournament_name', type=str, required=True, help="Tournament must have a name.")
@@ -92,6 +92,10 @@ session_delete_parser.add_argument('session_id', location='cookies', type=str)
 
 class InvalidAccessToken(Exception):
     pass
+
+def is_allowed_origin(origin):
+    dragon = r"http(s)?:\/\/(stage\.|www\.)?(notgarpr\.com|192\.168\.33\.1(0)?|njssbm\.com)(\:[\d]*)?$"
+    return re.match(dragon, origin)
 
 def convert_object_id(json_dict):
     json_dict['id'] = str(json_dict['_id'])
@@ -179,17 +183,19 @@ class PlayerListResource(restful.Resource):
     def get(self, region):
         args = player_list_get_parser.parse_args()
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         return_dict = {}
 
         # single player matching alias within region
-        if args['alias'] is not None:
+        if args['alias']:
             return_dict['players'] = []
             db_player = dao.get_player_by_alias(args['alias'])
             if db_player:
                 return_dict['players'].append(db_player.get_json_dict())
         # search multiple players by name across all regions
-        elif args['query'] is not None:
-            all_players = dao.get_all_players(all_regions=True)
+        elif args['query']:
+            all_players = dao.get_all_players(all_regions=True) #TODO: none checks on below list comprehensions
             return_dict['players'] = [p.get_json_dict() for p in self._get_players_matching_query(all_players, args['query'])]
         # all players within region
         else:
@@ -197,30 +203,51 @@ class PlayerListResource(restful.Resource):
 
         convert_object_id_list(return_dict['players'])
 
+        # TODO: write convert_player_to_response function
         # remove extra fields
         for player in return_dict['players']:
             del player['regions']
             del player['aliases']
             del player['ratings']
 
+            player['merge_parent'] = str(player['merge_parent'])
+            player['merge_children'] = [str(child) for child in player['merge_children']]
+
+
         return return_dict
 
 class PlayerResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
-        player = dao.get_player_by_id(ObjectId(id))
+        if not dao:
+            return 'Dao not found', 404
+        player = None
+        try:
+            player = dao.get_player_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
+        if not player:
+            return 'Player not found', 404
 
         return_dict = player.get_json_dict()
         convert_object_id(return_dict)
+        if not return_dict['merge_parent'] is None:
+            return_dict['merge_parent'] = str(return_dict['merge_parent'])
+        return_dict['merge_children'] = [str(child) for child in return_dict['merge_children']]
 
         return return_dict
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
-        player = dao.get_player_by_id(ObjectId(id))
-
+        if not dao:
+            return 'Dao not found', 404
+        player = None
+        try:
+            player = dao.get_player_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
         if not player:
-            return "No player found with that region/id.", 400
+            return "No player found with that region/id.", 404
 
         # TODO auth for this needs to be different, otherwise an admin can tag with their region and then edit everything
         user = get_user_from_request(request, dao)
@@ -252,13 +279,20 @@ class PlayerResource(restful.Resource):
 class PlayerRegionResource(restful.Resource):
     def put(self, region, id, region_to_change):
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
         if not is_user_admin_for_region(user, region_to_change):
             return 'Permission denied', 403
-
-        player = dao.get_player_by_id(ObjectId(id))
+        player = None
+        try:
+            player = dao.get_player_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
+        if not player:
+            return 'Player not found', 404
         if not region_to_change in player.regions:
             player.regions.append(region_to_change)
             dao.update_player(player)
@@ -269,13 +303,21 @@ class PlayerRegionResource(restful.Resource):
 
     def delete(self, region, id, region_to_change):
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
         if not is_user_admin_for_region(user, region_to_change):
             return 'Permission denied', 403
 
-        player = dao.get_player_by_id(ObjectId(id))
+        player = None
+        try:
+            player = dao.get_player_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
+        if not player:
+            return 'Player not found', 404
         if region_to_change in player.regions:
             player.regions.remove(region_to_change)
             dao.update_player(player)
@@ -287,7 +329,8 @@ class PlayerRegionResource(restful.Resource):
 class TournamentListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
-
+        if not dao:
+            return 'Dao not found', 404
         include_pending_tournaments = False
         args = tournament_list_get_parser.parse_args()
         if args['includePending'] and args['includePending'] == 'true':
@@ -295,6 +338,8 @@ class TournamentListResource(restful.Resource):
             include_pending_tournaments = user and is_user_admin_for_region(user, region)
 
         tournaments = dao.get_all_tournaments(regions=[region])
+        if not tournaments:
+            return 'Dao couldnt find any tournaments, not good man, not good', 404
         all_tournament_jsons = [t.get_json_dict() for t in tournaments]
 
         if include_pending_tournaments:
@@ -303,29 +348,35 @@ class TournamentListResource(restful.Resource):
                 t['pending'] = False
 
             pending_tournaments = dao.get_all_pending_tournaments(regions=[region])
-            for p in pending_tournaments:
-                p = p.get_json_dict()
-                p['pending'] = True
-                del p['alias_to_id_map']
-                all_tournament_jsons.append(p)
+            if pending_tournaments:
+                for p in pending_tournaments:
+                    p = p.get_json_dict()
+                    p['pending'] = True
+                    del p['alias_to_id_map']
+                    all_tournament_jsons.append(p)
 
         return_dict = {}
         return_dict['tournaments'] = all_tournament_jsons
         convert_object_id_list(return_dict['tournaments'])
 
         for t in return_dict['tournaments']:
-            t['date'] = t['date'].strftime("%x")
+            t['date'] = t['date'].strftime("%x") if t['date'] else '20XX'
 
             # remove extra fields
             del t['raw']
             del t['matches']
             del t['players']
             del t['type']
+            if 'orig_ids' in t:
+                del t['orig_ids']
 
         return return_dict
 
     def post(self, region):
+        print "in tournamentList POST"
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
@@ -336,10 +387,6 @@ class TournamentListResource(restful.Resource):
         parser.add_argument('data', type=unicode, location='json')
         parser.add_argument('bracket', type=str, location='json')
         args = parser.parse_args()
-
-
-
-        print "in server post, actually got this far!"
 
         if args['data'] is None:
             return "data required", 400
@@ -352,35 +399,50 @@ class TournamentListResource(restful.Resource):
 
         type = args['type']
         data = args['data']
+        pending_tournament = None
 
-        if type == 'tio':
-            if args['bracket'] is None:
-                return "Missing bracket name", 400
-            data_bytes = bytes(data)
-            if data_bytes[0] == '\xef':
-                data = data[:3]
-            scraper = TioScraper(data, args['bracket'])
-        elif type == 'challonge':
-            scraper = ChallongeScraper(data)
-        else:
-            return "Unknown type", 400
+        try:
+            if type == 'tio':
+                if args['bracket'] is None:
+                    return "Missing bracket name", 400
+                data_bytes = bytes(data)
+                if data_bytes[0] == '\xef':
+                    data = data[:3]
+                scraper = TioScraper(data, args['bracket'])
+            elif type == 'challonge':
+                scraper = ChallongeScraper(data)
+            elif type == 'smashgg':
+                scraper = SmashGGScraper(data)
+            else:
+                return "Unknown type", 400
+            pending_tournament = PendingTournament.from_scraper(type, scraper, region)
+        except:
+            return 'Scraper encountered an error', 400
 
-        pending_tournament = PendingTournament.from_scraper(type, scraper, region)
-        pending_tournament.alias_to_id_map = alias_service.get_alias_to_id_map_in_list_format(
-                dao, pending_tournament.players)
-        new_id = dao.insert_pending_tournament(pending_tournament)
+        if not pending_tournament:
+            return 'Scraper encountered an error', 400
 
-        return_dict = {
+        try:
+            pending_tournament.alias_to_id_map = alias_service.get_alias_to_id_map_in_list_format(dao, pending_tournament.players)
+        except:
+            return 'Alias service encountered an error', 400
+
+        try:
+            new_id = dao.insert_pending_tournament(pending_tournament)
+            return_dict = {
                 'id': str(new_id)
-        }
+            }
+            return return_dict
+        except:
+            return 'Dao insert_pending_tournament encountered an error', 400
 
-        return return_dict
+        return 'Unknown error!', 400
 
 def convert_tournament_to_response(tournament, dao):
     return_dict = tournament.get_json_dict()
     convert_object_id(return_dict)
 
-    return_dict['date'] = return_dict['date'].strftime("%x")
+    return_dict['date'] = return_dict['date'].strftime("%x") if return_dict['date'] else '20XX'
 
     return_dict['players'] = [{
             'id': str(p),
@@ -396,6 +458,7 @@ def convert_tournament_to_response(tournament, dao):
 
     # remove extra fields
     del return_dict['raw']
+    del return_dict['orig_ids']
 
     return return_dict
 
@@ -403,7 +466,7 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
     return_dict = pending_tournament.get_json_dict()
     convert_object_id(return_dict)
 
-    return_dict['date'] = return_dict['date'].strftime("%x")
+    return_dict['date'] = return_dict['date'].strftime("%x") if return_dict['date'] else '20XX'
 
     # convert the alias_to_id_map from a list to mongo to an actual map
     alias_to_id_map = {}
@@ -421,25 +484,33 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
 
 def convert_request_to_pending_tournament(data):
     alias_to_id_map = []
-    for player_alias, player_id in data["alias_to_id_map"].items():
-        alias_to_id_map.append({
-            "player_alias": player_alias,
-            "player_id": ObjectId(player_id) if player_id is not None else player_id
-        })
-    data["alias_to_id_map"] = alias_to_id_map
-    return data
+    try:
+        for player_alias, player_id in data["alias_to_id_map"].items():
+            alias_to_id_map.append({
+                "player_alias": player_alias,
+                "player_id": ObjectId(player_id) if player_id is not None else player_id
+            })
+        data["alias_to_id_map"] = alias_to_id_map
+        return data
+    except:
+        return None
 
 class TournamentResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         response = None
-
-        tournament = dao.get_tournament_by_id(ObjectId(id))
+        tournament = None
+        try:
+            tournament = dao.get_tournament_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
         if tournament is not None:
             response = convert_tournament_to_response(tournament, dao)
         else:
             user = get_user_from_request(request, dao)
-            pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+            pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id)) #this usage is safe, if the ID was fake, we would have already blown the coop above
             if not pending_tournament:
                 return 'Not found!', 404
             if not user:
@@ -452,9 +523,22 @@ class TournamentResource(restful.Resource):
 
     def put(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
-        tournament = dao.get_tournament_by_id(ObjectId(id))
+        if not dao:
+            return 'Dao not found', 404
+        tournament = None
+
+        args = tournament_put_parser.parse_args()
+
+        try:
+            if args['pending']:
+                tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+                print tournament
+            else:
+                tournament = dao.get_tournament_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
         if not tournament:
-            return "No tournament found with that id.", 400
+            return "No tournament found with that id.", 404
 
         # TODO auth for this needs to be different, otherwise an admin can tag with their region and then edit everything
         user = get_user_from_request(request, dao)
@@ -463,103 +547,101 @@ class TournamentResource(restful.Resource):
         if not is_user_admin_for_regions(user, tournament.regions):
             return 'Permission denied', 403
 
-        args = tournament_put_parser.parse_args()
 
         #TODO: should we do validation that matches and players are compatible here?
-        if args['name']:
-            tournament.name = args['name']
-        if args['date']:
-            tournament.date = datetime.fromordinal(args['date'])
-        if args['players']:
-            for p in args['players']:
-                if not isinstance(p, unicode):
-                    return "each player must be a string", 400
-            tournament.players = [ObjectId(i) for i in args['players']]
-        if args['matches']:
-            for d in args['matches']:
-                if not isinstance(d, dict):
-                    return "matches must be a dict", 400
-                if (not isinstance(d['winner'], unicode)) or (not isinstance(d['loser'], unicode)):
-                    return "winner and loser must be strings", 400
-            #turn the list of dicts into list of matchresults
-            matches = [MatchResult(winner=ObjectId(m['winner']), loser=ObjectId(m['loser'])) for m in args['matches']]
-            tournament.matches = matches
-        if args['regions']:
-            for p in args['regions']:
-                if not isinstance(p, unicode):
-                    return "each region must be a string", 400
-            tournament.regions = args['regions']
+        try:
+            if args['name']:
+                tournament.name = args['name']
+            if args['date']:
+                try:
+                    tournament.date = datetime.strptime(args['date'].strip(), '%m/%d/%y')
+                except:
+                    return "Invalid date format", 400
+            if args['players']:
+                for p in args['players']:
+                    if not isinstance(p, unicode):
+                        return "each player must be a string", 400
+                tournament.players = [ObjectId(i) for i in args['players']]
+            if args['matches']:
+                for d in args['matches']:
+                    if not isinstance(d, dict):
+                        return "matches must be a dict", 400
+                    if (not isinstance(d['winner'], unicode)) or (not isinstance(d['loser'], unicode)):
+                        return "winner and loser must be strings", 400
+                #turn the list of dicts into list of matchresults
+                matches = [MatchResult(winner=ObjectId(m['winner']), loser=ObjectId(m['loser'])) for m in args['matches']]
+                tournament.matches = matches
+            if args['regions']:
+                for p in args['regions']:
+                    if not isinstance(p, unicode):
+                        return "each region must be a string", 400
+                tournament.regions = args['regions']
+        except:
+            return 'Invalid ObjectID', 400
 
-        dao.update_tournament(tournament)
-        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
+        try:
+            if args['pending']:
+                dao.update_pending_tournament(tournament)
+            else:
+                dao.update_tournament(tournament)
+        except:
+            return 'Update Tournament Error', 400
+
+        if args['pending']:
+            return convert_pending_tournament_to_response(dao.get_pending_tournament_by_id(tournament.id), dao)
+        else:
+            return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
     def delete(self, region, id):
         """ Deletes a tournament.
             Route restricted to admins for this region.
             Be VERY careful when using this """
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
 
-        tournament_to_delete = dao.get_pending_tournament_by_id(ObjectId(id))
+        tournament_to_delete = None
+        try:
+            tournament_to_delete = dao.get_pending_tournament_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
         if tournament_to_delete: #its a pending tournament
             if not is_user_admin_for_regions(user, tournament_to_delete.regions):
                 return 'Permission denied', 403
             dao.delete_pending_tournament(tournament_to_delete)
         else:  #not a pending tournament, might be a finalized tournament
-            tournament_to_delete = dao.get_tournament_by_id(ObjectId(id))
+            tournament_to_delete = dao.get_tournament_by_id(ObjectId(id)) #ID must be valid if we got here
             if not tournament_to_delete: #can't find anything, whoops
-                return "No tournament (pending or finalized) found with that id.", 400
+                return "No tournament (pending or finalized) found with that id.", 404
             if not is_user_admin_for_regions(user, tournament_to_delete.regions):
                 return 'Permission denied', 403
             resp = dao.delete_tournament(tournament_to_delete)
 
         return {"success": True}
 
-class TournamentRegionResource(restful.Resource):
-    def put(self, region, id, region_to_change):
-        dao = Dao(region, mongo_client=mongo_client)
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region_to_change):
-            return 'Permission denied', 403
-
-        tournament = dao.get_tournament_by_id(ObjectId(id))
-        if not region_to_change in tournament.regions:
-            tournament.regions.append(region_to_change)
-            dao.update_tournament(tournament)
-
-        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
-
-    def delete(self, region, id, region_to_change):
-        dao = Dao(region, mongo_client=mongo_client)
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region_to_change):
-            return 'Permission denied', 403
-
-        tournament = dao.get_tournament_by_id(ObjectId(id))
-        if not tournament:
-            return 'Tournament not found', 404
-        if region_to_change in tournament.regions:
-            tournament.regions.remove(region_to_change)
-            dao.update_tournament(tournament)
-
-        return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
-
 
 class PendingTournamentListResource(restful.Resource):
     def get(self, region):
+        print "pending tournament get!"
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         return_dict = {}
-        return_dict['pending_tournaments'] = tournament_import.get_pending_tournaments(region, dao)
+        the_tourney = None
+        try:
+            tournament_import.get_pending_tournaments(region, dao)
+        except:
+            return 'Error in get_pending_tournaments', 400
+        if not the_tourney:
+            return 'Not found', 404
+        return_dict['pending_tournaments'] = the_tourney
         convert_object_id_list(return_dict['pending_tournaments'])
 
         for t in return_dict['pending_tournaments']:
-            t['date'] = t['date'].strftime("%x")
+            t['date'] = t['date'].strftime("%x") if t['date'] else '20XX'
             # whether all aliases have been mapped to players or not
             # necessary condition for the tournament to be ready to be finalized
             t['alias_mapping_finished'] = t.are_all_aliases_mapped()
@@ -571,73 +653,24 @@ class PendingTournamentListResource(restful.Resource):
 
         return return_dict
 
-class TournamentImportResource(restful.Resource):
-    def post(self, region):
-        print "client:", mongo_client
-        dao = Dao(region, mongo_client=mongo_client)
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region):
-            return 'Permission denied', 403
-        args = tournament_import_parser.parse_args()
-
-        try:
-            tournament_name = args['tournament_name']
-            bracket_type = args['bracket_type']
-
-            if bracket_type == 'challonge':
-                if 'challonge_url' not in args:
-                    raise KeyError("Challonge bracket specified, but without a Challonge URL.")
-
-                pending_id = tournament_import.import_tournament_from_challonge(region, args['challonge_url'], tournament_name, dao)
-                return {
-                    "status": "success",
-                    "pending_tournament_id": str(pending_id)
-                    }, 201
-            elif bracket_type == 'tio':
-                if 'tio_file' not in args:
-                    raise KeyError("TIO bracket specified, but no file uploaded.")
-                if 'tio_bracket_name' not in args:
-                    raise KeyError("TIO bracket specified, but no TIO bracket name given.")
-
-                tio_file = args['tio_file']
-                #deal with tio files having magic value which breaks StringIO (hex): EFBBBF
-                if tio_file[0:3] == "\xef\xbb\xbf":
-                    tio_file = tio_file[3:]
-
-                pending_id = tournament_import.import_tournament_from_tio_filestream(region, StringIO(tio_file), args['tio_bracket_name'], tournament_name, dao)
-                return {
-                    "status": "success",
-                    "pending_tournament_id": str(pending_id)
-                    }, 201
-            else:
-                raise ValueError("Bracket type must be 'challonge' or 'tio'.")
-        except requests.exceptions.HTTPError as e:
-            return {
-                "status": "error",
-                "error": "Failed to query Challonge API for given URL: " + str(e)
-                }, 400
-        except (KeyError, ValueError, IOError) as e:
-            return {
-                "status": "error",
-                "error": str(e)
-                }, 400
-        except Exception as e:
-            return {
-                "status": "error",
-                "error": "Unknown server error while importing tournament: " + str(e)
-                }, 500
 
 class PendingTournamentResource(restful.Resource):
+    """
+    Currently only updates the alias_to_id_map in the pending tournament
+    """
     def put(self, region, id):
-        """
-            Currently only updates the alias_to_id_map in the pending tournament
-        """
+        print "in pending tournament put"
+
         dao = Dao(region, mongo_client=mongo_client)
-        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not dao:
+            return 'Dao not found', 404
+        pending_tournament = None
+        try:
+            pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
         if not pending_tournament:
-            return "No pending tournament found with that id.", 400
+            return "No pending tournament found with that id.", 404
 
         user = get_user_from_request(request, dao)
         if not user:
@@ -647,19 +680,30 @@ class PendingTournamentResource(restful.Resource):
 
         args = pending_tournament_put_parser.parse_args()
         data = convert_request_to_pending_tournament(args)
+        if not data:
+            return 'Request couldnt be converted to pending tournament', 400
         pending_tournament.alias_to_id_map = data["alias_to_id_map"]
-        dao.update_pending_tournament(pending_tournament)
-        response = convert_pending_tournament_to_response(pending_tournament, dao)
-        return response
+        try:
+            dao.update_pending_tournament(pending_tournament)
+            response = convert_pending_tournament_to_response(pending_tournament, dao)
+            return response
+        except:
+            return 'Encountered an error inserting pending tournament', 400
 
 class FinalizeTournamentResource(restful.Resource):
     """ Converts a pending tournament to a tournament.
         Works only if the PendingTournament's alias_to_id_map is completely filled out.
         Route restricted to admins for this region. """
     def post(self, region, id):
+        print "finalize tournament post"
         dao = Dao(region, mongo_client=mongo_client)
-
-        pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        if not dao:
+            return 'Dao not found', 404
+        pending_tournament = None
+        try:
+            pending_tournament = dao.get_pending_tournament_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
         if not pending_tournament:
             return 'No pending tournament found with that id.', 400
         user = get_user_from_request(request, dao)
@@ -678,21 +722,25 @@ class FinalizeTournamentResource(restful.Resource):
             player_id = dao.insert_player(player)
             pending_tournament.set_alias_id_mapping(player_name, player_id)
 
-        dao.update_pending_tournament(pending_tournament)
-
         try:
+            dao.update_pending_tournament(pending_tournament)
             tournament = Tournament.from_pending_tournament(pending_tournament)
             tournament_id = dao.insert_tournament(tournament)
             dao.delete_pending_tournament(pending_tournament)
             return {"success": True, "tournament_id": str(tournament_id)}
         except ValueError:
             return 'Not all player aliases in this pending tournament have been mapped to player ids.', 400
+        except:
+            return 'Dao threw an error somewhere', 400
 
 class RankingsResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
-
+        if not dao:
+            return 'Dao not found', 404
         return_dict = dao.get_latest_ranking().get_json_dict()
+        if not return_dict:
+            return 'Dao couldnt give us rankings', 400
         del return_dict['_id']
         return_dict['time'] = str(return_dict['time'])
         return_dict['tournaments'] = [str(t) for t in return_dict['tournaments']]
@@ -711,7 +759,8 @@ class RankingsResource(restful.Resource):
 
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
-
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
@@ -727,25 +776,42 @@ class RankingsResource(restful.Resource):
 class MatchesResource(restful.Resource):
     def get(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         args = matches_get_parser.parse_args()
         return_dict = {}
 
-        player = dao.get_player_by_id(ObjectId(id))
+        player = None
+        try:
+            player = dao.get_player_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
+
+
         return_dict['player'] = {'id': str(player.id), 'name': player.name}
         player_list = [player]
 
         opponent_id = args['opponent']
         if opponent_id is not None:
-            opponent = dao.get_player_by_id(ObjectId(args['opponent']))
-            return_dict['opponent'] = {'id': str(opponent.id), 'name': opponent.name}
-            player_list.append(opponent)
+            try:
+                opponent = dao.get_player_by_id(ObjectId(args['opponent']))
+                return_dict['opponent'] = {'id': str(opponent.id), 'name': opponent.name}
+                player_list.append(opponent)
+            except:
+                return 'Invalid ObjectID', 400
 
         match_list = []
         return_dict['matches'] = match_list
         return_dict['wins'] = 0
         return_dict['losses'] = 0
 
+        if player.merged:
+            # no need to look up tournaments for merged players
+            return return_dict
+
         tournaments = dao.get_all_tournaments(players=player_list)
+        if not tournaments:
+            return 'No tournaments found', 400
         for tournament in tournaments:
             for match in tournament.matches:
                 if (opponent_id is not None and match.contains_players(player.id, opponent.id)) or \
@@ -755,8 +821,10 @@ class MatchesResource(restful.Resource):
                     match_dict['tournament_name'] = tournament.name
                     match_dict['tournament_date'] = tournament.date.strftime("%x")
                     match_dict['opponent_id'] = str(match.get_opposing_player_id(player.id))
-                    match_dict['opponent_name'] = dao.get_player_by_id(ObjectId(match_dict['opponent_id'])).name
-
+                    try:
+                        match_dict['opponent_name'] = dao.get_player_by_id(ObjectId(match_dict['opponent_id'])).name
+                    except:
+                        return 'Invalid ObjectID', 400
                     if match.did_player_win(player.id):
                         match_dict['result'] = 'win'
                         return_dict['wins'] += 1
@@ -769,36 +837,68 @@ class MatchesResource(restful.Resource):
         return return_dict
 
 
-
-
-
-class PendingMergesResource(restful.Resource):
-    def get(self):
-        #TODO: decide if we want to implement this
-        pass
-
-    def post(self, region):
+class MergeListResource(restful.Resource):
+    def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
 
         if not user:
             return 'Permission denied', 403
-        if not user.admin_regions: #wow, such auth -- fixed, now we actually do more auth checking later
+        if not user.admin_regions:
             return "user is not an admin", 403
-        args = merges_put_parser.parse_args() #parse args
+
+        return_dict = {}
+        return_dict['merges'] = [m.get_json_dict() for m in dao.get_all_merges()]
+
+        for merge in return_dict['merges']:
+            # TODO: store names in merge object
+            source_player = dao.get_player_by_id(merge['source_player_obj_id'])
+            target_player = dao.get_player_by_id(merge['target_player_obj_id'])
+
+            merge['source_player_name'] = source_player.name
+            merge['target_player_name'] = target_player.name
+            merge['requester_name'] = user.username;
+
+            # cast objectIDs to strings
+            merge['source_player_obj_id'] = str(merge['source_player_obj_id'])
+            merge['target_player_obj_id'] = str(merge['target_player_obj_id'])
+            merge['requester_user_id'] = str(merge['requester_user_id'])
+            del merge['time']
+
+        convert_object_id_list(return_dict['merges'])
+        return return_dict
+
+
+
+    def put(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+
+        if not user:
+            return 'Permission denied', 403
+        if not user.admin_regions:
+            return "user is not an admin", 403
+
+        args = merges_put_parser.parse_args()
         try:
-            base_player_id = ObjectId(args['base_player_id'])
-            to_be_merged_player_id = ObjectId(args['to_be_merged_player_id'])
+            print args
+            source_player_id = ObjectId(args['source_player_id'])
+            target_player_id = ObjectId(args['target_player_id'])
         except:
             return "invalid ids, that wasn't an ObjectID", 400
         # the above should validate that we have real objectIDs
         # now lets validate that both of those players exist
-        player1 = dao.get_player_by_id(base_player_id)
+        player1 = dao.get_player_by_id(source_player_id)
+        player2 = dao.get_player_by_id(target_player_id)
+
         if not player1:
-            return "base_player not found", 400
-        player2 = dao.get_player_by_id(to_be_merged_player_id)
+            return "source_player not found", 400
         if not player2:
-            return "to_be_merged_player not found", 400
+            return "target_player not found", 400
         if not is_user_admin_for_regions(user, player1.regions):
             return "Permission denied", 403
         if not is_user_admin_for_regions(user, player2.regions):
@@ -806,24 +906,55 @@ class PendingMergesResource(restful.Resource):
 
         #get curr time
         now = datetime.now()
-        base_player = dao.get_player_by_id(base_player_id)
-        to_be_merged_player = dao.get_player_by_id(to_be_merged_player_id)
         the_merge = Merge(user.id,
-                          base_player_id,
-                          to_be_merged_player_id,
+                          source_player_id,
+                          target_player_id,
                           now,
                           id=ObjectId())
-        dao.insert_pending_merge(the_merge)
-        return_dict = {'status': "success",
-                       'id': str(the_merge.id)}
-        return return_dict, 200
+        try:
+            dao.insert_merge(the_merge)
+            return_dict = {'status': "success", 'id': str(the_merge.id)}
+            return return_dict, 200
+        except Exception as e:
+            print 'error merging players: ' + str(e)
+            return 'error merging players: ' + str(e), 400
 
+class MergeResource(restful.Resource):
+    def get(self, region, id):
+        # TODO: decide if we want this
+        pass
+
+    def delete(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+
+        if not user:
+            return 'Permission denied', 403
+        if not user.admin_regions:
+            return "user is not an admin", 403
+
+        try:
+            merge_id = ObjectId(id)
+        except:
+            return "invalid ids, that wasn't an ObjectID", 400
+
+        try:
+            the_merge = dao.get_merge(merge_id)
+            dao.undo_merge(the_merge)
+            return "successfully undid merge", 200
+        except Exception as e:
+            print 'error merging players: ' + str(e)
+            return 'error merging players: ' + str(e), 400
 
 class SessionResource(restful.Resource):
     ''' logs a user in. i picked put over post because its harder to CSRF, not that CSRFing login actually matters'''
     def put(self):
         args = session_put_parser.parse_args() #parse args
         dao = Dao(None, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         session_id = dao.check_creds_and_get_session_id_or_none(args['username'], args['password'])
         if not session_id:
             return 'Permission denied', 403
@@ -834,15 +965,18 @@ class SessionResource(restful.Resource):
     ''' logout, destroys session_id mapping on client and server side '''
     def delete(self):
         args = session_delete_parser.parse_args()
-        dao = Dao(None, mongo_client=mongo_client) 
+        dao = Dao(None, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         logout_success = dao.logout_user_or_none(args['session_id'])
         if not logout_success:
             return 'who is you', 404
         return 'logout success', 200, {'Set-Cookie': "session_id=deleted; expires=Thu, 01 Jan 1970 00:00:00 GMT"}
 
     def get(self):
-        # TODO region doesn't matter, remove hardcode
         dao = Dao(None, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
         user = get_user_from_request(request, dao)
         if not user:
             return 'you are not a real user', 400
@@ -852,23 +986,35 @@ class SessionResource(restful.Resource):
 
         return return_dict
 
+@app.after_request
+def add_security_headers(resp):
+    resp.headers['Strict-Transport-Security'] = "max-age=31536000; includeSubdomains"
+    resp.headers['Content-Security-Policy'] = "default-src https: data: 'unsafe-inline' 'unsafe-eval'"
+    resp.headers['X-Frame-Options'] = "DENY"
+    resp.headers['X-XSS-Protection'] = "1; mode=block"
+    resp.headers['X-Content-Type-Options'] = "nosniff"
+    return resp
 
 @app.after_request
 def add_cors(resp):
     """ Ensure all responses have the CORS headers. This ensures any failures are also accessible
         by the client. """
-    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin','*') #!!! this needs to be tightened down to only the domains we're expecting
+    the_origin = request.headers.get('Origin','*')
+    if not is_allowed_origin(the_origin):
+        return resp
+    resp.headers['Access-Control-Allow-Origin'] =  the_origin
     resp.headers['Access-Control-Allow-Credentials'] = 'true'
     resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET, PUT, DELETE'
-    resp.headers['Access-Control-Allow-Headers'] = request.headers.get(
-        'Access-Control-Request-Headers', 'Authorization' )
+    resp.headers['Access-Control-Allow-Headers'] = request.headers.get('Access-Control-Request-Headers', 'Authorization' )
     resp.headers["Access-Control-Expose-Headers"] = "Set-Cookie"
     # set low for debugging
     if app.debug:
         resp.headers['Access-Control-Max-Age'] = '1'
     return resp
 
-api.add_resource(PendingMergesResource, '/<string:region>/merges')
+
+api.add_resource(MergeResource, '/<string:region>/merges/<string:id>')
+api.add_resource(MergeListResource, '/<string:region>/merges')
 
 api.add_resource(RegionListResource, '/regions')
 
@@ -880,11 +1026,9 @@ api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
-api.add_resource(TournamentRegionResource, '/<string:region>/tournaments/<string:id>/region/<string:region_to_change>')
 api.add_resource(PendingTournamentResource, '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource, '/<string:region>/tournaments/<string:id>/finalize')
 
-api.add_resource(TournamentImportResource, '/<string:region>/tournaments/new')
 api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 

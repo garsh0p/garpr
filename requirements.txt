@@ -32,6 +32,7 @@ pytz==2014.4
 requests==2.3.0
 rsa==3.1.4
 sentinels==0.0.6
+service-identity==16.0.0
 simplejson==3.6.5
 six==1.8.0
 skills==0.1.0

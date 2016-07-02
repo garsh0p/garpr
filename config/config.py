@@ -14,11 +14,35 @@ class Config(object):
                 self.get_db_host(),
                 self.get_auth_db_name())
 
+    def get_environment_name(self):
+        return self.config.get('environment', 'name')
+
+    def get_environment_host(self):
+        return self.config.get('environment', 'host')
+
+    def get_environment_web_port(self):
+        return self.config.get('environment', 'web_port')
+
+    def get_environment_api_port(self):
+        return self.config.get('environment', 'api_port')
+
+    def get_environment_http_redirect_port(self):
+        return self.config.get('environment', 'http_redirect_port')
+
+    def get_ssl_key_path(self):
+        return self.config.get('ssl', 'key_path')
+
+    def get_ssl_cert_path(self):
+        return self.config.get('ssl', 'cert_path')
+
     def get_db_host(self):
         return self.config.get('database', 'host')
 
     def get_auth_db_name(self):
         return self.config.get('database', 'auth_db')
+
+    def get_db_name(self):
+        return self.config.get('database', 'db')
 
     def get_db_user(self):
         return self.config.get('database', 'user')

@@ -1,14 +1,5 @@
 var app = angular.module('myApp', ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook']);
 
-var defaultRegion = 'newjersey'
-var dev = true;
-if (dev) {
-    var hostname = 'http://192.168.33.10:3000/';
-}
-else {
-    var hostname = 'http://njssbm.com/api/'; //whensgarpr.gg:3000
-}
-
 app.directive('onReadFile', function ($parse) {
     return {
         restrict: 'A',
@@ -31,7 +22,7 @@ app.directive('onReadFile', function ($parse) {
     };
 });
 
-app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService, SessionService) {
+app.service('RegionService', function ($http, PlayerService, TournamentService, RankingsService, MergeService, SessionService) {
     var service = {
         regionsPromise: $http.get(hostname + 'regions'),
         regions: [],
@@ -43,6 +34,7 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
                     PlayerService.playerList = null;
                     TournamentService.tournamentList = null;
                     RankingsService.rankingsList = null;
+                    MergeService.mergeList = null;
                     service.populateDataForCurrentRegion();
                 });
             }
@@ -71,6 +63,13 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
             $http.get(hostname + this.region.id + '/rankings').
                 success(function(data) {
                     RankingsService.rankingsList = data;
+                });
+
+            SessionService.authenticatedGet(hostname + this.region.id + '/merges',
+                function(data) {
+                    console.log("success merges!");
+                    console.log(data);
+                    MergeService.mergeList = data;
                 });
         }
     };
@@ -122,6 +121,13 @@ app.service('PlayerService', function($http) {
     return service;
 });
 
+app.service('MergeService', function($http) {
+    var service = {
+        mergeList: null
+    };
+    return service;
+});
+
 app.service('TournamentService', function() {
     var service = {
         tournamentList: null
@@ -158,7 +164,7 @@ app.service('SessionService', function($http) {
             };
             $http.post(url, data, config).success(successCallback).error(failureCallback);
         },
-        authenticatedPut: function(url, successCallback, data, failureCallback) {
+        authenticatedPut: function(url, data, successCallback, failureCallback) {
             if (data === undefined) {
                 data = {};
             }
@@ -240,6 +246,11 @@ app.config(['$routeProvider', function($routeProvider) {
         controller: 'TournamentDetailController',
         activeTab: 'tournaments'
     }).
+    when('/:region/merges', {
+        templateUrl: 'merges.html',
+        controller: 'MergesController',
+        activeTab: 'tournaments'
+    }).
     when('/:region/headtohead', {
         templateUrl: 'headtohead.html',
         controller: 'HeadToHeadController',
@@ -304,8 +315,7 @@ app.controller("AuthenticationController", function($scope, $modal, Facebook, Se
         console.log("logging in user")
         console.log($scope.postParams)
         url = hostname + 'users/session'
-        $scope.sessionService.authenticatedPut(url, $scope.handleAuthResponse, $scope.postParams,
-            $scope.handleAuthResponse);
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
     };
 
     $scope.logout = function() {
@@ -451,17 +461,57 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.playerData = {}
     $scope.playerCheckboxState = {};
 
-    $scope.openRegionModal = function() {
+    $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
-            templateUrl: 'tournament_region_modal.html',
+            templateUrl: 'tournament_details_modal.html',
             scope: $scope,
             size: 'lg'
         });
-        $scope.tournamentRegionCheckbox = {}
+        $scope.postParams = {name: $scope.tournament.name,
+                             date: $scope.tournament.date,
+                             pending: $scope.isPendingTournament};
+        $scope.tournamentRegionCheckbox = {};
+
+        $scope.sessionService.getAdminRegions().forEach(
+            function(regionId){
+                if($scope.isTournamentInRegion(regionId)){
+                    $scope.tournamentRegionCheckbox[regionId] = "IN_REGION";
+                }else{
+                    $scope.tournamentRegionCheckbox[regionId] = "NOT_IN_REGION";
+                }
+            });
+
+        $scope.disableButtons = false;
+        $scope.errorMessage = false;
     };
 
-    $scope.closeRegionModal = function() {
+    $scope.closeDetailsModal = function() {
         $scope.modalInstance.close()
+    };
+
+    $scope.updateTournamentDetails = function() {
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId;
+        $scope.disableButtons = true;
+
+        tournamentInRegion = function(regionId){
+            return $scope.tournamentRegionCheckbox[regionId]!=="NOT_IN_REGION";
+        };
+
+        $scope.postParams['regions'] = $scope.sessionService.getAdminRegions().filter(tournamentInRegion);
+
+        successCallback = function(data) {
+            $scope.tournament = data;
+            $scope.closeDetailsModal();
+        };
+
+        failureCallback = function(data) {
+            $scope.disableButtons = false;
+            $scope.errorMessage = true;
+        };
+
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, successCallback, failureCallback);
+
+        return;
     };
 
     $scope.openSubmitPendingTournamentModal = function() {
@@ -470,7 +520,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
             scope: $scope,
             size: 'lg'
         });
-        $scope.tournamentRegionCheckbox = {}
+        $scope.tournamentRegionCheckbox = {};
     };
 
     $scope.closeSubmitPendingTournamentModal = function() {
@@ -487,20 +537,6 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
 
     $scope.isTournamentInRegion = function(regionId) {
         return $scope.tournament.regions.indexOf(regionId) > -1
-    };
-
-    $scope.onCheckboxChange = function(regionId) {
-        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/region/' + regionId;
-        successCallback = function(data) {
-            $scope.tournament = data;
-        };
-
-        if ($scope.tournamentRegionCheckbox[regionId]) {
-            $scope.sessionService.authenticatedPut(url, successCallback);
-        }
-        else {
-            $scope.sessionService.authenticatedDelete(url, successCallback);
-        }
     };
 
     $scope.onPlayerCheckboxChange = function(playerAlias) {
@@ -547,7 +583,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         $scope.update_alias_map_from_ui()
         console.log($scope.tournament.alias_to_id_map);
         url = hostname + $routeParams.region + '/pending_tournaments/' + $scope.tournamentId;
-        $scope.sessionService.authenticatedPut(url, $scope.updateData, $scope.tournament);
+        $scope.sessionService.authenticatedPut(url, $scope.tournament, $scope.updateData);
     }
 
     $scope.updateData = function(data) {
@@ -620,7 +656,7 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         };
 
         if ($scope.playerRegionCheckbox[regionId]) {
-            $scope.sessionService.authenticatedPut(url, successCallback);
+            $scope.sessionService.authenticatedPut(url, {}, successCallback);
         }
         else {
             $scope.sessionService.authenticatedDelete(url, successCallback);
@@ -633,11 +669,20 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
             return;
         }
         url = hostname + $routeParams.region + '/merges';
-        params = {"base_player_id": $scope.playerId, "to_be_merged_player_id": $scope.mergePlayer.id};
+        params = {"source_player_id": $scope.playerId, "target_player_id": $scope.mergePlayer.id};
         console.log(params);
-        $scope.sessionService.authenticatedPost(url, params,
-            function() {alert("These two accounts have been merged.")},
-            function() {alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.")});
+
+        successCallback = function(data) {
+            alert("These two accounts have been merged.");
+            window.location.reload();
+        };
+
+        failureCallback = function(data) {
+            alert("Your merge didn't go through. Please check that both players are in the region you administrate and try again later.");
+        };
+        $scope.sessionService.authenticatedPut(url, params,
+            successCallback,
+            failureCallback);
     };
 
     $scope.getMergePlayers = function(viewValue) {
@@ -649,6 +694,13 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
     $http.get(hostname + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
             $scope.player = data;
+            console.log(data);
+            if($scope.player.merged){
+                $http.get(hostname + $routeParams.region + '/players/' + $scope.player.merge_parent).
+                    success(function(data) {
+                        $scope.mergeParent = data;
+                    });
+            }
         });
 
     $http.get(hostname + $routeParams.region + '/matches/' + $routeParams.playerId).
@@ -675,9 +727,27 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         successCallback = function(data) {
             window.location.reload();
         };
-        $scope.sessionService.authenticatedPut(url, successCallback, data);
+        $scope.sessionService.authenticatedPut(url, data, successCallback);
     };
 
+});
+
+app.controller("MergesController", function($scope, $routeParams, $modal, RegionService, MergeService, SessionService) {
+    RegionService.setRegion($routeParams.region);
+    $scope.regionService = RegionService;
+    $scope.mergeService = MergeService;
+    $scope.sessionService = SessionService;
+
+    $scope.undoMerge = function(mergeID) {
+        url = hostname + $routeParams.region + '/merges/' + mergeID;
+
+        successCallback = function(data) {
+            alert("The accounts have successfully been unmerged.");
+            window.location.reload();
+        };
+
+        $scope.sessionService.authenticatedDelete(url, successCallback);
+    };
 });
 
 app.controller("HeadToHeadController", function($scope, $http, $routeParams, RegionService, PlayerService) {

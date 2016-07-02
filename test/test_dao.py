@@ -1,5 +1,5 @@
 import unittest
-from dao import Dao, RegionNotFoundException, InvalidRegionsException, \
+from dao import Dao, InvalidRegionsException, \
     InvalidNameException, DuplicateAliasException, DuplicateUsernameException, \
     UpdateTournamentException, gen_password, verify_password
 from bson.objectid import ObjectId
@@ -53,6 +53,13 @@ class TestDAO(unittest.TestCase):
                 id=self.player_3_id)
         self.player_4 = Player('shroomed', ['shroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=self.player_4_id)
         self.player_5 = Player('pewpewu', ['pewpewu'], {'norcal': TrueskillRating()}, ['norcal', 'socal'], id=self.player_5_id)
+
+        self.merge_player_1 = Player(
+                'CLGsFaT',
+                ['clg | sfat'],
+                {'norcal': TrueskillRating()},
+                ['norcal'],
+                id=ObjectId())
 
         # only includes players 1-3
         self.players = [self.player_1, self.player_2, self.player_3]
@@ -185,9 +192,8 @@ class TestDAO(unittest.TestCase):
         # create a dao with an existing region
         Dao('norcal', self.mongo_client, database_name=DATABASE_NAME)
 
-        # create a dao with a new region
-        with self.assertRaises(RegionNotFoundException):
-            Dao('newregion', self.mongo_client, database_name=DATABASE_NAME)
+        # create a dao with a non existant region, should return none
+        self.assertIsNone(Dao('newregion', self.mongo_client, database_name=DATABASE_NAME))
 
     def test_get_all_regions(self):
         # add another region
@@ -348,13 +354,6 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(pending_tournament_1.players, self.pending_tournament_players_1)
         self.assertEquals(pending_tournament_1.regions, self.pending_tournament_regions_1)
 
-    def test_update_pending_tournament_empty_raw(self):
-        pending_tournament = self.norcal_dao.get_pending_tournament_by_id(self.pending_tournament_id_1)
-        pending_tournament.raw = ''
-
-        with self.assertRaises(UpdateTournamentException):
-            self.norcal_dao.update_tournament(pending_tournament)
-
     def test_get_all_pending_tournaments(self):
         pending_tournaments = self.norcal_dao.get_all_pending_tournaments()
 
@@ -452,14 +451,6 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
         self.assertEquals(tournament_2.regions, self.tournament_regions_2)
-
-    def test_update_tournament_empty_raw(self):
-        tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
-        tournament_2.raw = ''
-
-        with self.assertRaises(UpdateTournamentException):
-            self.norcal_dao.update_tournament(tournament_2)
-
 
     def test_delete_tournament(self):
         tournament = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
@@ -602,58 +593,60 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(self.norcal_dao.get_players_with_similar_alias('g a r'), [self.player_1, self.player_3])
         self.assertEquals(self.norcal_dao.get_players_with_similar_alias('garpr | gar'), [self.player_1, self.player_3])
 
-    def test_merge_players(self):
-        self.norcal_dao.merge_players(source=self.player_5, target=self.player_1)
 
-        tournament_1 = self.norcal_dao.get_tournament_by_id(self.tournament_id_1)
-        self.assertEquals(tournament_1.id, self.tournament_id_1)
-        self.assertEquals(tournament_1.type, self.tournament_type_1)
-        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
-        self.assertEquals(tournament_1.date, self.tournament_date_1)
-        self.assertEquals(tournament_1.name, self.tournament_name_1)
-        self.assertEquals(tournament_1.matches, self.tournament_matches_1)
-        self.assertEquals(tournament_1.players, self.tournament_players_1)
-        self.assertEquals(tournament_1.regions, self.tournament_regions_1)
-
-        tournament_2 = self.norcal_dao.get_tournament_by_id(self.tournament_id_2)
-        self.assertEquals(tournament_2.id, self.tournament_id_2)
-        self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
-        self.assertEquals(tournament_2.date, self.tournament_date_2)
-        self.assertEquals(tournament_2.name, self.tournament_name_2)
-        self.assertEquals(set(tournament_2.players), set(self.tournament_players_1))
-        self.assertEquals(len(tournament_2.matches), len(self.tournament_matches_1))
-        self.assertEquals(tournament_2.matches[0], self.tournament_matches_1[0])
-        self.assertEquals(tournament_2.matches[1], self.tournament_matches_1[1])
-        self.assertEquals(tournament_2.regions, self.tournament_regions_2)
-
-        merged_player_aliases = set(['gar', 'garr', 'pewpewu'])
-        merged_player_regions = set(['norcal', 'texas', 'socal'])
-        merged_player = self.norcal_dao.get_player_by_id(self.player_1_id)
-        self.assertEquals(merged_player.id, self.player_1_id)
-        self.assertEquals(merged_player.name, self.player_1.name)
-        self.assertEquals(set(merged_player.aliases), merged_player_aliases)
-        self.assertEquals(set(merged_player.regions), merged_player_regions)
-
-        self.assertIsNone(self.norcal_dao.get_player_by_id(self.player_5_id))
+    #TODO: add more tests for merging players
+    # this is currently covered by test_get_and_insert_merge
+    # def test_merge_players(self):
+    #     pass
 
     def test_merge_players_none(self):
         with self.assertRaises(TypeError):
             self.norcal_dao.merge_players()
 
-        with self.assertRaises(TypeError):
-            self.norcal_dao.merge_players(source=self.player_1)
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        user = dao.get_all_users()[0]
+        now = datetime.today()
+
+        the_merge1 = Merge(user.id, player_one.id, None, now, id=ObjectId())
+        the_merge2 = Merge(user.id, None, player_one.id, now, id=ObjectId())
 
         with self.assertRaises(TypeError):
-            self.norcal_dao.merge_players(target=self.player_1)
+            self.norcal_dao.merge_players(the_merge1)
+
+        with self.assertRaises(TypeError):
+            self.norcal_dao.merge_players(the_merge2)
 
     def test_merge_players_same_player(self):
-        with self.assertRaises(ValueError):
-            self.norcal_dao.merge_players(source=self.player_1, target=self.player_1)
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+        player_one = all_players[0]
+        user = dao.get_all_users()[0]
+        now = datetime.today()
 
-    # TODO
-    def test_merge_players_same_player_in_single_match(self):
-        pass
+        the_merge = Merge(user.id, player_one.id, player_one.id, now, id=ObjectId())
+
+        with self.assertRaises(ValueError):
+            self.norcal_dao.merge_players(the_merge)
+
+    def test_merge_players_in_same_tourney(self):
+        dao = self.norcal_dao
+        all_players = dao.get_all_players()
+
+        player_one = all_players[0]
+        player_two = all_players[1]
+        self.assertEqual(player_one.name, u'gaR')
+        self.assertEqual(player_two.name, u'sfat')
+
+        user = dao.get_all_users()[0]
+        now = datetime.today()
+        orig_id = ObjectId()
+        the_merge = Merge(user.id, player_one.id, player_two.id, now, id=orig_id)
+
+        with self.assertRaises(ValueError):
+            self.norcal_dao.merge_players(the_merge)
+
 
     def test_get_latest_ranking(self):
         latest_ranking = self.norcal_dao.get_latest_ranking()
@@ -735,35 +728,81 @@ class TestDAO(unittest.TestCase):
         self.assertTrue(verify_password(new_password, new_salt, new_hash))
 
 
-    def test_get_and_insert_pending_merge(self):
+    def test_get_and_insert_merge(self):
         dao = self.norcal_dao
+        dao.insert_player(self.merge_player_1)
         all_players = dao.get_all_players()
+
+        self.assertEqual([p.name for p in all_players],
+                         [u'CLGsFaT', u'gaR', u'sfat'])
+
         player_one = all_players[0]
-        player_two = all_players[1]
+        player_two = all_players[2]
         users = dao.get_all_users()
         user = users[0]
         now = datetime.today()
         orig_id = ObjectId()
         the_merge = Merge(user.id, player_one.id, player_two.id, now, id=orig_id)
 
-        merge_id = dao.insert_pending_merge(the_merge)
+        merge_id = dao.insert_merge(the_merge)
 
         self.assertTrue(merge_id)
         self.assertIsInstance(merge_id, ObjectId)
         self.assertEqual(merge_id, orig_id)
 
-        the_merge_redux = dao.get_pending_merge(merge_id)
+        # check if merge actually merged players
+        new_player_one = dao.get_player_by_id(player_one.id)
+        new_player_two = dao.get_player_by_id(player_two.id)
 
-        self.assertEqual(the_merge.base_player_obj_id, the_merge_redux.base_player_obj_id, msg=the_merge_redux)
-        self.assertEqual(the_merge.player_to_be_merged_obj_id, the_merge_redux.player_to_be_merged_obj_id)
+        self.assertTrue(new_player_one.merged)
+        self.assertEqual(new_player_one.merge_parent, new_player_two.id)
+        self.assertTrue(new_player_one.id in new_player_two.merge_children)
+        self.assertEqual(set(new_player_two.aliases), set([u'sfat', u'miom | sfat', u'clg | sfat']))
+
+        the_merge_redux = dao.get_merge(merge_id)
+
+        self.assertEqual(the_merge.source_player_obj_id, the_merge_redux.source_player_obj_id, msg=the_merge_redux)
+        self.assertEqual(the_merge.target_player_obj_id, the_merge_redux.target_player_obj_id)
         self.assertEqual(the_merge.id, the_merge_redux.id)
         self.assertEqual(the_merge.requester_user_id, the_merge_redux.requester_user_id)
         # changed to account for mongo driver losing sub-second accuracy on datetimes
         self.assertTrue(abs(the_merge.time - the_merge_redux.time).total_seconds() < 1)
 
-    def test_get_non_existant_merge(self):
+    def test_get_and_undo_merge(self):
         dao = self.norcal_dao
-        self.assertIsNone(dao.get_pending_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
+        dao.insert_player(self.merge_player_1)
+        all_players = dao.get_all_players()
+
+        player_one = all_players[0]
+        player_two = all_players[2]
+        user = dao.get_all_users()[0]
+        now = datetime.today()
+        orig_id = ObjectId()
+        the_merge = Merge(user.id, player_one.id, player_two.id, now, id=orig_id)
+
+        merge_id = dao.insert_merge(the_merge)
+        the_merge_redux = dao.get_merge(merge_id)
+
+        # try to undo merge
+        dao.undo_merge(the_merge_redux)
+
+        new_player_one = dao.get_player_by_id(player_one.id)
+        new_player_two = dao.get_player_by_id(player_two.id)
+
+        self.assertFalse(new_player_one.merged)
+        self.assertIsNone(new_player_one.merge_parent)
+        self.assertTrue(new_player_one.id not in new_player_two.merge_children)
+
+        all_tournaments = dao.get_all_tournaments()
+        self.assertTrue(all([new_player_one not in t.players for t in all_tournaments]))
+
+        # test that merge was removed from list of merges
+        self.assertIsNone(dao.get_merge(merge_id))
+
+
+    def test_get_nonexistent_merge(self):
+        dao = self.norcal_dao
+        self.assertIsNone(dao.get_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
 
     def test_get_players_with_similar_alias(self):
         dao = self.norcal_dao

@@ -16,6 +16,7 @@
         <script src="lib/angulartics.js"></script>
         <script src="lib/angulartics-ga.js"></script>
         <script src="lib/angular-facebook.js"></script>
+        <script src="script-config.js"></script>
         <script src="script.js"></script>
     </head>
     <body>
@@ -55,7 +56,7 @@
                         </li>
                         <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
                             <a class="dropdown-toggle" dropdown-toggle>
-                                {{regionService.region.display_name}} 
+                                {{regionService.region.display_name}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
