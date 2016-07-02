@@ -23,7 +23,7 @@ class SmashGGScraper(object):
         #PREVENTS INFINITE RECURSION
         self.is_pool = False
 
-        #GET IMPORTANT ID DATA FROM THE URL
+        #GET IMPORTANT DATA FROM THE URL
         self.tournament_id = SmashGGScraper.get_tournament_phase_id_from_url(self.path)
         self.event_id = SmashGGScraper.get_tournament_event_id_from_url(self.path)
         self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
@@ -96,6 +96,10 @@ class SmashGGScraper(object):
             if len(self.pools) is 0:
                 self.get_pools()
             for pool in self.pools:
+                #CONDITION TO PREVENT DOUBLE COUNTING MATCHES
+                if pool.tournament_id == self.tournament_id:
+                    continue
+                    
                 pool_matches = pool.get_matches()
                 for match in pool_matches:
                     matches.append(match)
