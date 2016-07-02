@@ -7,9 +7,9 @@ TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529
 TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
 TEST_DATA1 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg.json')
 TEST_DATA2 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg2.json')
-TEST_TOURNAMENT_ID_1 = 11226
-TEST_TOURNAMENT_ID_2 = 70949
-TEST_TOURNAMENT_ID_3 = 83088
+TEST_PHASE_ID_1 = 11226
+TEST_PHASE_ID_2 = 70949
+TEST_PHASE_ID_3 = 83088
 TEST_PLAYER_ENTRANTID_1 = 16081
 TEST_PLAYER_ENTRANTID_2 = 110555
 TEST_PLAYER_ENTRANTID_3 = 52273
@@ -45,17 +45,14 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_raw_sub1(self):
         tournament = self.tournament1
         self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['sets'])
-        seeds = self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['seeds'])
-        seeds = tournament.get_raw()['smashgg']['entities']['seeds']
+        entrants = self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['entrants'])
+        entrants = tournament.get_raw()['smashgg']['entities']['entrants']
         sets = tournament.get_raw()['smashgg']['entities']['sets']
-        for seed in seeds:
-            self.assertIsNotNone(seed['entrantId'])
-            self.assertIsNotNone(seed['mutations']['players'])
-            this_player = seed['mutations']['players']
-            for player_id in this_player:
-                id = player_id
-
-            self.assertIsNotNone(this_player[id]['gamerTag'].strip())
+        for entrant in entrants:
+            self.assertIsNotNone(entrant['id'])
+            for this_player in entrant['mutations']['players']:
+                tag = entrant['mutations']['players'][this_player]['gamerTag'].strip()
+                self.assertIsNotNone(tag)
 
         #for set in sets:
         #    self.assertIsNotNone(set['winnerId'])
@@ -65,27 +62,25 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_raw_sub2(self):
         tournament = self.tournament2
         self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['sets'])
-        seeds = self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['seeds'])
-        seeds = tournament.get_raw()['smashgg']['entities']['seeds']
+        entrants = self.assertIsNotNone(tournament.get_raw()['smashgg']['entities']['entrants'])
+        entrants = tournament.get_raw()['smashgg']['entities']['entrants']
         sets = tournament.get_raw()['smashgg']['entities']['sets']
-        for seed in seeds:
-            self.assertIsNotNone(seed['entrantId'])
-            self.assertIsNotNone(seed['mutations']['players'])
-            this_player = seed['mutations']['players']
-            for player_id in this_player:
-                id = player_id
-
-            self.assertIsNotNone(this_player[id]['gamerTag'].strip())
+        for entrant in entrants:
+            self.assertIsNotNone(entrant['id'])
+            for this_player in entrant['mutations']['players']:
+                tag = entrant['mutations']['players'][this_player]['gamerTag'].strip()
+                self.assertIsNotNone(tag)
 
         #for set in sets:
         #    self.assertIsNotNone(set['winnerId'])
             # loserId is allowed to be None because of a Bye
 
-    def test_get_tournament_id_from_url1(self):
-        self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_1), 6529)
+    def test_get_tournament_phase_id_from_url1(self):
+        self.assertEqual(SmashGGScraper.get_tournament_phase_id_from_url(TEST_URL_1), 6529)
 
-    def test_get_tournament_id_from_url2(self):
-        self.assertEqual(SmashGGScraper.get_tournament_id_from_url(TEST_URL_2), 70949)
+    def test_get_tournament_phase_id_from_url2(self):
+        self.assertEqual(SmashGGScraper.get_tournament_phase_id_from_url(TEST_URL_2), 70949)
+
 
     def test_get_tournament_name_from_url1(self):
         self.assertEqual(SmashGGScraper.get_tournament_name_from_url(TEST_URL_1), 'htc throwdown')
@@ -124,7 +119,7 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEquals(len(self.tournament2.get_players()), 27)
 
     def test_get_matches1(self):
-        self.assertEqual(len(self.tournament1.get_matches()), 58)
+        self.assertEqual(len(self.tournament1.get_matches()), 770)
         # spot check that mang0 got double elim'd
         mango_count = 0
         for m in self.tournament1.get_matches():
@@ -133,20 +128,20 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEqual(2, mango_count, msg="mango didnt get double elim'd?")
 
     def test_get_matches2(self):
-        self.assertEquals(len(self.tournament2.get_matches()), 46)
+        self.assertEquals(len(self.tournament2.get_matches()), 462)
         # spot check that Druggedfox was only in 5 matches, and that he won all of them
         sami_count = 0
         for m in self.tournament2.get_matches():
             if m.winner == 'Druggedfox':
                 sami_count += 1
             self.assertFalse(m.loser == 'Druggedfox')
-        self.assertEqual(5, sami_count)
+        self.assertEqual(14, sami_count)
 
     def test_get_smashgg_matches1(self):
-        self.assertEqual(len(self.tournament1.get_smashgg_matches()), 58)
+        self.assertEqual(len(self.tournament1.get_smashgg_matches()), 770)
 
     def test_get_smashgg_matches2(self):
-        self.assertEqual(len(self.tournament2.get_smashgg_matches()), 46)
+        self.assertEqual(len(self.tournament2.get_smashgg_matches()), 462)
 
     def test_get_date(self):
         date = self.tournament1.get_date()
@@ -176,3 +171,19 @@ class TestSmashGGScraper(unittest.TestCase):
         for tag in tags:
             self.assertEqual(tag in temp, False)
             temp.append(tag)
+
+    def test_get_phase_ids1(self):
+        phase_ids = self.tournament1.get_phase_ids()
+        self.assertEqual(len(phase_ids), 35)
+
+    def test_get_phase_ids2(self):
+        phase_ids = self.tournament2.get_phase_ids()
+        self.assertEqual(len(phase_ids), 10)
+
+    def test_get_pools1(self):
+        pools = self.tournament1.get_pools()
+        self.assertEqual(len(pools), 35)
+
+    def test_get_pools2(self):
+        pools = self.tournament2.get_pools()
+        self.assertEqual(len(pools), 10)
