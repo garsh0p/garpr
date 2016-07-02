@@ -19,19 +19,29 @@ class SmashGGScraper(object):
         """
         self.path = path
 
+        #DETERMINES IF A SCRAPER IS FOR A POOL
+        #PREVENTS INFINITE RECURSION
+        self.is_pool = False
+
+        #GET IMPORTANT ID DATA FROM THE URL
         self.tournament_id = SmashGGScraper.get_tournament_phase_id_from_url(self.path)
         self.event_id = SmashGGScraper.get_tournament_event_id_from_url(self.path)
         self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
 
+        #DEFINE OUR TARGET URL ENDPOINT FOR THE SMASHGG API
+        #AND INSTANTIATE THE DICTIONARY THAT HOLDS THE RAW
+        # JSON DUMPED FROM THE API
         base_url = TOURNAMENT_URL % self.tournament_id
         self.apiurl = base_url + DUMP_SETTINGS_ALL
         self.raw_dict = None
-        self.phase_ids = None
+
+        #DATA STRUCTURES THAT HOLD IMPORTANT THINGS
+        self.phase_ids = []
         self.pools = []
         self.players = []
 
+        #GET THE RAW JSON AT THE END OF THE CONSTRUCTOR
         self.get_raw()
-        #we don't use a try/except block here, if something goes wrong, we *should* throw an exception
 
 ######### START OF SCRAPER API
 
@@ -39,16 +49,11 @@ class SmashGGScraper(object):
         """
         :return: the JSON dump that the api call returns
         """
-        try:
-            if self.raw_dict == None:
-                self.raw_dict = {}
-                self.log('API Call to ' + str(self.apiurl) + ' executing')
-                self.raw_dict['smashgg'] = self._check_for_200(requests.get(self.apiurl)).json()
-            return self.raw_dict
-        except Exception as ex:
-            msg = 'An error occurred in the retrieval of data from SmashGG: ' + str(ex)
-            Log.log('SmashGG', msg)
-            return msg
+        if self.raw_dict == None:
+            self.raw_dict = {}
+            self.log('API Call to ' + str(self.apiurl) + ' executing')
+            self.raw_dict['smashgg'] = self._check_for_200(requests.get(self.apiurl)).json()
+        return self.raw_dict
 
     def get_name(self):
         return self.name
@@ -70,24 +75,32 @@ class SmashGGScraper(object):
         played in the given bracket, including who won and who lost
         """
         matches = []
-        try:
-            sets = self.get_raw()['smashgg']['entities']['sets']
-            for set in sets:
-                winner_id = set['winnerId']
-                loser_id = set['loserId']
-                # CHECK FOR A BYE
-                if loser_id is None:
-                    continue
+        sets = self.get_raw()['smashgg']['entities']['sets']
+        for set in sets:
+            winner_id = set['winnerId']
+            loser_id = set['loserId']
+            # CHECK FOR A BYE
+            if loser_id is None:
+                continue
 
-                winner = self.get_player_by_entrant_id(winner_id)
-                loser = self.get_player_by_entrant_id(loser_id)
+            winner = self.get_player_by_entrant_id(winner_id)
+            loser = self.get_player_by_entrant_id(loser_id)
 
-                match = MatchResult(winner.smash_tag, loser.smash_tag)
-                matches.append(match)
-        except Exception as ex:
-            msg = 'An error occured in the retrieval of matches: ' + str(ex)
+            match = MatchResult(winner.smash_tag, loser.smash_tag)
+            matches.append(match)
+
+        # RECURSIVELY DIG AND RETRIEVE MATCHES FROM OTHER PHASES
+        # WE ONLY WANT TO FETCH POOLS OF THE TOP BRACKET OTHERWISE
+        # WE GET CAUGHT IN INFINITE RECURSION
+        if self.is_pool is False:
+            if len(self.pools) is 0:
+                self.get_pools()
+            for pool in self.pools:
+                pool_matches = pool.get_matches()
+                for match in pool_matches:
+                    matches.append(match)
+
         return matches
-        #we dont try/except, we throw when we have an issue
 
 ####### END OF SCRAPER API
 
@@ -228,15 +241,26 @@ class SmashGGScraper(object):
             self.matches.append(match)
         return self.matches
 
+    def get_pool_by_phase_id(self, id):
+        if id is None:
+            pass
+        pool_url = BASE_SMASHGG_PHASE_API_URL + str(id)
+        pool = SmashGGScraper(pool_url)
+        pool.is_pool = True
+        self.pools.append(pool)
+
     def get_pools(self):
         if self.raw_dict is None:
             self.raw_dict = self.get_raw()
-        if self.phase_ids is None:
+        if len(self.phase_ids) is 0:
             self.phase_ids = self.get_phase_ids()
 
         for id in self.phase_ids:
+            if id is None:
+                continue
             pool_url = BASE_SMASHGG_PHASE_API_URL + str(id)
             pool = SmashGGScraper(pool_url)
+            pool.is_pool = True
             self.pools.append(pool)
         return self.pools
 
@@ -280,9 +304,7 @@ class SmashGGScraper(object):
 
     @staticmethod
     def get_tournament_event_id_from_url(url):
-        temp = url.replace('http://', '')
-        temp = temp.replace('https://', '')
-        splits = temp.split('/')
+        splits = url.split('/')
 
         flag = False
         for split in splits:
