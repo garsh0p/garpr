@@ -36,7 +36,7 @@ class Log:
     #    l.write(message)
 
     @staticmethod
-    def log(module, message):
+    def log(message, module):
         l = Log(None, None)
         if module is not None:
             l.write('['+module+'] '+message)

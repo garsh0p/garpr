@@ -5,6 +5,7 @@ import iso8601
 from model import MatchResult
 from bs4 import BeautifulSoup
 from config import config
+from garprLogging.log import Log
 
 BASE_CHALLONGE_API_URL = 'https://api.challonge.com/v1/tournaments'
 TOURNAMENT_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s.json')
@@ -18,6 +19,16 @@ class ChallongeScraper(object):
         self.config = config.Config(config_file_path=config_file_path)
         self.api_key = self.config.get_challonge_api_key()
         self.api_key_dict = {'api_key': self.api_key}
+
+        # SETUP LOGGING FILE FOR THIS IMPORT
+        log_dir = os.path.abspath('garprLogging')
+        t_log_dir = os.path.abspath('garprLogging' + os.sep + 'tournamentScrapes')
+        if not os.path.isdir(log_dir):
+            os.makedirs(log_dir)
+        if not os.path.isdir(t_log_dir):
+            os.makedirs(t_log_dir)
+        self.log = Log(t_log_dir, self.name + '.log')
+        self.log.write("Challonge! Scrape: " + self.name)
 
         self.raw_dict = None
         self.get_raw()

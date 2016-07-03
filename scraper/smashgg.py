@@ -25,6 +25,19 @@ class SmashGGScraper(object):
 
         self.raw_dict = None
         self.players = []
+
+        #SETUP LOGGING FILE FOR THIS IMPORT
+        log_dir = os.path.abspath('garprLogging')
+        t_log_dir = os.path.abspath('garprLogging' + os.sep + 'tournamentScrapes')
+        if not os.path.isdir(log_dir):
+            os.makedirs(log_dir)
+        if not os.path.isdir(t_log_dir):
+            os.makedirs(t_log_dir)
+        self.log = Log(t_log_dir, self.name + '.log')
+        self.log.write("SmashGG Scrape: " + self.name)
+
+
+        #GET THE RAW JSON AT THE END OF THE CONSTRUCTOR
         self.get_raw()
         #we don't use a try/except block here, if something goes wrong, we *should* throw an exception
 
@@ -148,7 +161,7 @@ class SmashGGScraper(object):
                 for e_id, p_id in player['playerIds'].items():
                     smashgg_id = p_id
             except Exception as ex:
-                print str(ex)
+                self.log.write(str(e))
 
             for this_player in player['mutations']['players']:
                 #ACCESS THE PLAYERS IN THE JSON AND EXTRACT THE SMASHTAG
@@ -156,7 +169,7 @@ class SmashGGScraper(object):
                 try:
                     tag = player['mutations']['players'][this_player]['gamerTag'].strip()
                 except Exception as ex:
-                    print self.log('Player for id ' + str(id) + ' not found')
+                    self.log.write('Player for id ' + str(id) + ' not found')
                     continue
 
                 #EXTRACT EXTRA DATA FROM SMASHGG WE MAY WANT TO USE LATER
@@ -165,31 +178,31 @@ class SmashGGScraper(object):
                     name = player['mutations']['players'][this_player]['name'].strip()
                 except Exception as e:
                     name = None
-                    print self.log('SmashGGPlayer ' + tag + ': name | ' + str(e))
+                    self.log.write('SmashGGPlayer ' + tag + ': name | ' + str(e))
 
                 try:
                     region = player['mutations']['players'][this_player]['region'].strip()
                 except Exception as regionEx:
-                    print self.log('SmashGGPlayer ' + tag + ': region | ' + str(regionEx))
+                    self.log.write('SmashGGPlayer ' + tag + ': region | ' + str(regionEx))
 
                 try:
                     state = player['mutations']['players'][this_player]['state'].strip()
                     if region is None:
                         region = state
                 except Exception as stateEx:
-                    print self.log('SmashGGPlayer ' + tag + ': state | ' + str(stateEx))
+                    self.log.write('SmashGGPlayer ' + tag + ': state | ' + str(stateEx))
 
                 try:
                     country = player['mutations']['players'][this_player]['country'].strip()
                     if region is None:
                         region = country
                 except Exception as countryEx:
-                    print self.log('SmashGGPlayer ' + tag + ': country | ' + str(countryEx))
+                    self.log.write('SmashGGPlayer ' + tag + ': country | ' + str(countryEx))
 
                 try:
                     final_placement = player['finalPlacement']
                 except Exception as ex:
-                    print self.log('SmashGGPlayer ' + tag + ': final placement | ' + str(ex))
+                    self.log.write('SmashGGPlayer ' + tag + ': final placement | ' + str(ex))
 
             player = SmashGGPlayer(smashgg_id=smashgg_id, entrant_id=entrant_id, name=name, smash_tag=tag, region=region,
                                    state=state, country=country, final_placement=final_placement)
@@ -216,7 +229,7 @@ class SmashGGScraper(object):
                 round = set['round']
                 bestOf = set['bestOf']
             except:
-                print self.log('Could not find extra details for match')
+                self.log.write('Could not find extra details for match')
                 round = None
                 bestOf = None
 
