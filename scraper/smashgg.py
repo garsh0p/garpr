@@ -62,7 +62,7 @@ class SmashGGScraper(object):
         """
         if self.raw_dict == None:
             self.raw_dict = {}
-            self.log('API Call to ' + str(self.apiurl) + ' executing')
+            self.log.write('API Call to ' + str(self.apiurl) + ' executing')
             self.raw_dict['smashgg'] = self._check_for_200(requests.get(self.apiurl)).json()
         return self.raw_dict
 
