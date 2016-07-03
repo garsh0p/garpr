@@ -29,6 +29,10 @@ class TestSmashGGScraper(unittest.TestCase):
         self.tournament2 = SmashGGScraper(TEST_URL_2)
         # self.tournament3 = SmashGGScraper(TEST_TOURNAMENT_ID_3)
 
+    def tearDown(self):
+        self.tournament1 = None
+        self.tournament2 = None
+
     @unittest.skip('skipping test_get_raw1 until api is complete')
     def test_get_raw1(self):
         with open(TEST_DATA1) as data1:
