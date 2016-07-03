@@ -1,6 +1,8 @@
+import os
 from bs4 import BeautifulSoup
 from model import MatchResult
 from dateutil import parser
+from garprLogging.log import Log
 
 class TioScraper(object):
 
@@ -10,6 +12,16 @@ class TioScraper(object):
         self.date = None
         self.matches = None
         self.players = None
+
+        # SETUP LOGGING FILE FOR THIS IMPORT
+        log_dir = Log.get_log_dir()
+        t_log_dir = os.path.abspath(log_dir + os.sep + 'tournamentScrapes')
+        if not os.path.isdir(log_dir):
+            os.makedirs(log_dir)
+        if not os.path.isdir(t_log_dir):
+            os.makedirs(t_log_dir)
+        self.log = Log(t_log_dir, self.name + '.log')
+        self.log.write("TIO Scrape: " + self.name)
 
         self.text = raw
         self.soup = BeautifulSoup(self.text, 'xml')
