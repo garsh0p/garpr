@@ -42,3 +42,7 @@ class Log:
             l.write('['+module+'] '+message)
         else:
             l.write(message)
+
+    @staticmethod
+    def get_log_dir():
+        return os.path.dirname(os.path.abspath(__file__))

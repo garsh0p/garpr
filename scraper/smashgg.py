@@ -27,8 +27,8 @@ class SmashGGScraper(object):
         self.players = []
 
         #SETUP LOGGING FILE FOR THIS IMPORT
-        log_dir = os.path.abspath('garprLogging')
-        t_log_dir = os.path.abspath('garprLogging' + os.sep + 'tournamentScrapes')
+        log_dir = Log.get_log_dir()
+        t_log_dir = os.path.abspath(log_dir + os.sep + 'tournamentScrapes')
         if not os.path.isdir(log_dir):
             os.makedirs(log_dir)
         if not os.path.isdir(t_log_dir):
@@ -51,7 +51,7 @@ class SmashGGScraper(object):
         try:
             if self.raw_dict == None:
                 self.raw_dict = {}
-                self.log('API Call to ' + str(self.apiurl) + ' executing')
+                self.log.write('API Call to ' + str(self.apiurl) + ' executing')
                 self.raw_dict['smashgg'] = self._check_for_200(requests.get(self.apiurl)).json()
             return self.raw_dict
         except Exception as ex:

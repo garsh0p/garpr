@@ -21,8 +21,8 @@ class ChallongeScraper(object):
         self.api_key_dict = {'api_key': self.api_key}
 
         # SETUP LOGGING FILE FOR THIS IMPORT
-        log_dir = os.path.abspath('garprLogging')
-        t_log_dir = os.path.abspath('garprLogging' + os.sep + 'tournamentScrapes')
+        log_dir = Log.get_log_dir()
+        t_log_dir = os.path.abspath(log_dir + os.sep + 'tournamentScrapes')
         if not os.path.isdir(log_dir):
             os.makedirs(log_dir)
         if not os.path.isdir(t_log_dir):
