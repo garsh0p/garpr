@@ -5,6 +5,7 @@ from scraper.smashgg import SmashGGScraper
 
 TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
 TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
+TEST_URL_3 = 'https://smash.gg/tournament/ceo-2016/brackets/11789/45259/150418'
 TEST_DATA1 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg.json')
 TEST_DATA2 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg2.json')
 TEST_PHASE_ID_1 = 11226
@@ -27,7 +28,9 @@ class TestSmashGGScraper(unittest.TestCase):
     def setUp(self):
         self.tournament1 = SmashGGScraper(TEST_URL_1)
         self.tournament2 = SmashGGScraper(TEST_URL_2)
-        # self.tournament3 = SmashGGScraper(TEST_TOURNAMENT_ID_3)
+        #self.tournament3 = SmashGGScraper(TEST_URL_3)
+        #list = self.tournament3.get_matches()
+        #print 'hello'
 
     def tearDown(self):
         self.tournament1 = None

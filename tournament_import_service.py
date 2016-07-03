@@ -9,6 +9,7 @@ from config.config import Config
 from pymongo import MongoClient
 import getpass
 from bson.objectid import ObjectId
+from garprLogging.log import Log
 
 DEFAULT_RATING = {}
 config = Config()

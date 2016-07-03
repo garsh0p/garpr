@@ -48,7 +48,7 @@ class SmashGGScraper(object):
         if not os.path.isdir(t_log_dir):
             os.makedirs(t_log_dir)
         self.log = Log(t_log_dir, self.name + '.log')
-        self.log.write("SmashGG Scrape: " + self.name)
+        self.log.write("SmashGG Scrape: " + self.name + " - Phase Group: " + str(self.tournament_id))
 
 
         #GET THE RAW JSON AT THE END OF THE CONSTRUCTOR
