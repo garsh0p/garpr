@@ -28,7 +28,7 @@ class Log:
     def write(self, msg):
         self.f = open(self.path, 'a')
         logtime = str(time.strftime("%Y-%m-%d %H:%M:%S", localtime()))
-        msg = unicode(msg.strip(codecs.BOM_UTF8), 'utf-8')
+        msg = msg.encode('ascii', 'ignore')
         self.f.write(logtime + " | " + msg + "\n")
         self.f.close()
 
