@@ -5,7 +5,6 @@ import iso8601
 from model import MatchResult
 from bs4 import BeautifulSoup
 from config import config
-from garprLogging.log import Log
 
 BASE_CHALLONGE_API_URL = 'https://api.challonge.com/v1/tournaments'
 TOURNAMENT_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s.json')
@@ -19,16 +18,6 @@ class ChallongeScraper(object):
         self.config = config.Config(config_file_path=config_file_path)
         self.api_key = self.config.get_challonge_api_key()
         self.api_key_dict = {'api_key': self.api_key}
-
-        # SETUP LOGGING FILE FOR THIS IMPORT
-        log_dir = Log.get_log_dir()
-        t_log_dir = os.path.abspath(log_dir + os.sep + 'tournamentScrapes')
-        if not os.path.isdir(log_dir):
-            os.makedirs(log_dir)
-        if not os.path.isdir(t_log_dir):
-            os.makedirs(t_log_dir)
-        self.log = Log(t_log_dir, self.name + '.log')
-        self.log.write("Challonge! Scrape: " + self.name)
 
         self.raw_dict = None
         self.get_raw()
@@ -55,9 +44,9 @@ class ChallongeScraper(object):
         return iso8601.parse_date(self.get_raw()['tournament']['tournament']['created_at'])
 
     def get_matches(self):
-        player_map = dict((p['participant']['id'], p['participant']['name'].strip() 
-                           if p['participant']['name'] 
-                           else p['participant']['username'].strip()) 
+        player_map = dict((p['participant']['id'], p['participant']['name'].strip()
+                           if p['participant']['name']
+                           else p['participant']['username'].strip())
                           for p in self.get_raw()['participants'])
 
         matches = []
@@ -79,4 +68,3 @@ class ChallongeScraper(object):
     def _check_for_200(self, response):
         response.raise_for_status()
         return response
-
