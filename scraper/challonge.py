@@ -44,9 +44,9 @@ class ChallongeScraper(object):
         return iso8601.parse_date(self.get_raw()['tournament']['tournament']['created_at'])
 
     def get_matches(self):
-        player_map = dict((p['participant']['id'], p['participant']['name'].strip() 
-                           if p['participant']['name'] 
-                           else p['participant']['username'].strip()) 
+        player_map = dict((p['participant']['id'], p['participant']['name'].strip()
+                           if p['participant']['name']
+                           else p['participant']['username'].strip())
                           for p in self.get_raw()['participants'])
 
         matches = []
@@ -68,4 +68,3 @@ class ChallongeScraper(object):
     def _check_for_200(self, response):
         response.raise_for_status()
         return response
-

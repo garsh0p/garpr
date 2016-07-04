@@ -1,3 +1,4 @@
+import os
 from bs4 import BeautifulSoup
 from model import MatchResult
 from dateutil import parser
@@ -59,7 +60,7 @@ class TioScraper(object):
                     grand_finals_first_set = match_result
                 elif match.IsSecondChampionship.text == 'True':
                     grand_finals_second_set = match_result
-                else: 
+                else:
                     matches.append(match_result)
             except KeyError:
                 print 'Could not find player for ids', player_1_id, player_2_id
@@ -79,7 +80,7 @@ class TioScraper(object):
             for match in matches:
                 self.players.add(match.winner)
                 self.players.add(match.loser)
-            
+
             self.players = list(self.players)
 
         return self.players

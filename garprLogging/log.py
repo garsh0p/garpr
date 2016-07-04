@@ -1,5 +1,6 @@
 import os
 import time
+import codecs
 from time import strftime, localtime
 
 
@@ -27,6 +28,7 @@ class Log:
     def write(self, msg):
         self.f = open(self.path, 'a')
         logtime = str(time.strftime("%Y-%m-%d %H:%M:%S", localtime()))
+        msg = msg.encode('ascii', 'ignore')
         self.f.write(logtime + " | " + msg + "\n")
         self.f.close()
 
@@ -36,9 +38,13 @@ class Log:
     #    l.write(message)
 
     @staticmethod
-    def log(module, message):
+    def log(message, module):
         l = Log(None, None)
         if module is not None:
             l.write('['+module+'] '+message)
         else:
             l.write(message)
+
+    @staticmethod
+    def get_log_dir():
+        return os.path.dirname(os.path.abspath(__file__))
