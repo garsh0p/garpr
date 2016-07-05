@@ -11,6 +11,7 @@ from twisted.internet import ssl
 from twisted.web import static, server, util
 
 from config.config import Config
+from ssl_util import CustomOpenSSLContextFactory
 config = Config()
 
 class CustomOpenSSLContextFactory(ssl.DefaultOpenSSLContextFactory):
