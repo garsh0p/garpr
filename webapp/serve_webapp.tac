@@ -5,6 +5,7 @@ import sys
 ROOT_PATH = os.path.dirname(__file__) + '/../'
 sys.path.append(os.path.abspath(ROOT_PATH))
 
+import OpenSSL
 from twisted.application import service, internet
 from twisted.internet import ssl
 from twisted.web import static, server, util
@@ -12,10 +13,31 @@ from twisted.web import static, server, util
 from config.config import Config
 config = Config()
 
+class CustomOpenSSLContextFactory(ssl.DefaultOpenSSLContextFactory):
+    def __init__(self, privateKeyFileName, certificateChainFileName,
+                 sslmethod=OpenSSL.SSL.SSLv23_METHOD):
+        """
+        @param privateKeyFileName: Name of a file containing a private key
+        @param certificateChainFileName: Name of a file containing a certificate chain
+        @param sslmethod: The SSL method to use
+        """
+        self.privateKeyFileName = privateKeyFileName
+        self.certificateChainFileName = certificateChainFileName
+        self.sslmethod = sslmethod
+        self.cacheContext()
+
+    def cacheContext(self):
+        ctx = OpenSSL.SSL.Context(self.sslmethod)
+        ctx.use_certificate_chain_file(self.certificateChainFileName)
+        ctx.use_privatekey_file(self.privateKeyFileName)
+        ctx.set_options(OpenSSL.SSL.OP_NO_SSLv2)
+        ctx.set_options(OpenSSL.SSL.OP_NO_SSLv3)
+        self._context = ctx
+
 def getWebService():
     key_path = config.get_ssl_key_path()
     cert_path = config.get_ssl_cert_path()
-    ssl_context = ssl.DefaultOpenSSLContextFactory(key_path, cert_path)
+    ssl_context = CustomOpenSSLContextFactory(key_path, cert_path)
 
     webapp_port = int(config.get_environment_web_port())
     webapp_server = server.Site(static.File(os.path.abspath(ROOT_PATH + '/webapp')))
