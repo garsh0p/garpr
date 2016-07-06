@@ -79,6 +79,7 @@ class SmashGGScraper(object):
             winner = self.player_lookup.get(match.winner_id)
             loser = self.player_lookup.get(match.loser_id)
 
+
             if winner is None:
                 print 'Error: id {} not found in player list'.format(match.winner_id)
                 continue
@@ -143,6 +144,17 @@ class SmashGGScraper(object):
                 round_name = match.get("fullRoundText", None)
                 round_num = match.get("round", None)
                 best_of = match.get("bestOf", None)
+                try:
+                    name = set['fullRoundText']
+                    round = set['round']
+                    bestOf = set['bestOf']
+                except:
+                    print self.log('Could not find extra details for match')
+                    round = None
+                    bestOf = None
+                    round_name = match.get("fullRoundText", None)
+                    round_num = match.get("round", None)
+                    best_of = match.get("bestOf", None)
 
                 for prop in SET_TIME_PROPERTIES:
                     cur_time = match.get(prop, None)
