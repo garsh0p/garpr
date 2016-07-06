@@ -253,8 +253,12 @@ class PlayerResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        if not is_user_admin_for_regions(user, player.regions):
-            return 'Permission denied', 403
+
+        # remove auth for now (for players not part of any regions)
+        # I think possibly we should remove admin_regions or at least
+        # figure out how we want them to work;
+        # if not is_user_admin_for_regions(user, player.regions):
+        #     return 'Permission denied', 403
 
         args = player_put_parser.parse_args()
 
