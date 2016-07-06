@@ -264,7 +264,7 @@ class PlayerResource(restful.Resource):
 
         if args['name']:
             player.name = args['name']
-        if args['aliases']:
+        if args['aliases'] is not None:
             for a in args['aliases']:
                 if not isinstance(a, unicode):
                     return "each alias must be a string", 400
@@ -272,7 +272,7 @@ class PlayerResource(restful.Resource):
             if player.name.lower() not in new_aliases:
                 return "aliases must contain the players name!", 400
             player.aliases = new_aliases
-        if args['regions']:
+        if args['regions'] is not None:
             for a in args['regions']:
                 if not isinstance(a, unicode):
                     return "each region must be a string", 400
