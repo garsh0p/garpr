@@ -593,6 +593,15 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(self.norcal_dao.get_players_with_similar_alias('g a r'), [self.player_1, self.player_3])
         self.assertEquals(self.norcal_dao.get_players_with_similar_alias('garpr | gar'), [self.player_1, self.player_3])
 
+        dao = self.norcal_dao
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("1 1 gar")))
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("1\t1\tgar")))
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("p1s1 gar")))
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("GOOG| gar")))
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("GOOG | gar")))
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("p1s2 GOOG| gar")))
+        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("garpr goog youtube gar")))
+
 
     #TODO: add more tests for merging players
     # this is currently covered by test_get_and_insert_merge
@@ -803,12 +812,3 @@ class TestDAO(unittest.TestCase):
     def test_get_nonexistent_merge(self):
         dao = self.norcal_dao
         self.assertIsNone(dao.get_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
-
-    def test_get_players_with_similar_alias(self):
-        dao = self.norcal_dao
-        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("1 1 gar")))
-        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("p1s1 gar")))
-        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("GOOG| gar")))
-        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("GOOG | gar")))
-        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("p1s2 GOOG| gar")))
-        self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias("garpr goog youtube gar")))
