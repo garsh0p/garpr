@@ -276,54 +276,13 @@ class PlayerResource(restful.Resource):
 
         dao.update_player(player)
 
-class PlayerRegionResource(restful.Resource):
-    def put(self, region, id, region_to_change):
-        dao = Dao(region, mongo_client=mongo_client)
-        if not dao:
-            return 'Dao not found', 404
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region_to_change):
-            return 'Permission denied', 403
-        player = None
-        try:
-            player = dao.get_player_by_id(ObjectId(id))
-        except:
-            return 'Invalid ObjectID', 400
-        if not player:
-            return 'Player not found', 404
-        if not region_to_change in player.regions:
-            player.regions.append(region_to_change)
-            dao.update_player(player)
-
-        return_dict = dao.get_player_by_id(player.id).get_json_dict()
+        # TODO: add canonical way to responsify objects
+        return_dict = player.get_json_dict()
         convert_object_id(return_dict)
-        return return_dict
+        if not return_dict['merge_parent'] is None:
+            return_dict['merge_parent'] = str(return_dict['merge_parent'])
+        return_dict['merge_children'] = [str(child) for child in return_dict['merge_children']]
 
-    def delete(self, region, id, region_to_change):
-        dao = Dao(region, mongo_client=mongo_client)
-        if not dao:
-            return 'Dao not found', 404
-        user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region_to_change):
-            return 'Permission denied', 403
-
-        player = None
-        try:
-            player = dao.get_player_by_id(ObjectId(id))
-        except:
-            return 'Invalid ObjectID', 400
-        if not player:
-            return 'Player not found', 404
-        if region_to_change in player.regions:
-            player.regions.remove(region_to_change)
-            dao.update_player(player)
-
-        return_dict = dao.get_player_by_id(player.id).get_json_dict()
-        convert_object_id(return_dict)
         return return_dict
 
 class TournamentListResource(restful.Resource):
@@ -1020,7 +979,6 @@ api.add_resource(RegionListResource, '/regions')
 
 api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
-api.add_resource(PlayerRegionResource, '/<string:region>/players/<string:id>/region/<string:region_to_change>')
 
 api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 

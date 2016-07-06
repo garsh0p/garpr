@@ -454,10 +454,13 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.sessionService = SessionService;
     $scope.playerService = PlayerService;
 
+    $scope.modalInstance = null;
+    $scope.disableButtons = false;
+    $scope.errorMessage = false;
+
     $scope.tournament = null;
     $scope.tournamentId = $routeParams.tournamentId
     $scope.isPendingTournament = false;
-    $scope.modalInstance = null;
     $scope.playerData = {}
     $scope.playerCheckboxState = {};
 
@@ -628,39 +631,70 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
     $scope.sessionService = SessionService;
     $scope.playerService = PlayerService;
 
+    $scope.modalInstance = null;
+    $scope.disableButtons = false;
+    $scope.errorMessage = false;
+
+    $scope.player = null;
     $scope.playerId = $routeParams.playerId;
     $scope.mergePlayer = "";
-    $scope.modalInstance = null;
+    $scope.matches = null;
 
-    $scope.open = function() {
+    $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
-            templateUrl: 'player_region_modal.html',
+            templateUrl: 'player_details_modal.html',
             scope: $scope,
             size: 'lg'
         });
+
+        $scope.postParams = {name: $scope.player.name}
         $scope.playerRegionCheckbox = {}
+
+        $scope.sessionService.getAdminRegions().forEach(
+            function(regionId){
+                if($scope.isPlayerInRegion(regionId)){
+                    $scope.playerRegionCheckbox[regionId] = "IN_REGION";
+                }else{
+                    $scope.playerRegionCheckbox[regionId] = "NOT_IN_REGION";
+                }
+            });
+
+        $scope.disableButtons = false;
+        $scope.errorMessage = false;
     };
 
-    $scope.close = function() {
+    $scope.closeDetailsModal = function() {
         $scope.modalInstance.close()
+    };
+
+    $scope.updatePlayerDetails = function() {
+        console.log("updating player details!");
+        url = hostname + $routeParams.region + '/players/' + $scope.playerId;
+        $scope.disableButtons = true;
+
+        playerInRegion = function(regionId){
+            return $scope.playerRegionCheckbox[regionId]!=="NOT_IN_REGION";
+        };
+
+        $scope.postParams['regions'] = $scope.sessionService.getAdminRegions().filter(playerInRegion);
+
+        successCallback = function(data) {
+            $scope.player = data;
+            $scope.closeDetailsModal();
+        };
+
+        failureCallback = function(data) {
+            $scope.disableButtons = false;
+            $scope.errorMessage = true;
+        };
+
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, successCallback, failureCallback);
+
+        return;
     };
 
     $scope.isPlayerInRegion = function(regionId) {
         return $scope.player.regions.indexOf(regionId) > -1
-    };
-
-    $scope.onCheckboxChange = function(regionId) {
-        url = hostname + $routeParams.region + '/players/' + $scope.playerId + '/region/' + regionId;
-        successCallback = function(data) {
-            $scope.player = data;
-        };
-
-        if ($scope.playerRegionCheckbox[regionId]) {
-            $scope.sessionService.authenticatedPut(url, {}, successCallback);
-        }
-        else {
-            $scope.sessionService.authenticatedDelete(url, successCallback);
-        }
     };
 
     $scope.submitMerge = function() {
@@ -707,28 +741,6 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
         success(function(data) {
             $scope.matches = data.matches.reverse();
         });
-
-    $scope.openEditNameModal = function(tournamentId) {
-        $scope.modalInstance = $modal.open({
-            templateUrl: 'edit_name_modal.html',
-            scope: $scope,
-            size: 'lg'
-        });
-        $scope.tournamentId = tournamentId;
-    };
-
-
-    $scope.editName = function() {
-        url = hostname + $routeParams.region + '/players/' + $scope.player.id;
-        data = {
-          id: $scope.player.id,
-          name: $('.edit-name-input').val()
-        };
-        successCallback = function(data) {
-            window.location.reload();
-        };
-        $scope.sessionService.authenticatedPut(url, data, successCallback);
-    };
 
 });
 
