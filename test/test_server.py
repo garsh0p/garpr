@@ -1301,16 +1301,6 @@ class TestServer(unittest.TestCase):
         self.assertEquals(rv.status, '400 BAD REQUEST')
 
     @patch('server.get_user_from_request')
-    def test_put_player_permission_denied(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        dao = self.texas_dao
-        players = dao.get_all_players()
-        the_player = players[0]
-        response = self.app.put('/texas/players/' + str(the_player.id), content_type='application/json')
-        self.assertEquals(response.status_code, 403)
-        self.assertEquals(response.data, '"Permission denied"')
-
-    @patch('server.get_user_from_request')
     def test_put_merge(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
