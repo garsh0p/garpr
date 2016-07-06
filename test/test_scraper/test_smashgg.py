@@ -95,7 +95,7 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEquals(len(self.tournament2.get_players()), 75)
 
     def test_get_matches(self):
-        self.assertEqual(len(self.tournament1.get_matches()), 770)
+        self.assertEqual(len(self.tournament1.get_matches()), 731)
         # spot check that mang0 got double elim'd
         mango_count = 0
         for m in self.tournament1.get_matches():
@@ -104,7 +104,7 @@ class TestSmashGGScraper(unittest.TestCase):
         print mango_count
         self.assertEqual(2, mango_count, msg="mango didnt get double elim'd?")
 
-        self.assertEquals(len(self.tournament2.get_matches()), 462)
+        self.assertEquals(len(self.tournament2.get_matches()), 436)
         # spot check that Druggedfox was only in 5 matches, and that he won all of them
         sami_count = 0
         for m in self.tournament2.get_matches():

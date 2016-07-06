@@ -130,9 +130,15 @@ class SmashGGScraper(object):
             for match in group_dict['entities']['sets']:
                 winner_id = match['winnerId']
                 loser_id = match['loserId']
-                # CHECK FOR A BYE
+
+                # CHECK FOR A BYE OR A DQ
                 if loser_id is None:
                     continue
+                else:
+                    entrant1_score = match['entrant1Score']
+                    entrant2_score = match['entrant2Score']
+                    if entrant1_score == -1 or entrant2_score == -1:
+                        continue
 
                 round_name = match.get("fullRoundText", None)
                 round_num = match.get("round", None)
