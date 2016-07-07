@@ -79,7 +79,6 @@ class SmashGGScraper(object):
             winner = self.player_lookup.get(match.winner_id)
             loser = self.player_lookup.get(match.loser_id)
 
-
             if winner is None:
                 print 'Error: id {} not found in player list'.format(match.winner_id)
                 continue
@@ -131,6 +130,9 @@ class SmashGGScraper(object):
             for match in group_dict['entities']['sets']:
                 winner_id = match['winnerId']
                 loser_id = match['loserId']
+                # CHECK FOR A BYE
+                if loser_id is None:
+                    continue
 
                 # CHECK FOR A BYE OR A DQ
                 if loser_id is None:
@@ -141,6 +143,11 @@ class SmashGGScraper(object):
                     if entrant1_score == -1 or entrant2_score == -1:
                         continue
 
+                for prop in SET_TIME_PROPERTIES:
+                    cur_time = match.get(prop, None)
+                    if cur_time:
+                        self.date = min(self.date, datetime.datetime.fromtimestamp(cur_time))
+
                 round_name = match.get("fullRoundText", None)
                 round_num = match.get("round", None)
                 best_of = match.get("bestOf", None)
@@ -149,20 +156,19 @@ class SmashGGScraper(object):
                     round = set['round']
                     bestOf = set['bestOf']
                 except:
-                    print self.log('Could not find extra details for match')
+                    # print self.log('Could not find extra details for match')
                     round = None
                     bestOf = None
                     round_name = match.get("fullRoundText", None)
                     round_num = match.get("round", None)
                     best_of = match.get("bestOf", None)
 
-                for prop in SET_TIME_PROPERTIES:
-                    cur_time = match.get(prop, None)
-                    if cur_time:
-                        self.date = min(self.date, datetime.datetime.fromtimestamp(cur_time))
-
                 smashgg_match = SmashGGMatch(round_name, winner_id, loser_id, round_num, best_of)
                 self.matches.append(smashgg_match)
+
+    def get_group_ids(self):
+        group_ids = [str(group['id']).strip() for group in self.event_dict['entities']['groups']]
+        return list(set(group_ids))
 
     def get_group_ids(self):
         group_ids = [str(group['id']).strip() for group in self.event_dict['entities']['groups']]

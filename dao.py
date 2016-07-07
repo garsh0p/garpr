@@ -285,35 +285,36 @@ class Dao(object):
         alias_lower = alias.lower()
 
         #here be regex dragons
-        re_test_1 = '([1-9]+.[1-9]+.)(.+)' # to match '1 1 slox'
-        re_test_2 = '(.[1-9]+.[1-9]+.)(.+)' # to match 'p1s1 slox'
+        re_test_1 = '([1-9]+\s+[1-9]+\s+)(.+)' # to match '1 1 slox'
+        re_test_2 = '(.[1-9]+.[1-9]+\s+)(.+)' # to match 'p1s1 slox'
 
         alias_set_1 = re.split(re_test_1, alias_lower)
         alias_set_2 = re.split(re_test_2, alias_lower)
 
-        similar_aliases = set([
+        similar_aliases = [
             alias_lower,
             alias_lower.replace(" ", ""), # remove spaces
             re.sub(special_chars, '', alias_lower), # remove special characters
             # remove everything before the last special character; hopefully removes crew/sponsor tags
             re.split(special_chars, alias_lower)[-1].strip()
-        ])
+        ]
 
         # regex nonsense to deal with pool prefixes
         # prevent index OOB errors when dealing with tags that don't split well
         if len(alias_set_1) == 4:
-            similar_aliases.update(alias_set_1[2])
-            similar_aliases.update(alias_set_1[2].strip())
+            similar_aliases.append(alias_set_1[2].strip())
         if len(alias_set_2) == 4:
-            similar_aliases.update(alias_set_2[2])
-            similar_aliases.update(alias_set_2[2].strip())
+            similar_aliases.append(alias_set_2[2].strip())
 
 
         #add suffixes of the string
         alias_words = alias_lower.split()
-        similar_aliases.update([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
+        similar_aliases.extend([' '.join(alias_words[i:]) for i in xrange(len(alias_words))])
 
-        ret = self.players_col.find({'aliases': {'$in': list(similar_aliases)}})
+        # uniqify
+        similar_aliases = list(set(similar_aliases))
+
+        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
         return [Player.from_json(p) for p in ret]
 
     # inserts and merges players!
