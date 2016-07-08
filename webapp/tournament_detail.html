@@ -53,6 +53,11 @@
         </div>
     </div>
     <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-2 col-md-offset-10">
+            <button type="button" class="btn btn-primary pull-right" ng-click="putTournamentFromUI()">Save Alias-Player Mapping</button>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
         <div class="col-md-12">
             <h3>Matches</h3>
             <table class="table table-condensed">

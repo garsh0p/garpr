@@ -79,7 +79,7 @@ pending_tournament_put_parser.add_argument('name', type=str)
 pending_tournament_put_parser.add_argument('players', type=list)
 pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
-pending_tournament_put_parser.add_argument('alias_to_id_map', type=dict)
+pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
@@ -206,7 +206,6 @@ class PlayerListResource(restful.Resource):
         # TODO: write convert_player_to_response function
         # remove extra fields
         for player in return_dict['players']:
-            del player['regions']
             del player['aliases']
             del player['ratings']
 
@@ -431,14 +430,9 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
 
     return_dict['date'] = return_dict['date'].strftime("%x") if return_dict['date'] else '20XX'
 
-    # convert the alias_to_id_map from a list to mongo to an actual map
-    alias_to_id_map = {}
-    for mapping in return_dict['alias_to_id_map']:
-        player_alias = mapping['player_alias']
-        player_id = str(mapping['player_id']) if mapping['player_id'] else None
-
-        alias_to_id_map[player_alias] = player_id
-    return_dict['alias_to_id_map'] = alias_to_id_map
+    # stringify objectids
+    for alias_item in return_dict['alias_to_id_map']:
+        alias_item['player_id'] = str(alias_item['player_id']) if alias_item['player_id'] else None
 
     # remove extra fields
     del return_dict['raw']
@@ -447,16 +441,12 @@ def convert_pending_tournament_to_response(pending_tournament, dao):
 
 def convert_request_to_pending_tournament(data):
     alias_to_id_map = []
-    try:
-        for player_alias, player_id in data["alias_to_id_map"].items():
-            alias_to_id_map.append({
-                "player_alias": player_alias,
-                "player_id": ObjectId(player_id) if player_id is not None else player_id
-            })
-        data["alias_to_id_map"] = alias_to_id_map
-        return data
-    except:
-        return None
+    for alias_item in data["alias_to_id_map"]:
+        try:
+            alias_item['player_id'] = ObjectId(alias_item['player_id']) if alias_item['player_id'] else None
+        except:
+            print 'Error converting player id to ObjectID'
+    return data
 
 class TournamentResource(restful.Resource):
     def get(self, region, id):
@@ -642,10 +632,22 @@ class PendingTournamentResource(restful.Resource):
             return 'Permission denied', 403
 
         args = pending_tournament_put_parser.parse_args()
+        print "Args", args
         data = convert_request_to_pending_tournament(args)
         if not data:
             return 'Request couldnt be converted to pending tournament', 400
-        pending_tournament.alias_to_id_map = data["alias_to_id_map"]
+
+        try:
+            print "Incoming", data["alias_to_id_map"]
+            print "DB", pending_tournament.alias_to_id_map
+            for alias_item in data["alias_to_id_map"]:
+                player_alias = alias_item["player_alias"]
+                player_id = alias_item["player_id"]
+                pending_tournament.set_alias_id_mapping(player_alias, player_id)
+        except:
+            print 'Error processing alias_to_id map'
+            return 'Error processing alias_to_id map', 400
+
         try:
             dao.update_pending_tournament(pending_tournament)
             response = convert_pending_tournament_to_response(pending_tournament, dao)

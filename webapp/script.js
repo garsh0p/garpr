@@ -45,9 +45,12 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
             })[0];
         },
         getRegionDisplayNameFromRegionId: function(regionId) {
-            return this.regions.filter(function(element) {
-                return element.id == regionId;
-            })[0].display_name;
+            var region = this.getRegionFromRegionId(regionId);
+            if(region!=null){
+                return region.display_name;
+            }else{
+                return "Invalid Region";
+            }
         },
         populateDataForCurrentRegion: function() {
             $http.get(hostname + this.region.id + '/players').
@@ -461,7 +464,8 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.tournament = null;
     $scope.tournamentId = $routeParams.tournamentId
     $scope.isPendingTournament = false;
-    $scope.playerData = {}
+    $scope.aliasMap = {};
+    $scope.playerData = {};
     $scope.playerCheckboxState = {};
 
     $scope.openDetailsModal = function() {
@@ -523,7 +527,6 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
             scope: $scope,
             size: 'lg'
         });
-        $scope.tournamentRegionCheckbox = {};
     };
 
     $scope.closeSubmitPendingTournamentModal = function() {
@@ -543,11 +546,11 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.onPlayerCheckboxChange = function(playerAlias) {
-        $scope.put_tournament_from_ui()
+        $scope.playerData[playerAlias] = null;
     };
 
     $scope.playerSelected = function(playerAlias, $item) {
-        $scope.put_tournament_from_ui()
+        $scope.playerCheckboxState[playerAlias] = false;
     };
 
     $scope.prettyPrintRegionListForPlayer = function(player) {
@@ -565,52 +568,72 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
             }
         }
 
-        return retString
+        return retString;
     };
 
-    $scope.update_alias_map_from_ui = function() {
-        var alias_map = {}
+    $scope.updateAliasMapFromUI = function() {
+        var aliasMap = {}
         for (var player in $scope.playerCheckboxState) {
             if ($scope.playerCheckboxState[player] === true) {
-                alias_map[player] = null;
+                aliasMap[player] = null;
                 delete $scope.playerData[player];
             }
         }
         for (var player in $scope.playerData){
-            alias_map[player] = $scope.playerData[player].id
+            aliasMap[player] = $scope.playerData[player].id
         }
-        $scope.tournament.alias_to_id_map = alias_map;
+        $scope.aliasMap = aliasMap;
     };
 
-    $scope.put_tournament_from_ui = function() {
-        $scope.update_alias_map_from_ui()
-        console.log($scope.tournament.alias_to_id_map);
+    $scope.putTournamentFromUI = function() {
+        $scope.updateAliasMapFromUI();
+        console.log("alias map from ui:");
+        console.log($scope.aliasMap);
+
+        // listify the current alias_to_id_map so angular
+        // does not strip certain properties
+        $scope.tournament.alias_to_id_map = [];
+        for(var alias in $scope.aliasMap){
+            var id = $scope.aliasMap[alias];
+            console.log(alias + " " + id);
+            $scope.tournament.alias_to_id_map.push(
+                { "player_alias": alias,
+                  "player_id": id
+                });
+        }
+
         url = hostname + $routeParams.region + '/pending_tournaments/' + $scope.tournamentId;
         $scope.sessionService.authenticatedPut(url, $scope.tournament, $scope.updateData);
     }
 
     $scope.updateData = function(data) {
+        console.log("return data:");
         console.log(data)
         $scope.tournament = data;
         if ($scope.tournament.hasOwnProperty('alias_to_id_map')) {
             $scope.isPendingTournament = true;
 
             // load individual player detail
-            for (var player in $scope.tournament.alias_to_id_map) {
-                var id = $scope.tournament.alias_to_id_map[player];
-                if (id != null) {
-                    $scope.playerCheckboxState[player] = false;
-                    (function(clsplayer, clsid) {
-                        $http.get(hostname + $routeParams.region + '/players/' + clsid).
+            $scope.tournament.alias_to_id_map.forEach(
+                function(aliasItem){
+                    var player = aliasItem["player_alias"];
+                    var id = aliasItem["player_id"];
+                    console.log(aliasItem);
+                    $scope.aliasMap[player] = id;
+                    if(id != null){
+                        $scope.playerCheckboxState[player] = false;
+
+                        // TODO: this generates tons of requests. we should be
+                        // able to do this with one giant request.
+                        $http.get(hostname + $routeParams.region + '/players/' + id).
                             success(function(data) {
-                                $scope.playerData[clsplayer] = data;
-                            })
-                    })(player, id);
-                }
-                else {
-                    $scope.playerCheckboxState[player] = true;
-                }
-            }
+                                $scope.playerData[player] = data;
+                            });
+
+                    }else{
+                        $scope.playerCheckboxState[player] = true;
+                    }
+                });
         }
     }
     // TODO submission checks! check to make sure everything in $scope.playerData is an object (not a string. string = partially typed box)
