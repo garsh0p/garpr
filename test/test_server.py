@@ -149,7 +149,7 @@ class TestServer(unittest.TestCase):
             self.assertEquals(len(players_list), len(players_from_db))
 
             for player in players_list:
-                expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent'])
+                expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions'])
                 self.assertEquals(set(player.keys()), expected_keys)
                 self.assertEquals(ObjectId(player['id']), dao.get_player_by_alias(player['name']).id)
 
@@ -171,7 +171,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), 1)
 
         json_player = json_data['players'][0]
-        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent'])
+        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions'])
         self.assertEquals(set(json_player.keys()), expected_keys)
         self.assertEquals(ObjectId(json_player['id']), player.id)
 
@@ -183,7 +183,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), 1)
 
         json_player = json_data['players'][0]
-        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent'])
+        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions'])
         self.assertEquals(set(json_player.keys()), expected_keys)
         self.assertEquals(ObjectId(json_player['id']), player.id)
 
@@ -752,7 +752,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_data['regions'], ['norcal'])
         self.assertEquals(len(json_data['players']), len(pending_tournament.players))
         self.assertEquals(len(json_data['matches']), len(pending_tournament.matches))
-        self.assertEquals(json_data['alias_to_id_map'], {})
+        self.assertEquals(json_data['alias_to_id_map'], [])
 
         # spot check 1 match
         match = json_data['matches'][0]
@@ -1299,16 +1299,6 @@ class TestServer(unittest.TestCase):
         #test updating regions
         rv = self.app.put('/norcal/players/' + str(the_player.id), data=test_data, content_type='application/json')
         self.assertEquals(rv.status, '400 BAD REQUEST')
-
-    @patch('server.get_user_from_request')
-    def test_put_player_permission_denied(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        dao = self.texas_dao
-        players = dao.get_all_players()
-        the_player = players[0]
-        response = self.app.put('/texas/players/' + str(the_player.id), content_type='application/json')
-        self.assertEquals(response.status_code, 403)
-        self.assertEquals(response.data, '"Permission denied"')
 
     @patch('server.get_user_from_request')
     def test_put_merge(self, mock_get_user_from_request):
