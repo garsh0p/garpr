@@ -164,10 +164,6 @@ class SmashGGScraper(object):
         group_ids = [str(group['id']).strip() for group in self.event_dict['entities']['groups']]
         return list(set(group_ids))
 
-    def get_group_ids(self):
-        group_ids = [str(group['id']).strip() for group in self.event_dict['entities']['groups']]
-        return list(set(group_ids))
-
     @staticmethod
     def get_tournament_event_id_from_url(url):
         splits = url.split('/')
