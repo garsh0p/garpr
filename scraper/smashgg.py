@@ -241,6 +241,7 @@ class SmashGGScraper(object):
         groups = event_raw['entities']['groups']
         for group in groups:
             ids.append(group['phaseId'])
+        ids = list(set(ids))
         return ids
 
     @staticmethod

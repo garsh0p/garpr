@@ -163,5 +163,5 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEqual(SmashGGScraper.get_phase_bracket_name(TEST_PHASE_ID_2), 'Final Bracket')
 
     def test_get_phasename_id_map(self):
-        map1 = SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_1)
-        map2 = SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_2)
+        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_1)), 3)
+        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_2)), 3)
