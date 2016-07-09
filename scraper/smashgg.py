@@ -140,8 +140,8 @@ class SmashGGScraper(object):
                 if loser_id is None:
                     continue
                 else:
-                    entrant1_score = match['entrant1Score']
-                    entrant2_score = match['entrant2Score']
+                    entrant1_score = match.get('entrant1Score', None)
+                    entrant2_score = match.get('entrant2Score', None)
                     if entrant1_score == -1 or entrant2_score == -1:
                         continue
 
@@ -150,20 +150,12 @@ class SmashGGScraper(object):
                     if cur_time:
                         self.date = min(self.date, datetime.datetime.fromtimestamp(cur_time))
 
-                round_name = match.get("fullRoundText", None)
-                round_num = match.get("round", None)
-                best_of = match.get("bestOf", None)
                 try:
-                    name = set['fullRoundText']
-                    round = set['round']
-                    bestOf = set['bestOf']
-                except:
-                    # print self.log('Could not find extra details for match')
-                    round = None
-                    bestOf = None
                     round_name = match.get("fullRoundText", None)
                     round_num = match.get("round", None)
                     best_of = match.get("bestOf", None)
+                except:
+                    print 'Could not find extra details for match'
 
                 smashgg_match = SmashGGMatch(round_name, winner_id, loser_id, round_num, best_of)
                 self.matches.append(smashgg_match)
