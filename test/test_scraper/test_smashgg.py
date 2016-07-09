@@ -8,9 +8,15 @@ TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/709
 TEST_URL_3 = 'https://smash.gg/tournament/ceo-2016/brackets/11789/45259/150418'
 TEST_DATA1 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg.json')
 TEST_DATA2 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg2.json')
-TEST_PHASE_ID_1 = 11226
-TEST_PHASE_ID_2 = 70949
-TEST_PHASE_ID_3 = 83088
+TEST_EVENT_ID_1 = 10448
+TEST_EVENT_ID_2 = 11097
+TEST_EVENT_ID_3 = 11789
+TEST_PHASE_ID_1 = 2096
+TEST_PHASE_ID_2 = 21317
+TEST_PHASE_ID_3 = 45259
+TEST_PHASE_GROUP_ID_1 = 11226
+TEST_PHASE_GROUP_ID_2 = 70949
+TEST_PHASE_GROUP_ID_3 = 83088
 TEST_PLAYER_ENTRANTID_1 = 16081
 TEST_PLAYER_ENTRANTID_2 = 110555
 TEST_PLAYER_ENTRANTID_3 = 52273
@@ -95,7 +101,7 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEquals(len(self.tournament2.get_players()), 75)
 
     def test_get_matches(self):
-        self.assertEqual(len(self.tournament1.get_matches()), 770)
+        self.assertEqual(len(self.tournament1.get_matches()), 731)
         # spot check that mang0 got double elim'd
         mango_count = 0
         for m in self.tournament1.get_matches():
@@ -104,7 +110,7 @@ class TestSmashGGScraper(unittest.TestCase):
         print mango_count
         self.assertEqual(2, mango_count, msg="mango didnt get double elim'd?")
 
-        self.assertEquals(len(self.tournament2.get_matches()), 462)
+        self.assertEquals(len(self.tournament2.get_matches()), 436)
         # spot check that Druggedfox was only in 5 matches, and that he won all of them
         sami_count = 0
         for m in self.tournament2.get_matches():
@@ -147,3 +153,15 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_tournament_name_from_url(self):
         self.assertEqual(SmashGGScraper.get_tournament_name_from_url(TEST_URL_1), 'htc throwdown')
         self.assertEqual(SmashGGScraper.get_tournament_name_from_url(TEST_URL_2), 'tiger smash 4')
+
+    def test_get_event_name(self):
+        self.assertEqual(SmashGGScraper.get_event_name(TEST_EVENT_ID_1), 'Melee Singles')
+        self.assertEqual(SmashGGScraper.get_event_name(TEST_EVENT_ID_2), 'Melee Singles')
+
+    def test_get_phase_name(self):
+        self.assertEqual(SmashGGScraper.get_phase_bracket_name(TEST_PHASE_ID_1), 'Round 2 Bracket')
+        self.assertEqual(SmashGGScraper.get_phase_bracket_name(TEST_PHASE_ID_2), 'Final Bracket')
+
+    def test_get_phasename_id_map(self):
+        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_1)), 3)
+        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_2)), 3)

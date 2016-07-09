@@ -2,9 +2,11 @@ import datetime
 import requests
 import os
 from model import MatchResult
+# from pyquery import PyQuery as pq
 from garprLogging.log import Log
 
 ### SMASHGG URLS: https://smash.gg/tournament/<tournament-name>/brackets/<event-id>/<phase-id>/<phase-group-id>/
+PHASE_URL = "https://api.smash.gg/phase/%s?expand[0]=groups"
 EVENT_URL = "https://api.smash.gg/event/%s?expand[0]=groups&expand[1]=entrants"
 GROUP_URL = "https://api.smash.gg/phase_group/%s?expand[0]=sets&expand[1]=entrants&expand[2]=matches&expand[3]=seeds"
 
@@ -134,14 +136,26 @@ class SmashGGScraper(object):
                 if loser_id is None:
                     continue
 
-                round_name = match.get("fullRoundText", None)
-                round_num = match.get("round", None)
-                best_of = match.get("bestOf", None)
+                # CHECK FOR A BYE OR A DQ
+                if loser_id is None:
+                    continue
+                else:
+                    entrant1_score = match.get('entrant1Score', None)
+                    entrant2_score = match.get('entrant2Score', None)
+                    if entrant1_score == -1 or entrant2_score == -1:
+                        continue
 
                 for prop in SET_TIME_PROPERTIES:
                     cur_time = match.get(prop, None)
                     if cur_time:
                         self.date = min(self.date, datetime.datetime.fromtimestamp(cur_time))
+
+                try:
+                    round_name = match.get("fullRoundText", None)
+                    round_num = match.get("round", None)
+                    best_of = match.get("bestOf", None)
+                except:
+                    print 'Could not find extra details for match'
 
                 smashgg_match = SmashGGMatch(round_name, winner_id, loser_id, round_num, best_of)
                 self.matches.append(smashgg_match)
@@ -195,6 +209,38 @@ class SmashGGScraper(object):
     @staticmethod
     def get_group_dict(group_id):
         return check_for_200(requests.get(GROUP_URL % group_id)).json()
+
+    @staticmethod
+    def get_event_name(event_id):
+        event_raw = check_for_200(requests.get(EVENT_URL % event_id)).json()
+        event_name = event_raw['entities']['event']['name']
+        return event_name
+
+    @staticmethod
+    def get_phase_bracket_name(phase_id):
+        phase_raw = check_for_200(requests.get(PHASE_URL % phase_id)).json()
+        phase_name = phase_raw['entities']['phase']['name']
+        return phase_name
+
+    @staticmethod
+    def get_phase_ids(event_id):
+        ids = []
+        event_raw = check_for_200(requests.get(EVENT_URL % event_id)).json()
+        groups = event_raw['entities']['groups']
+        for group in groups:
+            ids.append(group['phaseId'])
+        ids = list(set(ids))
+        return ids
+
+    @staticmethod
+    def get_phasename_id_map(event_id):
+        map = {}
+        phase_ids = SmashGGScraper.get_phase_ids(event_id)
+        for phase_id in phase_ids:
+            map[phase_id] = SmashGGScraper.get_phase_bracket_name(phase_id)
+        return map
+
+
 
 class SmashGGPlayer(object):
     def __init__(self, smashgg_id, entrant_id, name, smash_tag, region, country, state, final_placement):
