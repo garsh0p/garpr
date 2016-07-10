@@ -1,6 +1,10 @@
 cd /home/deploy/stage/garpr
-sudo bash twistd_stop.sh
-git pull
+sudo stop stage-webapp
+sudo stop stage-api
+sudo git checkout master
+sudo git pull
+sudo git checkout $text
 sudo pip install -r requirements.txt
-nosetests -v
-sudo bash twistd_start.sh
+sudo nose2 -v -B
+sudo start stage-api
+sudo start stage-webapp
