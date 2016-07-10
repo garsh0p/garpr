@@ -40,6 +40,7 @@ api = restful.Api(app)
 player_list_get_parser = reqparse.RequestParser()
 player_list_get_parser.add_argument('alias', type=str)
 player_list_get_parser.add_argument('query', type=str)
+player_list_get_parser.add_argument('all', type=bool)
 
 tournament_list_get_parser = reqparse.RequestParser()
 tournament_list_get_parser.add_argument('includePending', type=str)
@@ -197,6 +198,10 @@ class PlayerListResource(restful.Resource):
         elif args['query']:
             all_players = dao.get_all_players(all_regions=True) #TODO: none checks on below list comprehensions
             return_dict['players'] = [p.get_json_dict() for p in self._get_players_matching_query(all_players, args['query'])]
+        # get all players in all regions
+        elif args['all']:
+            all_players = dao.get_all_players(all_regions=True)
+            return_dict['players'] = [p.get_json_dict() for p in all_players]
         # all players within region
         else:
             return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
