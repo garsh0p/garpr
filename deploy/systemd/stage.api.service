@@ -1,0 +1,21 @@
+# system.d supervisor scripts (currently unused, but can use if we switch to newer version of Ubuntu/Debian)
+
+[Unit]
+Description=GarPr Stage API service
+
+[Service]
+ExecStart=/usr/local/bin/twistd \
+    --nodaemon \
+    --pidfile= \
+    --logfile="api.log"
+    -oy serve_api.tac
+
+WorkingDirectory=/home/deploy/stage/garpr
+
+User=nobody
+Group=nobody
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
