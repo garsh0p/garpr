@@ -692,6 +692,18 @@ class FinalizeTournamentResource(restful.Resource):
             player_id = dao.insert_player(player)
             pending_tournament.set_alias_id_mapping(player_name, player_id)
 
+        # validate players in this tournament
+        for mapping in pending_tournament.alias_to_id_map:
+            try:
+                player_id = mapping["player_id"]
+                # TODO: reduce queries to DB by batching
+                player = dao.get_player_by_id(player_id)
+                if player.merged:
+                    return "Player {} has already been merged".format(player.name), 400
+            except:
+                return "Not all player ids are valid", 400
+
+
         try:
             dao.update_pending_tournament(pending_tournament)
             tournament = Tournament.from_pending_tournament(pending_tournament)

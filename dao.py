@@ -170,23 +170,19 @@ class Dao(object):
 
         player.name = name
         return self.update_player(player)
-#jiang code
-    def insert_pending_tournament(self, tournament):
-        the_json = tournament.get_json_dict()
-        return self.pending_tournaments_col.insert(the_json)
-
-    def update_pending_tournament(self, tournament):
-        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
-
-    def get_all_pending_tournament_jsons(self, regions=None):
-        query_dict = {'regions': {'$in': regions}} if regions else {}
-        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
 
     def insert_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.insert(pending_tournament.get_json_dict())
 
+    def update_pending_tournament(self, tournament):
+        return self.pending_tournaments_col.update({'_id': tournament.id}, tournament.get_json_dict())
+
     def delete_pending_tournament(self, pending_tournament):
         return self.pending_tournaments_col.remove({'_id': pending_tournament.id})
+
+    def get_all_pending_tournament_jsons(self, regions=None):
+        query_dict = {'regions': {'$in': regions}} if regions else {}
+        return self.pending_tournaments_col.find(query_dict).sort([('date', 1)])
 
     def get_all_pending_tournaments(self, regions=None):
         '''players is a list of Players'''
@@ -314,7 +310,8 @@ class Dao(object):
         # uniqify
         similar_aliases = list(set(similar_aliases))
 
-        ret = self.players_col.find({'aliases': {'$in': similar_aliases}})
+        ret = self.players_col.find({'aliases': {'$in': similar_aliases},
+                                     'merged': False})
         return [Player.from_json(p) for p in ret]
 
     # inserts and merges players!
