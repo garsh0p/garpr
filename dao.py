@@ -100,12 +100,16 @@ class Dao(object):
         '''Converts alias to lowercase'''
         return Player.from_json(self.players_col.find_one({
             'aliases': {'$in': [alias.lower()]},
-            'regions': {'$in': [self.region_id]}
+            'regions': {'$in': [self.region_id]},
+            'merged': False
         }))
 
     def get_players_by_alias_from_all_regions(self, alias):
         '''Converts alias to lowercase'''
-        return [Player.from_json(p) for p in self.players_col.find({'aliases': {'$in': [alias.lower()]}})]
+        return [Player.from_json(p) for p in self.players_col.find({
+            'aliases': {'$in': [alias.lower()]},
+            'merged': False
+        })]
 
     def get_player_id_map_from_player_aliases(self, aliases):
         '''Given a list of player aliases, returns a list of player aliases/id pairs for the current
