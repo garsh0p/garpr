@@ -305,8 +305,8 @@ class TournamentListResource(restful.Resource):
             include_pending_tournaments = user and is_user_admin_for_region(user, region)
 
         tournaments = dao.get_all_tournaments(regions=[region])
-        if not tournaments:
-            return 'Dao couldnt find any tournaments, not good man, not good', 404
+        # if not tournaments:
+        #     return 'Dao couldnt find any tournaments, not good man, not good', 404
         all_tournament_jsons = [t.get_json_dict() for t in tournaments]
 
         if include_pending_tournaments:
