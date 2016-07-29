@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, Response, jsonify
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask.ext.cors import CORS
@@ -971,7 +971,7 @@ class SessionResource(restful.Resource):
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
     def get(self):
-        return config.get_loaderio_token()
+        return Response(config.get_loaderio_token())
 
 @app.after_request
 def add_security_headers(resp):
