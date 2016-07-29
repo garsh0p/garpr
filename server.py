@@ -968,6 +968,7 @@ class SessionResource(restful.Resource):
 
         return return_dict
 
+@api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
     def get(self):
         return config.get_loaderio_token()
@@ -1019,7 +1020,7 @@ api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 api.add_resource(SessionResource, '/users/session')
 
-api.add_resource(LoaderIOTokenResource, '/{}'.format(config.get_loaderio_token()))
+api.add_resource(LoaderIOTokenResource, '/{}/'.format(config.get_loaderio_token()))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))
