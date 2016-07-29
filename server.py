@@ -968,6 +968,10 @@ class SessionResource(restful.Resource):
 
         return return_dict
 
+class LoaderIOTokenResource(restful.Resource):
+    def get(self):
+        return config.get_loaderio_token()
+
 @app.after_request
 def add_security_headers(resp):
     resp.headers['Strict-Transport-Security'] = "max-age=31536000; includeSubdomains"
@@ -1014,6 +1018,8 @@ api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pe
 api.add_resource(RankingsResource, '/<string:region>/rankings')
 
 api.add_resource(SessionResource, '/users/session')
+
+api.add_resource(LoaderIOTokenResource, '/{}'.format(config.get_loaderio_token()))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))

@@ -58,3 +58,6 @@ class Config(object):
 
     def get_fb_app_token(self):
         return self.config.get('facebook', 'app_token')
+
+    def get_loaderio_token(self):
+        return self.config.get('loaderio', 'token')

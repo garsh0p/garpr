@@ -22,3 +22,6 @@ api_key=API_KEY
 [facebook]
 app_id=FB_APP_ID
 app_token=FB_APP_TOKEN
+
+[loaderio]
+token=LOADERIO_TOKEN
