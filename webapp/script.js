@@ -95,7 +95,8 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
 
     service.display_regions = [{"id": "newjersey", "display_name": "New Jersey"},
                                {"id": "nyc", "display_name": "NYC Metro Area"},
-                               {"id": "chicago", "display_name": "Chicago"}];
+                               {"id": "chicago", "display_name": "Chicago"},
+                               {"id": "georgia", "display_name": "Georgia"}];
 
     return service;
 });
