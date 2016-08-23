@@ -42,6 +42,9 @@ class DuplicateUsernameException(Exception):
     #safe, only used from script
     pass
 
+class DuplicateRegionException(Exception):
+    pass
+
 class InvalidNameException(Exception):
     #safe only used in dead code
     pass
@@ -76,6 +79,7 @@ class Dao(object):
         self.tournaments_col = mongo_client[database_name][TOURNAMENTS_COLLECTION_NAME]
         self.rankings_col = mongo_client[database_name][RANKINGS_COLLECTION_NAME]
         self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
+        self.regions_col = mongo_client[database_name][REGIONS_COLLECTION_NAME]
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.merges_col = mongo_client[database_name][MERGES_COLLECTION_NAME]
         self.sessions_col = mongo_client[database_name][SESSIONS_COLLECTION_NAME]
@@ -448,6 +452,20 @@ class Dao(object):
 
 
     # session management
+
+    # region addition
+    def insert_region(self, region):
+        if self.regions_col.find_one({'display_name': region.display_name}):
+            raise DuplicateRegionException("already a region with that name in the db, exiting")
+        return self.regions_col.insert(region.get_json_dict())
+
+    def create_region(self, display_name):
+        the_region = Region(display_name.lower(), display_name)
+        return self.insert_region()
+
+    def remove_region(self, region):
+        if self.regions_col.find_one({'display_name': region.display_name}):
+            self.regions_col.remove(region.get_json_dict())
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
