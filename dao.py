@@ -454,11 +454,6 @@ class Dao(object):
     # session management
 
     # region addition
-    def insert_region(self, region):
-        if self.regions_col.find_one({'display_name': region.display_name}):
-            raise DuplicateRegionException("already a region with that name in the db, exiting")
-        return self.regions_col.insert(region.get_json_dict())
-
     def create_region(self, display_name):
         the_region = Region(display_name.lower(), display_name)
         return self.insert_region()

@@ -814,6 +814,4 @@ class TestDAO(unittest.TestCase):
         self.assertIsNone(dao.get_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
 
     def test_insert_region(self):
-        dao = self.norcal_dao
-        dao.insert_region(self.region_1)
-        dao.remove_region(self.region_1)
+        Dao.insert_region(self.region_1, self.mongo_client, database_name=DATABASE_NAME)
