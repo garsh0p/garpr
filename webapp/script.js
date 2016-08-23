@@ -336,6 +336,11 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'about.html',
         activeTab: 'about'
     }).
+    when('/admin_functions',{
+        templateUrl: 'admin_functions.html',
+        controller: 'AdminFunctionsCtrl'
+    }).
+    when('/')
     otherwise({
         redirectTo: '/' + defaultRegion + '/rankings'
     });
