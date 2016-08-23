@@ -345,28 +345,39 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
-app.controller("AdminFunctionsController", function($scope, $http){
-    $scope.region = {
-        name: null
+app.controller("AdminFunctionsController", function($scope, $http, RegionService){
+    $scope.postParams = {
+        new_region: null,
+        new_user_name: null,
+        new_user_pass: null,
+        new_user_permissions: null,
+        new_user_regions: []
     };
 
-    $scope.user = {
-        name: null,
-        pass: null
+    $scope.addRegion = function(region){
+        if(!$scope.postParams.new_user_regions.includes(region))
+            $scope.postParams.new_user_regions.push(region);
+    };
+
+    $scope.removeRegion = function(region){
+        if($scope.postParams.new_user_regions.includes(region))
+            $scope.postParams.new_user_regions.splice($scope.postParams.new_user_regions.indexOf(region), 1);
     };
 
     $scope.submitNewUser = function(){
-        //TODO HTTP CALL TO API
-        if(user.name == null || user.pass == null){
+        if($scope.postParams.new_user_name.name == null ||
+            $scope.postParams.new_user_pass == null){
             return;
         }
+        //TODO HTTP CALL TO API
     };
 
     $scope.submitNewRegion = function(){
-        //TODO HTTP CALL TO API
-        if(region.name == null){
+        if($scope.postParams.new_region == null){
             return;
         }
+        //TODO HTTP CALL TO API
+
     };
 });
 

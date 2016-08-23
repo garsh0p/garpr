@@ -3,19 +3,29 @@
     <hr/>
     <form ng-submit="submitNewRegion()">
         <h4>Add New Region</h4>
-        Name: <input type="text" id="region_name_text" class="form-control" ng-model="region.name"><br/>
+        Name: <input type="text" id="region_name_text" class="form-control" ng-model="postParams.new_region"><br/>
         <input type="submit" id="submit_new_region_btn" value="submit">
     </form>
     <br/><hr/><br/>
     <form ng-submit="submitNewUser()">
         <h4>Add New Admin</h4>
-        Username: <input type="text" id="new_user_name" class="form-control" ng-model="user.name"> <br/>
-        Password: <input type="password" id="new_user_pass" class="form-control" ng-model="user.pass"> <br/>
-        <!-- Add permissions here later, if applicable -->
-        <!--
-        Permissions:
-        <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
-        -->
+        Username: <input type="text" id="new_user_name" class="form-control" ng-model="postParams.new_user_name"> <br/>
+        Password: <input type="password" id="new_user_pass" class="form-control" ng-model="postParams.new_user_pass"> <br/>
+        Permission Level:
+        <select ng-model="postParams.new_user_permissions">
+            <option>Super Admin</option>
+            <option>Region Admin</option>
+        </select>
+        <br />
+        Regions:
+        <ul style="list-style: none;">
+            <li ng-repeat="r in regionService.display_regions">
+                <input type="checkbox" class="admin_region_checkbox" id="{{r.display_name}}_checkbox"
+                    region="{{r.display_name}}" ng-true-value="addRegion(r)" ng-false-value="removeRegion(r)"/>
+                <a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a>
+            </li>
+        </ul>
+        <br />
         <input type="submit" id="submit_new_user_btn" value="submit">
     </form>
     <br/>

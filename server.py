@@ -94,6 +94,7 @@ admin_functions_parser.add_argument('new_region', location='json', type=str)
 admin_functions_parser.add_argument('new_user_name', location='json', type=str)
 admin_functions_parser.add_argument('new_user_pass', location='json', type=str)
 admin_functions_parser.add_argument('new_user_permissions', location='json', type=str)
+admin_functions_parser.add_argument('new_user_regions', location='json', type=str)
 
 #TODO: major refactor to move auth code to a decorator
 
