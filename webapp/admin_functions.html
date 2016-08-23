@@ -21,7 +21,7 @@
         <ul style="list-style: none;">
             <li ng-repeat="r in regionService.display_regions">
                 <input type="checkbox" class="admin_region_checkbox" id="{{r.display_name}}_checkbox"
-                    region="{{r.display_name}}" ng-true-value="addRegion(r)" ng-false-value="removeRegion(r)"/>
+                    region="{{r.display_name}}" ng-change="checkRegionBox(r)" ng-model="foo"/>
                 <a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a>
             </li>
         </ul>

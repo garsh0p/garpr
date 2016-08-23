@@ -24,6 +24,8 @@ import alias_service
 from StringIO import StringIO
 import Cookie
 from Cookie import CookieError
+from scripts import create_region
+from scripts import create_user
 
 TYPEAHEAD_PLAYER_LIMIT = 20
 BASE_REGION = 'newjersey'
@@ -94,7 +96,7 @@ admin_functions_parser.add_argument('new_region', location='json', type=str)
 admin_functions_parser.add_argument('new_user_name', location='json', type=str)
 admin_functions_parser.add_argument('new_user_pass', location='json', type=str)
 admin_functions_parser.add_argument('new_user_permissions', location='json', type=str)
-admin_functions_parser.add_argument('new_user_regions', location='json', type=str)
+admin_functions_parser.add_argument('new_user_regions', location='json', type=list)
 
 #TODO: major refactor to move auth code to a decorator
 
@@ -980,14 +982,27 @@ class AdminFunctionsResource(restful.Resource):
 
         if args['new_region'] is not None:
             region = args['new_region']
+            print str(region)
+            region_name = region.id;
 
             #Execute region addition
+            config = Config()
+            mongo_client = MongoClient(host=config.get_mongo_url())
+            dao = Dao(None, mongo_client)
+            if dao.create_region(region_name, region_name):
+                print "region created:", region_name
         else:
             uname = args['new_user_name']
             upass = args['new_user_pass']
-            uperm = args['new_user_perm']
+            uperm = args['new_user_permissions']
+            uregions = args['new_user_regions']
 
             #Execute user addition
+            config = Config()
+            mongo_client = MongoClient(host=config.get_mongo_url())
+            dao = Dao(None, mongo_client)
+            if dao.create_user(uname, upass, uregions):
+                print "user created:", uname
 
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):

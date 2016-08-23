@@ -345,7 +345,12 @@ app.config(['$routeProvider', function($routeProvider) {
     });
 }]);
 
-app.controller("AdminFunctionsController", function($scope, $http, RegionService){
+app.controller("AdminFunctionsController", function($scope, $http, RegionService, SessionService){
+    var url = hostname + "/adminfunctions/";
+    $scope.regionService = RegionService;
+    $scope.sessionService = SessionService;
+
+    $scope.foo = null;
     $scope.postParams = {
         new_region: null,
         new_user_name: null,
@@ -364,12 +369,25 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
             $scope.postParams.new_user_regions.splice($scope.postParams.new_user_regions.indexOf(region), 1);
     };
 
+    $scope.checkRegionBox = function(region){
+        var display_name = region.display_name;
+        var checkboxId = display_name + "_checkbox";
+        var checkbox = document.getElementById(checkboxId);
+        if(checkbox.checked){
+            $scope.addRegion(region);
+        }
+        else{
+            $scope.removeRegion(region);
+        }
+    };
+
     $scope.submitNewUser = function(){
         if($scope.postParams.new_user_name.name == null ||
             $scope.postParams.new_user_pass == null){
             return;
         }
         //TODO HTTP CALL TO API
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
     };
 
     $scope.submitNewRegion = function(){
@@ -377,6 +395,10 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
             return;
         }
         //TODO HTTP CALL TO API
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
+    };
+
+    $scope.handleAuthResponse = function(){
 
     };
 });
