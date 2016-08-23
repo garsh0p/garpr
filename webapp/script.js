@@ -340,15 +340,34 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'admin_functions.html',
         controller: 'AdminFunctionsController'
     }).
-    when('/').
     otherwise({
         redirectTo: '/' + defaultRegion + '/rankings'
     });
 }]);
 
 app.controller("AdminFunctionsController", function($scope, $http){
-    $scope.region = {};
-    $scope.user = {};
+    $scope.region = {
+        name: null
+    };
+
+    $scope.user = {
+        name: null,
+        pass: null
+    };
+
+    $scope.submitNewUser = function(){
+        //TODO HTTP CALL TO API
+        if(user.name == null || user.pass == null){
+            return;
+        }
+    };
+
+    $scope.submitNewRegion = function(){
+        //TODO HTTP CALL TO API
+        if(region.name == null){
+            return;
+        }
+    };
 });
 
 app.controller("AuthenticationController", function($scope, $modal, Facebook, SessionService, RegionService) {

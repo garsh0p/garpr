@@ -89,6 +89,12 @@ session_put_parser.add_argument('password', type=str)
 session_delete_parser = reqparse.RequestParser()
 session_delete_parser.add_argument('session_id', location='cookies', type=str)
 
+admin_functions_parser = reqparse.RequestParser()
+admin_functions_parser.add_argument('new_region', location='json', type=str)
+admin_functions_parser.add_argument('new_user_name', location='json', type=str)
+admin_functions_parser.add_argument('new_user_pass', location='json', type=str)
+admin_functions_parser.add_argument('new_user_permissions', location='json', type=str)
+
 #TODO: major refactor to move auth code to a decorator
 
 class InvalidAccessToken(Exception):
@@ -818,7 +824,6 @@ class MatchesResource(restful.Resource):
 
         return return_dict
 
-
 class MergeListResource(restful.Resource):
     def get(self, region):
         dao = Dao(region, mongo_client=mongo_client)
@@ -968,6 +973,21 @@ class SessionResource(restful.Resource):
 
         return return_dict
 
+class AdminFunctionsResource(restful.Resource):
+    def put(self):
+        args = admin_functions_parser.parse_args()
+
+        if args['new_region'] is not None:
+            region = args['new_region']
+
+            #Execute region addition
+        else:
+            uname = args['new_user_name']
+            upass = args['new_user_pass']
+            uperm = args['new_user_perm']
+
+            #Execute user addition
+
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
     def get(self):
@@ -1021,6 +1041,8 @@ api.add_resource(RankingsResource, '/<string:region>/rankings')
 api.add_resource(SessionResource, '/users/session')
 
 api.add_resource(LoaderIOTokenResource, '/{}/'.format(config.get_loaderio_token()))
+
+api.add_resource(AdminFunctionsResource, '/adminfunction/')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))
