@@ -92,6 +92,7 @@ session_delete_parser = reqparse.RequestParser()
 session_delete_parser.add_argument('session_id', location='cookies', type=str)
 
 admin_functions_parser = reqparse.RequestParser()
+admin_functions_parser.add_argument('function_type', location='json', type=str)
 admin_functions_parser.add_argument('new_region', location='json', type=str)
 admin_functions_parser.add_argument('new_user_name', location='json', type=str)
 admin_functions_parser.add_argument('new_user_pass', location='json', type=str)
@@ -978,12 +979,13 @@ class SessionResource(restful.Resource):
 
 class AdminFunctionsResource(restful.Resource):
     def put(self):
+        print 'Put method hit'
         args = admin_functions_parser.parse_args()
 
-        if args['new_region'] is not None:
-            region = args['new_region']
-            print str(region)
-            region_name = region.id;
+        function_type = args['function_type']
+        if function_type is 'region':
+            region_name = args['new_region']
+            print str(region_name)
 
             #Execute region addition
             config = Config()
@@ -991,7 +993,8 @@ class AdminFunctionsResource(restful.Resource):
             dao = Dao(None, mongo_client)
             if dao.create_region(region_name, region_name):
                 print "region created:", region_name
-        else:
+
+        elif function_type is 'user':
             uname = args['new_user_name']
             upass = args['new_user_pass']
             uperm = args['new_user_permissions']
@@ -1003,6 +1006,7 @@ class AdminFunctionsResource(restful.Resource):
             dao = Dao(None, mongo_client)
             if dao.create_user(uname, upass, uregions):
                 print "user created:", uname
+
 
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
@@ -1058,7 +1062,7 @@ api.add_resource(SessionResource, '/users/session')
 
 api.add_resource(LoaderIOTokenResource, '/{}/'.format(config.get_loaderio_token()))
 
-api.add_resource(AdminFunctionsResource, '/adminfunction/')
+api.add_resource(AdminFunctionsResource, '/adminfunctions')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))

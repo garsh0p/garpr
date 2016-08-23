@@ -346,12 +346,13 @@ app.config(['$routeProvider', function($routeProvider) {
 }]);
 
 app.controller("AdminFunctionsController", function($scope, $http, RegionService, SessionService){
-    var url = hostname + "/adminfunctions/";
+    var url = hostname + "adminfunctions";
     $scope.regionService = RegionService;
     $scope.sessionService = SessionService;
 
     $scope.foo = null;
     $scope.postParams = {
+        function_type: null,
         new_region: null,
         new_user_name: null,
         new_user_pass: null,
@@ -386,6 +387,8 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
             $scope.postParams.new_user_pass == null){
             return;
         }
+        $scope.postParams.function_type = 'user';
+
         //TODO HTTP CALL TO API
         $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
     };
@@ -394,12 +397,14 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
         if($scope.postParams.new_region == null){
             return;
         }
+        $scope.postParams.function_type = 'region';
+
         //TODO HTTP CALL TO API
         $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
     };
 
-    $scope.handleAuthResponse = function(){
-
+    $scope.handleAuthResponse = function(response, status, headers, bleh){
+        console.log(response);
     };
 });
 
