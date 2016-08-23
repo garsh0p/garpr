@@ -812,6 +812,3 @@ class TestDAO(unittest.TestCase):
     def test_get_nonexistent_merge(self):
         dao = self.norcal_dao
         self.assertIsNone(dao.get_merge(ObjectId("420f53650181b84aaaa01051"))) #mlg1337noscope
-
-    def test_insert_region(self):
-        Dao.insert_region(self.region_1, self.mongo_client, database_name=DATABASE_NAME)
