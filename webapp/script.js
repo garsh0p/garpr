@@ -336,15 +336,20 @@ app.config(['$routeProvider', function($routeProvider) {
         templateUrl: 'about.html',
         activeTab: 'about'
     }).
-    when('/admin_functions',{
+    when('/adminfunctions',{
         templateUrl: 'admin_functions.html',
-        controller: 'AdminFunctionsCtrl'
+        controller: 'AdminFunctionsController'
     }).
-    when('/')
+    when('/').
     otherwise({
         redirectTo: '/' + defaultRegion + '/rankings'
     });
 }]);
+
+app.controller("AdminFunctionsController", function($scope, $http){
+    $scope.region = {};
+    $scope.user = {};
+});
 
 app.controller("AuthenticationController", function($scope, $modal, Facebook, SessionService, RegionService) {
     $scope.sessionService = SessionService;
