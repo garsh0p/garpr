@@ -603,6 +603,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.submitPendingTournament = function() {
+        $scope.putTournamentFromUI();
         url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/finalize';
         successCallback = function(data) {
             window.location.reload();
