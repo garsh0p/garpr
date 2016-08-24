@@ -352,11 +352,11 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
 
     $scope.foo = null;
     $scope.postParams = {
-        function_type: null,
-        new_region: null,
-        new_user_name: null,
-        new_user_pass: null,
-        new_user_permissions: null,
+        function_type: '',
+        new_region: '',
+        new_user_name: '',
+        new_user_pass: '',
+        new_user_permissions: '',
         new_user_regions: []
     };
 
