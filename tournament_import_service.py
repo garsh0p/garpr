@@ -47,8 +47,8 @@ def import_tournament_from_challonge(region, path, name, dao):
 
     return dao.insert_pending_tournament(pending)
 
-def import_tournament_from_smashgg(region, path, name, dao):
-    scraper = SmashGGScraper(path)
+def import_tournament_from_smashgg(region, path, included_phases, name, dao):
+    scraper = SmashGGScraper(path, included_phases)
     pending = PendingTournament.from_scraper('smashgg', scraper, region)
     if name:
         pending.name = name

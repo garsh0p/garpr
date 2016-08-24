@@ -64,6 +64,9 @@ tournament_put_parser.add_argument('matches', type=list)
 tournament_put_parser.add_argument('regions', type=list)
 tournament_put_parser.add_argument('pending', type=bool)
 
+smashGGMap_get_parser = reqparse.RequestParser()
+smashGGMap_get_parser.add_argument('bracket_url', type=str)
+
 merges_put_parser = reqparse.RequestParser()
 merges_put_parser.add_argument('source_player_id', type=str)
 merges_put_parser.add_argument('target_player_id', type=str)
@@ -74,6 +77,7 @@ tournament_import_parser.add_argument('bracket_type', type=str, required=True, h
 tournament_import_parser.add_argument('challonge_url', type=str)
 tournament_import_parser.add_argument('tio_file', type=str)
 tournament_import_parser.add_argument('tio_bracket_name', type=str)
+tournament_import_parser.add_argument('included_phases', type=list)
 
 pending_tournament_put_parser = reqparse.RequestParser()
 pending_tournament_put_parser.add_argument('name', type=str)
@@ -354,6 +358,7 @@ class TournamentListResource(restful.Resource):
         parser.add_argument('type', type=str, location='json')
         parser.add_argument('data', type=unicode, location='json')
         parser.add_argument('bracket', type=str, location='json')
+        parser.add_argument('included_phases', type=list, location='json')
         args = parser.parse_args()
 
         if args['data'] is None:
@@ -367,6 +372,7 @@ class TournamentListResource(restful.Resource):
 
         type = args['type']
         data = args['data']
+        included_phases = args['included_phases']
         pending_tournament = None
 
         try:
@@ -380,12 +386,12 @@ class TournamentListResource(restful.Resource):
             elif type == 'challonge':
                 scraper = ChallongeScraper(data)
             elif type == 'smashgg':
-                scraper = SmashGGScraper(data)
+                scraper = SmashGGScraper(data, included_phases)
             else:
                 return "Unknown type", 400
             pending_tournament = PendingTournament.from_scraper(type, scraper, region)
-        except:
-            return 'Scraper encountered an error', 400
+        except Exception as ex:
+            return 'Scraper encountered an error ' + str(ex), 400
 
         if not pending_tournament:
             return 'Scraper encountered an error', 400
@@ -819,6 +825,14 @@ class MatchesResource(restful.Resource):
 
         return return_dict
 
+class SmashGGMappingResource(restful.Resource):
+    def get(self):
+        args = smashGGMap_get_parser.parse_args()
+        url = args['bracket_url']
+
+        event_id = SmashGGScraper.get_tournament_event_id_from_url(url)
+        id_map = SmashGGScraper.get_phasename_id_map(event_id)
+        return id_map
 
 class MergeListResource(restful.Resource):
     def get(self, region):
@@ -1015,6 +1029,11 @@ api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource, '/<string:region>/tournaments/<string:id>')
 api.add_resource(PendingTournamentResource, '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource, '/<string:region>/tournaments/<string:id>/finalize')
+
+# THIS CALL TAKES A SMASHGG BRACKET URL AND RETURNS A MAP OF BRACKETS IN THE SMASHGG EVENT TO THEIR PHASE IDS
+# THIS IS USEFUL FOR DISPLAYING THE INFORMATION TO THE USER SO THEY CAN CHOOSE ANY BRACKETS THEY DO NOT WISH
+# TO IMPORT
+api.add_resource(SmashGGMappingResource, '/smashGgMap')
 
 api.add_resource(PendingTournamentListResource, '/<string:region>/tournaments/pending')
 api.add_resource(RankingsResource, '/<string:region>/rankings')

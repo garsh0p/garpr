@@ -21,11 +21,16 @@ def check_for_200(response):
     return response
 
 class SmashGGScraper(object):
-    def __init__(self, path):
+    def __init__(self, path, included_phases):
         """
         :param path: url to go to the bracket
         """
         self.path = path
+
+        # DATA STRUCTURE TO INCLUDE PHASES USER WANTS TO IMPORT
+        self.included_phases = included_phases
+        for p in self.included_phases:
+            print p
 
         #GET IMPORTANT DATA FROM THE URL
         self.event_id = SmashGGScraper.get_tournament_event_id_from_url(self.path)
@@ -36,7 +41,16 @@ class SmashGGScraper(object):
         # JSON DUMPED FROM THE API
 
         self.event_dict = SmashGGScraper.get_event_dict(self.event_id)
-        self.group_ids = self.get_group_ids()
+
+        self.group_sets = []
+        for phase in self.included_phases:
+            self.group_sets.append(SmashGGScraper.get_group_ids_from_phase(phase))
+
+        self.group_ids = []
+        for group_set in self.group_sets:
+            for group_id in group_set:
+                self.group_ids.append(group_id)
+
         self.group_dicts = [SmashGGScraper.get_group_dict(group_id) for group_id in self.group_ids]
         self.group_dicts = [dict for dict in self.group_dicts if dict is not None] #REMOVE EMPTY PHASES FROM IMPORT
 
@@ -161,6 +175,10 @@ class SmashGGScraper(object):
                 smashgg_match = SmashGGMatch(round_name, winner_id, loser_id, round_num, best_of)
                 self.matches.append(smashgg_match)
 
+    def get_phase_ids(self):
+        group_ids = [str(group['phaseId']).strip() for group in self.event_dict['entities']['groups']]
+        return list(set(group_ids))
+
     def get_group_ids(self):
         group_ids = [str(group['id']).strip() for group in self.event_dict['entities']['groups']]
         return list(set(group_ids))
@@ -227,6 +245,15 @@ class SmashGGScraper(object):
         return phase_name
 
     @staticmethod
+    def get_group_ids_from_phase(phase_id):
+        phase_ids = []
+        phase_raw = check_for_200(requests.get(PHASE_URL % phase_id)).json()
+        groups = phase_raw['entities']['groups']
+        for group in groups:
+            phase_ids.append(group['id'])
+        return phase_ids
+
+    @staticmethod
     def get_phase_ids(event_id):
         ids = []
         event_raw = check_for_200(requests.get(EVENT_URL % event_id)).json()
@@ -243,8 +270,6 @@ class SmashGGScraper(object):
         for phase_id in phase_ids:
             map[phase_id] = SmashGGScraper.get_phase_bracket_name(phase_id)
         return map
-
-
 
 class SmashGGPlayer(object):
     def __init__(self, smashgg_id, entrant_id, name, smash_tag, region, country, state, final_placement):
@@ -290,6 +315,14 @@ class SmashGGMatch(object):
         self.loser_id = loser_id
         self.roundNumber = roundNumber
         self.bestOf = bestOf
+
+class SmashGGEvent(object):
+    """
+    This is currently unused
+    """
+    def __init__(self, event_id, phase_map):
+        self.event_id = event_id
+        self.phase_map = phase_map
 
 class SmashGGException(Exception):
     def __init__(self, message):
