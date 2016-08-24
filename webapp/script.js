@@ -350,6 +350,9 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
     $scope.regionService = RegionService;
     $scope.sessionService = SessionService;
 
+    $scope.regionStatusMessage = "";
+    $scope.userStatusMessage = "";
+
     $scope.foo = null;
     $scope.postParams = {
         function_type: '',
@@ -390,7 +393,7 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
         $scope.postParams.function_type = 'user';
 
         //TODO HTTP CALL TO API
-        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.putUserSuccess, $scope.putUserFailure);
     };
 
     $scope.submitNewRegion = function(){
@@ -400,13 +403,39 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
         $scope.postParams.function_type = 'region';
 
         //TODO HTTP CALL TO API
-        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
+        $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.putRegionSuccess, $scope.putRegionFailure);
     };
 
-
-
-    $scope.handleAuthResponse = function(response, status, headers, bleh){
+    $scope.putRegionSuccess = function(response, status, headers, bleh){
         console.log(response);
+        $scope.regionStatusMessage = "Region " + $scope.postParams.new_region + " successfully inserted!";
+        document.getElementById('regionStatusMessage').innerHTML
+            = "Region " + $scope.postParams.new_region + " successfully inserted!";
+
+        var form = document.getElementById('newRegionForm');
+        resetForm(form);
+    };
+
+    $scope.putUserSuccess = function(response, status, headers, bleh){
+        console.log(response);
+        $scope.userStatusMessage = "User " + $scope.postParams.new_user_name + " successfully inserted!";
+        document.getElementById('userStatusMessage').innerHTML
+            = "User " + $scope.postParams.new_user_name + " successfully inserted!";
+
+        var form = document.getElementById('newUserForm');
+        resetForm(form);
+    };
+
+    $scope.putRegionFailure = function(response, status, headers, bleh){
+        console.log(response);
+        $scope.regionStatusMessage = "An error occurred in inserting user."
+        document.getElementById('regionStatusMessage').innerHTML = "An error occurred in inserting region.";
+    };
+
+    $scope.putUserFailure = function(response, status, headers, bleh){
+        console.log(response);
+        $scope.userStatusMessage = "An error occurred in inserting user."
+        document.getElementById('userStatusMessage').innerHTML = "An error occurred in inserting user.";
     };
 });
 
@@ -934,3 +963,35 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
         }
     };
 });
+
+function resetForm(form) {
+    // clearing inputs
+    var inputs = form.getElementsByTagName('input');
+    for (var i = 0; i<inputs.length; i++) {
+        switch (inputs[i].type) {
+            // case 'hidden':
+            case 'text':
+                inputs[i].value = '';
+                break;
+            case 'radio':
+            case 'checkbox':
+                inputs[i].checked = false;
+        }
+    }
+
+    // clearing selects
+    var selects = form.getElementsByTagName('select');
+    for (var i = 0; i<selects.length; i++)
+        selects[i].selectedIndex = 0;
+
+    // clearing textarea
+    var text= form.getElementsByTagName('textarea');
+    for (var i = 0; i<text.length; i++)
+        text[i].innerHTML= '';
+
+    var pword = form.getElementsByTagName('password');
+    for (var i = 0; i<text.length; i++)
+        text[i].innerHTML= '';
+
+    return false;
+};

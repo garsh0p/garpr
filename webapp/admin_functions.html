@@ -1,22 +1,26 @@
 <div class="container">
     <h3>Super Admin Functions</h3>
     <hr/>
-    <form ng-submit="submitNewRegion()">
+    <form ng-submit="submitNewRegion()" id="newRegionForm">
         <h4>Add New Region</h4>
+        <p ng-model="regionStatusMessage" id="regionStatusMessage"></p>
         Name: <input type="text" id="region_name_text" class="form-control" ng-model="postParams.new_region"><br/>
         <input type="submit" id="submit_new_region_btn" value="submit">
     </form>
     <br/><hr/><br/>
-    <form ng-submit="submitNewUser()">
+    <form ng-submit="submitNewUser()" id="newUserForm">
         <h4>Add New Admin</h4>
+        <p ng-model="userStatusMessage" id="userStatusMessage"></p>
         Username: <input type="text" id="new_user_name" class="form-control" ng-model="postParams.new_user_name"> <br/>
         Password: <input type="password" id="new_user_pass" class="form-control" ng-model="postParams.new_user_pass"> <br/>
+        <!--
         Permission Level:
         <select ng-model="postParams.new_user_permissions">
             <option>Super Admin</option>
             <option>Region Admin</option>
         </select>
         <br />
+        -->
         Regions:
         <ul style="list-style: none;">
             <li ng-repeat="r in regionService.display_regions">
