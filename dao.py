@@ -456,7 +456,7 @@ class Dao(object):
     # region addition
     def create_region(self, display_name):
         the_region = Region(display_name.lower(), display_name)
-        return self.insert_region()
+        return self.insert_region(the_region, self.mongo_client, database_name=DATABASE_NAME)
 
     def remove_region(self, region):
         if self.regions_col.find_one({'display_name': region.display_name}):

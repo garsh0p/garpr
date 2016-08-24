@@ -978,8 +978,8 @@ class SessionResource(restful.Resource):
         return return_dict
 
 class AdminFunctionsResource(restful.Resource):
-    def put(self):
-        print 'Put method hit'
+    def get(self):
+        print 'Get method hit'
         args = admin_functions_parser.parse_args()
 
         function_type = args['function_type']
@@ -987,14 +987,28 @@ class AdminFunctionsResource(restful.Resource):
             region_name = args['new_region']
             print str(region_name)
 
+            # Execute region addition
+            config = Config()
+            mongo_client = MongoClient(host=config.get_mongo_url())
+            dao = Dao(None, mongo_client)
+            if dao.create_region(region_name):
+                print "region created:", region_name
+
+    def put(self):
+        args = admin_functions_parser.parse_args()
+
+        function_type = args['function_type']
+        if function_type == 'region':
+            region_name = args['new_region']
+
             #Execute region addition
             config = Config()
             mongo_client = MongoClient(host=config.get_mongo_url())
             dao = Dao(None, mongo_client)
-            if dao.create_region(region_name, region_name):
-                print "region created:", region_name
+            if dao.create_region(region_name):
+                print("region created:" + region_name)
 
-        elif function_type is 'user':
+        elif function_type == 'user':
             uname = args['new_user_name']
             upass = args['new_user_pass']
             uperm = args['new_user_permissions']
@@ -1005,8 +1019,7 @@ class AdminFunctionsResource(restful.Resource):
             mongo_client = MongoClient(host=config.get_mongo_url())
             dao = Dao(None, mongo_client)
             if dao.create_user(uname, upass, uregions):
-                print "user created:", uname
-
+                print("user created:" + uname)
 
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
@@ -1063,6 +1076,7 @@ api.add_resource(SessionResource, '/users/session')
 api.add_resource(LoaderIOTokenResource, '/{}/'.format(config.get_loaderio_token()))
 
 api.add_resource(AdminFunctionsResource, '/adminfunctions')
+#api.add_resource(AdminFunctionsResource, '/adminfunctions/<string:type>/<string:new_region>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(sys.argv[1]), debug=(sys.argv[2] == 'True'))

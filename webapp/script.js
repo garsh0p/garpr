@@ -375,15 +375,15 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
         var checkboxId = display_name + "_checkbox";
         var checkbox = document.getElementById(checkboxId);
         if(checkbox.checked){
-            $scope.addRegion(region);
+            $scope.addRegion(region.id);
         }
         else{
-            $scope.removeRegion(region);
+            $scope.removeRegion(region.id);
         }
     };
 
     $scope.submitNewUser = function(){
-        if($scope.postParams.new_user_name.name == null ||
+        if($scope.postParams.new_user_name == null ||
             $scope.postParams.new_user_pass == null){
             return;
         }
@@ -402,6 +402,8 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
         //TODO HTTP CALL TO API
         $scope.sessionService.authenticatedPut(url, $scope.postParams, $scope.handleAuthResponse, $scope.handleAuthResponse);
     };
+
+
 
     $scope.handleAuthResponse = function(response, status, headers, bleh){
         console.log(response);
