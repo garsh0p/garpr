@@ -350,6 +350,15 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
     $scope.regionService = RegionService;
     $scope.sessionService = SessionService;
 
+    $scope.regions = []
+    $http.get(hostname + 'regions').
+        success(function(data) {
+            $scope.regions = data.regions;
+
+            //TODO Replace this hackey way of reloading the array of regions
+            $scope.regions.push();
+        });
+
     $scope.regionStatusMessage = "";
     $scope.userStatusMessage = "";
 
@@ -995,3 +1004,7 @@ function resetForm(form) {
 
     return false;
 };
+
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
