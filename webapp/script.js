@@ -356,10 +356,9 @@ app.controller("AdminFunctionsController", function($scope, $http, RegionService
     $scope.regions = []
     $http.get(hostname + 'regions').
         success(function(data) {
-            $scope.regions = data.regions;
-
-            //TODO Replace this hackey way of reloading the array of regions
-            $scope.regions.push();
+            data.regions.forEach(function(region){
+                $scope.regions.push(region);
+            });
         });
 
     $scope.regionStatusMessage = "";
