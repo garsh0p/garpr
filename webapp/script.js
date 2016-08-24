@@ -96,7 +96,10 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
     service.display_regions = [{"id": "newjersey", "display_name": "New Jersey"},
                                {"id": "nyc", "display_name": "NYC Metro Area"},
                                {"id": "chicago", "display_name": "Chicago"},
-                               {"id": "georgia", "display_name": "Georgia"}];
+                               {"id": "georgia", "display_name": "Georgia"},
+                               {"id": "northcarolina", "display_name": "North Carolina"},
+                               {"id": "southcarolina", "display_name": "South Carolina"},
+                               {"id": "alabama", "display_name": "Alabama"}];
 
     return service;
 });
@@ -707,6 +710,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     };
 
     $scope.submitPendingTournament = function() {
+        $scope.putTournamentFromUI();
         url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/finalize';
         successCallback = function(data) {
             window.location.reload();

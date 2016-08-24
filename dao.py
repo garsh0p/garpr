@@ -140,7 +140,6 @@ class Dao(object):
             mongo_request['regions'] = {'$in': [self.region_id]}
         if not include_merged:
             mongo_request['merged'] = False
-
         return [Player.from_json(p) for p in self.players_col.find(mongo_request).sort([('name', 1)])]
 
 

@@ -211,10 +211,11 @@ class PlayerListResource(restful.Resource):
         # get all players in all regions
         elif args['all']:
             all_players = dao.get_all_players(all_regions=True)
-            return_dict['players'] = [p.get_json_dict() for p in all_players]
+            return_dict['players'] = [p.get_json_dict() for p in sorted(all_players, key=lambda player : player.name.lower())]
         # all players within region
         else:
-            return_dict['players'] = [p.get_json_dict() for p in dao.get_all_players()]
+            print 'test'
+            return_dict['players'] = [p.get_json_dict() for p in sorted(dao.get_all_players(), key=lambda player : player.name.lower())]
 
         convert_object_id_list(return_dict['players'])
 
