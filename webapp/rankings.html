@@ -1,4 +1,24 @@
-<div class="container">
+<div class="container" ng-init="isRankingsCollapsed = !isRankingsCollapsed">
+    <div class="panel panel-default" id="rankingsControlPanel">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <a href="#" ng-click="isRankingsCollapsed = !isRankingsCollapsed">
+              Rankings Control Panel
+            </a>
+          </h4>
+        </div>
+        <div collapse="isRankingsCollapsed">
+          <div class="panel-body">
+              <form id="rankingsControlPanelForm">
+                <!-- Options to tweak rankings go here -->
+                Calculate <input type="number" id="numberDaysBackText" ng-model="numberDaysBack"> Days of Results. <br/>
+                Must attend at least <input type="number" id="numberTourneysAttendedText" ng-model="numberTourneysAttended" >
+                  tournaments in the ranking time frame. </br>
+              </form>
+          </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-10">
             <h3>As of {{rankingsService.rankingsList.time.substring(0,10)}}</h3>

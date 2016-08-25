@@ -496,13 +496,14 @@ class RankingEntry(object):
                 json_dict['rating'])
 
 class Region(object):
-    def __init__(self, id, display_name):
+    def __init__(self, id, display_name, rankings=RegionRankingsCriteria()):
         '''
         :param id: TODO
         :param display_name: TODO
         '''
         self.id = id
         self.display_name = display_name
+        self.rankings = rankings
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
@@ -517,6 +518,7 @@ class Region(object):
 
         json_dict['_id'] = self.id
         json_dict['display_name'] = self.display_name
+        json_dict['rankings'] = self.rankings.get_json_dict()
 
         return json_dict
 
@@ -528,6 +530,19 @@ class Region(object):
         return cls(
                 json_dict['_id'],
                 json_dict['display_name'])
+
+class RegionRankingsCriteria(object):
+    def __init__(self, day_limit=60, num_tourneys=2):
+        self.day_limit = day_limit
+        self.num_tourneys = num_tourneys
+
+    def get_json_dict(self):
+        json_dict = {}
+
+        json_dict['day_limit'] = self.day_limit
+        json_dict['num_tourneys'] = self.num_tourneys
+
+        return json_dict
 
 class User(object):
     def __init__(self, id, admin_regions, username, salt, hashed_password):
