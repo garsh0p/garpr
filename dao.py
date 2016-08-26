@@ -452,8 +452,23 @@ class Dao(object):
 
     # session management
 
-    def update_region_ranking_criteria(self, id, rankings):
-        pass
+    def update_region_ranking_criteria(self, region_id, rankings):
+        if self.regions_col.find_one({'_id': region_id}):
+            self.regions_col.update({'_id': region_id},
+                                    {'$set':
+                                         {'rankings' :
+                                              {'day_limit': rankings.day_limit,
+                                               'num_tourneys': rankings.num_tourneys
+                                               }
+                                          }
+                                     })
+
+
+    def get_region_ranking_criteria(self, region_id):
+        if self.regions_col.find_one({'_id': region_id}):
+            result = self.regions_col.find({'_id': region_id}, {'rankings' : 1})
+            assert result.count() == 1
+            return RegionRankingsCriteria.from_json(result[0])
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):

@@ -772,10 +772,13 @@ class RankingsResource(restful.Resource):
             #TODO Update rankings and store criteria in db
             rankings.generate_ranking(dao, now=now, day_limit=day_limit, num_tourneys=num_tourneys)
             new_rankings_criteria = RegionRankingsCriteria(day_limit=day_limit, num_tourneys=num_tourneys)
-            new_region = Region(region.lower(), region=None, rankings=new_rankings_criteria)
-
+            dao.update_region_ranking_criteria(region.lower(), rankings=new_rankings_criteria)
         else:
-            rankings.generate_ranking(dao, now=now)
+            #TODO Get stored rankings from the db
+            region_rankings = dao.get_region_ranking_criteria(region_id=region.lower())
+            day_limit = rankings.day_limit
+            num_tourneys = rankings.num_tourneys
+            rankings.generate_ranking(dao, now=now, day_limit=day_limit, num_tourneys=num_tourneys)
 
         return self.get(region)
 

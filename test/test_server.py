@@ -806,7 +806,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
-        print ranking_entry['rating']
+        #print ranking_entry['rating']
         self.assertTrue(ranking_entry['rating'] > 24.3)
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
@@ -1315,13 +1315,13 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.status, '200 OK', msg=rv.data)
-        print rv.data, rv.status
+        #print rv.data, rv.status
         data_dict = json.loads(rv.data)
         merge_id = data_dict['id']
         self.assertTrue(merge_id, msg=merge_id)
         # okay, now look in the dao and see if the merge is actually in there
         the_merge = dao.get_merge(ObjectId(merge_id))
-        print merge_id, the_merge
+        #print merge_id, the_merge
         # assert the correct player is in the correct place
         self.assertTrue(the_merge, msg=merge_id)
         self.assertEquals(the_merge.target_player_obj_id, player_one.id)

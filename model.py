@@ -548,6 +548,15 @@ class RegionRankingsCriteria(object):
 
         return json_dict
 
+    @classmethod
+    def from_json(cls, json_dict):
+        if json_dict == None:
+            return None
+
+        return cls(
+            json_dict['day_limit'],
+            json_dict['num_tourneys'])
+
 class User(object):
     def __init__(self, id, admin_regions, username, salt, hashed_password):
         self.id = id
