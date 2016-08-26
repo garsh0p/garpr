@@ -15,7 +15,7 @@ import os
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, Tournament, PendingTournament, Merge, User, Player
+from model import MatchResult, Tournament, PendingTournament, Merge, User, Player, RegionRankingsCriteria, Region
 import re
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
@@ -66,6 +66,10 @@ tournament_put_parser.add_argument('pending', type=bool)
 
 smashGGMap_get_parser = reqparse.RequestParser()
 smashGGMap_get_parser.add_argument('bracket_url', type=str)
+
+rankings_criteria_get_parser = reqparse.RequestParser()
+rankings_criteria_get_parser.add_argument('day_limit', type=str)
+rankings_criteria_get_parser.add_argument('num_tourneys', type=str)
 
 merges_put_parser = reqparse.RequestParser()
 merges_put_parser.add_argument('source_player_id', type=str)
@@ -748,6 +752,11 @@ class RankingsResource(restful.Resource):
 
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
+        args = rankings_criteria_get_parser.parse_args()
+
+        day_limit = args['day_limit']
+        num_tourneys = args['num_tourneys']
+
         if not dao:
             return 'Dao not found', 404
         user = get_user_from_request(request, dao)
@@ -758,7 +767,15 @@ class RankingsResource(restful.Resource):
 
         # we pass in now so we can mock it out in tests
         now = datetime.now()
-        rankings.generate_ranking(dao, now=now)
+
+        if day_limit is not None and num_tourneys is not None:
+            #TODO Update rankings and store criteria in db
+            rankings.generate_ranking(dao, now=now, day_limit=day_limit, num_tourneys=num_tourneys)
+            new_rankings_criteria = RegionRankingsCriteria(day_limit=day_limit, num_tourneys=num_tourneys)
+            new_region = Region(region.lower(), region=None, rankings=new_rankings_criteria)
+
+        else:
+            rankings.generate_ranking(dao, now=now)
 
         return self.get(region)
 

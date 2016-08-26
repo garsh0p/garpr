@@ -79,6 +79,7 @@ class Dao(object):
         self.pending_tournaments_col = mongo_client[database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
         self.merges_col = mongo_client[database_name][MERGES_COLLECTION_NAME]
         self.sessions_col = mongo_client[database_name][SESSIONS_COLLECTION_NAME]
+        self.regions_col = mongo_client[database_name][REGIONS_COLLECTION_NAME]
         self.mongo_client = mongo_client
         self.region_id = region_id
 
@@ -147,6 +148,9 @@ class Dao(object):
 
     def update_player(self, player):
         return self.players_col.update({'_id': player.id}, player.get_json_dict())
+
+    def update_region(self, region):
+        return self.regions_col.update({'_id': region.id}, region.get_json_dict())
 
     # TODO bulk update
     def update_players(self, players):
@@ -447,6 +451,9 @@ class Dao(object):
 
 
     # session management
+
+    def update_region_ranking_criteria(self, id, rankings):
+        pass
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):

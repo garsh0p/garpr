@@ -421,6 +421,10 @@ app.controller("RankingsController", function($scope, $routeParams, $modal, Regi
     $scope.rankingsService = RankingsService
     $scope.sessionService = SessionService
 
+    /* CONTROL FORM */
+    $scope.numberDaysBack = 60;
+    $scope.numberTourneysAttended = 2;
+
     $scope.modalInstance = null;
     $scope.disableButtons = false;
 
@@ -431,6 +435,21 @@ app.controller("RankingsController", function($scope, $routeParams, $modal, Regi
             size: 'lg'
         });
     };
+
+    $scope.confirmWithCriteria = function(){
+        $scope.disableButtons = true;
+        url = hostname + $routeParams.region + '/rankings';
+        successCallback = function(data) {
+            $scope.rankingsService.rankingsList = data;
+            $scope.modalInstance.close();
+        };
+
+        postParams = {
+
+        }
+
+        $scope.sessionService.authenticatedPost(url, {}, successCallback, angular.noop);
+    }
 
     $scope.confirm = function() {
         $scope.disableButtons = true;

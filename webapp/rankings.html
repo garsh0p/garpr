@@ -1,19 +1,20 @@
-<div class="container" ng-init="isRankingsCollapsed = !isRankingsCollapsed">
+<div class="container">
     <div class="panel panel-default" id="rankingsControlPanel">
         <div class="panel-heading">
           <h4 class="panel-title">
-            <a href="#" ng-click="isRankingsCollapsed = !isRankingsCollapsed">
+            <a ng-click="isRankingsCollapsed = !isRankingsCollapsed">
               Rankings Control Panel
             </a>
           </h4>
         </div>
         <div collapse="isRankingsCollapsed">
           <div class="panel-body">
-              <form id="rankingsControlPanelForm">
+              <form id="rankingsControlPanelForm" ng-submit="changeRegionRankingsCriteria()">
                 <!-- Options to tweak rankings go here -->
-                Calculate <input type="number" id="numberDaysBackText" ng-model="numberDaysBack"> Days of Results. <br/>
-                Must attend at least <input type="number" id="numberTourneysAttendedText" ng-model="numberTourneysAttended" >
-                  tournaments in the ranking time frame. </br>
+                <input type="number" id="numberDaysBackText" ng-model="numberDaysBack"> Days Worth of Results. <br/><br/>
+                <input type="number" id="numberTourneysAttendedText" ng-model="numberTourneysAttended" >
+                  Tournaments Attended within {{ numberDaysBack }} Days. </br><br/>
+                  <input type="submit" value="Submit changes" />
               </form>
           </div>
         </div>

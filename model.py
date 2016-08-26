@@ -496,14 +496,18 @@ class RankingEntry(object):
                 json_dict['rating'])
 
 class Region(object):
-    def __init__(self, id, display_name, rankings=RegionRankingsCriteria()):
+    def __init__(self, id, display_name, rankings=None):
         '''
         :param id: TODO
         :param display_name: TODO
         '''
         self.id = id
         self.display_name = display_name
-        self.rankings = rankings
+
+        if rankings is not None:
+            self.rankings = rankings
+        else:
+            self.rankings = RegionRankingsCriteria()
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and \
