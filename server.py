@@ -980,7 +980,15 @@ class SessionResource(restful.Resource):
 
 class AdminFunctionsResource(restful.Resource):
     def get(self):
-        print 'Get method hit'
+        dao = Dao(None, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_region(user, region='*'):
+            return 'Permission denied', 403
+
         args = admin_functions_parser.parse_args()
 
         function_type = args['function_type']
@@ -996,6 +1004,15 @@ class AdminFunctionsResource(restful.Resource):
                 print "region created:", region_name
 
     def put(self):
+        dao = Dao(None, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_region(user, region='*'):
+            return 'Permission denied', 403
+
         args = admin_functions_parser.parse_args()
 
         function_type = args['function_type']
