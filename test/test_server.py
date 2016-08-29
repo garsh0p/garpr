@@ -19,60 +19,99 @@ NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
 NORCAL_PENDING_FILES = [('test/data/pending1.tio', 'bam 6 singles')]
 
-NORCAL_REGION_NAME = 'norcal'
-TEXAS_REGION_NAME = 'texas'
+TEMP_DB_NAME = 'garpr_test_tmp'
 
+def _import_file(f, dao):
+    scraper = TioScraper.from_file(f[0], f[1])
+    _import_players(scraper, dao)
+    player_map = dao.get_player_id_map_from_player_aliases(scraper.get_players())
+    dao.insert_tournament(Tournament.from_scraper('tio', scraper, player_map, dao.region_id))
+
+def _import_players(scraper, dao):
+    for player in scraper.get_players():
+        db_player = dao.get_player_by_alias(player)
+        if db_player is None:
+            db_player = Player(
+                    player,
+                    [player.lower()],
+                    {dao.region_id: TrueskillRating()},
+                    [dao.region_id])
+            dao.insert_player(db_player)
 
 class TestServer(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        mongo_client = mongomock.MongoClient()
+
+        norcal_region = Region('norcal', 'Norcal')
+        texas_region = Region('texas', 'Texas')
+        Dao.insert_region(norcal_region, mongo_client)
+        Dao.insert_region(texas_region, mongo_client)
+
+        norcal_dao = Dao('norcal', mongo_client=mongo_client)
+        texas_dao = Dao('texas', mongo_client=mongo_client)
+
+        for f in NORCAL_FILES:
+            _import_file(f, norcal_dao)
+
+        for f in TEXAS_FILES:
+            _import_file(f, texas_dao)
+
+        for f in NORCAL_PENDING_FILES:
+            scraper = TioScraper.from_file(f[0], f[1])
+            norcal_dao.insert_pending_tournament(PendingTournament.from_scraper('tio', scraper, norcal_dao.region_id))
+
+        now = datetime(2014, 11, 1)
+        rankings.generate_ranking(norcal_dao, now=now)
+        rankings.generate_ranking(texas_dao, now=now)
+
+        user_id = 'asdf'
+        user_full_name = 'full name'
+        user_admin_regions = ['norcal', 'nyc']
+        user = User(user_id, user_admin_regions, user_full_name, 0, 0)
+        norcal_dao.insert_user(user)
+
+        users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
+        salt = base64.b64encode(os.urandom(16))
+        hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT))
+        gar = User(None, 'norcal', 'gar', salt, hashed_password)
+        users_col.insert(gar.get_json_dict())
+
+        # store current mongo db instead of rerunning every time
+        # (unfortunately mongomock doesn't implement copydb)
+        cls.mongo_data = {}
+        for coll in mongo_client[DATABASE_NAME].collection_names():
+            cls.mongo_data[coll] = list(mongo_client[DATABASE_NAME][coll].find())
+
     def setUp(self):
         self.mongo_client_patcher = patch('server.mongo_client', new=mongomock.MongoClient())
         self.mongo_client = self.mongo_client_patcher.start()
+
+
+        # copy data from globals
+        # faster than loading every time
+        for coll, data in TestServer.mongo_data.items():
+            print coll, data
+            if data:
+                self.mongo_client[DATABASE_NAME][coll].insert_many(TestServer.mongo_data[coll])
 
         server.app.config['TESTING'] = True
         self.app = server.app.test_client()
 
         self.norcal_region = Region('norcal', 'Norcal')
         self.texas_region = Region('texas', 'Texas')
-        Dao.insert_region(self.norcal_region, self.mongo_client)
-        Dao.insert_region(self.texas_region, self.mongo_client)
 
-        self.norcal_dao = Dao(NORCAL_REGION_NAME, mongo_client=self.mongo_client)
+        self.norcal_dao = Dao('norcal', mongo_client=self.mongo_client)
         self.assertIsNotNone(self.norcal_dao)
-        self.texas_dao = Dao(TEXAS_REGION_NAME, mongo_client=self.mongo_client)
+        self.texas_dao = Dao('texas', mongo_client=self.mongo_client)
         self.assertIsNotNone(self.texas_dao)
-
-        self._import_files()
-        self._create_users(self.mongo_client)
-
-        now = datetime(2014, 11, 1)
-        rankings.generate_ranking(self.norcal_dao, now=now)
-        rankings.generate_ranking(self.texas_dao, now=now)
 
         self.user_id = 'asdf'
         self.user_full_name = 'full name'
         self.user_admin_regions = ['norcal', 'nyc']
         self.user = User(self.user_id, self.user_admin_regions, self.user_full_name, 0, 0)
-        self.norcal_dao.insert_user(self.user)
         self.users_col = self.mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
         self.sessions_col = self.mongo_client[DATABASE_NAME][SESSIONS_COLLECTION_NAME]
-
-
-    def _import_files(self):
-        for f in NORCAL_FILES:
-            scraper = TioScraper.from_file(f[0], f[1])
-            self._import_players(scraper, self.norcal_dao)
-            player_map = self.norcal_dao.get_player_id_map_from_player_aliases(scraper.get_players())
-            self.norcal_dao.insert_tournament(Tournament.from_scraper('tio', scraper, player_map, self.norcal_dao.region_id))
-
-        for f in TEXAS_FILES:
-            scraper = TioScraper.from_file(f[0], f[1])
-            self._import_players(scraper, self.texas_dao)
-            player_map = self.texas_dao.get_player_id_map_from_player_aliases(scraper.get_players())
-            self.texas_dao.insert_tournament(Tournament.from_scraper('tio', scraper, player_map, self.texas_dao.region_id))
-
-        for f in NORCAL_PENDING_FILES:
-            scraper = TioScraper.from_file(f[0], f[1])
-            self.norcal_dao.insert_pending_tournament(PendingTournament.from_scraper('tio', scraper, self.norcal_dao.region_id))
 
     def _import_players(self, scraper, dao):
         for player in scraper.get_players():
@@ -85,13 +124,6 @@ class TestServer(unittest.TestCase):
                         [dao.region_id])
                 dao.insert_player(db_player)
 
-    def _create_users(self, mongo_client):
-        salt = base64.b64encode(os.urandom(16)) #more bytes of randomness? i think 16 bytes is sufficient for a salt
-        # does this need to be encoded before its passed into hashlib?
-        hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT))
-        self.users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
-        gar = User(None, 'norcal', 'gar', salt, hashed_password)
-        self.users_col.insert(gar.get_json_dict())
 
 
 
