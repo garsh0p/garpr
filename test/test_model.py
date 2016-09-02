@@ -396,6 +396,7 @@ class TestPendingTournament(unittest.TestCase):
         self.players = [self.player_1.name, self.player_2.name, self.player_3.name, self.player_4.name]
         self.matches = [self.match_1, self.match_2]
         self.regions = ['norcal', 'texas']
+        self.url = 'http://challonge.com/test'
 
         self.pending_tournament_json_dict = {
                 '_id': self.id,
@@ -406,17 +407,18 @@ class TestPendingTournament(unittest.TestCase):
                 'players': self.players,
                 'matches': [m.get_json_dict() for m in self.matches],
                 'regions': self.regions,
-                'alias_to_id_map': self.alias_to_id_map
+                'alias_to_id_map': self.alias_to_id_map,
+                'url': self.url
         }
         self.pending_tournament = PendingTournament(
-                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map, id=self.id)
+                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map, id=self.id, url=self.url)
 
     def test_get_json_dict(self):
         self.assertEquals(self.pending_tournament.get_json_dict(), self.pending_tournament_json_dict)
 
     def test_get_json_dict_missing_id(self):
         self.pending_tournament = PendingTournament(
-                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map)
+                self.type, self.raw, self.date, self.name, self.players, self.matches, self.regions, alias_to_id_map=self.alias_to_id_map, url=self.url)
         del self.pending_tournament_json_dict['_id']
 
         self.assertEquals(self.pending_tournament.get_json_dict(), self.pending_tournament_json_dict)

@@ -37,6 +37,9 @@ class ChallongeScraper(object):
 
         return self.raw_dict
 
+    def get_url(self):
+        return self.get_raw()['tournament']['tournament']['full_challonge_url']
+
     def get_name(self):
         return self.get_raw()['tournament']['tournament']['name'].strip()
 

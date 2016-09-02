@@ -14,6 +14,7 @@ class TioScraper(object):
 
         self.text = raw
         self.soup = BeautifulSoup(self.text, 'xml')
+        self.url = None # no url for Tio 
 
     @classmethod
     def from_file(cls, filepath, bracket_name):
@@ -23,6 +24,9 @@ class TioScraper(object):
 
     def get_raw(self):
         return self.text
+
+    def get_url(self):
+        return self.url
 
     def get_name(self):
         return self.soup.Event.Name.text

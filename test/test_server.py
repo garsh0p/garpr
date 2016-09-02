@@ -342,6 +342,7 @@ class TestServer(unittest.TestCase):
             tournament = tournaments_list[i]
             tournament_from_db = dao.get_tournament_by_id(ObjectId(tournament['id']))
             expected_keys = set(['id', 'name', 'date', 'regions', 'pending'])
+            print tournament.keys()
             self.assertEquals(set(tournament.keys()), expected_keys)
             self.assertEquals(tournament['id'], str(tournament_from_db.id))
             self.assertEquals(tournament['name'], tournament_from_db.name)
@@ -352,7 +353,7 @@ class TestServer(unittest.TestCase):
         # the 3rd tournament should be a pending tournament
         pending_tournament = tournaments_list[2]
         pending_tournament_from_db = dao.get_pending_tournament_by_id(ObjectId(pending_tournament['id']))
-        expected_keys = set(['id', 'name', 'date', 'regions', 'pending'])
+        expected_keys = set(['id', 'name', 'date', 'regions', 'pending', 'url'])
         self.assertEquals(set(pending_tournament.keys()), expected_keys)
         self.assertEquals(pending_tournament['id'], str(pending_tournament_from_db.id))
         self.assertEquals(pending_tournament['name'], pending_tournament_from_db.name)
@@ -776,7 +777,7 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 8)
+        self.assertEquals(len(json_data.keys()), 9)
         self.assertEquals(json_data['id'], str(pending_tournament.id))
         self.assertEquals(json_data['name'], 'bam 6 - 11-8-14')
         self.assertEquals(json_data['type'], 'tio')

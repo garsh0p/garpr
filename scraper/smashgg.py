@@ -71,6 +71,10 @@ class SmashGGScraper(object):
         return {'event': self.event_dict,
                 'groups': self.group_dicts}
 
+
+    def get_url(self):
+        return self.path
+
     def get_name(self):
         return self.name
 
