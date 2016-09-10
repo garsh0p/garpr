@@ -99,7 +99,8 @@ app.service('RegionService', function ($http, PlayerService, TournamentService, 
                                {"id": "georgia", "display_name": "Georgia"},
                                {"id": "northcarolina", "display_name": "North Carolina"},
                                {"id": "southcarolina", "display_name": "South Carolina"},
-                               {"id": "alabama", "display_name": "Alabama"}];
+                               {"id": "alabama", "display_name": "Alabama"},
+                               {"id": "li", "display_name": "Long Island"}];
 
     return service;
 });
