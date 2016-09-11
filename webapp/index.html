@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 
         <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="https://bootswatch.com/paper/bootstrap.min.css">
         <link rel="stylesheet" href="style.css">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -20,7 +20,14 @@
         <script src="script.js"></script>
     </head>
     <body>
-        <div class="navbar navbar-inverse" role="navigation" ng-controller="NavbarController">
+        <div class="header" ng-controller="NavbarController">
+            <div class="header-wrapper">
+                <p id="header1">{{regionService.region.id}}</p>
+                <p id="header2">GAR</p>
+                <p id="header3">PR</p>
+            </div>
+        </div>
+        <div class="navbar navbar-default" role="navigation" ng-controller="NavbarController">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand">NOTGARPR</a>
