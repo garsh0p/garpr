@@ -1,19 +1,24 @@
-import unittest
-import server
-from mock import patch, Mock
-import mongomock
-from dao import Dao
-from scraper.tio import TioScraper
-from model import *
-import json
-import rankings
-from bson.objectid import ObjectId
-import requests
-from datetime import datetime
-import facebook
 import base64
+import facebook
+import hashlib
+import json
+import mongomock
+import os
+import requests
 import string
-from dao import USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
+import unittest
+
+from bson.objectid import ObjectId
+from datetime import datetime
+from mock import patch, Mock
+
+import rankings
+import server
+
+from dao import Dao, USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
+from scraper.tio import TioScraper
+from model import AliasMapping, AliasMatch, Match, Merge, Player, PendingTournament, \
+                 Ranking, RankingEntry, Rating, Region, Tournament, User
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -25,17 +30,21 @@ def _import_file(f, dao):
     scraper = TioScraper.from_file(f[0], f[1])
     _import_players(scraper, dao)
     player_map = dao.get_player_id_map_from_player_aliases(scraper.get_players())
-    dao.insert_tournament(Tournament.from_scraper('tio', scraper, player_map, dao.region_id))
+    pending_tournament = PendingTournament.from_scraper('tio', scraper, dao.region_id)
+    pending_tournament.alias_to_id_map = player_map
+    tournament = Tournament.from_pending_tournament(pending_tournament)
+    dao.insert_tournament(tournament)
 
 def _import_players(scraper, dao):
     for player in scraper.get_players():
         db_player = dao.get_player_by_alias(player)
         if db_player is None:
             db_player = Player(
-                    player,
-                    [player.lower()],
-                    {dao.region_id: TrueskillRating()},
-                    [dao.region_id])
+                    id=ObjectId(),
+                    name=player,
+                    aliases=[player.lower()],
+                    ratings={dao.region_id: Rating()},
+                    regions=[dao.region_id])
             dao.insert_player(db_player)
 
 class TestServer(unittest.TestCase):
@@ -43,8 +52,8 @@ class TestServer(unittest.TestCase):
     def setUpClass(cls):
         mongo_client = mongomock.MongoClient()
 
-        norcal_region = Region('norcal', 'Norcal')
-        texas_region = Region('texas', 'Texas')
+        norcal_region = Region(id='norcal', display_name='Norcal')
+        texas_region = Region(id='texas', display_name='Texas')
         Dao.insert_region(norcal_region, mongo_client)
         Dao.insert_region(texas_region, mongo_client)
 
@@ -68,14 +77,25 @@ class TestServer(unittest.TestCase):
         user_id = 'asdf'
         user_full_name = 'full name'
         user_admin_regions = ['norcal', 'nyc']
-        user = User(user_id, user_admin_regions, user_full_name, 0, 0)
+        user = User(
+            id=user_id,
+            admin_regions=user_admin_regions,
+            username=user_full_name,
+            salt='nacl',
+            hashed_password='browns')
         norcal_dao.insert_user(user)
 
         users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
         salt = base64.b64encode(os.urandom(16))
         hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT))
-        gar = User(None, 'norcal', 'gar', salt, hashed_password)
-        users_col.insert(gar.get_json_dict())
+
+        gar = User(
+            id='userid--gar',
+            admin_regions=['norcal'],
+            username='gar',
+            salt=salt,
+            hashed_password=hashed_password)
+        norcal_dao.insert_user(gar)
 
         # store current mongo db instead of rerunning every time
         # (unfortunately mongomock doesn't implement copydb)
@@ -91,15 +111,14 @@ class TestServer(unittest.TestCase):
         # copy data from globals
         # faster than loading every time
         for coll, data in TestServer.mongo_data.items():
-            print coll, data
             if data:
                 self.mongo_client[DATABASE_NAME][coll].insert_many(TestServer.mongo_data[coll])
 
         server.app.config['TESTING'] = True
         self.app = server.app.test_client()
 
-        self.norcal_region = Region('norcal', 'Norcal')
-        self.texas_region = Region('texas', 'Texas')
+        self.norcal_region = Region(id='norcal', display_name='Norcal')
+        self.texas_region = Region(id='texas', display_name='Texas')
 
         self.norcal_dao = Dao('norcal', mongo_client=self.mongo_client)
         self.assertIsNotNone(self.norcal_dao)
@@ -109,23 +128,14 @@ class TestServer(unittest.TestCase):
         self.user_id = 'asdf'
         self.user_full_name = 'full name'
         self.user_admin_regions = ['norcal', 'nyc']
-        self.user = User(self.user_id, self.user_admin_regions, self.user_full_name, 0, 0)
+        self.user = User(
+            id=self.user_id,
+            admin_regions=self.user_admin_regions,
+            username=self.user_full_name,
+            salt='nacl',
+            hashed_password='browns')
         self.users_col = self.mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
         self.sessions_col = self.mongo_client[DATABASE_NAME][SESSIONS_COLLECTION_NAME]
-
-    def _import_players(self, scraper, dao):
-        for player in scraper.get_players():
-            db_player = dao.get_player_by_alias(player)
-            if db_player is None:
-                db_player = Player(
-                        player,
-                        [player.lower()],
-                        {dao.region_id: TrueskillRating()},
-                        [dao.region_id])
-                dao.insert_player(db_player)
-
-
-
 
 ### start of actual test cases
 
@@ -353,7 +363,7 @@ class TestServer(unittest.TestCase):
         # the 3rd tournament should be a pending tournament
         pending_tournament = tournaments_list[2]
         pending_tournament_from_db = dao.get_pending_tournament_by_id(ObjectId(pending_tournament['id']))
-        expected_keys = set(['id', 'name', 'date', 'regions', 'pending', 'url'])
+        expected_keys = set(['id', 'name', 'date', 'regions', 'pending'])
         self.assertEquals(set(pending_tournament.keys()), expected_keys)
         self.assertEquals(pending_tournament['id'], str(pending_tournament_from_db.id))
         self.assertEquals(pending_tournament['name'], pending_tournament_from_db.name)
@@ -440,6 +450,7 @@ class TestServer(unittest.TestCase):
 
         response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
         json_data = json.loads(response.data)
+        print json_data
 
         mock_tio_scraper.assert_called_once_with('data', 'bracket')
 
@@ -516,28 +527,28 @@ class TestServer(unittest.TestCase):
         player_3_id = ObjectId()
         player_4_id = ObjectId()
         player_1 = Player(
-            'C9 Mango',
-            ['C9 Mango'],
-            {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
-            ['norcal', 'texas'],
+            name='C9 Mango',
+            aliases=['C9 Mango'],
+            ratings={'norcal': Rating(), 'texas': Rating()},
+            regions=['norcal', 'texas'],
             id=player_1_id)
         player_2 = Player(
-            '[A]rmada',
-            ['[A]rmada'],
-            {'norcal': TrueskillRating(), 'texas': TrueskillRating()},
-            ['norcal', 'texas'],
+            name='[A]rmada',
+            aliases=['[A]rmada'],
+            ratings={'norcal': Rating(), 'texas': Rating()},
+            regions=['norcal', 'texas'],
             id=player_2_id)
         player_3 = Player(
-            'Liquid`Hungrybox',
-            ['Liquid`Hungrybox'],
-            {'norcal': TrueskillRating()},
-            ['norcal'],
+            name='Liquid`Hungrybox',
+            aliases=['Liquid`Hungrybox'],
+            ratings={'norcal': Rating()},
+            regions=['norcal'],
             id=player_3_id)
         player_4 = Player(
-            'Poor | Zhu',
-            ['Poor | Zhu'],
-            {'norcal': TrueskillRating()},
-            ['norcal'],
+            name='Poor | Zhu',
+            aliases=['Poor | Zhu'],
+            ratings={'norcal': Rating()},
+            regions=['norcal'],
             id=player_4_id)
 
         players = [player_1, player_2, player_3, player_4]
@@ -552,22 +563,23 @@ class TestServer(unittest.TestCase):
         pending_tournament_id_1 = ObjectId()
         pending_tournament_players_1 = [player_1_name, player_2_name, player_3_name, player_4_name]
         pending_tournament_matches_1 = [
-                MatchResult(winner=player_2_name, loser=player_1_name),
-                MatchResult(winner=player_3_name, loser=player_4_name),
-                MatchResult(winner=player_1_name, loser=player_3_name),
-                MatchResult(winner=player_1_name, loser=player_2_name),
-                MatchResult(winner=player_1_name, loser=player_2_name),
-                MatchResult(winner=player_4_name, loser=new_player_name),
+                AliasMatch(winner=player_2_name, loser=player_1_name),
+                AliasMatch(winner=player_3_name, loser=player_4_name),
+                AliasMatch(winner=player_1_name, loser=player_3_name),
+                AliasMatch(winner=player_1_name, loser=player_2_name),
+                AliasMatch(winner=player_1_name, loser=player_2_name),
+                AliasMatch(winner=player_4_name, loser=new_player_name),
         ]
 
-        pending_tournament_1 = PendingTournament( 'tio',
-                                                  'raw',
-                                                  datetime(2009, 7, 10),
-                                                  'Genesis top 5',
-                                                  pending_tournament_players_1,
-                                                  pending_tournament_matches_1,
-                                                  ['norcal'],
-                                                  id=pending_tournament_id_1)
+        pending_tournament_1 = PendingTournament(
+                                    name='Genesis top 5',
+                                    type='tio',
+                                    regions=['norcal'],
+                                    date=datetime(2009, 7, 10),
+                                    raw='raw',
+                                    players=pending_tournament_players_1,
+                                    matches=pending_tournament_matches_1,
+                                    id=pending_tournament_id_1)
 
         pending_tournament_1.set_alias_id_mapping(player_1_name, player_1_id)
         pending_tournament_1.set_alias_id_mapping(player_2_name, player_2_id)
@@ -581,31 +593,34 @@ class TestServer(unittest.TestCase):
         pending_tournament_id_2 = ObjectId()
         pending_tournament_players_2 = [player_1_name, player_2_name]
         pending_tournament_matches_2 = [
-                MatchResult(winner=player_2_name, loser=player_1_name),
+                AliasMatch(winner=player_2_name, loser=player_1_name),
         ]
 
-        pending_tournament_2 = PendingTournament( 'tio',
-                                                  'raw',
-                                                  datetime(2014, 7, 10),
-                                                  'Fake Texas Tournament',
-                                                  pending_tournament_players_2,
-                                                  pending_tournament_matches_2,
-                                                  ['texas'],
-                                                  id=pending_tournament_id_2)
+        pending_tournament_2 = PendingTournament(
+                                    name='Fake Texas Tournament',
+                                    type='tio',
+                                    regions=['texas'],
+                                    date=datetime(2014, 7, 10),
+                                    raw='raw',
+                                    players=pending_tournament_players_2,
+                                    matches=pending_tournament_matches_2,
+                                    id=pending_tournament_id_2)
 
         pending_tournament_2.set_alias_id_mapping(player_1_name, player_1_id)
         pending_tournament_2.set_alias_id_mapping(player_2_name, player_2_id)
 
         # incompletely mapped pending tournament
         pending_tournament_id_3 = ObjectId()
-        pending_tournament_3 = PendingTournament( 'tio',
-                                                  'raw',
-                                                  datetime(2009, 7, 10),
-                                                  'Genesis top 4 incomplete',
-                                                  pending_tournament_players_1,
-                                                  pending_tournament_matches_1,
-                                                  ['norcal'],
-                                                  id=pending_tournament_id_3)
+        pending_tournament_3 = PendingTournament(
+                                    name='Genesis top 4 incomplete',
+                                    type='tio',
+                                    regions=['norcal'],
+                                    date=datetime(2009, 7, 10),
+                                    raw='raw',
+                                    players=pending_tournament_players_1,
+                                    matches=pending_tournament_matches_1,
+                                    id=pending_tournament_id_3)
+
 
         pending_tournament_3.set_alias_id_mapping(player_1_name, player_1_id)
         pending_tournament_3.set_alias_id_mapping(player_2_name, player_2_id)
@@ -685,6 +700,7 @@ class TestServer(unittest.TestCase):
         fixture_pending_tournaments = fixtures["pending_tournaments"]
         mock_get_user_from_request.return_value = self.user
 
+        print str(fixture_pending_tournaments[1])
         # finalize first pending tournament
         success_response = self.app.post(
             '/norcal/tournaments/' + str(fixture_pending_tournaments[1].id) + '/finalize')
@@ -725,7 +741,7 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/tournaments/' + str(tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 7)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['id'], str(tournament.id))
         self.assertEquals(json_data['name'], 'BAM: 4 stocks is not a lead')
         self.assertEquals(json_data['type'], 'tio')
@@ -761,7 +777,7 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/texas/tournaments/' + str(tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 7)
+        self.assertEquals(len(json_data.keys()), 8)
         self.assertEquals(json_data['id'], str(tournament.id))
         self.assertEquals(json_data['name'], 'FX Biweekly 6')
         self.assertEquals(json_data['type'], 'tio')
@@ -804,11 +820,11 @@ class TestServer(unittest.TestCase):
 
         player_tag = pending_tournament.players[0]
         real_player = self.norcal_dao.get_all_players()[0]
-        mapping = {"player_alias": player_tag, "player_id": real_player.id}
+        mapping = AliasMapping(player_alias=player_tag, player_id=real_player.id)
         self.assertFalse(mapping in pending_tournament.alias_to_id_map)
 
         pending_tournament.set_alias_id_mapping(player_tag, real_player.id)
-        pending_tournament_json = server.convert_pending_tournament_to_response(pending_tournament, self.norcal_dao)
+        pending_tournament_json = pending_tournament.dump(context='web', exclude=('raw',))
 
         # test put
         response = self.app.put('/norcal/pending_tournaments/' + str(pending_tournament.id),
@@ -826,8 +842,8 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 4)
-        self.assertEquals(json_data['time'], str(db_ranking.time))
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
         self.assertEquals(json_data['region'], self.norcal_dao.region_id)
         self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
@@ -859,8 +875,8 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 4)
-        self.assertEquals(json_data['time'], str(db_ranking.time))
+        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
         self.assertEquals(json_data['region'], self.norcal_dao.region_id)
 
@@ -897,7 +913,7 @@ class TestServer(unittest.TestCase):
         db_ranking = self.norcal_dao.get_latest_ranking()
 
         self.assertEquals(now, db_ranking.time)
-        self.assertEquals(json_data['time'], str(db_ranking.time))
+        self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
 
     @patch('server.get_user_from_request')
@@ -1039,7 +1055,8 @@ class TestServer(unittest.TestCase):
         player1 = ObjectId()
         player2 = ObjectId()
         new_players = (player1, player2)
-        new_matches = (MatchResult(player1, player2), MatchResult(player2, player1))
+        new_matches = (Match(winner=player1, loser=player2),
+                       Match(winner=player2, loser=player1))
 
         new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
         new_date = datetime.now()
@@ -1048,8 +1065,18 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
 
         # add new players to dao
-        player1_obj = Player('testshroomed', ['testshroomed'], {'norcal': TrueskillRating()}, ['norcal'], id=player1)
-        player2_obj = Player('testpewpewu', ['testpewpewu'], {'norcal': TrueskillRating()}, ['norcal', 'socal'], id=player2)
+        player1_obj = Player(
+            name='testshroomed',
+            aliases=['testshroomed'],
+            ratings={'norcal': Rating()},
+            regions=['norcal'],
+            id=player1)
+        player2_obj = Player(
+            name='testpewpewu',
+            aliases=['testpewpewu'],
+            ratings={'norcal': Rating()},
+            regions=['norcal', 'socal'],
+            id=player2)
         dao.insert_player(player1_obj)
         dao.insert_player(player2_obj)
 
@@ -1341,7 +1368,12 @@ class TestServer(unittest.TestCase):
         player_one = all_players[0]
 
         # dummy player to merge
-        player_two = Player('blah', ['blah'], dict(), ['norcal'], id=ObjectId())
+        player_two = Player(
+            name='blah',
+            aliases=['blah'],
+            ratings=dict(),
+            regions=['norcal'],
+            id=ObjectId())
         dao.insert_player(player_two)
 
         raw_dict = {'target_player_id': str(player_one.id), 'source_player_id' : str(player_two.id) }
@@ -1460,15 +1492,16 @@ class TestServer(unittest.TestCase):
         self.assertEquals(response.status_code, 503, msg=response.data)
 
     def test_put_session(self):
+        # TODO: refactor to use dao
         result = self.users_col.find({"username": "gar"})
         self.assertTrue(result.count() == 1, msg=result)
         username = "gar"
         passwd = "rip"
-        raw_dict = {}
-        raw_dict['username'] = username
-        raw_dict['password'] = passwd
+        raw_dict = {'username': username,
+                    'password': passwd}
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
+        print response, response.status_code, response.data
         self.assertEquals(response.status_code, 200, msg=response.headers)
         self.assertTrue('Set-Cookie' in response.headers.keys(), msg=str(response.headers))
         cookie_string = response.headers['Set-Cookie']

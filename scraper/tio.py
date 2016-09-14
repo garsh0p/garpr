@@ -1,7 +1,7 @@
-import os
 from bs4 import BeautifulSoup
-from model import MatchResult
+from model import AliasMatch
 from dateutil import parser
+
 
 class TioScraper(object):
 
@@ -14,7 +14,7 @@ class TioScraper(object):
 
         self.text = raw
         self.soup = BeautifulSoup(self.text, 'xml')
-        self.url = None # no url for Tio 
+        self.url = None  # no url for Tio
 
     @classmethod
     def from_file(cls, filepath, bracket_name):
@@ -35,7 +35,8 @@ class TioScraper(object):
         return parser.parse(self.soup.Event.StartDate.text)
 
     def get_matches(self):
-        player_map = dict((p.ID.text, p.Nickname.text.strip()) for p in self.soup.find_all('Player'))
+        player_map = dict((p.ID.text, p.Nickname.text.strip())
+                          for p in self.soup.find_all('Player'))
 
         bracket = None
         for b in self.soup.find_all('Game'):
@@ -58,7 +59,7 @@ class TioScraper(object):
             try:
                 winner = player_map[winner_id]
                 loser = player_map[loser_id]
-                match_result = MatchResult(winner=winner, loser=loser)
+                match_result = AliasMatch(winner=winner, loser=loser)
 
                 if match.IsChampionship.text == 'True':
                     grand_finals_first_set = match_result
@@ -67,7 +68,11 @@ class TioScraper(object):
                 else:
                     matches.append(match_result)
             except KeyError:
-                print 'Could not find player for ids', player_1_id, player_2_id
+                pass
+                # reduce console spam for now
+                # TODO: log this
+                # print 'Could not find player for ids', player_1_id,
+                # player_2_id
 
         if grand_finals_first_set is not None:
             matches.append(grand_finals_first_set)
