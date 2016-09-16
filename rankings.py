@@ -20,6 +20,8 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2):
 
         # TODO add a default rating entry when we add it to the map
         for match in tournament.matches:
+            if match.excluded is True:
+                continue
 
             # don't count matches where either player is OOR
             winner = dao.get_player_by_id(match.winner)
@@ -41,6 +43,7 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2):
 
             winner = player_id_to_player_map[match.winner]
             loser = player_id_to_player_map[match.loser]
+
 
             rating_calculators.update_trueskill_ratings(
                 dao.region_id, winner=winner, loser=loser)

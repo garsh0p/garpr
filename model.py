@@ -21,7 +21,8 @@ class AliasMatch(orm.Document):
 
 class Match(orm.Document):
     fields = [('winner', orm.ObjectIDField(required=True)),
-              ('loser', orm.ObjectIDField(required=True))]
+              ('loser', orm.ObjectIDField(required=True)),
+              ('excluded', orm.ObjectIDField(required=True))]
 
     def __str__(self):
         return "%s > %s" % (self.winner, self.loser)

@@ -67,8 +67,9 @@
                     <td>Loser</td>
                 </tr>
                 <tr ng-repeat="match in tournament.matches">
-                    <td class="success">{{match.winner}}</a></td>
-                    <td class="danger">{{match.loser}}</a></td>
+                    <input type="checkbox" id="exclude_set_checkbox_{{ match._id }}" ng-change="changeMatchInclusion(match)" />
+                    <td class="success" id="winner_{{ match._id }}">{{match.winner}}</a></td>
+                    <td class="danger" id="loser_{{ match._id }}">{{match.loser}}</a></td>
                 </tr>
             </table>
         </div>

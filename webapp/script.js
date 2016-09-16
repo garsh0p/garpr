@@ -771,6 +771,33 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     }
     // TODO submission checks! check to make sure everything in $scope.playerData is an object (not a string. string = partially typed box)
 
+    $scope.changeMatchInclusion = function(match){
+        var htmlId = 'exclude_set_checkbox_' + match._id;
+        var winnerHtmlId = 'winner_' + match.id;
+        var loserHtmlId = 'loser_' + match.id;
+
+        var matchCheckbox = document.getElementById(htmlId);
+        var winnerElement = document.getElementById(winnerHtmlId);
+        var loserElement = document.getElementById(loserHtmlId);
+
+        if(matchCheckbox.checked){
+            // TODO exclude set
+            //API CALL HERE
+
+            // TODO gray out the row
+            winnerElement.className = 'excludedSet';
+            loserElement.className = 'excludedSet';
+        }
+        else{
+            // TODO include set
+            // API CALL HERE
+
+            // TODO ungray the row
+            winnerElement.className = 'success';
+            loserElement.className = 'danger';
+        }
+    };
+
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success($scope.updateData);
 });
