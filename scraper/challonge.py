@@ -53,10 +53,19 @@ class ChallongeScraper(object):
         return iso8601.parse_date(self.get_raw()['tournament']['tournament']['created_at'])
 
     def get_matches(self):
-        player_map = dict((p['participant']['id'], p['participant']['name'].strip()
-                           if p['participant']['name']
-                           else p['participant']['username'].strip())
-                          for p in self.get_raw()['participants'])
+        # sometimes challonge seems to use the "group_player_ids" parameter of "participant" instead
+        # of the "id" parameter of "participant" in the "matches" api.
+        # not sure exactly when this happens, but the following code checks for both
+        player_map = dict()
+        for p in self.get_raw()['participants']:
+            if p['participant'].get('name'):
+                player_name = p['participant']['name'].strip()
+            else:
+                player_name = p['participant'].get('username', '<unknown>').strip()
+            player_map[p['participant'].get('id')] = player_name
+            if p['participant'].get('group_player_ids'):
+                for gpid in p['participant']['group_player_ids']:
+                    player_map[gpid] = player_name
 
         matches = []
         for m in self.get_raw()['matches']:
