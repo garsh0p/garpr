@@ -782,32 +782,32 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
 
         url = hostname + '';
         postParams = {
-            tournament_id : '',
+            tournament_id : $scope.tournamentId,
             match_id : '',
-            excluded_TF : '',
+            excluded_TF : matchCheckbox.checked
         }
 
         if(matchCheckbox.checked){
             //API CALL HERE
-            $http.sessionService.authenticatedPost(url, postParams,
-               () => {
+            $http.sessionService.authenticatedPost(url, postParams, () => {
                     // TODO gray out the row
                     winnerElement.className = 'excludedSet';
                     loserElement.className = 'excludedSet';
-               },
-               null);
+               }, excludeFailure);
         }
         else{
             // API CALL HERE
-            $http.sessionService.authenticatedPost(url, postParams,
-                () => {
+            $http.sessionService.authenticatedPost(url, postParams, () => {
                     // TODO ungray the row
                     winnerElement.className = 'success';
                     loserElement.className = 'danger';
-                },
-                null);
+                }, excludeFailure);
         }
     };
+
+    function excludeFailure(){
+        alert('Failure to exclude set. Please try again');
+    }
 
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success($scope.updateData);
