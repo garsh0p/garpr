@@ -780,9 +780,17 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         var winnerElement = document.getElementById(winnerHtmlId);
         var loserElement = document.getElementById(loserHtmlId);
 
+        url = hostname + '';
+        postParams = {
+            tournament_id : '',
+            match_id : '',
+            excluded_TF : '',
+        }
+
         if(matchCheckbox.checked){
             // TODO exclude set
             //API CALL HERE
+            $http.sessionService.authenticatedPost(url, postParams);
 
             // TODO gray out the row
             winnerElement.className = 'excludedSet';

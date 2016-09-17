@@ -67,9 +67,11 @@
                     <td>Loser</td>
                 </tr>
                 <tr ng-repeat="match in tournament.matches">
-                    <input type="checkbox" id="exclude_set_checkbox_{{ match._id }}" ng-change="changeMatchInclusion(match)" />
-                    <td class="success" id="winner_{{ match._id }}">{{match.winner}}</a></td>
-                    <td class="danger" id="loser_{{ match._id }}">{{match.loser}}</a></td>
+                    <div ng-show="sessionService.isAdminForRegion(regionService.region.id)">
+                        <input type="checkbox" id="exclude_set_checkbox_{{ match._id }}" ng-change="changeMatchInclusion(match)" />
+                    </div>
+                    <td class="success" id="winner_{{ match.id }}">{{match.winner}}</a></td>
+                    <td class="danger" id="loser_{{ match.id }}">{{match.loser}}</a></td>
                 </tr>
             </table>
         </div>

@@ -82,6 +82,11 @@ pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
 pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 
+tournament_details_exclude_match_parser = reqparse.RequestParser()
+tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
+tournament_details_exclude_match_parser.add_argument('match_id', type=str)
+tournament_details_exclude_match_parser.add_argument('excluded_TF', type=str)
+
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
 session_put_parser.add_argument('password', type=str)
@@ -663,6 +668,25 @@ class FinalizeTournamentResource(restful.Resource):
         except:
             return 'Dao threw an error somewhere', 400
 
+class ExcludeTournamentMatchResource(restful.Resource):
+    def get(self, region, id):
+        pass
+
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_regions(user, region):
+            return 'Permission denied', 403
+
+        args = tournament_details_exclude_match_parser.parse_args()
+        tournament_id = args['tournament_id']
+        match_id = args['match_id']
+        excluded = args['excluded_TF']
+
+        dao.set_match_exclusion_by_tournament_id_and_match_id(tournament_id, match_id, excluded)
+
 
 class RankingsResource(restful.Resource):
 
@@ -986,6 +1010,9 @@ api.add_resource(PendingTournamentResource,
                  '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource,
                  '/<string:region>/tournaments/<string:id>/finalize')
+
+api.add_resource(ExcludeTournamentMatchResource,
+                 '/<string:region>/tournaments/<string:id>/excludeMatch')
 
 api.add_resource(SmashGGMappingResource, '/smashGgMap')
 

@@ -292,6 +292,16 @@ class Dao(object):
         '''id must be an ObjectId'''
         return M.Tournament.load(self.tournaments_col.find_one({'_id': id}), context='db')
 
+    def get_match_by_id_and_tournament_id(self, tournament_id, match_id):
+        matches = M.Tournament.load(self.tournaments_col.find_one({'_id': id}, {'matches', 1}), context='db')
+        for match in matches:
+            if match_id == match.id:
+                return match
+
+    def set_match_exclusion_by_tournament_id_and_match_id(self, tournament_id, match_id, excluded):
+        # TODO call query that sets excluded for a match by its tournament id and match id
+        pass
+
     # gets potential merge targets from all regions
     # basically, get players who have an alias similar to the given alias
     def get_players_with_similar_alias(self, alias):
