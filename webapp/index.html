@@ -20,7 +20,7 @@
         <script src="script.js"></script>
     </head>
     <body>
-        <div class="header" ng-controller="NavbarController">
+        <div class="header vignette" ng-controller="NavbarController">
             <div class="header-wrapper">
                 <p id="header1">{{regionService.region.id}}</p>
                 <p id="header2">GAR</p>
@@ -82,7 +82,7 @@
         <div>
             <alert type="danger">NOTGARPR is in super alpha mode. Tread carefully</alert>
         </div>
-        <div ng-view></div>
+        <div id="main-content" ng-view></div>
     </body>
 </html>
 
