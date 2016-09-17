@@ -788,21 +788,24 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         }
 
         if(matchCheckbox.checked){
-            // TODO exclude set
             //API CALL HERE
-            $http.sessionService.authenticatedPost(url, postParams);
-
-            // TODO gray out the row
-            winnerElement.className = 'excludedSet';
-            loserElement.className = 'excludedSet';
+            $http.sessionService.authenticatedPost(url, postParams,
+               () => {
+                    // TODO gray out the row
+                    winnerElement.className = 'excludedSet';
+                    loserElement.className = 'excludedSet';
+               },
+               null);
         }
         else{
-            // TODO include set
             // API CALL HERE
-
-            // TODO ungray the row
-            winnerElement.className = 'success';
-            loserElement.className = 'danger';
+            $http.sessionService.authenticatedPost(url, postParams,
+                () => {
+                    // TODO ungray the row
+                    winnerElement.className = 'success';
+                    loserElement.className = 'danger';
+                },
+                null);
         }
     };
 
