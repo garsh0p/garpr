@@ -49,4 +49,3 @@ def get_player_or_suggestions_from_player_aliases(dao, aliases):
         }
 
     return alias_to_player_or_suggestions_map
-

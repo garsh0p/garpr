@@ -16,13 +16,14 @@
         <script src="lib/angulartics.js"></script>
         <script src="lib/angulartics-ga.js"></script>
         <script src="lib/angular-facebook.js"></script>
+        <script src="script-config.js"></script>
         <script src="script.js"></script>
     </head>
     <body>
         <div class="navbar navbar-inverse" role="navigation" ng-controller="NavbarController">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand">GAR PR</a>
+                    <a class="navbar-brand">NOTGARPR</a>
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
@@ -45,21 +46,21 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown" dropdown ng-controller="AuthenticationController">
                             <a class="dropdown-toggle" dropdown-toggle>
-                                {{sessionService.loggedIn ? sessionService.userInfo.full_name : "Login"}}
+                                {{sessionService.loggedIn ? sessionService.userInfo.username : "Login"}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                               <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="login()">Login with Facebook</a></li>
+                               <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
                                <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
                             </ul>
                         </li>
                         <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
                             <a class="dropdown-toggle" dropdown-toggle>
-                                {{regionService.region.display_name}} 
+                                {{regionService.region.display_name}}
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li ng-repeat="r in regionService.regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
+                                <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -72,7 +73,7 @@
             </div>
         </div>
         <div>
-            <alert type="danger">GAR PR is slowly making progress on administration features and adding new regions. Please be patient!</alert>
+            <alert type="danger">NOTGARPR is in super alpha mode. Tread carefully</alert>
         </div>
         <div ng-view></div>
     </body>
