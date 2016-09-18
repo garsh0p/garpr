@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="myApp">
+<html class="vignette" ng-app="myApp">
     <head>
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -19,12 +19,13 @@
         <script src="script-config.js"></script>
         <script src="script.js"></script>
     </head>
-    <body>
+    <body class="vignette">
         <div class="header vignette" ng-controller="NavbarController">
             <div class="header-wrapper">
                 <p id="header1">{{regionService.region.id}}</p>
                 <p id="header2">GAR</p>
                 <p id="header3">PR</p>
+                <div id="beta">BETA</div>
             </div>
         </div>
         <div class="navbar navbar-default" role="navigation" ng-controller="NavbarController">
@@ -79,10 +80,10 @@
                 </div><!--/.nav-collapse -->
             </div>
         </div>
-        <div>
-            <alert type="danger">NOTGARPR is in super alpha mode. Tread carefully</alert>
-        </div>
+    
         <div id="main-content" ng-view></div>
+
+
     </body>
 </html>
 

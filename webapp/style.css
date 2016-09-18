@@ -1,8 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto Condensed:300,400,500,700");
 
 html, body{
-	background-image: url("images/bg.png") !important;
-	background-repeat: repeat-y repeat x;
+	    background-color: #656565 !important;
 }
 
 .header{
@@ -12,7 +11,7 @@ html, body{
     font-size: 72px;
     letter-spacing: 10px;
     height: 120px;
-    background-color: #9e9e9e !important;
+    background-color: #656565 !important;
     border-bottom: 1px solid #666;
 }
 
@@ -20,10 +19,10 @@ html, body{
     
     background: 
       -webkit-linear-gradient(left, 
-        rgba(100,100,100,0.65) 0%, 
+        rgba(0,0,0,0.65) 0%, 
         rgba(0,0,0,0) 20%,
         rgba(0,0,0,0) 80%,
-        rgba(100,100,100,0.65) 100%
+        rgba(0,0,0,0.65) 100%
       );
 }
 
@@ -33,7 +32,7 @@ html, body{
 }
 
 #header1{
-	color:#dedede;
+	color:#ffe83a;
 }
 
 #header2{
@@ -41,8 +40,19 @@ html, body{
 }
 
 #header3{
-	color:#666666;
+	color:#444444;
 }
+
+#beta{
+	font-size: 12px;
+    color: white;
+    margin-top: 35px;
+}
+
+.navbar{
+	margin-bottom: 0px;
+}
+
 .pending {
     font-style: italic;
 }
@@ -53,4 +63,8 @@ html, body{
 
 .pending > a {
     color: gray;
+}
+
+table, .container{
+	background-color:#eeeeee;
 }
