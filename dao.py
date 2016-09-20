@@ -464,7 +464,7 @@ class Dao(object):
         # special case for LI
         if self.region_id == "li":
             day_limit = 90
-            num_tourneys = 4
+            num_tourneys = 6
 
         qualifying_tournaments = [x for x in self.get_all_tournaments(
             players=[player], regions=[self.region_id]) if x.date >= (now - timedelta(days=day_limit))]
