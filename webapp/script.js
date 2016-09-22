@@ -784,7 +784,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         postParams = {
             tournament_id : $scope.tournamentId,
             match_id : '',
-            excluded_TF : matchCheckbox.checked
+            excluded_tf : matchCheckbox.checked
         }
 
         if(matchCheckbox.checked){

@@ -85,7 +85,7 @@ pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 tournament_details_exclude_match_parser = reqparse.RequestParser()
 tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
 tournament_details_exclude_match_parser.add_argument('match_id', type=str)
-tournament_details_exclude_match_parser.add_argument('excluded_TF', type=str)
+tournament_details_exclude_match_parser.add_argument('excluded_tf', type=str)
 
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
@@ -683,7 +683,7 @@ class ExcludeTournamentMatchResource(restful.Resource):
         args = tournament_details_exclude_match_parser.parse_args()
         tournament_id = args['tournament_id']
         match_id = args['match_id']
-        excluded = args['excluded_TF']
+        excluded = args['excluded_tf']
 
         dao.set_match_exclusion_by_tournament_id_and_match_id(tournament_id, match_id, excluded)
 
