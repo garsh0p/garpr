@@ -771,6 +771,25 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     }
     // TODO submission checks! check to make sure everything in $scope.playerData is an object (not a string. string = partially typed box)
 
+    $scope.isMatchCurrentlyExcluded = function(match){
+        var excluded = match.excluded;
+
+        if(excluded){
+            //var htmlId = 'exclude_set_checkbox_' + match.match_id;
+            var winnerHtmlId = 'winner_' + match.match_id;
+            var loserHtmlId = 'loser_' + match.match_id;
+
+            //var matchCheckbox = document.getElementById(htmlId);
+            var winnerElement = document.getElementById(winnerHtmlId);
+            var loserElement = document.getElementById(loserHtmlId);
+
+            winnerElement.className = 'excludedSet';
+            loserElement.className = 'excludedSet';
+        }
+
+        return excluded;
+    }
+
     $scope.changeMatchExclusion = function(match){
         var htmlId = 'exclude_set_checkbox_' + match.match_id;
         var winnerHtmlId = 'winner_' + match.match_id;

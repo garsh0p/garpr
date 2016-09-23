@@ -115,7 +115,8 @@
                     </td>
                     <td ng-show="sessionService.isAdmin()">
                         <input type="checkbox" id="exclude_set_checkbox_{{ match.match_id }}"
-                               ng-model='matchCheckbox' ng-change="changeMatchExclusion(match)" />
+                               ng-model='matchCheckbox' ng-change="changeMatchExclusion(match)"
+                               ng-checked="isMatchCurrentlyExcluded(match)"/>
                     </td>
                 </tr>
             </table>
