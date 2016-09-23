@@ -771,25 +771,27 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     }
     // TODO submission checks! check to make sure everything in $scope.playerData is an object (not a string. string = partially typed box)
 
-    $scope.changeMatchInclusion = function(match){
-        var htmlId = 'exclude_set_checkbox_' + match._id;
-        var winnerHtmlId = 'winner_' + match.id;
-        var loserHtmlId = 'loser_' + match.id;
+    $scope.changeMatchExclusion = function(match){
+        var htmlId = 'exclude_set_checkbox_' + match.match_id;
+        var winnerHtmlId = 'winner_' + match.match_id;
+        var loserHtmlId = 'loser_' + match.match_id;
 
         var matchCheckbox = document.getElementById(htmlId);
         var winnerElement = document.getElementById(winnerHtmlId);
         var loserElement = document.getElementById(loserHtmlId);
 
-        url = hostname + '';
         postParams = {
             tournament_id : $scope.tournamentId,
-            match_id : '',
+            match_id : match.match_id,
             excluded_tf : matchCheckbox.checked
         }
 
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/excludeMatch';
+
         if(matchCheckbox.checked){
             //API CALL HERE
-            $http.sessionService.authenticatedPost(url, postParams, () => {
+            $scope.sessionService.authenticatedPost(url, postParams,
+                (data) => {
                     // TODO gray out the row
                     winnerElement.className = 'excludedSet';
                     loserElement.className = 'excludedSet';
@@ -797,7 +799,8 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         }
         else{
             // API CALL HERE
-            $http.sessionService.authenticatedPost(url, postParams, () => {
+            $scope.sessionService.authenticatedPost(url, postParams,
+                (data) => {
                     // TODO ungray the row
                     winnerElement.className = 'success';
                     loserElement.className = 'danger';

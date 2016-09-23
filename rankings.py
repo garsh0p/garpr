@@ -22,6 +22,7 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2):
         for match in tournament.matches:
             if match.excluded is True:
                 print('match excluded:')
+                print('Tournament: ' + tournament.id)
                 print(str(match))
                 continue
 
