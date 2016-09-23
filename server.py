@@ -418,7 +418,9 @@ def convert_tournament_to_response(tournament, dao):
         'winner_id': m['winner'],
         'loser_id': m['loser'],
         'winner_name': dao.get_player_by_id(ObjectId(m['winner'])).name,
-        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name
+        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name,
+        'match_id': m['match_id'],
+        'excluded': m['excluded']
     } for m in return_dict['matches']]
 
     return return_dict

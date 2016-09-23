@@ -21,6 +21,8 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2):
         # TODO add a default rating entry when we add it to the map
         for match in tournament.matches:
             if match.excluded is True:
+                print('match excluded:')
+                print(str(match))
                 continue
 
             # don't count matches where either player is OOR
