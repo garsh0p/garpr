@@ -20,16 +20,16 @@ class AliasMatch(orm.Document):
 
 
 class Match(orm.Document):
-    fields = [('id', orm.ObjectIDField(required=True)),
+    fields = [('match_id', orm.IntField(required=True)),
               ('winner', orm.ObjectIDField(required=True)),
               ('loser', orm.ObjectIDField(required=True)),
-              ('excluded', orm.ObjectIDField(required=True))]
+              ('excluded', orm.BooleanField(required=True))]
 
     def __str__(self):
         return "%s > %s" % (self.winner, self.loser)
 
     def id(self):
-        return self.id
+        return self.match_id
 
     def is_excluded(self):
         return self.excluded
