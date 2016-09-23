@@ -806,6 +806,9 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         }
 
         url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/excludeMatch';
+        console.log(url);
+        console.log('  [UI] PAYLOAD: \ntournament id: ' + postParams.tournament_id +
+                    '\nmatch id: ' + postParams.match_id + '\nexcluded: ' + postParams.excluded_tf);
 
         if(matchCheckbox.checked){
             //API CALL HERE

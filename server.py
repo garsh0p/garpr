@@ -687,6 +687,11 @@ class ExcludeTournamentMatchResource(restful.Resource):
         match_id = args['match_id']
         excluded = (args['excluded_tf'] == 'true')
 
+        print '  [SERVER] DATA:\n ' + \
+              'tournament_id: ' + str(tournament_id) + \
+              'match_id: ' + str(match_id) + \
+              'excluded: ' + str(excluded)
+
         dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
 
 
@@ -785,7 +790,10 @@ class MatchesResource(restful.Resource):
                             ObjectId(match_dict['opponent_id'])).name
                     except:
                         return 'Invalid ObjectID', 400
-                    if match.did_player_win(player.id):
+
+                    if match.excluded is True:
+                        match_dict['result'] = 'excluded'
+                    elif match.did_player_win(player.id):
                         match_dict['result'] = 'win'
                         return_dict['wins'] += 1
                     else:
