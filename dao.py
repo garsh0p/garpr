@@ -299,30 +299,21 @@ class Dao(object):
                 return match
 
     def set_match_exclusion_by_tournament_id_and_match_id(self, tournament_id, match_id, excluded):
-        print '  [DAO] Match Exclusion Hit'
-
         # TODO ENHANCE THIS ALGORITHM TO ONLY UPDATE MATCH
+        match_updated = False
         new_matches = []
         tourney_m = \
             M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}, {'matches': 1}), context='db')
 
-        #print(tourney_m)
-        #print('-------------------------------------------')
-        #print self.tournaments_col.find_one({'_id': tournament_id}, {'matches': 1})
-
         for match in tourney_m.matches:
-            print(str(match))
-            print('  [DAO] got match ' + str(match.match_id))
-
-            if match_id == match.id:
-                print '  [DAO] Changing match ' + match.match_id + ' exclusion'
-                match.excluded = excluded
+            if int(match_id) == int(match.match_id):
+                match.set_excluded(excluded)
+                match_updated = True
             new_matches.append(match)
 
-        M.Tournament.load(self.tournaments_col.update(
-            {'_id': tournament_id},
-            {'$set': {'matches': new_matches}}
-        ))
+        if match_updated is True:
+            tourney_m.matches = new_matches
+            self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
 
     # gets potential merge targets from all regions
     # basically, get players who have an alias similar to the given alias

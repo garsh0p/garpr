@@ -673,8 +673,6 @@ class ExcludeTournamentMatchResource(restful.Resource):
         pass
 
     def post(self, region, id):
-        print '  [SERVER] changing match exclusion'
-
         dao = Dao(region, mongo_client=mongo_client)
         user = get_user_from_request(request, dao)
         #if not user:
@@ -685,10 +683,7 @@ class ExcludeTournamentMatchResource(restful.Resource):
         args = tournament_details_exclude_match_parser.parse_args()
         tournament_id = args['tournament_id']
         match_id = args['match_id']
-        excluded = args['excluded_tf']
-
-        print '  [SERVER] DATA:\n tournament: ' + str(tournament_id) + \
-              '\n match: ' + str(match_id) + '\n excluded_tf: ' + str(excluded)
+        excluded = (args['excluded_tf'] == 'true')
 
         dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
 

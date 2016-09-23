@@ -28,11 +28,17 @@ class Match(orm.Document):
     def __str__(self):
         return "%s > %s" % (self.winner, self.loser)
 
-    def id(self):
+    def get_match_id(self):
         return self.match_id
+
+    def set_match_id(self, id):
+        self.match_id = id
 
     def is_excluded(self):
         return self.excluded
+
+    def set_excluded(self, excluded):
+        self.excluded = excluded
 
     def contains_players(self, player1, player2):
         return (self.winner == player1 and self.loser == player2) or \
