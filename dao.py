@@ -293,18 +293,26 @@ class Dao(object):
         return M.Tournament.load(self.tournaments_col.find_one({'_id': id}), context='db')
 
     def get_tournament_by_id_and_match_id(self, tournament_id, match_id):
-        tourney_m = M.Tournament.load(self.tournaments_col.find_one({'_id': id}, {'matches', 1}), context='db')
+        tourney_m = M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}, {'matches', 1}), context='db')
         for match in tourney_m.matches:
             if match_id == match.id:
                 return match
 
     def set_match_exclusion_by_tournament_id_and_match_id(self, tournament_id, match_id, excluded):
+        print '  [DAO] Changing Match Exclusion'
+
         # TODO ENHANCE THIS ALGORITHM TO ONLY UPDATE MATCH
         new_matches = []
         tourney_m = \
             M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}, {'matches': 1}), context='db')
-        for match in tourney_m.matches:
+        for match_doc in tourney_m:
+            print('  [DAO] got ' + str(match_doc))
+
+            match = M.Match(match_doc)
+            print('  [DAO] got match ' + match.id)
+
             if match_id == match.id:
+                print '  [DAO] Changing match ' + match.id + ' exclusion'
                 match.excluded = excluded
             new_matches.append(match)
 
