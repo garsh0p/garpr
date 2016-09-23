@@ -303,7 +303,7 @@ class Dao(object):
         match_updated = False
         new_matches = []
         tourney_m = \
-            M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}, {'matches': 1}), context='db')
+            M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}), context='db')
 
         for match in tourney_m.matches:
             if int(match_id) == int(match.match_id):
