@@ -24,5 +24,5 @@
 .table > thead > tr.excludedSet > th,
 .table > tbody > tr.excludedSet > th,
 .table > tfoot > tr.excludedSet > th {
-  background-color: #838383;
+  background-color: #9b9b9b;
 }
