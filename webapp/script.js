@@ -606,6 +606,8 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.playerData = {};
     $scope.playerCheckboxState = {};
 
+    $scope.matchCheckbox = null;
+
     $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
             templateUrl: 'tournament_details_modal.html',
