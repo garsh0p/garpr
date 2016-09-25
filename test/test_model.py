@@ -194,7 +194,7 @@ class TestTournament(unittest.TestCase):
 
         self.id = ObjectId()
         self.type = 'tio'
-        self.raw = 'raw'
+        self.raw_id = ObjectId()
         self.date = datetime.now()
         self.name = 'tournament'
         self.url = "challonge.com/tournament"
@@ -208,7 +208,7 @@ class TestTournament(unittest.TestCase):
         self.tournament_json_dict = {
             '_id': self.id,
             'type': self.type,
-            'raw': self.raw,
+            'raw_id': self.raw_id,
             'date': self.date,
             'name': self.name,
             'url': self.url,
@@ -224,7 +224,7 @@ class TestTournament(unittest.TestCase):
             date=self.date,
             regions=self.regions,
             url=self.url,
-            raw=self.raw,
+            raw_id=self.raw_id,
             players=self.player_ids,
             orig_ids=self.player_ids,
             matches=self.matches)
@@ -277,8 +277,6 @@ class TestTournament(unittest.TestCase):
         self.assertEqual(len(self.tournament.players), 4)
 
     def test_dump(self):
-        print self.tournament_json_dict
-        print self.tournament.dump(context='db')
         self.assertEqual(self.tournament.dump(
             context='db'), self.tournament_json_dict)
 
@@ -286,7 +284,7 @@ class TestTournament(unittest.TestCase):
         tournament = Tournament.load(self.tournament_json_dict, context='db')
         self.assertEqual(tournament.id, self.id)
         self.assertEqual(tournament.type, self.type)
-        self.assertEqual(tournament.raw, self.raw)
+        self.assertEqual(tournament.raw_id, self.raw_id)
         self.assertEqual(tournament.date, self.date)
         self.assertEqual(tournament.name, self.name)
         self.assertEqual(tournament.matches, self.matches)
@@ -306,7 +304,7 @@ class TestTournament(unittest.TestCase):
             name=self.name,
             type=self.type,
             date=self.date,
-            raw=self.raw,
+            raw_id=self.raw_id,
             regions=['norcal'],
             players=player_aliases,
             matches=matches,
@@ -316,14 +314,14 @@ class TestTournament(unittest.TestCase):
 
         self.assertIsNone(tournament.id)
         self.assertEqual(tournament.type, self.type)
-        self.assertEqual(tournament.raw, self.raw)
+        self.assertEqual(tournament.raw_id, self.raw_id)
         self.assertEqual(tournament.date, self.date)
         self.assertEqual(tournament.name, self.name)
         self.assertEqual(tournament.matches, self.matches)
         self.assertEqual(tournament.players, self.player_ids)
         self.assertEqual(tournament.regions, ['norcal'])
 
-    def test_from_scraper_throws_exception(self):
+    def test_from_pending_tournament_throws_exception(self):
         # we need MatchResults with aliases (instead of IDs)
         match_1 = AliasMatch(winner=self.player_1.name,
                              loser=self.player_2.name)
@@ -339,7 +337,7 @@ class TestTournament(unittest.TestCase):
             type=self.type,
             date=self.date,
             regions=['norcal'],
-            raw=self.raw,
+            raw_id=self.raw_id,
             players=player_aliases,
             matches=matches,
             alias_to_id_map=alias_to_id_map)
@@ -385,7 +383,7 @@ class TestPendingTournament(unittest.TestCase):
 
         self.id = ObjectId()
         self.type = 'tio'
-        self.raw = 'raw'
+        self.raw_id = ObjectId()
         self.date = datetime.now()
         self.name = 'tournament'
         self.players = [self.player_1.name, self.player_2.name,
@@ -397,7 +395,7 @@ class TestPendingTournament(unittest.TestCase):
         self.pending_tournament_json_dict = {
             '_id': self.id,
             'type': self.type,
-            'raw': self.raw,
+            'raw_id': self.raw_id,
             'date': self.date,
             'name': self.name,
             'players': self.players,
@@ -413,7 +411,7 @@ class TestPendingTournament(unittest.TestCase):
             date=self.date,
             regions=self.regions,
             url=self.url,
-            raw=self.raw,
+            raw_id=self.raw_id,
             players=self.players,
             matches=self.matches,
             alias_to_id_map=self.alias_to_id_map)
@@ -427,7 +425,7 @@ class TestPendingTournament(unittest.TestCase):
             self.pending_tournament_json_dict, context='db')
         self.assertEqual(pending_tournament.id, self.id)
         self.assertEqual(pending_tournament.type, self.type)
-        self.assertEqual(pending_tournament.raw, self.raw)
+        self.assertEqual(pending_tournament.raw_id, self.raw_id)
         self.assertEqual(pending_tournament.date, self.date)
         self.assertEqual(pending_tournament.name, self.name)
         self.assertEqual(pending_tournament.matches, self.matches)
@@ -473,15 +471,14 @@ class TestPendingTournament(unittest.TestCase):
 
         mock_scraper.get_players.return_value = self.players
         mock_scraper.get_matches.return_value = self.matches
-        mock_scraper.get_raw.return_value = self.raw
+        mock_scraper.get_raw.return_value = ''
         mock_scraper.get_date.return_value = self.date
         mock_scraper.get_name.return_value = self.name
 
-        pending_tournament = PendingTournament.from_scraper(
+        pending_tournament, _ = PendingTournament.from_scraper(
             self.type, mock_scraper, 'norcal')
 
         self.assertEqual(pending_tournament.type, self.type)
-        self.assertEqual(pending_tournament.raw, self.raw)
         self.assertEqual(pending_tournament.date, self.date)
         self.assertEqual(pending_tournament.name, self.name)
         self.assertEqual(pending_tournament.matches, self.matches)

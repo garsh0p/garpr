@@ -30,7 +30,7 @@ def _import_file(f, dao):
     scraper = TioScraper.from_file(f[0], f[1])
     _import_players(scraper, dao)
     player_map = dao.get_player_id_map_from_player_aliases(scraper.get_players())
-    pending_tournament = PendingTournament.from_scraper('tio', scraper, dao.region_id)
+    pending_tournament, _ = PendingTournament.from_scraper('tio', scraper, dao.region_id)
     pending_tournament.alias_to_id_map = player_map
     tournament = Tournament.from_pending_tournament(pending_tournament)
     dao.insert_tournament(tournament)
@@ -68,7 +68,7 @@ class TestServer(unittest.TestCase):
 
         for f in NORCAL_PENDING_FILES:
             scraper = TioScraper.from_file(f[0], f[1])
-            norcal_dao.insert_pending_tournament(PendingTournament.from_scraper('tio', scraper, norcal_dao.region_id))
+            norcal_dao.insert_pending_tournament(PendingTournament.from_scraper('tio', scraper, norcal_dao.region_id)[0])
 
         now = datetime(2014, 11, 1)
         rankings.generate_ranking(norcal_dao, now=now)
@@ -741,7 +741,7 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/tournaments/' + str(tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 8)
+        self.assertEquals(len(json_data.keys()), 9)
         self.assertEquals(json_data['id'], str(tournament.id))
         self.assertEquals(json_data['name'], 'BAM: 4 stocks is not a lead')
         self.assertEquals(json_data['type'], 'tio')
@@ -777,7 +777,7 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/texas/tournaments/' + str(tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 8)
+        self.assertEquals(len(json_data.keys()), 9)
         self.assertEquals(json_data['id'], str(tournament.id))
         self.assertEquals(json_data['name'], 'FX Biweekly 6')
         self.assertEquals(json_data['type'], 'tio')
@@ -793,7 +793,7 @@ class TestServer(unittest.TestCase):
         data = self.app.get('/norcal/tournaments/' + str(pending_tournament.id)).data
         json_data = json.loads(data)
 
-        self.assertEquals(len(json_data.keys()), 9)
+        self.assertEquals(len(json_data.keys()), 10)
         self.assertEquals(json_data['id'], str(pending_tournament.id))
         self.assertEquals(json_data['name'], 'bam 6 - 11-8-14')
         self.assertEquals(json_data['type'], 'tio')
@@ -1016,7 +1016,6 @@ class TestServer(unittest.TestCase):
         old_date = the_tourney.date
         old_matches = the_tourney.matches
         old_players = the_tourney.players
-        old_raw = the_tourney.raw
         old_regions = the_tourney.regions
         old_type = the_tourney.type
 
@@ -1033,7 +1032,6 @@ class TestServer(unittest.TestCase):
         self.assertEquals(old_date, the_tourney.date)
         self.assertEquals(old_matches, the_tourney.matches)
         self.assertEquals(old_players, the_tourney.players)
-        self.assertEquals(old_raw, the_tourney.raw)
         self.assertEquals(old_regions, the_tourney.regions)
         self.assertEquals(old_type, the_tourney.type)
 
@@ -1049,7 +1047,6 @@ class TestServer(unittest.TestCase):
         #save info about it
         tourney_id = the_tourney.id
         new_tourney_name = "jessesGodlikeTourney"
-        old_raw = the_tourney.raw
         old_type = the_tourney.type
         #setup for test 2
         player1 = ObjectId()
@@ -1103,7 +1100,6 @@ class TestServer(unittest.TestCase):
             self.assertEqual(m1.loser, m2.loser)
 
         self.assertEquals(set(new_players), set(the_tourney.players))
-        self.assertEquals(old_raw, the_tourney.raw)
         self.assertEquals(set(new_regions), set(the_tourney.regions))
         self.assertEquals(old_type, the_tourney.type)
 
