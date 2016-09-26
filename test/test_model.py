@@ -332,7 +332,10 @@ class TestTournament(unittest.TestCase):
         self.assertEqual(tournament.raw, self.raw)
         self.assertEqual(tournament.date, self.date)
         self.assertEqual(tournament.name, self.name)
-        self.assertEqual(tournament.matches, self.matches)
+        self.assertEqual(tournament.matches[0].winner, self.matches[0].winner)
+        self.assertEqual(tournament.matches[0].loser, self.matches[0].loser)
+        self.assertEqual(tournament.matches[1].winner, self.matches[1].winner)
+        self.assertEqual(tournament.matches[1].loser, self.matches[1].loser)
         self.assertEqual(tournament.players, self.player_ids)
         self.assertEqual(tournament.regions, ['norcal'])
 
