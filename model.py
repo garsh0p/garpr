@@ -167,15 +167,21 @@ class Tournament(orm.Document):
         print pending_tournament.players, pending_tournament.matches
         players = [_get_player_id_from_map_or_throw(
             alias_to_id_map, p) for p in pending_tournament.players]
+
         matches = []
+        counter = 0
         for am in pending_tournament.matches:
             m = Match(
+                match_id=counter,
                 winner=_get_player_id_from_map_or_throw(
                     alias_to_id_map, am.winner),
                 loser=_get_player_id_from_map_or_throw(
-                    alias_to_id_map, am.loser)
+                    alias_to_id_map, am.loser),
+                excluded=False
             )
             matches.append(m)
+            counter+=1
+
         return cls(
             id=pending_tournament.id,
             name=pending_tournament.name,
