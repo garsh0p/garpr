@@ -49,13 +49,24 @@ class TestMatch(unittest.TestCase):
         self.loser = ObjectId()
         self.other_player = ObjectId()
 
-        self.match_result = Match(winner=self.winner, loser=self.loser)
+        self.match_id = 1
+        self.match_id2 = 2
+        self.excluded1 = False
+        self.excluded2 = True
+
+        self.match_result = Match(match_id=self.match_id, winner=self.winner,
+                                  loser=self.loser, excluded=self.excluded1)
         self.other_match_result = Match(
-            winner=self.winner, loser=self.other_player)
+            match_id=self.match_id2,
+            winner=self.winner,
+            loser=self.other_player,
+            excluded=self.excluded2)
 
         self.match_result_json_dict = {
+            'match_id': self.match_id,
             'winner': self.winner,
-            'loser': self.loser
+            'loser': self.loser,
+            'excluded': self.excluded1
         }
 
     def test_contains_players(self):
@@ -89,6 +100,8 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(self.match_result, Match.load(
             self.match_result_json_dict, context='web'))
 
+    def test_match_exclusion(self):
+        pass
 
 class TestPlayer(unittest.TestCase):
 
