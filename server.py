@@ -939,12 +939,14 @@ class SessionResource(restful.Resource):
 
         return return_dict
 
+
 class AdminFunctionsResource(restful.Resource):
     def get(self):
         pass
 
     def put(self):
         dao = Dao(None, mongo_client=mongo_client)
+
         if not dao:
             return 'Dao not found', 404
         user = get_user_from_request(request, dao)
@@ -961,8 +963,6 @@ class AdminFunctionsResource(restful.Resource):
 
             #Execute region addition
             config = Config()
-            mongo_client = MongoClient(host=config.get_mongo_url())
-            dao = Dao(None, mongo_client)
             if dao.create_region(region_name):
                 print("region created:" + region_name)
 
@@ -973,8 +973,6 @@ class AdminFunctionsResource(restful.Resource):
             uregions = args['new_user_regions']
 
             #Execute user addition
-            config = Config()
-            mongo_client = MongoClient(host=config.get_mongo_url())
             dao = Dao(None, mongo_client)
             if dao.create_user(uname, upass, uregions):
                 print("user created:" + uname)
