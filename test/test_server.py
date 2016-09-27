@@ -191,7 +191,7 @@ class TestServer(unittest.TestCase):
             self.assertEquals(len(players_list), len(players_from_db))
 
             for player in players_list:
-                expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions'])
+                expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions', 'ratings'])
                 self.assertEquals(set(player.keys()), expected_keys)
                 self.assertEquals(ObjectId(player['id']), dao.get_player_by_alias(player['name']).id)
 
@@ -213,7 +213,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), 1)
 
         json_player = json_data['players'][0]
-        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions'])
+        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions', 'ratings'])
         self.assertEquals(set(json_player.keys()), expected_keys)
         self.assertEquals(ObjectId(json_player['id']), player.id)
 
@@ -225,7 +225,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['players']), 1)
 
         json_player = json_data['players'][0]
-        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions'])
+        expected_keys = set(['id', 'name', 'merged', 'merge_children', 'merge_parent', 'regions', 'ratings'])
         self.assertEquals(set(json_player.keys()), expected_keys)
         self.assertEquals(ObjectId(json_player['id']), player.id)
 

@@ -189,7 +189,7 @@ class PlayerListResource(restful.Resource):
             return 'Dao not found', 404
         return_dict = {}
 
-        exclude_properties = ['aliases', 'ratings']
+        exclude_properties = ['aliases']
 
         # single player matching alias within region
         if args['alias']:
@@ -285,6 +285,48 @@ class PlayerResource(restful.Resource):
         return player.dump(context='web')
 
 
+class TournamentSeedResource(restful.Resource):
+      def post(self, region):
+          print "in tournamentSeed POST"
+          dao = Dao(region, mongo_client=mongo_client)
+          if not dao:
+              return 'Dao not found', 404
+          parser = reqparse.RequestParser()
+          parser.add_argument('type', type=str, location='json')
+          parser.add_argument('data', type=unicode, location='json')
+          parser.add_argument('bracket', type=str, location='json')
+          args = parser.parse_args()
+  
+          if args['data'] is None:
+              return "data required", 400
+  
+          the_bytes = bytearray(args['data'], "utf8")
+  
+          if the_bytes[0] == 0xef:
+              print "found magic numbers"
+              return "magic numbers!", 503
+  
+          type = args['type']
+          data = args['data']
+          pending_tournament = None
+  
+          try:
+             
+              if type == 'challonge':
+                  scraper = ChallongeScraper(data)
+              else:
+                  return "Unknown type", 400
+              pending_tournament, raw_file = M.PendingTournament.from_scraper(type, scraper, region)
+          except Exception as ex:
+            return 'Scraper encountered an error ' + str(ex), 400
+  
+          if not pending_tournament or not raw_file:
+              return 'Scraper encountered an error - null', 400
+  
+          pending_tournament_json = pending_tournament.dump(context='web', exclude=('date', 'matches', 'regions', 'type'))
+          return pending_tournament_json
+
+          
 class TournamentListResource(restful.Resource):
 
     def get(self, region):
@@ -979,6 +1021,8 @@ api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
 
 api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
+
+api.add_resource(TournamentSeedResource, '/<string:region>/tournamentseed')
 
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource,
