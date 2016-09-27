@@ -6,6 +6,7 @@ from scraper.smashgg import SmashGGScraper
 TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
 TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
 TEST_URL_3 = 'https://smash.gg/tournament/ceo-2016/brackets/11789/45259/150418'
+TEST_URL_4 = 'https://smash.gg/tournament/nebulous-prime-melee-47/brackets/14172/49705/164217'
 TEST_DATA1 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg.json')
 TEST_DATA2 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg2.json')
 TEST_EVENT_ID_1 = 10448
@@ -34,6 +35,9 @@ class TestSmashGGScraper(unittest.TestCase):
     def setUp(self):
         self.tournament1 = TestSmashGGScraper.tournament1
         self.tournament2 = TestSmashGGScraper.tournament2
+        #self.tournament3 = TestSmashGGScraper.tournament3
+        self.tournament4 = TestSmashGGScraper.tournament4
+        #self.excluded_phases3 = [49706]
         #self.tournament3 = SmashGGScraper(TEST_URL_3)
         #list = self.tournament3.get_matches()
         #print 'hello'
@@ -43,13 +47,17 @@ class TestSmashGGScraper(unittest.TestCase):
     def setUpClass(cls):
         print 'Pulling tournaments from smash.gg ...'
         super(TestSmashGGScraper, cls).setUpClass()
-        cls.tournament1 = SmashGGScraper(TEST_URL_1)
-        cls.tournament2 = SmashGGScraper(TEST_URL_2)
+        cls.tournament1 = SmashGGScraper(TEST_URL_1, [1511, 2095, 2096])
+        cls.tournament2 = SmashGGScraper(TEST_URL_2, [3930, 21317])
+        #cls.tournament3 = SmashGGScraper(TEST_URL_3, [])
+        cls.tournament4 = SmashGGScraper(TEST_URL_4, [49153, 49705])
 
 
     def tearDown(self):
         self.tournament1 = None
         self.tournament2 = None
+        #self.tournament3 = None
+        self.tournament4 = None
 
     @unittest.skip('skipping test_get_raw1 until api is complete')
     def test_get_raw1(self):
@@ -81,7 +89,7 @@ class TestSmashGGScraper(unittest.TestCase):
 
         self.assertTrue('event' in raw)
         self.assertTrue('groups' in raw)
-        self.assertEqual(len(raw['groups']), 10)
+        self.assertEqual(len(raw['groups']), 9)
 
         entrants = raw['event']['entities']['entrants']
         for entrant in entrants:
@@ -110,7 +118,7 @@ class TestSmashGGScraper(unittest.TestCase):
         print mango_count
         self.assertEqual(2, mango_count, msg="mango didnt get double elim'd?")
 
-        self.assertEquals(len(self.tournament2.get_matches()), 436)
+        self.assertEquals(len(self.tournament2.get_matches()), 361)
         # spot check that Druggedfox was only in 5 matches, and that he won all of them
         sami_count = 0
         for m in self.tournament2.get_matches():
@@ -165,3 +173,7 @@ class TestSmashGGScraper(unittest.TestCase):
     def test_get_phasename_id_map(self):
         self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_1)), 3)
         self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_2)), 3)
+
+    def test_included_phases(self):
+        self.assertEqual(len(self.tournament2.group_dicts), 9)
+        self.assertEqual(len(self.tournament4.group_dicts), 9)

@@ -3,6 +3,7 @@
     <div class="row">
         <div class="col-md-10">
             <h1>{{tournament.date}} - {{tournament.name}}</h1>
+            <h2 ng-if="tournament.url"><a href={{tournament.url}}>{{tournament.type}} url</a></h2>
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdmin()">
             <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="openDetailsModal()">Edit Tournament Details</button></h1>

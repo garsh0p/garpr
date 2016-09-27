@@ -34,11 +34,24 @@
             </form>
         </tab>
         <tab heading="SmashGG" select="setBracketType('smashgg')">
-            <p>Enter the URL to your SmashGG bracket (e.g. <a href = https://smash.gg/tournament/genesis-3/brackets/10617/3860/15833>https://smash.gg/tournament/genesis-3/brackets/10617/3860/15833</a>):</p>
+            <p>Enter the URL to your SmashGG bracket (e.g. <a href = https://smash.gg/tournament/genesis-3/brackets/10617/3860/15833>https://smash.gg/tournament/genesis-3/brackets/10617/3860/15833</a>)
+                <br/>(One bracket will suffice. You will see all the brackets from your event populate below):</p>
             <form ng-submit="submit()">
                 <div class="form-group">
                     <label for="bracket">SmashGG Bracket URL</label>
-                    <input type="text" class="form-control" ng-model="postParams.data">
+                    <input type="text" class="form-control" ng-model="postParams.data" ng-change="smashGG_populateBrackets()">
+                    <br/>
+                    <p ng-model="smashGGImportMessage" id="smashGGImportMessage"></p>
+                    <ul style="list-style: none;">
+                        <li ng-repeat="bracket in smashGG_brackets" >
+                            <input type="checkbox" class="smashGG_bracket_checkbox"
+                               bracket-id="{{ bracket.id }}"
+                               ng-checked="checkSmashggBracket(bracket)"
+                               id="{{ bracket.id }}_checkbox"  >
+                            {{ bracket.name }} <i>( {{ bracket.id }} )</i>
+                        </li>
+                    </ul>
+                    <br/>
                 </div>
                 <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
                 <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
