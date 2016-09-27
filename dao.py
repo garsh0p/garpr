@@ -292,11 +292,15 @@ class Dao(object):
         '''id must be an ObjectId'''
         return M.Tournament.load(self.tournaments_col.find_one({'_id': id}), context='db')
 
-    def get_tournament_by_id_and_match_id(self, tournament_id, match_id):
+    def get_match_by_tournament_id_and_match_id(self, tournament_id, match_id):
         tourney_m = M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}, {'matches', 1}), context='db')
         for match in tourney_m.matches:
-            if match_id == match.id:
-                return match
+            try:
+                if match_id == match.match_id:
+                    return match
+            except Exception as e:
+                print('Could not attain match. ' + str(e))
+
 
     def set_match_exclusion_by_tournament_id_and_match_id(self, tournament_id, match_id, excluded):
         # TODO ENHANCE THIS ALGORITHM TO ONLY UPDATE MATCH
@@ -306,10 +310,13 @@ class Dao(object):
             M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}), context='db')
 
         for match in tourney_m.matches:
-            if int(match_id) == int(match.match_id):
-                match.set_excluded(excluded)
-                match_updated = True
-            new_matches.append(match)
+            try:
+                if match_id == match.match_id:
+                    match.set_excluded(excluded)
+                    match_updated = True
+                new_matches.append(match)
+            except Exception as e:
+                print('Could not attain match. ' + str(e))
 
         if match_updated is True:
             tourney_m.matches = new_matches

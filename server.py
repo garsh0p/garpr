@@ -684,7 +684,7 @@ class ExcludeTournamentMatchResource(restful.Resource):
 
         args = tournament_details_exclude_match_parser.parse_args()
         tournament_id = args['tournament_id']
-        match_id = args['match_id']
+        match_id = int(args['match_id'])
         excluded = (args['excluded_tf'].lower() == 'true')
 
         dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
