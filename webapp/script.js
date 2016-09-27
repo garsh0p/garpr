@@ -808,9 +808,6 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         }
 
         url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/excludeMatch';
-        console.log(url);
-        console.log('  [UI] PAYLOAD: \ntournament id: ' + postParams.tournament_id +
-                    '\nmatch id: ' + postParams.match_id + '\nexcluded: ' + postParams.excluded_tf);
 
         if(matchCheckbox.checked){
             //API CALL HERE
@@ -819,7 +816,12 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
                     // TODO gray out the row
                     winnerElement.className = 'excludedSet';
                     loserElement.className = 'excludedSet';
-               }, excludeFailure);
+                    return false;
+               },
+                () => {
+                    excludeFailure();
+                    matchCheckbox.checked = false;
+               });
         }
         else{
             // API CALL HERE
@@ -828,7 +830,13 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
                     // TODO ungray the row
                     winnerElement.className = 'success';
                     loserElement.className = 'danger';
-                }, excludeFailure);
+                    alert('Match Included Successfully!');
+                    return false;
+                },
+                () => {
+                    excludeFailure();
+                    matchCheckbox.checked = true;
+               });
         }
     };
 

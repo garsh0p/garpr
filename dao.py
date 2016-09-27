@@ -312,7 +312,7 @@ class Dao(object):
         for match in tourney_m.matches:
             try:
                 if match_id == match.match_id:
-                    match.set_excluded(excluded)
+                    match.excluded = excluded
                     match_updated = True
                 new_matches.append(match)
             except Exception as e:
