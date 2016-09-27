@@ -816,6 +816,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
                     // TODO gray out the row
                     winnerElement.className = 'excludedSet';
                     loserElement.className = 'excludedSet';
+                    alert('Match Excluded Successfully!');
                     return false;
                },
                 () => {
@@ -830,6 +831,7 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
                     // TODO ungray the row
                     winnerElement.className = 'success';
                     loserElement.className = 'danger';
+                    alert('Match Included Successfully!');
                     return false;
                 },
                 () => {
