@@ -759,14 +759,14 @@ class TestServer(unittest.TestCase):
         # spot check first and last match
         match = json_data['matches'][0]
         db_match = tournament.matches[0]
-        self.assertEquals(len(match.keys()), 4)
+        self.assertEquals(len(match.keys()), 6)
         self.assertEquals(match['winner_id'], str(db_match.winner))
         self.assertEquals(match['winner_name'], self.norcal_dao.get_player_by_id(ObjectId(match['winner_id'])).name)
         self.assertEquals(match['loser_id'], str(db_match.loser))
         self.assertEquals(match['loser_name'], self.norcal_dao.get_player_by_id(ObjectId(match['loser_id'])).name)
         match = json_data['matches'][-1]
         db_match = tournament.matches[-1]
-        self.assertEquals(len(match.keys()), 4)
+        self.assertEquals(len(match.keys()), 6)
         self.assertEquals(match['winner_id'], str(db_match.winner))
         self.assertEquals(match['winner_name'], self.norcal_dao.get_player_by_id(ObjectId(match['winner_id'])).name)
         self.assertEquals(match['loser_id'], str(db_match.loser))

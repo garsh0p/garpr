@@ -611,6 +611,8 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
     $scope.playerData = {};
     $scope.playerCheckboxState = {};
 
+    $scope.matchCheckbox = null;
+
     $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
             templateUrl: 'tournament_details_modal.html',
@@ -775,6 +777,77 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
         }
     }
     // TODO submission checks! check to make sure everything in $scope.playerData is an object (not a string. string = partially typed box)
+
+    $scope.isMatchCurrentlyExcluded = function(match){
+        var excluded = match.excluded;
+
+        if(excluded){
+            //var htmlId = 'exclude_set_checkbox_' + match.match_id;
+            var winnerHtmlId = 'winner_' + match.match_id;
+            var loserHtmlId = 'loser_' + match.match_id;
+
+            //var matchCheckbox = document.getElementById(htmlId);
+            var winnerElement = document.getElementById(winnerHtmlId);
+            var loserElement = document.getElementById(loserHtmlId);
+
+            winnerElement.className = 'excludedSet';
+            loserElement.className = 'excludedSet';
+        }
+
+        return excluded;
+    }
+
+    $scope.changeMatchExclusion = function(match){
+        var htmlId = 'exclude_set_checkbox_' + match.match_id;
+        var winnerHtmlId = 'winner_' + match.match_id;
+        var loserHtmlId = 'loser_' + match.match_id;
+
+        var matchCheckbox = document.getElementById(htmlId);
+        var winnerElement = document.getElementById(winnerHtmlId);
+        var loserElement = document.getElementById(loserHtmlId);
+
+        postParams = {
+            tournament_id : $scope.tournamentId,
+            match_id : match.match_id,
+            excluded_tf : matchCheckbox.checked
+        }
+
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/excludeMatch';
+
+        if(matchCheckbox.checked){
+            //API CALL HERE
+            $scope.sessionService.authenticatedPost(url, postParams,
+                (data) => {
+                    // TODO gray out the row
+                    winnerElement.className = 'excludedSet';
+                    loserElement.className = 'excludedSet';
+                    return false;
+               },
+                () => {
+                    excludeFailure();
+                    matchCheckbox.checked = false;
+               });
+        }
+        else{
+            // API CALL HERE
+            $scope.sessionService.authenticatedPost(url, postParams,
+                (data) => {
+                    // TODO ungray the row
+                    winnerElement.className = 'success';
+                    loserElement.className = 'danger';
+                    alert('Match Included Successfully!');
+                    return false;
+                },
+                () => {
+                    excludeFailure();
+                    matchCheckbox.checked = true;
+               });
+        }
+    };
+
+    function excludeFailure(){
+        alert('Failure to exclude set. Please try again');
+    }
 
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success($scope.updateData);

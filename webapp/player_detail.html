@@ -30,9 +30,10 @@
                         <td>Opponent</td>
                         <td>Result</td>
                     </tr>
-                    <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
+                    <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
+                                   excludedSet: match.result == 'excluded'}" ng-repeat="match in matches">
                         <td>{{match.tournament_date}}</td>
-                        <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
+                        <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}" >{{match.tournament_name}}</a></td>
                         <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
                         <td>{{match.result == 'win' ? "W" : "L"}}</td>
                     </tr>

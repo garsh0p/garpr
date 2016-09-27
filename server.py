@@ -82,6 +82,11 @@ pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
 pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 
+tournament_details_exclude_match_parser = reqparse.RequestParser()
+tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
+tournament_details_exclude_match_parser.add_argument('match_id', type=str)
+tournament_details_exclude_match_parser.add_argument('excluded_tf', type=str)
+
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
 session_put_parser.add_argument('password', type=str)
@@ -456,7 +461,9 @@ def convert_tournament_to_response(tournament, dao):
         'winner_id': m['winner'],
         'loser_id': m['loser'],
         'winner_name': dao.get_player_by_id(ObjectId(m['winner'])).name,
-        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name
+        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name,
+        'match_id': m['match_id'],
+        'excluded': m['excluded']
     } for m in return_dict['matches']]
 
     return return_dict
@@ -706,6 +713,25 @@ class FinalizeTournamentResource(restful.Resource):
         except:
             return 'Dao threw an error somewhere', 400
 
+class ExcludeTournamentMatchResource(restful.Resource):
+    def get(self, region, id):
+        pass
+
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+        #if not user:
+        #    return 'Permission denied', 403
+        #if not is_user_admin_for_regions(user, region):
+        #    return 'Permission denied', 403
+
+        args = tournament_details_exclude_match_parser.parse_args()
+        tournament_id = args['tournament_id']
+        match_id = int(args['match_id'])
+        excluded = (args['excluded_tf'].lower() == 'true')
+
+        dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
+
 
 class RankingsResource(restful.Resource):
 
@@ -802,7 +828,10 @@ class MatchesResource(restful.Resource):
                             ObjectId(match_dict['opponent_id'])).name
                     except:
                         return 'Invalid ObjectID', 400
-                    if match.did_player_win(player.id):
+
+                    if match.excluded is True:
+                        match_dict['result'] = 'excluded'
+                    elif match.did_player_win(player.id):
                         match_dict['result'] = 'win'
                         return_dict['wins'] += 1
                     else:
@@ -1031,6 +1060,9 @@ api.add_resource(PendingTournamentResource,
                  '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource,
                  '/<string:region>/tournaments/<string:id>/finalize')
+
+api.add_resource(ExcludeTournamentMatchResource,
+                 '/<string:region>/tournaments/<string:id>/excludeMatch')
 
 api.add_resource(SmashGGMappingResource, '/smashGgMap')
 
