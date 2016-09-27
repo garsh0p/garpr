@@ -84,6 +84,11 @@ pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
 pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 
+tournament_details_exclude_match_parser = reqparse.RequestParser()
+tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
+tournament_details_exclude_match_parser.add_argument('match_id', type=str)
+tournament_details_exclude_match_parser.add_argument('excluded_tf', type=str)
+
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
 session_put_parser.add_argument('password', type=str)
@@ -199,7 +204,7 @@ class PlayerListResource(restful.Resource):
             return 'Dao not found', 404
         return_dict = {}
 
-        exclude_properties = ['aliases', 'ratings']
+        exclude_properties = ['aliases']
 
         # single player matching alias within region
         if args['alias']:
@@ -295,6 +300,48 @@ class PlayerResource(restful.Resource):
         return player.dump(context='web')
 
 
+class TournamentSeedResource(restful.Resource):
+      def post(self, region):
+          print "in tournamentSeed POST"
+          dao = Dao(region, mongo_client=mongo_client)
+          if not dao:
+              return 'Dao not found', 404
+          parser = reqparse.RequestParser()
+          parser.add_argument('type', type=str, location='json')
+          parser.add_argument('data', type=unicode, location='json')
+          parser.add_argument('bracket', type=str, location='json')
+          args = parser.parse_args()
+  
+          if args['data'] is None:
+              return "data required", 400
+  
+          the_bytes = bytearray(args['data'], "utf8")
+  
+          if the_bytes[0] == 0xef:
+              print "found magic numbers"
+              return "magic numbers!", 503
+  
+          type = args['type']
+          data = args['data']
+          pending_tournament = None
+  
+          try:
+             
+              if type == 'challonge':
+                  scraper = ChallongeScraper(data)
+              else:
+                  return "Unknown type", 400
+              pending_tournament, raw_file = M.PendingTournament.from_scraper(type, scraper, region)
+          except Exception as ex:
+            return 'Scraper encountered an error ' + str(ex), 400
+  
+          if not pending_tournament or not raw_file:
+              return 'Scraper encountered an error - null', 400
+  
+          pending_tournament_json = pending_tournament.dump(context='web', exclude=('date', 'matches', 'regions', 'type'))
+          return pending_tournament_json
+
+          
 class TournamentListResource(restful.Resource):
 
     def get(self, region):
@@ -424,7 +471,9 @@ def convert_tournament_to_response(tournament, dao):
         'winner_id': m['winner'],
         'loser_id': m['loser'],
         'winner_name': dao.get_player_by_id(ObjectId(m['winner'])).name,
-        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name
+        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name,
+        'match_id': m['match_id'],
+        'excluded': m['excluded']
     } for m in return_dict['matches']]
 
     return return_dict
@@ -674,6 +723,25 @@ class FinalizeTournamentResource(restful.Resource):
         except:
             return 'Dao threw an error somewhere', 400
 
+class ExcludeTournamentMatchResource(restful.Resource):
+    def get(self, region, id):
+        pass
+
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+        #if not user:
+        #    return 'Permission denied', 403
+        #if not is_user_admin_for_regions(user, region):
+        #    return 'Permission denied', 403
+
+        args = tournament_details_exclude_match_parser.parse_args()
+        tournament_id = args['tournament_id']
+        match_id = int(args['match_id'])
+        excluded = (args['excluded_tf'].lower() == 'true')
+
+        dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
+
 
 class RankingsResource(restful.Resource):
 
@@ -770,7 +838,10 @@ class MatchesResource(restful.Resource):
                             ObjectId(match_dict['opponent_id'])).name
                     except:
                         return 'Invalid ObjectID', 400
-                    if match.did_player_win(player.id):
+
+                    if match.excluded is True:
+                        match_dict['result'] = 'excluded'
+                    elif match.did_player_win(player.id):
                         match_dict['result'] = 'win'
                         return_dict['wins'] += 1
                     else:
@@ -1026,6 +1097,8 @@ api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
 
 api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 
+api.add_resource(TournamentSeedResource, '/<string:region>/tournamentseed')
+
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource,
                  '/<string:region>/tournaments/<string:id>')
@@ -1033,6 +1106,9 @@ api.add_resource(PendingTournamentResource,
                  '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource,
                  '/<string:region>/tournaments/<string:id>/finalize')
+
+api.add_resource(ExcludeTournamentMatchResource,
+                 '/<string:region>/tournaments/<string:id>/excludeMatch')
 
 api.add_resource(SmashGGMappingResource, '/smashGgMap')
 
