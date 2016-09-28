@@ -23,6 +23,7 @@ USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 MERGES_COLLECTION_NAME = 'merges'
 SESSIONS_COLLECTION_NAME = 'sessions'
+RAW_FILES_COLLECTION_NAME = 'raw_files'
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -92,6 +93,7 @@ class Dao(object):
         self.merges_col = mongo_client[database_name][MERGES_COLLECTION_NAME]
         self.sessions_col = mongo_client[
             database_name][SESSIONS_COLLECTION_NAME]
+        self.raw_files_col = mongo_client[database_name][RAW_FILES_COLLECTION_NAME]
         self.mongo_client = mongo_client
         self.region_id = region_id
 
@@ -207,11 +209,6 @@ class Dao(object):
         query_dict = {}
         query_list = []
 
-        # don't pull the raw field because it takes too much memory
-        fields_dict = {
-            'raw': 0
-        }
-
         if regions:
             query_list.append({'regions': {'$in': regions}})
 
@@ -219,11 +216,7 @@ class Dao(object):
             query_dict['$and'] = query_list
 
         pending_tournaments = [t for t in self.pending_tournaments_col.find(
-            query_dict, fields_dict).sort([('date', 1)])]
-
-        # manually add an empty raw field
-        for pending_tournament in pending_tournaments:
-            pending_tournament['raw'] = ''
+            query_dict).sort([('date', 1)])]
 
         return [M.PendingTournament.load(t, context='db') for t in pending_tournaments]
 
@@ -264,11 +257,6 @@ class Dao(object):
         query_dict = {}
         query_list = []
 
-        # don't pull the raw field because it takes too much memory
-        fields_dict = {
-            'raw': 0
-        }
-
         if players:
             for player in players:
                 query_list.append({'players': {'$in': [player.id]}})
@@ -280,11 +268,7 @@ class Dao(object):
             query_dict['$and'] = query_list
 
         tournaments = [t for t in self.tournaments_col.find(
-            query_dict, fields_dict).sort([('date', 1)])]
-
-        # manually add an empty raw field
-        for tournament in tournaments:
-            tournament['raw'] = ''
+            query_dict).sort([('date', 1)])]
 
         return [M.Tournament.load(t, context='db') for t in tournaments]
 
@@ -474,6 +458,9 @@ class Dao(object):
             self.rankings_col.find({'region': self.region_id}).sort(
                 'time', pymongo.DESCENDING)[0],
             context='db')
+
+    def insert_raw_file(self, raw_file):
+        return self.raw_files_col.insert(raw_file.dump(context='db'))
 
     # TODO add more tests
     def is_inactive(self, player, now, day_limit, num_tourneys):

@@ -1,1 +1,1 @@
-{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "name" : "_id_", "ns" : "garpr.players" }, { "v" : 1, "key" : { "aliases" : 1 }, "name" : "aliases_1", "ns" : "garpr.players" } ] }
+{"options":{},"indexes":[{"v":1,"key":{"_id":1},"name":"_id_","ns":"garpr.players"},{"v":1,"key":{"aliases":1},"name":"aliases_1","ns":"garpr.players"}]}

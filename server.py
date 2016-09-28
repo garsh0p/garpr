@@ -194,7 +194,7 @@ class PlayerListResource(restful.Resource):
             return 'Dao not found', 404
         return_dict = {}
 
-        exclude_properties = ['aliases', 'ratings']
+        exclude_properties = ['aliases']
 
         # single player matching alias within region
         if args['alias']:
@@ -290,6 +290,48 @@ class PlayerResource(restful.Resource):
         return player.dump(context='web')
 
 
+class TournamentSeedResource(restful.Resource):
+      def post(self, region):
+          print "in tournamentSeed POST"
+          dao = Dao(region, mongo_client=mongo_client)
+          if not dao:
+              return 'Dao not found', 404
+          parser = reqparse.RequestParser()
+          parser.add_argument('type', type=str, location='json')
+          parser.add_argument('data', type=unicode, location='json')
+          parser.add_argument('bracket', type=str, location='json')
+          args = parser.parse_args()
+  
+          if args['data'] is None:
+              return "data required", 400
+  
+          the_bytes = bytearray(args['data'], "utf8")
+  
+          if the_bytes[0] == 0xef:
+              print "found magic numbers"
+              return "magic numbers!", 503
+  
+          type = args['type']
+          data = args['data']
+          pending_tournament = None
+  
+          try:
+             
+              if type == 'challonge':
+                  scraper = ChallongeScraper(data)
+              else:
+                  return "Unknown type", 400
+              pending_tournament, raw_file = M.PendingTournament.from_scraper(type, scraper, region)
+          except Exception as ex:
+            return 'Scraper encountered an error ' + str(ex), 400
+  
+          if not pending_tournament or not raw_file:
+              return 'Scraper encountered an error - null', 400
+  
+          pending_tournament_json = pending_tournament.dump(context='web', exclude=('date', 'matches', 'regions', 'type'))
+          return pending_tournament_json
+
+          
 class TournamentListResource(restful.Resource):
 
     def get(self, region):
@@ -376,12 +418,12 @@ class TournamentListResource(restful.Resource):
                 scraper = SmashGGScraper(data, included_phases)
             else:
                 return "Unknown type", 400
-            pending_tournament = M.PendingTournament.from_scraper(
+            pending_tournament, raw_file = M.PendingTournament.from_scraper(
                 type, scraper, region)
         except Exception as ex:
             return 'Scraper encountered an error ' + str(ex), 400
 
-        if not pending_tournament:
+        if not pending_tournament or not raw_file:
             return 'Scraper encountered an error', 400
 
         try:
@@ -391,6 +433,7 @@ class TournamentListResource(restful.Resource):
             return 'Alias service encountered an error', 400
 
         try:
+            raw_file = dao.insert_raw_file(raw_file)
             new_id = dao.insert_pending_tournament(pending_tournament)
             return_dict = {
                 'id': str(new_id)
@@ -407,7 +450,7 @@ class TournamentListResource(restful.Resource):
 
 
 def convert_tournament_to_response(tournament, dao):
-    return_dict = tournament.dump(context='web', exclude=('raw', 'orig_ids'))
+    return_dict = tournament.dump(context='web', exclude=('orig_ids',))
 
     return_dict['players'] = [{
         'id': p,
@@ -451,7 +494,7 @@ class TournamentResource(restful.Resource):
                 return 'Permission denied', 403
             if not is_user_admin_for_regions(user, pending_tournament.regions):
                 return 'Permission denied', 403
-            response = pending_tournament.dump(context='web', exclude=('raw',))
+            response = pending_tournament.dump(context='web')
 
         return response
 
@@ -524,7 +567,7 @@ class TournamentResource(restful.Resource):
             return 'Update Tournament Error', 400
 
         if args['pending']:
-            return dao.get_pending_tournament_by_id(tournament.id).dump(context='web', exclude=('raw',))
+            return dao.get_pending_tournament_by_id(tournament.id).dump(context='web')
         else:
             return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
@@ -608,7 +651,7 @@ class PendingTournamentResource(restful.Resource):
 
         try:
             dao.update_pending_tournament(pending_tournament)
-            return pending_tournament.dump(context='web', exclude=('raw',))
+            return pending_tournament.dump(context='web')
         except:
             return 'Encountered an error inserting pending tournament', 400
 
@@ -1007,6 +1050,8 @@ api.add_resource(PlayerListResource, '/<string:region>/players')
 api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
 
 api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
+
+api.add_resource(TournamentSeedResource, '/<string:region>/tournamentseed')
 
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource,
