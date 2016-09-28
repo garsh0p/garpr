@@ -18,6 +18,8 @@ from dao import Dao
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
 from scraper.smashgg import SmashGGScraper
+from scripts import create_region
+from scripts import create_user
 
 TYPEAHEAD_PLAYER_LIMIT = 20
 BASE_REGION = 'newjersey'
@@ -94,7 +96,15 @@ session_put_parser.add_argument('password', type=str)
 session_delete_parser = reqparse.RequestParser()
 session_delete_parser.add_argument('session_id', location='cookies', type=str)
 
-# TODO: major refactor to move auth code to a decorator
+admin_functions_parser = reqparse.RequestParser()
+admin_functions_parser.add_argument('function_type', location='json', type=str)
+admin_functions_parser.add_argument('new_region', location='json', type=str)
+admin_functions_parser.add_argument('new_user_name', location='json', type=str)
+admin_functions_parser.add_argument('new_user_pass', location='json', type=str)
+admin_functions_parser.add_argument('new_user_permissions', location='json', type=str)
+admin_functions_parser.add_argument('new_user_regions', location='json', type=list)
+
+#TODO: major refactor to move auth code to a decorator
 
 
 class InvalidAccessToken(Exception):
@@ -842,7 +852,6 @@ class MatchesResource(restful.Resource):
 
         return return_dict
 
-
 class SmashGGMappingResource(restful.Resource):
 
     def get(self):
@@ -1002,6 +1011,43 @@ class SessionResource(restful.Resource):
         return return_dict
 
 
+class AdminFunctionsResource(restful.Resource):
+    def get(self):
+        pass
+
+    def put(self):
+        dao = Dao(None, mongo_client=mongo_client)
+
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+        #if not is_user_admin_for_region(user, region='*'):
+        #    return 'Permission denied', 403
+
+        args = admin_functions_parser.parse_args()
+
+        function_type = args['function_type']
+        if function_type == 'region':
+            region_name = args['new_region']
+
+            #Execute region addition
+            config = Config()
+            if dao.create_region(region_name):
+                print("region created:" + region_name)
+
+        elif function_type == 'user':
+            uname = args['new_user_name']
+            upass = args['new_user_pass']
+            uperm = args['new_user_permissions']
+            uregions = args['new_user_regions']
+
+            #Execute user addition
+            dao = Dao(None, mongo_client)
+            if dao.create_user(uname, upass, uregions):
+                print("user created:" + uname)
+
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
 
@@ -1072,6 +1118,9 @@ api.add_resource(SessionResource, '/users/session')
 
 api.add_resource(LoaderIOTokenResource,
                  '/{}/'.format(config.get_loaderio_token()))
+
+api.add_resource(AdminFunctionsResource, '/adminfunctions')
+#api.add_resource(AdminFunctionsResource, '/adminfunctions/<string:type>/<string:new_region>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(

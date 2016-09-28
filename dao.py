@@ -46,6 +46,8 @@ class DuplicateUsernameException(Exception):
     # safe, only used from script
     pass
 
+class DuplicateRegionException(Exception):
+    pass
 
 class InvalidNameException(Exception):
     # safe only used in dead code
@@ -491,8 +493,16 @@ class Dao(object):
 
     # session management
 
-    # throws an exception, which is okay because this is called from just
-    # create_user
+    # region addition
+    def create_region(self, display_name):
+        the_region = M.Region(id=display_name.lower(), display_name=display_name)
+        return self.insert_region(the_region, self.mongo_client, database_name=DATABASE_NAME)
+
+    def remove_region(self, region):
+        if self.regions_col.find_one({'display_name': region.display_name}):
+            self.regions_col.remove(region.get_json_dict())
+
+    # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
         # validate that no user with same username exists currently
         if self.users_col.find_one({'username': user.username}):
@@ -560,9 +570,11 @@ class Dao(object):
         user_id = result[0]["user_id"]
         return self.get_user_by_id_or_none(user_id)
 
-    # FOR INTERNAL USE ONLY #
-    # XXX: this method must NEVER be publicly routeable, or you have
-    # session-hijacking
+    def get_user_by_region(self, regions):
+        pass
+
+    #### FOR INTERNAL USE ONLY ####
+    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking
     def get_session_id_by_user_or_none(self, User):
         results = self.sessions_col.find()
         for session_mapping in results:
