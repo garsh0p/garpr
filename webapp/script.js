@@ -874,7 +874,7 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
     $scope.determineMatchStatus = function(match){
         var status = '';
         status = match.result == 'win' ? "W" : "L";
-        if(match.excluded == 'true' || match.excluded == "True")
+        if(match.result === 'excluded')
             status = 'EX';
         return status;
     }
