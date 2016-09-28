@@ -42,6 +42,17 @@
                         <li ng-class="{active: $route.current.activeTab == 'about'}">
                             <a ng-href="#/about">About</a>
                         </li>
+                        <li class="dropdown" dropdown >
+                            <a class="dropdown-toggle" dropdown-toggle>
+                                Tools
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li ng-class="{active: $route.current.activeTab == 'seed'}">
+                                    <a ng-href="#/{{regionService.region.id}}/seed">Seed Tournament</a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown" dropdown ng-controller="AuthenticationController">

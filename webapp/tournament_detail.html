@@ -98,10 +98,26 @@
                 <tr>
                     <td>Winner</td>
                     <td>Loser</td>
+                    <td ng-show="sessionService.isAdmin()">
+                       Exclude
+                    </td>
                 </tr>
                 <tr ng-repeat="match in tournament.matches">
-                    <td class="success"><a href="#/{{regionService.region.id}}/players/{{match.winner_id}}">{{match.winner_name}}</a></td>
-                    <td class="danger"><a href="#/{{regionService.region.id}}/players/{{match.loser_id}}">{{match.loser_name}}</a></td>
+                    <td class="success" id="winner_{{ match.match_id }}">
+                        <a href="#/{{regionService.region.id}}/players/{{match.winner_id}}">
+                            {{match.winner_name}}
+                        </a>
+                    </td>
+                    <td class="danger" id="loser_{{ match.match_id }}">
+                        <a href="#/{{regionService.region.id}}/players/{{match.loser_id}}">
+                            {{match.loser_name}}
+                        </a>
+                    </td>
+                    <td ng-show="sessionService.isAdmin()">
+                        <input type="checkbox" id="exclude_set_checkbox_{{ match.match_id }}"
+                               ng-model='matchCheckbox' ng-change="changeMatchExclusion(match)"
+                               ng-checked="isMatchCurrentlyExcluded(match)"/>
+                    </td>
                 </tr>
             </table>
         </div>
