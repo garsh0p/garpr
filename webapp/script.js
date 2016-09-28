@@ -869,6 +869,16 @@ app.controller("PlayerDetailController", function($scope, $http, $routeParams, $
     $scope.mergePlayer = "";
     $scope.matches = null;
 
+    $scope.matchStatus = 'L';
+
+    $scope.determineMatchStatus(match){
+        var status = '';
+        status = match.result == 'win' ? "W" : "L";
+        if(match.excluded == 'true' || match.excluded == "True")
+            status = 'EX';
+        return status;
+    }
+
     $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
             templateUrl: 'player_details_modal.html',
