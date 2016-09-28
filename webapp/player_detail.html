@@ -35,7 +35,7 @@
                         <td>{{match.tournament_date}}</td>
                         <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}" >{{match.tournament_name}}</a></td>
                         <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
-                        <td>{{match.result == 'win' ? "W" : "L"}}</td>
+                        <td>{{ determineMatchStatus(match) }}</td>
                     </tr>
                 </table>
             </div>
