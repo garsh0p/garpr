@@ -732,8 +732,8 @@ class ExcludeTournamentMatchResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        if not is_user_admin_for_regions(user, region):
-            return 'Permission denied', 403
+        #if not is_user_admin_for_regions(user, pending_tournament.regions):
+        #    return 'Permission denied', 403
 
         args = tournament_details_exclude_match_parser.parse_args()
         tournament_id = args['tournament_id']
@@ -772,8 +772,8 @@ class RankingsResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        if not is_user_admin_for_region(user, region):
-            return 'Permission denied', 403
+        #if not is_user_admin_for_region(user, region):
+        #    return 'Permission denied', 403
 
         # we pass in now so we can mock it out in tests
         now = datetime.now()
