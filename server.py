@@ -730,13 +730,16 @@ class ExcludeTournamentMatchResource(restful.Resource):
     def post(self, region, id):
         dao = Dao(region, mongo_client=mongo_client)
         user = get_user_from_request(request, dao)
-        if not user:
-            return 'Permission denied', 403
-        #if not is_user_admin_for_regions(user, pending_tournament.regions):
-        #    return 'Permission denied', 403
 
         args = tournament_details_exclude_match_parser.parse_args()
         tournament_id = args['tournament_id']
+        tournament = dao.get_tournament_by_id(ObjectId(tournament_id))
+
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_regions(user, tournament.regions):
+            return 'Permission denied', 403
+
         match_id = int(args['match_id'])
         excluded = (args['excluded_tf'].lower() == 'true')
 
