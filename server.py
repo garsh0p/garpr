@@ -89,6 +89,10 @@ tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
 tournament_details_exclude_match_parser.add_argument('match_id', type=str)
 tournament_details_exclude_match_parser.add_argument('excluded_tf', type=str)
 
+tournament_details_swap_winner_loser_parser = reqparse.RequestParser()
+tournament_details_swap_winner_loser_parser.add_argument('tournament_id', type=str)
+tournament_details_swap_winner_loser_parser.add_argument('match_id', type=str)
+
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
 session_put_parser.add_argument('password', type=str)
@@ -745,6 +749,25 @@ class ExcludeTournamentMatchResource(restful.Resource):
 
         dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
 
+class SwapWinnerLoserMatchResource(restful.Resource):
+    def get(self, region):
+        pass
+
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+
+        args = tournament_details_swap_winner_loser_parser.parse_args()
+        tournament_id = args['tournament_id']
+        match_id = int(args['match_id'])
+
+        tournament = dao.get_tournament_by_id(ObjectId(tournament_id))
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_regions(user, tournament.regions):
+            return 'Permission denied', 403
+
+        dao.swap_winner_loser_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id)
 
 class RankingsResource(restful.Resource):
 
@@ -1112,6 +1135,8 @@ api.add_resource(FinalizeTournamentResource,
 
 api.add_resource(ExcludeTournamentMatchResource,
                  '/<string:region>/tournaments/<string:id>/excludeMatch')
+api.add_resource(SwapWinnerLoserMatchResource,
+                 '/<string:region>/tournaments/<string:id>/swapWinnerLoser')
 
 api.add_resource(SmashGGMappingResource, '/smashGgMap')
 

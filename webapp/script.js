@@ -953,7 +953,47 @@ app.controller("TournamentDetailController", function($scope, $routeParams, $htt
 
     function excludeFailure(){
         alert('Failure to exclude set. Please try again');
-    }
+    };
+
+    $scope.swapWinnerLoser = function(match){
+        if( confirm('Are you sure you want to swap ' + match.winner_name + ' (W) with ' + match.loser_name + ' (L)?' )){
+            var winnerHtmlId = 'winner_' + match.match_id;
+            var loserHtmlId = 'loser_' + match.match_id;
+
+            var winnerElement = document.getElementById(winnerHtmlId);
+            var loserElement = document.getElementById(loserHtmlId);
+
+            var winnerAnchor = winnerElement.getElementsByTagName('a');
+            var winnerLink = winnerAnchor[0].href;
+            var loserAnchor = loserElement.getElementsByTagName('a');
+            var loserLink = loserAnchor[0].href;
+
+            var postParams = {
+                tournament_id : $scope.tournamentId,
+                match_id : match.match_id
+            }
+            url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/swapWinnerLoser';
+
+            $scope.sessionService.authenticatedPost(url, postParams,
+                (data) => {
+                    // TODO simply switch the names in the Winner-Loser boxes
+                    winnerAnchor[0].innerHTML = match.loser_name;
+                    winnerAnchor[0].href = loserLink;
+
+                    loserAnchor[0].innerHTML = match.winner_name;
+                    loserAnchor[0].href = winnerLink;
+
+                    alert('Swap was successful! (If people did not swap on table, please refresh the page)');
+                    return;
+                },
+                (err) => {
+                    // TODO alert of a failure and exit
+                    alert('Failed to swap Winner-Loser');
+                    return;
+               });
+        }
+
+    };
 
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success($scope.updateData);

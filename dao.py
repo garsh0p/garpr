@@ -308,6 +308,26 @@ class Dao(object):
             tourney_m.matches = new_matches
             self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
 
+    def swap_winner_loser_by_tournament_id_and_match_id(self, tournament_id, match_id):
+        new_matches = []
+        tourney_m = \
+            M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}), context='db')
+
+        for match in tourney_m.matches:
+            try:
+                if match_id == match.match_id:
+                    winner_holder = match.winner
+                    match.winner = match.loser
+                    match.loser = winner_holder
+                    match_updated = True
+                new_matches.append(match)
+            except Exception as e:
+                raise Exception('Could not attain match. ' + str(e))
+
+        if match_updated is True:
+            tourney_m.matches = new_matches
+            self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
+
     # gets potential merge targets from all regions
     # basically, get players who have an alias similar to the given alias
     def get_players_with_similar_alias(self, alias):

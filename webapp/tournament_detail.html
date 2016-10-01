@@ -97,6 +97,9 @@
             <table class="table table-condensed">
                 <tr>
                     <td>Winner</td>
+                    <td ng-show="sessionService.isAdmin()" width="7%">
+                        Swap
+                    </td>
                     <td>Loser</td>
                     <td ng-show="sessionService.isAdmin()">
                        Exclude
@@ -107,6 +110,9 @@
                         <a href="#/{{regionService.region.id}}/players/{{match.winner_id}}">
                             {{match.winner_name}}
                         </a>
+                    </td>
+                    <td ng-show="sessionService.isAdmin()" width="7%">
+                        <img src="images/light-swap-arrow.png" ng-click="swapWinnerLoser(match)" height="20" width="40" />
                     </td>
                     <td class="danger" id="loser_{{ match.match_id }}">
                         <a href="#/{{regionService.region.id}}/players/{{match.loser_id}}">
