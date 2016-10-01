@@ -775,8 +775,8 @@ class RankingsResource(restful.Resource):
         user = get_user_from_request(request, dao)
         if not user:
             return 'Permission denied', 403
-        #if not is_user_admin_for_region(user, region):
-        #    return 'Permission denied', 403
+        if not is_user_admin_for_region(user, region):
+            return 'Permission denied', 403
 
         # we pass in now so we can mock it out in tests
         now = datetime.now()
