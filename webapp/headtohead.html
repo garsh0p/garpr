@@ -24,10 +24,11 @@
             <td>Tournament</td>
             <td>Winner</td>
         </tr>
-        <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose'}" ng-repeat="match in matches">
+        <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
+                       excludedSet: match.result == 'excluded'}" ng-repeat="match in matches">
             <td>{{match.tournament_date}}</td>
             <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
-            <td>{{match.result == 'win' ? playerName : opponentName}}</td>
+            <td>{{ determineMatchStatus(match,playerName,opponentName) }}</td>
         </tr>
     </table>
 </div>

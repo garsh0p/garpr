@@ -1171,6 +1171,14 @@ app.controller("HeadToHeadController", function($scope, $http, $routeParams, Reg
                 });
         }
     };
+
+    $scope.determineMatchStatus = function(match, playerName, opponentName){
+        var status = '';
+        status = match.result == 'win' ? playerName : opponentName;
+        if(match.result === 'excluded')
+            status = 'MATCH EXCLUDED';
+        return status;
+    }
 });
 
 
