@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html ng-app="myApp">
+<html ng-app="app">
     <head>
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 
         <!-- Optional theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="styles/style.css">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -17,72 +17,39 @@
         <script src="lib/angulartics-ga.js"></script>
         <script src="lib/angular-facebook.js"></script>
         <script src="script-config.js"></script>
-        <script src="script.js"></script>
+        <script src="app/app.js"></script>
+        <script src="app/common/common.module.js"></script> 
+        <script src="app/common/controllers/authentication.controller.js"></script>
+        <script src="app/common/controllers/merges.controller.js"></script>
+        <script src="app/common/controllers/navbar.controller.js"></script>
+        <script src="app/common/directives/exportToCsv.directive.js"></script>
+        <script src="app/common/directives/navbar.directive.js"></script>
+        <script src="app/common/services/merge.service.js"></script>
+        <script src="app/common/services/region.service.js"></script>
+        <script src="app/common/services/session.service.js"></script>
+        <script src="app/head_to_head/headToHead.module.js"></script>
+        <script src="app/head_to_head/controllers/headToHead.controller.js"></script>
+        <script src="app/players/players.module.js"></script>
+        <script src="app/players/controllers/players.controller.js"></script>
+        <script src="app/players/controllers/playerDetail.controller.js"></script>
+        <script src="app/players/services/players.service.js"></script>
+        <script src="app/rankings/rankings.module.js"></script>
+        <script src="app/rankings/controllers/rankings.controller.js"></script>
+        <script src="app/rankings/services/rankings.service.js"></script>
+        <script src="app/tools/tools.module.js"></script>
+        <script src="app/tools/admin_functions/controllers/adminFunctions.controller.js"></script>
+        <script src="app/tools/seed_tournament/controllers/seed.controller.js"></script>
+        <script src="app/tournaments/tournaments.module.js"></script>
+        <script src="app/tournaments/controllers/tournaments.controller.js"></script>
+        <script src="app/tournaments/controllers/tournamentDetail.controller.js"></script>
+        <script src="app/tournaments/directives/onReadFile.directive.js"></script>
+        <script src="app/tournaments/services/tournaments.service.js"></script>
     </head>
+
     <body>
-        <div class="navbar navbar-inverse" role="navigation" ng-controller="NavbarController">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand">NOTGARPR</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li ng-class="{active: $route.current.activeTab == 'rankings'}">
-                            <a ng-href="#/{{regionService.region.id}}/rankings">Rankings</a>
-                        </li>
-                        <li ng-class="{active: $route.current.activeTab == 'players'}">
-                            <a ng-href="#/{{regionService.region.id}}/players">Players</a>
-                        </li>
-                        <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
-                            <a ng-href="#/{{regionService.region.id}}/tournaments">Tournaments</a>
-                        </li>
-                        <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
-                            <a ng-href="#/{{regionService.region.id}}/headtohead">Head-to-Head</a>
-                        </li>
-                        <li ng-class="{active: $route.current.activeTab == 'about'}">
-                            <a ng-href="#/about">About</a>
-                        </li>
-                        <li class="dropdown" dropdown >
-                            <a class="dropdown-toggle" dropdown-toggle>
-                                Tools
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li ng-class="{active: $route.current.activeTab == 'seed'}">
-                                    <a ng-href="#/{{regionService.region.id}}/seed">Seed Tournament</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown" dropdown ng-controller="AuthenticationController">
-                            <a class="dropdown-toggle" dropdown-toggle>
-                                {{sessionService.loggedIn ? sessionService.userInfo.username : "Login"}}
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                               <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
-                               <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
-                            <a class="dropdown-toggle" dropdown-toggle>
-                                {{regionService.region.display_name}}
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <form class="nav navbar-form navbar-right" role="search">
-                        <div class="form-group">
-                            <input type="text" class="form-control" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
-                        </div>
-                    </form>
-                </div><!--/.nav-collapse -->
-            </div>
-        </div>
+
+        <div navbar-directive></div>
+
         <div>
             <alert type="danger">NOTGARPR is in super alpha mode. Tread carefully</alert>
         </div>
