@@ -1,7 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto Condensed:300,400,500,700");
 
 html, body{
-	    background-color: #656565 !important;
+    background-image: url("bg.png") !important;
+    background-repeat: repeat-y repeat-x;
+
 }
 
 .header{
@@ -11,7 +13,7 @@ html, body{
     font-size: 72px;
     letter-spacing: 10px;
     height: 120px;
-    background-color: #656565 !important;
+    background-color: #a9a9a9 !important;
     border-bottom: 1px solid #666;
 }
 
@@ -19,10 +21,10 @@ html, body{
     
     background: 
       -webkit-linear-gradient(left, 
-        rgba(0,0,0,0.65) 0%, 
+        rgba(100,100,100,0.65) 0%, 
         rgba(0,0,0,0) 20%,
         rgba(0,0,0,0) 80%,
-        rgba(0,0,0,0.65) 100%
+        rgba(100,100,100,0.65) 100%
       );
 }
 
@@ -32,15 +34,15 @@ html, body{
 }
 
 #header1{
-	color:#ffe83a;
+	color:#caebf2;
 }
 
 #header2{
-	color:#222222;
+	color:#ff3b3f;
 }
 
 #header3{
-	color:#444444;
+	color:#222222;
 }
 
 #beta{
@@ -51,6 +53,9 @@ html, body{
 
 .navbar{
 	margin-bottom: 0px;
+	border-bottom: 1px solid #c7c7c7;
+    -webkit-box-shadow: none;
+    box-shadow: none;
 }
 
 .pending {
@@ -65,10 +70,14 @@ html, body{
     color: gray;
 }
 
-table, .container{
-	background-color:#eeeeee;
+.container{
+	background-color: rgba(156, 198, 206, 0.58);
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
+.btn-danger {
+    background-color: #ff3b3f;
+}
 
 /* EXCLUDED SET STUFF */
 .table > thead > tr > td.excludedSet,
