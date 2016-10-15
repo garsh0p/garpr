@@ -23,8 +23,19 @@
                 <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
                     <a ng-href="#/{{regionService.region.id}}/tournaments">Tournaments</a>
                 </li>
-                <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
-                    <a ng-href="#/{{regionService.region.id}}/headtohead">Head-to-Head</a>
+                <li class="dropdown" dropdown >
+                    <a class="dropdown-toggle" dropdown-toggle>
+                        Tools
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-class="{active: $route.current.activeTab == 'seed'}">
+                            <a ng-href="#/{{regionService.region.id}}/seed">Seed Tournament</a>
+                        </li>
+                         <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
+                            <a ng-href="#/{{regionService.region.id}}/headtohead">Head-to-Head</a>
+                        </li>
+                    </ul>
                 </li>
                 <li ng-class="{active: $route.current.activeTab == 'about'}">
                     <a ng-href="#/about">About</a>

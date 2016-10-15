@@ -1,10 +1,128 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto Condensed:300,400,500,700");
 
+
+/*BEGIN application-wide styling */
+
+/*Color Definitions*/
+:root{
+	--blue-lightest:#80AEDA;
+	--blue-lighter:#548DC4;
+	--blue-base:#3573b1;
+	--blue-darker:#165EA4;
+	--blue-rarkest:#0B467F;
+
+	--red-lightest:#F8BCC5;
+	--red-lighter:#F3929F;
+	--red-base:#d05d6c;
+	--red-darker:#AE3647;
+	--red-rarkest:#8A1727;
+
+	--green-lightest:#BFE9B1;
+	--green-lighter:#98D983;
+	--green-base:#6CB953;
+	--green-darker:#4A9B30;
+	--green-rarkest:#2D7B15;
+
+	--yellow-lightest:#FFD18E;
+	--yellow-lighter:#FFBF62;
+	--yellow-base:#FFB03E;
+	--yellow-darker:#FD9D10;
+	--yellow-rarkest:#C47502;
+}
+
+
+/*bootstrap class overrides*/
+.text-danger {
+    color: var(--red-base) ;
+}
+
+.text-primary {
+    color: var(--blue-base) ;
+}
+
+.text-success {
+    color: var(--green-base) ;
+}
+
+.text-warning {
+    color: var(--yellow-base) ;
+}
+
+.btn-danger {
+    background-color: var(--red-base) ;
+}
+
+.btn-primary {
+    background-color: var(--blue-base) ;
+}
+
+.btn-success {
+    background-color: var(--green-base) ;
+}
+
+.btn-warning {
+    background-color: var(--yellow-base) ;
+}
+
+.btn-danger:hover {
+    background-color: var(--red-darker) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--blue-darker) !important;
+}
+
+.btn-success:hover {
+    background-color: var(--green-darker) !important;
+}
+
+.btn-warning:hover {
+    background-color: var(--yellow-darker) !important;
+}
+
+tr.danger td{
+	background-color: var(--red-lightest) !important;
+}
+
+tr.success td{
+	background-color: var(--green-lightest) !important;
+}
+
+
+
+
+
+
+
 html, body{
     background-image: url("bg.png") !important;
     background-repeat: repeat-y repeat-x;
 
 }
+
+.container{
+	background-color: rgba(53, 115, 177, 0.23);
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+	width: 100%;
+}
+
+.table_header {
+	font-weight: bolder;
+}
+
+a {
+	color:var(--blue-base) ;
+}
+a:hover {
+	color:var(--blue-base) ;
+}
+
+/*END application-wide styling */
+
+
+
+
+/*BEGIN Header/Nav styling */
 
 .header{
 	text-align: center;
@@ -34,11 +152,11 @@ html, body{
 }
 
 #header1{
-	color:#3573b1;
+	color:var(--blue-base);
 }
 
 #header2{
-	color:#d05d6c ;
+	color:var(--red-base) ;
 }
 
 #header3{
@@ -63,6 +181,8 @@ html, body{
 	color: #666666 !important;
 }
 
+/*END Header/Nav styling */
+
 .pending {
     font-style: italic;
 }
@@ -75,30 +195,6 @@ html, body{
     color: gray;
 }
 
-.container{
-	background-color: rgba(53, 115, 177, 0.23);
-	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-	width: 100%;
-}
-
-[class*="-danger"] {
-    background-color: #d05d6c ;
-}
-
-[class*="-primary"] {
-    background-color: #3573b1 ;
-}
-
-.table_header {
-	font-weight: bolder;
-}
-
-a {
-	color:#3573b1 ;
-}
-a:hover {
-	color:#3573b1 ;
-}
 
 /* EXCLUDED SET STUFF */
 .table > thead > tr > td.excludedSet,

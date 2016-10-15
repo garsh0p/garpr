@@ -5,10 +5,10 @@
             <h6><span class="text-warning">Yellow</span> Indicates an inactive rating for this region (when an active ranking is unavailable).</h6>
             <h6><span class="text-danger">Red</span> Indicates an out of region ranking (when an in-region ranking is unavailable).</h6>
         </div>
-        <div>
-            <h4 class="text-right"><button type="button" class="btn btn-info" ng-click="open()">Upload a Tournament</button></h4>
-            <h4 class="text-right"><button type="button" class="btn btn-info" ng-click="addPlayerRow()">+ Add Player</button></h4>
-            <h4 class="text-right" ng-show="seeding.players.length > 0"><button type="button" class="btn btn-success" export-to-csv> Download </button></h4>
+        <div class="col-md-2">
+            <h4 class="text-right"><button type="button" class="btn btn-primary" ng-click="open()">Upload a Tournament</button></h4>
+            <h4 class="text-right"><button type="button" class="btn btn-primary" ng-click="addPlayerRow()">+ Add Player</button></h4>
+            <h4 class="text-right" ng-show="seeding.players.length > 0"><button type="button" class="btn btn-primary" export-to-csv> Download </button></h4>
         </div>
     </div>
         <div class="row">
