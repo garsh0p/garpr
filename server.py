@@ -884,8 +884,9 @@ class SmashGGMappingResource(restful.Resource):
         args = smashGGMap_get_parser.parse_args()
         url = args['bracket_url']
 
-        event_id = SmashGGScraper.get_tournament_event_id_from_url(url)
-        id_map = SmashGGScraper.get_phasename_id_map(event_id)
+        event_name = SmashGGScraper.get_tournament_event_name_from_url(url)
+        phase_name = SmashGGScraper.get_tournament_phase_name_from_url(url)
+        id_map = SmashGGScraper.get_phasename_id_map(event_name, phase_name)
         return id_map
 
 

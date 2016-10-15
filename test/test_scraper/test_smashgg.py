@@ -3,15 +3,16 @@ import os
 import json
 from scraper.smashgg import SmashGGScraper
 
-TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/brackets/10448/2096/6529'
-TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/brackets/11097/21317/70949'
-TEST_URL_3 = 'https://smash.gg/tournament/ceo-2016/brackets/11789/45259/150418'
-TEST_URL_4 = 'https://smash.gg/tournament/nebulous-prime-melee-47/brackets/14172/49705/164217'
+TEST_URL_1 = 'https://smash.gg/tournament/htc-throwdown/events/melee-singles/brackets/2096/6529'
+TEST_URL_2 = 'https://smash.gg/tournament/tiger-smash-4/events/melee-singles/brackets/21317/70949'
+TEST_URL_3 = 'https://smash.gg/tournament/ceo-2016/events/wii-u-singles/brackets/45259/150418'
+TEST_URL_4 = 'https://smash.gg/tournament/nebulous-prime-melee-47/events/melee-singles/brackets/49705/164217'
 TEST_DATA1 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg.json')
 TEST_DATA2 = os.path.abspath('test' + os.sep + 'test_scraper' + os.sep + 'data' + os.sep + 'smashgg2.json')
-TEST_EVENT_ID_1 = 10448
-TEST_EVENT_ID_2 = 11097
-TEST_EVENT_ID_3 = 11789
+TEST_EVENT_NAME_1 = 'htc-throwdown'
+TEST_EVENT_NAME_2 = 'tiger-smash-4'
+TEST_EVENT_NAME_3 = 'nebulous-prime-melee-47'
+TEST_PHASE_NAME_1 = 'melee-singles'
 TEST_PHASE_ID_1 = 2096
 TEST_PHASE_ID_2 = 21317
 TEST_PHASE_ID_3 = 45259
@@ -163,16 +164,16 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEqual(SmashGGScraper.get_tournament_name_from_url(TEST_URL_2), 'tiger smash 4')
 
     def test_get_event_name(self):
-        self.assertEqual(SmashGGScraper.get_event_name(TEST_EVENT_ID_1), 'Melee Singles')
-        self.assertEqual(SmashGGScraper.get_event_name(TEST_EVENT_ID_2), 'Melee Singles')
+        self.assertEqual(SmashGGScraper.get_event_name(TEST_EVENT_NAME_1, TEST_PHASE_NAME_1), 'Melee Singles')
+        self.assertEqual(SmashGGScraper.get_event_name(TEST_EVENT_NAME_2, TEST_PHASE_NAME_1), 'Melee Singles')
 
     def test_get_phase_name(self):
         self.assertEqual(SmashGGScraper.get_phase_bracket_name(TEST_PHASE_ID_1), 'Round 2 Bracket')
         self.assertEqual(SmashGGScraper.get_phase_bracket_name(TEST_PHASE_ID_2), 'Final Bracket')
 
     def test_get_phasename_id_map(self):
-        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_1)), 3)
-        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_ID_2)), 3)
+        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_NAME_1, TEST_PHASE_NAME_1)), 3)
+        self.assertEqual(len(SmashGGScraper.get_phasename_id_map(TEST_EVENT_NAME_2, TEST_PHASE_NAME_1)), 3)
 
     def test_included_phases(self):
         self.assertEqual(len(self.tournament2.group_dicts), 9)
