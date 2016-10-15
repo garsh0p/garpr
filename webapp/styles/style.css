@@ -34,11 +34,11 @@ html, body{
 }
 
 #header1{
-	color:#caebf2;
+	color:#3573b1;
 }
 
 #header2{
-	color:#ff3b3f;
+	color:#d05d6c ;
 }
 
 #header3{
@@ -71,12 +71,23 @@ html, body{
 }
 
 .container{
-	background-color: rgba(156, 198, 206, 0.58);
+	background-color: rgba(53, 115, 177, 0.23);
 	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .btn-danger {
-    background-color: #ff3b3f;
+    background-color: #d05d6c ;
+}
+
+.table_header {
+	font-weight: bolder;
+}
+
+a {
+	color:#3573b1 ;
+}
+a:hover {
+	color:#3573b1 ;
 }
 
 /* EXCLUDED SET STUFF */
