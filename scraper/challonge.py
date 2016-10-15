@@ -1,9 +1,11 @@
 import iso8601
 import os
 import requests
+import parse
 
 from config import config
 from model import AliasMatch
+
 
 BASE_CHALLONGE_API_URL = 'https://api.challonge.com/v1/tournaments'
 TOURNAMENT_URL = os.path.join(BASE_CHALLONGE_API_URL, '%s.json')
@@ -53,14 +55,34 @@ class ChallongeScraper(object):
         return iso8601.parse_date(self.get_raw()['tournament']['tournament']['created_at'])
 
     def get_matches(self):
-        player_map = dict((p['participant']['id'], p['participant']['name'].strip()
-                           if p['participant']['name']
-                           else p['participant']['username'].strip())
-                          for p in self.get_raw()['participants'])
+        # sometimes challonge seems to use the "group_player_ids" parameter of "participant" instead
+        # of the "id" parameter of "participant" in the "matches" api.
+        # not sure exactly when this happens, but the following code checks for both
+        player_map = dict()
+        for p in self.get_raw()['participants']:
+            if p['participant'].get('name'):
+                player_name = p['participant']['name'].strip()
+            else:
+                player_name = p['participant'].get('username', '<unknown>').strip()
+            player_map[p['participant'].get('id')] = player_name
+            if p['participant'].get('group_player_ids'):
+                for gpid in p['participant']['group_player_ids']:
+                    player_map[gpid] = player_name
 
         matches = []
         for m in self.get_raw()['matches']:
             m = m['match']
+
+            set_count = m['scores_csv']
+
+            try:
+                score1, score2 = parse.parse("{:d}-{:d}", set_count)
+                if int(score1) == -1 or int(score2) == -1:
+                    print('dq match skipped')
+                    continue
+            except Exception as ex:
+                print('could not parse score : ' + str(set_count))
+
             winner_id = m['winner_id']
             loser_id = m['loser_id']
             if winner_id is not None and loser_id is not None:

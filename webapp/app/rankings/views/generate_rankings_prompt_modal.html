@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <h3 class="modal-title">Are you sure?</h3>
+</div>
+
+<div class="modal-body">
+    <p>Regenerating rankings will cause inactive players to be excluded.</p>
+    <p>Manual regeneration is necessary whenever a player or tournament is added or removed from this region.</p>
+    <p>Ranking generation may take a long time, so please be patient!</p>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="confirm()" ng-disabled="disableButtons">OK</button>
+    <button type="button" class="btn btn-default" ng-click="cancel()" ng-disabled="disableButtons">Cancel</button>
+</div>

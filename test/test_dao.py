@@ -81,7 +81,7 @@ class TestDAO(unittest.TestCase):
 
         self.tournament_id_1 = ObjectId()
         self.tournament_type_1 = 'tio'
-        self.tournament_raw_1 = 'raw1'
+        self.tournament_raw_id_1 = ObjectId()
         self.tournament_date_1 = datetime(2013, 10, 16)
         self.tournament_name_1 = 'tournament 1'
         self.tournament_players_1 = [
@@ -95,7 +95,7 @@ class TestDAO(unittest.TestCase):
         # tournament 2 is earlier than tournament 1, but inserted after
         self.tournament_id_2 = ObjectId()
         self.tournament_type_2 = 'challonge'
-        self.tournament_raw_2 = 'raw2'
+        self.tournament_raw_id_2 = ObjectId()
         self.tournament_date_2 = datetime(2013, 10, 10)
         self.tournament_name_2 = 'tournament 2'
         self.tournament_players_2 = [
@@ -112,7 +112,7 @@ class TestDAO(unittest.TestCase):
             type=self.tournament_type_1,
             date=self.tournament_date_1,
             regions=self.tournament_regions_1,
-            raw=self.tournament_raw_1,
+            raw_id=self.tournament_raw_id_1,
             players=self.tournament_players_1,
             matches=self.tournament_matches_1)
 
@@ -122,7 +122,7 @@ class TestDAO(unittest.TestCase):
             type=self.tournament_type_2,
             date=self.tournament_date_2,
             regions=self.tournament_regions_2,
-            raw=self.tournament_raw_2,
+            raw_id=self.tournament_raw_id_2,
             players=self.tournament_players_2,
             matches=self.tournament_matches_2)
 
@@ -131,7 +131,7 @@ class TestDAO(unittest.TestCase):
 
         self.pending_tournament_id_1 = ObjectId()
         self.pending_tournament_type_1 = 'tio'
-        self.pending_tournament_raw_1 = 'raw1'
+        self.pending_tournament_raw_id_1 = ObjectId()
         self.pending_tournament_date_1 = datetime(2013, 10, 11)
         self.pending_tournament_name_1 = 'pending tournament 1'
         self.pending_tournament_players_1 = [
@@ -148,7 +148,7 @@ class TestDAO(unittest.TestCase):
             type=self.pending_tournament_type_1,
             date=self.pending_tournament_date_1,
             regions=self.pending_tournament_regions_1,
-            raw=self.pending_tournament_raw_1,
+            raw_id=self.pending_tournament_raw_id_1,
             players=self.pending_tournament_players_1,
             matches=self.pending_tournament_matches_1)
 
@@ -417,8 +417,8 @@ class TestDAO(unittest.TestCase):
                           self.pending_tournament_id_1)
         self.assertEquals(pending_tournament_1.type,
                           self.pending_tournament_type_1)
-        self.assertEquals(pending_tournament_1.raw,
-                          self.pending_tournament_raw_1)
+        self.assertEquals(pending_tournament_1.raw_id,
+                          self.pending_tournament_raw_id_1)
         self.assertEquals(pending_tournament_1.date,
                           self.pending_tournament_date_1)
         self.assertEquals(pending_tournament_1.name,
@@ -430,10 +430,8 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(pending_tournament_1.regions,
                           self.pending_tournament_regions_1)
 
-        pending_tournament_1_raw_new = 'asdfasdf'
         pending_tournament_1_name_new = 'new pending tournament name'
 
-        pending_tournament_1.raw = pending_tournament_1_raw_new
         pending_tournament_1.name = pending_tournament_1_name_new
 
         self.norcal_dao.update_pending_tournament(pending_tournament_1)
@@ -444,8 +442,6 @@ class TestDAO(unittest.TestCase):
                           self.pending_tournament_id_1)
         self.assertEquals(pending_tournament_1.type,
                           self.pending_tournament_type_1)
-        self.assertEquals(pending_tournament_1.raw,
-                          pending_tournament_1_raw_new)
         self.assertEquals(pending_tournament_1.date,
                           self.pending_tournament_date_1)
         self.assertEquals(pending_tournament_1.name,
@@ -466,7 +462,6 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(pending_tournament.id, self.pending_tournament_id_1)
         self.assertEquals(pending_tournament.type,
                           self.pending_tournament_type_1)
-        self.assertEquals(pending_tournament.raw, '')
         self.assertEquals(pending_tournament.date,
                           self.pending_tournament_date_1)
         self.assertEquals(pending_tournament.name,
@@ -488,7 +483,6 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(pending_tournament.id, self.pending_tournament_id_1)
         self.assertEquals(pending_tournament.type,
                           self.pending_tournament_type_1)
-        self.assertEquals(pending_tournament.raw, '')
         self.assertEquals(pending_tournament.date,
                           self.pending_tournament_date_1)
         self.assertEquals(pending_tournament.name,
@@ -506,8 +500,6 @@ class TestDAO(unittest.TestCase):
         self.assertEquals(pending_tournament.id, self.pending_tournament_id_1)
         self.assertEquals(pending_tournament.type,
                           self.pending_tournament_type_1)
-        self.assertEquals(pending_tournament.raw,
-                          self.pending_tournament_raw_1)
         self.assertEquals(pending_tournament.date,
                           self.pending_tournament_date_1)
         self.assertEquals(pending_tournament.name,
@@ -534,7 +526,6 @@ class TestDAO(unittest.TestCase):
             self.tournament_id_1)
         self.assertEquals(tournament_1.id, self.tournament_id_1)
         self.assertEquals(tournament_1.type, self.tournament_type_1)
-        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
         self.assertEquals(tournament_1.date, self.tournament_date_1)
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
@@ -545,17 +536,14 @@ class TestDAO(unittest.TestCase):
             self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
         self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
         self.assertEquals(tournament_2.date, self.tournament_date_2)
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
         self.assertEquals(tournament_2.players, self.tournament_players_2)
         self.assertEquals(tournament_2.regions, self.tournament_regions_2)
 
-        tournament_2_raw_new = 'asdfasdf'
         tournament_2_name_new = 'new tournament 2 name'
 
-        tournament_2.raw = tournament_2_raw_new
         tournament_2.name = tournament_2_name_new
 
         self.norcal_dao.update_tournament(tournament_2)
@@ -564,7 +552,6 @@ class TestDAO(unittest.TestCase):
             self.tournament_id_1)
         self.assertEquals(tournament_1.id, self.tournament_id_1)
         self.assertEquals(tournament_1.type, self.tournament_type_1)
-        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
         self.assertEquals(tournament_1.date, self.tournament_date_1)
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
@@ -575,7 +562,6 @@ class TestDAO(unittest.TestCase):
             self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
         self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, tournament_2_raw_new)
         self.assertEquals(tournament_2.date, self.tournament_date_2)
         self.assertEquals(tournament_2.name, tournament_2_name_new)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
@@ -606,7 +592,6 @@ class TestDAO(unittest.TestCase):
         tournament_1 = tournaments[1]
         self.assertEquals(tournament_1.id, self.tournament_id_1)
         self.assertEquals(tournament_1.type, self.tournament_type_1)
-        self.assertEquals(tournament_1.raw, '')
         self.assertEquals(tournament_1.date, self.tournament_date_1)
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
@@ -616,7 +601,6 @@ class TestDAO(unittest.TestCase):
         tournament_2 = tournaments[0]
         self.assertEquals(tournament_2.id, self.tournament_id_2)
         self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, '')
         self.assertEquals(tournament_2.date, self.tournament_date_2)
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
@@ -633,7 +617,6 @@ class TestDAO(unittest.TestCase):
         tournament_1 = tournaments[1]
         self.assertEquals(tournament_1.id, self.tournament_id_1)
         self.assertEquals(tournament_1.type, self.tournament_type_1)
-        self.assertEquals(tournament_1.raw, '')
         self.assertEquals(tournament_1.date, self.tournament_date_1)
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
@@ -643,7 +626,6 @@ class TestDAO(unittest.TestCase):
         tournament_2 = tournaments[0]
         self.assertEquals(tournament_2.id, self.tournament_id_2)
         self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, '')
         self.assertEquals(tournament_2.date, self.tournament_date_2)
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
@@ -657,7 +639,6 @@ class TestDAO(unittest.TestCase):
         tournament_2 = tournaments[0]
         self.assertEquals(tournament_2.id, self.tournament_id_2)
         self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, '')
         self.assertEquals(tournament_2.date, self.tournament_date_2)
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)
@@ -673,7 +654,6 @@ class TestDAO(unittest.TestCase):
         tournament = tournaments[0]
         self.assertEquals(tournament.id, self.tournament_id_2)
         self.assertEquals(tournament.type, self.tournament_type_2)
-        self.assertEquals(tournament.raw, '')
         self.assertEquals(tournament.date, self.tournament_date_2)
         self.assertEquals(tournament.name, self.tournament_name_2)
         self.assertEquals(tournament.matches, self.tournament_matches_2)
@@ -691,7 +671,6 @@ class TestDAO(unittest.TestCase):
         tournament = tournaments[0]
         self.assertEquals(tournament.id, self.tournament_id_2)
         self.assertEquals(tournament.type, self.tournament_type_2)
-        self.assertEquals(tournament.raw, '')
         self.assertEquals(tournament.date, self.tournament_date_2)
         self.assertEquals(tournament.name, self.tournament_name_2)
         self.assertEquals(tournament.matches, self.tournament_matches_2)
@@ -703,7 +682,6 @@ class TestDAO(unittest.TestCase):
             self.tournament_id_1)
         self.assertEquals(tournament_1.id, self.tournament_id_1)
         self.assertEquals(tournament_1.type, self.tournament_type_1)
-        self.assertEquals(tournament_1.raw, self.tournament_raw_1)
         self.assertEquals(tournament_1.date, self.tournament_date_1)
         self.assertEquals(tournament_1.name, self.tournament_name_1)
         self.assertEquals(tournament_1.matches, self.tournament_matches_1)
@@ -714,7 +692,6 @@ class TestDAO(unittest.TestCase):
             self.tournament_id_2)
         self.assertEquals(tournament_2.id, self.tournament_id_2)
         self.assertEquals(tournament_2.type, self.tournament_type_2)
-        self.assertEquals(tournament_2.raw, self.tournament_raw_2)
         self.assertEquals(tournament_2.date, self.tournament_date_2)
         self.assertEquals(tournament_2.name, self.tournament_name_2)
         self.assertEquals(tournament_2.matches, self.tournament_matches_2)

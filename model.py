@@ -20,8 +20,10 @@ class AliasMatch(orm.Document):
 
 
 class Match(orm.Document):
-    fields = [('winner', orm.ObjectIDField(required=True)),
-              ('loser', orm.ObjectIDField(required=True))]
+    fields = [('match_id', orm.IntField(required=True)),
+              ('winner', orm.ObjectIDField(required=True)),
+              ('loser', orm.ObjectIDField(required=True)),
+              ('excluded', orm.BooleanField(required=True, default=False))]
 
     def __str__(self):
         return "%s > %s" % (self.winner, self.loser)
@@ -106,7 +108,7 @@ class Tournament(orm.Document):
               ('date', orm.DateTimeField()),
               ('regions', orm.ListField(orm.StringField())),
               ('url', orm.StringField()),
-              ('raw', orm.StringField()),
+              ('raw_id', orm.ObjectIDField()),
               ('matches', orm.ListField(orm.DocumentField(Match))),
               ('players', orm.ListField(orm.ObjectIDField())),
               ('orig_ids', orm.ListField(orm.ObjectIDField()))]
@@ -153,15 +155,21 @@ class Tournament(orm.Document):
         print pending_tournament.players, pending_tournament.matches
         players = [_get_player_id_from_map_or_throw(
             alias_to_id_map, p) for p in pending_tournament.players]
+
         matches = []
+        counter = 0
         for am in pending_tournament.matches:
             m = Match(
+                match_id=counter,
                 winner=_get_player_id_from_map_or_throw(
                     alias_to_id_map, am.winner),
                 loser=_get_player_id_from_map_or_throw(
-                    alias_to_id_map, am.loser)
+                    alias_to_id_map, am.loser),
+                excluded=False
             )
             matches.append(m)
+            counter+=1
+
         return cls(
             id=pending_tournament.id,
             name=pending_tournament.name,
@@ -169,7 +177,7 @@ class Tournament(orm.Document):
             date=pending_tournament.date,
             regions=pending_tournament.regions,
             url=pending_tournament.url,
-            raw=pending_tournament.raw,
+            raw_id=pending_tournament.raw_id,
             matches=matches,
             players=players,
             orig_ids=players)
@@ -183,7 +191,7 @@ class PendingTournament(orm.Document):
               ('date', orm.DateTimeField()),
               ('regions', orm.ListField(orm.StringField())),
               ('url', orm.StringField()),
-              ('raw', orm.StringField()),
+              ('raw_id', orm.ObjectIDField()),
               ('matches', orm.ListField(orm.DocumentField(AliasMatch))),
               ('players', orm.ListField(orm.StringField())),
               ('alias_to_id_map', orm.ListField(orm.DocumentField(AliasMapping)))]
@@ -216,18 +224,27 @@ class PendingTournament(orm.Document):
 
     @classmethod
     def from_scraper(cls, type, scraper, region_id):
-        regions = [region_id]
-        return cls(
+        raw_file = RawFile(id=ObjectId(),
+                           data=str(scraper.get_raw()))
+        pending_tournament = cls(
             id=ObjectId(),
             name=scraper.get_name(),
             type=type,
             date=scraper.get_date(),
-            regions=regions,
+            regions=[region_id],
             url=scraper.get_url(),
-            raw=scraper.get_raw(),
+            raw_id=raw_file.id,
             players=scraper.get_players(),
             matches=scraper.get_matches())
+        return pending_tournament, raw_file
 
+# used to store large blobs of data (e.g. raw tournament data) so we don't
+# need to carry around tournament data as much. (might eventually be replaced
+# with something like S3)
+class RawFile(orm.Document):
+    fields = [('id', orm.ObjectIDField(required=True, load_from=MONGO_ID_SELECTOR,
+                                       dump_to=MONGO_ID_SELECTOR)),
+              ('data', orm.StringField())]
 
 class Ranking(orm.Document):
     fields = [('id', orm.ObjectIDField(required=True, load_from=MONGO_ID_SELECTOR,

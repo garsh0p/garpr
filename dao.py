@@ -23,6 +23,7 @@ USERS_COLLECTION_NAME = 'users'
 PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
 MERGES_COLLECTION_NAME = 'merges'
 SESSIONS_COLLECTION_NAME = 'sessions'
+RAW_FILES_COLLECTION_NAME = 'raw_files'
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -45,6 +46,8 @@ class DuplicateUsernameException(Exception):
     # safe, only used from script
     pass
 
+class DuplicateRegionException(Exception):
+    pass
 
 class InvalidNameException(Exception):
     # safe only used in dead code
@@ -92,6 +95,7 @@ class Dao(object):
         self.merges_col = mongo_client[database_name][MERGES_COLLECTION_NAME]
         self.sessions_col = mongo_client[
             database_name][SESSIONS_COLLECTION_NAME]
+        self.raw_files_col = mongo_client[database_name][RAW_FILES_COLLECTION_NAME]
         self.mongo_client = mongo_client
         self.region_id = region_id
 
@@ -207,11 +211,6 @@ class Dao(object):
         query_dict = {}
         query_list = []
 
-        # don't pull the raw field because it takes too much memory
-        fields_dict = {
-            'raw': 0
-        }
-
         if regions:
             query_list.append({'regions': {'$in': regions}})
 
@@ -219,11 +218,7 @@ class Dao(object):
             query_dict['$and'] = query_list
 
         pending_tournaments = [t for t in self.pending_tournaments_col.find(
-            query_dict, fields_dict).sort([('date', 1)])]
-
-        # manually add an empty raw field
-        for pending_tournament in pending_tournaments:
-            pending_tournament['raw'] = ''
+            query_dict).sort([('date', 1)])]
 
         return [M.PendingTournament.load(t, context='db') for t in pending_tournaments]
 
@@ -264,11 +259,6 @@ class Dao(object):
         query_dict = {}
         query_list = []
 
-        # don't pull the raw field because it takes too much memory
-        fields_dict = {
-            'raw': 0
-        }
-
         if players:
             for player in players:
                 query_list.append({'players': {'$in': [player.id]}})
@@ -280,17 +270,63 @@ class Dao(object):
             query_dict['$and'] = query_list
 
         tournaments = [t for t in self.tournaments_col.find(
-            query_dict, fields_dict).sort([('date', 1)])]
-
-        # manually add an empty raw field
-        for tournament in tournaments:
-            tournament['raw'] = ''
+            query_dict).sort([('date', 1)])]
 
         return [M.Tournament.load(t, context='db') for t in tournaments]
 
     def get_tournament_by_id(self, id):
         '''id must be an ObjectId'''
         return M.Tournament.load(self.tournaments_col.find_one({'_id': id}), context='db')
+
+    def get_match_by_tournament_id_and_match_id(self, tournament_id, match_id):
+        tourney_m = M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}, {'matches', 1}), context='db')
+        for match in tourney_m.matches:
+            try:
+                if match_id == match.match_id:
+                    return match
+            except Exception as e:
+                print('Could not attain match. ' + str(e))
+
+
+    def set_match_exclusion_by_tournament_id_and_match_id(self, tournament_id, match_id, excluded):
+        # TODO ENHANCE THIS ALGORITHM TO ONLY UPDATE MATCH
+        match_updated = False
+        new_matches = []
+        tourney_m = \
+            M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}), context='db')
+
+        for match in tourney_m.matches:
+            try:
+                if match_id == match.match_id:
+                    match.excluded = excluded
+                    match_updated = True
+                new_matches.append(match)
+            except Exception as e:
+                print('Could not attain match. ' + str(e))
+
+        if match_updated is True:
+            tourney_m.matches = new_matches
+            self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
+
+    def swap_winner_loser_by_tournament_id_and_match_id(self, tournament_id, match_id):
+        new_matches = []
+        tourney_m = \
+            M.Tournament.load(self.tournaments_col.find_one({'_id': tournament_id}), context='db')
+
+        for match in tourney_m.matches:
+            try:
+                if match_id == match.match_id:
+                    winner_holder = match.winner
+                    match.winner = match.loser
+                    match.loser = winner_holder
+                    match_updated = True
+                new_matches.append(match)
+            except Exception as e:
+                raise Exception('Could not attain match. ' + str(e))
+
+        if match_updated is True:
+            tourney_m.matches = new_matches
+            self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
 
     # gets potential merge targets from all regions
     # basically, get players who have an alias similar to the given alias
@@ -445,6 +481,9 @@ class Dao(object):
                 'time', pymongo.DESCENDING)[0],
             context='db')
 
+    def insert_raw_file(self, raw_file):
+        return self.raw_files_col.insert(raw_file.dump(context='db'))
+
     # TODO add more tests
     def is_inactive(self, player, now, day_limit, num_tourneys):
 
@@ -461,6 +500,11 @@ class Dao(object):
             day_limit = 90
             num_tourneys = 6
 
+        # special case for LI
+        if self.region_id == "li":
+            day_limit = 90
+            num_tourneys = 6
+
         qualifying_tournaments = [x for x in self.get_all_tournaments(
             players=[player], regions=[self.region_id]) if x.date >= (now - timedelta(days=day_limit))]
         if len(qualifying_tournaments) >= num_tourneys:
@@ -469,8 +513,16 @@ class Dao(object):
 
     # session management
 
-    # throws an exception, which is okay because this is called from just
-    # create_user
+    # region addition
+    def create_region(self, display_name):
+        the_region = M.Region(id=display_name.lower(), display_name=display_name)
+        return self.insert_region(the_region, self.mongo_client, database_name=DATABASE_NAME)
+
+    def remove_region(self, region):
+        if self.regions_col.find_one({'display_name': region.display_name}):
+            self.regions_col.remove(region.get_json_dict())
+
+    # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
         # validate that no user with same username exists currently
         if self.users_col.find_one({'username': user.username}):
@@ -538,9 +590,11 @@ class Dao(object):
         user_id = result[0]["user_id"]
         return self.get_user_by_id_or_none(user_id)
 
-    # FOR INTERNAL USE ONLY #
-    # XXX: this method must NEVER be publicly routeable, or you have
-    # session-hijacking
+    def get_user_by_region(self, regions):
+        pass
+
+    #### FOR INTERNAL USE ONLY ####
+    #XXX: this method must NEVER be publicly routeable, or you have session-hijacking
     def get_session_id_by_user_or_none(self, User):
         results = self.sessions_col.find()
         for session_mapping in results:

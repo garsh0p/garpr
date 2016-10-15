@@ -1,0 +1,87 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto Condensed:300,400,500,700");
+
+html, body{
+	    background-color: #656565 !important;
+}
+
+.header{
+	text-align: center;
+    width: 100%;
+    font-family: "Roboto Condensed",Helvetica,Arial,sans-serif;
+    font-size: 72px;
+    letter-spacing: 10px;
+    height: 120px;
+    background-color: #656565 !important;
+    border-bottom: 1px solid #666;
+}
+
+.vignette {
+    
+    background: 
+      -webkit-linear-gradient(left, 
+        rgba(0,0,0,0.65) 0%, 
+        rgba(0,0,0,0) 20%,
+        rgba(0,0,0,0) 80%,
+        rgba(0,0,0,0.65) 100%
+      );
+}
+
+
+.header-wrapper{
+	display:inline-flex;
+}
+
+#header1{
+	color:#ffe83a;
+}
+
+#header2{
+	color:#222222;
+}
+
+#header3{
+	color:#444444;
+}
+
+#beta{
+	font-size: 12px;
+    color: white;
+    margin-top: 35px;
+}
+
+.navbar{
+	margin-bottom: 0px;
+}
+
+.pending {
+    font-style: italic;
+}
+
+.newPlayer{
+    font-weight: bold;
+}
+
+.pending > a {
+    color: gray;
+}
+
+table, .container{
+	background-color:#eeeeee;
+}
+
+
+/* EXCLUDED SET STUFF */
+.table > thead > tr > td.excludedSet,
+.table > tbody > tr > td.excludedSet,
+.table > tfoot > tr > td.excludedSet,
+.table > thead > tr > th.excludedSet,
+.table > tbody > tr > th.excludedSet,
+.table > tfoot > tr > th.excludedSet,
+.table > thead > tr.excludedSet > td,
+.table > tbody > tr.excludedSet > td,
+.table > tfoot > tr.excludedSet > td,
+.table > thead > tr.excludedSet > th,
+.table > tbody > tr.excludedSet > th,
+.table > tfoot > tr.excludedSet > th {
+  background-color: #9b9b9b;
+}

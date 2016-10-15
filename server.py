@@ -18,6 +18,8 @@ from dao import Dao
 from scraper.tio import TioScraper
 from scraper.challonge import ChallongeScraper
 from scraper.smashgg import SmashGGScraper
+from scripts import create_region
+from scripts import create_user
 
 TYPEAHEAD_PLAYER_LIMIT = 20
 BASE_REGION = 'newjersey'
@@ -82,6 +84,15 @@ pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
 pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 
+tournament_details_exclude_match_parser = reqparse.RequestParser()
+tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
+tournament_details_exclude_match_parser.add_argument('match_id', type=str)
+tournament_details_exclude_match_parser.add_argument('excluded_tf', type=str)
+
+tournament_details_swap_winner_loser_parser = reqparse.RequestParser()
+tournament_details_swap_winner_loser_parser.add_argument('tournament_id', type=str)
+tournament_details_swap_winner_loser_parser.add_argument('match_id', type=str)
+
 session_put_parser = reqparse.RequestParser()
 session_put_parser.add_argument('username', type=str)
 session_put_parser.add_argument('password', type=str)
@@ -89,7 +100,15 @@ session_put_parser.add_argument('password', type=str)
 session_delete_parser = reqparse.RequestParser()
 session_delete_parser.add_argument('session_id', location='cookies', type=str)
 
-# TODO: major refactor to move auth code to a decorator
+admin_functions_parser = reqparse.RequestParser()
+admin_functions_parser.add_argument('function_type', location='json', type=str)
+admin_functions_parser.add_argument('new_region', location='json', type=str)
+admin_functions_parser.add_argument('new_user_name', location='json', type=str)
+admin_functions_parser.add_argument('new_user_pass', location='json', type=str)
+admin_functions_parser.add_argument('new_user_permissions', location='json', type=str)
+admin_functions_parser.add_argument('new_user_regions', location='json', type=list)
+
+#TODO: major refactor to move auth code to a decorator
 
 
 class InvalidAccessToken(Exception):
@@ -189,7 +208,7 @@ class PlayerListResource(restful.Resource):
             return 'Dao not found', 404
         return_dict = {}
 
-        exclude_properties = ['aliases', 'ratings']
+        exclude_properties = ['aliases']
 
         # single player matching alias within region
         if args['alias']:
@@ -285,6 +304,48 @@ class PlayerResource(restful.Resource):
         return player.dump(context='web')
 
 
+class TournamentSeedResource(restful.Resource):
+      def post(self, region):
+          print "in tournamentSeed POST"
+          dao = Dao(region, mongo_client=mongo_client)
+          if not dao:
+              return 'Dao not found', 404
+          parser = reqparse.RequestParser()
+          parser.add_argument('type', type=str, location='json')
+          parser.add_argument('data', type=unicode, location='json')
+          parser.add_argument('bracket', type=str, location='json')
+          args = parser.parse_args()
+  
+          if args['data'] is None:
+              return "data required", 400
+  
+          the_bytes = bytearray(args['data'], "utf8")
+  
+          if the_bytes[0] == 0xef:
+              print "found magic numbers"
+              return "magic numbers!", 503
+  
+          type = args['type']
+          data = args['data']
+          pending_tournament = None
+  
+          try:
+             
+              if type == 'challonge':
+                  scraper = ChallongeScraper(data)
+              else:
+                  return "Unknown type", 400
+              pending_tournament, raw_file = M.PendingTournament.from_scraper(type, scraper, region)
+          except Exception as ex:
+            return 'Scraper encountered an error ' + str(ex), 400
+  
+          if not pending_tournament or not raw_file:
+              return 'Scraper encountered an error - null', 400
+  
+          pending_tournament_json = pending_tournament.dump(context='web', exclude=('date', 'matches', 'regions', 'type'))
+          return pending_tournament_json
+
+          
 class TournamentListResource(restful.Resource):
 
     def get(self, region):
@@ -371,12 +432,12 @@ class TournamentListResource(restful.Resource):
                 scraper = SmashGGScraper(data, included_phases)
             else:
                 return "Unknown type", 400
-            pending_tournament = M.PendingTournament.from_scraper(
+            pending_tournament, raw_file = M.PendingTournament.from_scraper(
                 type, scraper, region)
         except Exception as ex:
             return 'Scraper encountered an error ' + str(ex), 400
 
-        if not pending_tournament:
+        if not pending_tournament or not raw_file:
             return 'Scraper encountered an error', 400
 
         try:
@@ -386,6 +447,7 @@ class TournamentListResource(restful.Resource):
             return 'Alias service encountered an error', 400
 
         try:
+            raw_file = dao.insert_raw_file(raw_file)
             new_id = dao.insert_pending_tournament(pending_tournament)
             return_dict = {
                 'id': str(new_id)
@@ -402,7 +464,7 @@ class TournamentListResource(restful.Resource):
 
 
 def convert_tournament_to_response(tournament, dao):
-    return_dict = tournament.dump(context='web', exclude=('raw', 'orig_ids'))
+    return_dict = tournament.dump(context='web', exclude=('orig_ids',))
 
     return_dict['players'] = [{
         'id': p,
@@ -413,7 +475,9 @@ def convert_tournament_to_response(tournament, dao):
         'winner_id': m['winner'],
         'loser_id': m['loser'],
         'winner_name': dao.get_player_by_id(ObjectId(m['winner'])).name,
-        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name
+        'loser_name': dao.get_player_by_id(ObjectId(m['loser'])).name,
+        'match_id': m['match_id'],
+        'excluded': m['excluded']
     } for m in return_dict['matches']]
 
     return return_dict
@@ -444,7 +508,7 @@ class TournamentResource(restful.Resource):
                 return 'Permission denied', 403
             if not is_user_admin_for_regions(user, pending_tournament.regions):
                 return 'Permission denied', 403
-            response = pending_tournament.dump(context='web', exclude=('raw',))
+            response = pending_tournament.dump(context='web')
 
         return response
 
@@ -517,7 +581,7 @@ class TournamentResource(restful.Resource):
             return 'Update Tournament Error', 400
 
         if args['pending']:
-            return dao.get_pending_tournament_by_id(tournament.id).dump(context='web', exclude=('raw',))
+            return dao.get_pending_tournament_by_id(tournament.id).dump(context='web')
         else:
             return convert_tournament_to_response(dao.get_tournament_by_id(tournament.id), dao)
 
@@ -601,7 +665,7 @@ class PendingTournamentResource(restful.Resource):
 
         try:
             dao.update_pending_tournament(pending_tournament)
-            return pending_tournament.dump(context='web', exclude=('raw',))
+            return pending_tournament.dump(context='web')
         except:
             return 'Encountered an error inserting pending tournament', 400
 
@@ -663,6 +727,47 @@ class FinalizeTournamentResource(restful.Resource):
         except:
             return 'Dao threw an error somewhere', 400
 
+class ExcludeTournamentMatchResource(restful.Resource):
+    def get(self, region, id):
+        pass
+
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+
+        args = tournament_details_exclude_match_parser.parse_args()
+        tournament_id = args['tournament_id']
+        tournament = dao.get_tournament_by_id(ObjectId(tournament_id))
+
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_regions(user, tournament.regions):
+            return 'Permission denied', 403
+
+        match_id = int(args['match_id'])
+        excluded = (args['excluded_tf'].lower() == 'true')
+
+        dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
+
+class SwapWinnerLoserMatchResource(restful.Resource):
+    def get(self, region):
+        pass
+
+    def post(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+
+        args = tournament_details_swap_winner_loser_parser.parse_args()
+        tournament_id = args['tournament_id']
+        match_id = int(args['match_id'])
+
+        tournament = dao.get_tournament_by_id(ObjectId(tournament_id))
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_regions(user, tournament.regions):
+            return 'Permission denied', 403
+
+        dao.swap_winner_loser_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id)
 
 class RankingsResource(restful.Resource):
 
@@ -759,7 +864,10 @@ class MatchesResource(restful.Resource):
                             ObjectId(match_dict['opponent_id'])).name
                     except:
                         return 'Invalid ObjectID', 400
-                    if match.did_player_win(player.id):
+
+                    if match.excluded is True:
+                        match_dict['result'] = 'excluded'
+                    elif match.did_player_win(player.id):
                         match_dict['result'] = 'win'
                         return_dict['wins'] += 1
                     else:
@@ -769,7 +877,6 @@ class MatchesResource(restful.Resource):
                     match_list.append(match_dict)
 
         return return_dict
-
 
 class SmashGGMappingResource(restful.Resource):
 
@@ -930,6 +1037,43 @@ class SessionResource(restful.Resource):
         return return_dict
 
 
+class AdminFunctionsResource(restful.Resource):
+    def get(self):
+        pass
+
+    def put(self):
+        dao = Dao(None, mongo_client=mongo_client)
+
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+        #if not is_user_admin_for_region(user, region='*'):
+        #    return 'Permission denied', 403
+
+        args = admin_functions_parser.parse_args()
+
+        function_type = args['function_type']
+        if function_type == 'region':
+            region_name = args['new_region']
+
+            #Execute region addition
+            config = Config()
+            if dao.create_region(region_name):
+                print("region created:" + region_name)
+
+        elif function_type == 'user':
+            uname = args['new_user_name']
+            upass = args['new_user_pass']
+            uperm = args['new_user_permissions']
+            uregions = args['new_user_regions']
+
+            #Execute user addition
+            dao = Dao(None, mongo_client)
+            if dao.create_user(uname, upass, uregions):
+                print("user created:" + uname)
+
 @api.representation('text/plain')
 class LoaderIOTokenResource(restful.Resource):
 
@@ -979,6 +1123,8 @@ api.add_resource(PlayerResource, '/<string:region>/players/<string:id>')
 
 api.add_resource(MatchesResource, '/<string:region>/matches/<string:id>')
 
+api.add_resource(TournamentSeedResource, '/<string:region>/tournamentseed')
+
 api.add_resource(TournamentListResource, '/<string:region>/tournaments')
 api.add_resource(TournamentResource,
                  '/<string:region>/tournaments/<string:id>')
@@ -986,6 +1132,11 @@ api.add_resource(PendingTournamentResource,
                  '/<string:region>/pending_tournaments/<string:id>')
 api.add_resource(FinalizeTournamentResource,
                  '/<string:region>/tournaments/<string:id>/finalize')
+
+api.add_resource(ExcludeTournamentMatchResource,
+                 '/<string:region>/tournaments/<string:id>/excludeMatch')
+api.add_resource(SwapWinnerLoserMatchResource,
+                 '/<string:region>/tournaments/<string:id>/swapWinnerLoser')
 
 api.add_resource(SmashGGMappingResource, '/smashGgMap')
 
@@ -995,6 +1146,9 @@ api.add_resource(SessionResource, '/users/session')
 
 api.add_resource(LoaderIOTokenResource,
                  '/{}/'.format(config.get_loaderio_token()))
+
+api.add_resource(AdminFunctionsResource, '/adminfunctions')
+#api.add_resource(AdminFunctionsResource, '/adminfunctions/<string:type>/<string:new_region>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(
