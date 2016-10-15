@@ -21,5 +21,5 @@ if __name__ == "__main__":
     config = Config()
     mongo_client = MongoClient(host=config.get_mongo_url())
     dao = Dao(None, mongo_client)
-    if dao.create_region(region_name, region_name):
+    if dao.create_region(region_name):
         print "region created:", region_name
