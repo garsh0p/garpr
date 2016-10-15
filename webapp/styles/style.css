@@ -58,6 +58,11 @@ html, body{
     box-shadow: none;
 }
 
+.navbar-brand:hover{
+	cursor: default;
+	color: #666666 !important;
+}
+
 .pending {
     font-style: italic;
 }
@@ -73,10 +78,15 @@ html, body{
 .container{
 	background-color: rgba(53, 115, 177, 0.23);
 	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+	width: 100%;
 }
 
-.btn-danger {
+[class*="-danger"] {
     background-color: #d05d6c ;
+}
+
+[class*="-primary"] {
+    background-color: #3573b1 ;
 }
 
 .table_header {
