@@ -541,7 +541,7 @@ class Dao(object):
 
     def get_region_ranking_criteria(self, region_id):
         if self.regions_col.find_one({'_id': region_id}):
-            result = self.regions_col.find({'_id': region_id}, {'rankings' : 1})
+            result = self.regions_col.find({'_id': region_id})
             assert result.count() == 1
             return RegionRankingsCriteria.from_json(result[0])
 

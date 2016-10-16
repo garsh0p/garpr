@@ -279,13 +279,9 @@ class Merge(orm.Document):
               ('time', orm.DateTimeField())]
 
 
-        
-        return cls(
-                json_dict['region'],
-                json_dict['time'],
-                json_dict['tournaments'],
-                [RankingEntry.from_json(r) for r in json_dict['ranking']],
-                id=json_dict['_id'] if '_id' in json_dict else None)
+class Session(orm.Document):
+    fields = [('session_id', orm.StringField(required=True)),
+              ('user_id', orm.StringField(required=True))]
 
 # TODO be explicit about this being a player_id
 class RankingEntry(object):
@@ -388,113 +384,3 @@ class RegionRankingsCriteria(object):
         return cls(
             json_dict['day_limit'],
             json_dict['num_tourneys'])
-
-class User(object):
-    def __init__(self, id, admin_regions, username, salt, hashed_password):
-        self.id = id
-        self.admin_regions = admin_regions
-        self.username = username
-        self.salt = salt
-        self.hashed_password = hashed_password
-
-    def __str__(self):
-        return "%s %s %s" % (self.id, self.username, self.admin_regions)
-
-    def get_json_dict(self):
-        json_dict = {}
-        json_dict['_id'] = self.id
-        json_dict['username'] = self.username
-        json_dict['admin_regions'] = self.admin_regions
-        json_dict['salt'] = self.salt
-        json_dict['hashed_password'] = self.hashed_password
-
-        return json_dict
-
-    @property
-    def clean_user(self):
-        ret = self.get_json_dict()
-        for field in ["hashed_password", "salt"]:
-            ret.pop(field, None)
-        return ret
-
-    @classmethod
-    def from_json(cls, json_dict):
-        if json_dict == None:
-            return None
-
-        return cls(
-                json_dict['_id'],
-                json_dict['admin_regions'],
-                json_dict['username'],
-                json_dict['salt'],
-                json_dict['hashed_password']
-                )
-
-    # probably shouldn't use this method, doesn't salt
-    @classmethod
-    def create_with_default_values(cls, regions, username, password):
-        salt = os.urandom(16)
-        # hashed_password = hashlib.pbkdf2_hmac('sha256', password, salt, ITERATION_COUNT)
-        hashed_password = sha256_crypt.encrypt(password, rounds=ITERATION_COUNT)
-        return cls("userid--" + username, regions, username, "", hashed_password)
-
-class Merge(object):
-    # merge source_player into target_player
-    def __init__(self, requester_user_id, source_player_obj_id, target_player_obj_id, time, id=None):
-        self.requester_user_id = requester_user_id
-        self.source_player_obj_id = source_player_obj_id
-        self.target_player_obj_id = target_player_obj_id
-        self.time = time
-        self.id = id
-
-    def get_json_dict(self):
-        json_dict = {}
-
-        json_dict['requester_user_id'] = self.requester_user_id
-        json_dict['source_player_obj_id'] = self.source_player_obj_id
-        json_dict['target_player_obj_id'] = self.target_player_obj_id
-        json_dict['time'] = self.time
-        if self.id: json_dict['_id'] = self.id
-
-        return json_dict
-
-    @classmethod
-    def from_json(cls, json_dict):
-        if json_dict == None:
-            return None
-
-        return cls(
-                json_dict['requester_user_id'],
-                json_dict['source_player_obj_id'],
-                json_dict['target_player_obj_id'],
-                json_dict['time'],
-                id=(json_dict['_id'] if '_id' in json_dict else None)
-                )
-
-class SessionMapping(object):
-    def __init__(self, session_id, user_id):
-        self.session_id = session_id
-        self.user_id = user_id
-
-
-    def get_json_dict(self):
-        json_dict = {}
-
-        json_dict['session_id'] = self.session_id
-        json_dict['user_id'] = self.user_id
-        return json_dict
-
-    @classmethod
-    def from_json(cls, json_dict):
-        if json_dict == None:
-            return None
-
-        return cls(
-                json_dict['session_id'],
-                json_dict['user_id'],
-                id=json_dict['_id'] if '_id' in json_dict else None
-                )
-
-class Session(orm.Document):
-    fields = [('session_id', orm.StringField(required=True)),
-              ('user_id', orm.StringField(required=True))]
