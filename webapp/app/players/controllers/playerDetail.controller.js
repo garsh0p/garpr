@@ -15,6 +15,8 @@ angular.module('app.players').controller("PlayerDetailController", function($sco
 
     $scope.matchStatus = 'L';
 
+    $scope.showFormulas = false;
+
     $scope.determineMatchStatus = function(match){
         var status = '';
         status = match.result == 'win' ? "W" : "L";
@@ -104,6 +106,13 @@ angular.module('app.players').controller("PlayerDetailController", function($sco
         players = $scope.playerService.getPlayerListFromQuery(viewValue,
             function(player) {return player.id != $scope.playerId});
         return players;
+    }
+
+    $scope.showFormulasFcn = function(){
+        if($scope.showFormulas)
+            $scope.showFormulas = false
+        else
+            $scope.showFormulas = true
     }
 
     $http.get(hostname + $routeParams.region + '/players/' + $routeParams.playerId).

@@ -18,8 +18,21 @@
                 <h2><span tooltip-placement="right"
                           tooltip-html-unsafe="Skill: {{player.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{player.ratings[regionService.region.id].sigma | number:3}}">
                     Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
-                </span></h2>
+                    </span>
+                </h2>
+                <span>
+                    <h4>Unadjusted: {{player.ratings[regionService.region.id].mu | number:3}} (+/- {{player.ratings[regionService.region.id].sigma | number:3}})
+                    <input class='showFormulasButton' type="button" ng-click="showFormulasFcn()" value="Show Formulas" /></h4>
+                </span>
             </div>
+        </div>
+        <div class="formulaDiv" ng-show="showFormulas">
+            <hr/>
+            <p>
+                Ranking = Skill - (3 * Uncertainty) </br>
+                Unadjusted = Skill (+/- Uncertainty)
+            </p>
+            <hr />
         </div>
         <div class="row">
             <div class="col-md-12">
