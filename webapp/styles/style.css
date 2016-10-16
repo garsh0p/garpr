@@ -1,0 +1,52 @@
+.pending {
+    font-style: italic;
+}
+
+.newPlayer{
+    font-weight: bold;
+}
+
+.pending > a {
+    color: gray;
+}
+
+/* EXCLUDED SET STUFF */
+.table > thead > tr > td.excludedSet,
+.table > tbody > tr > td.excludedSet,
+.table > tfoot > tr > td.excludedSet,
+.table > thead > tr > th.excludedSet,
+.table > tbody > tr > th.excludedSet,
+.table > tfoot > tr > th.excludedSet,
+.table > thead > tr.excludedSet > td,
+.table > tbody > tr.excludedSet > td,
+.table > tfoot > tr.excludedSet > td,
+.table > thead > tr.excludedSet > th,
+.table > tbody > tr.excludedSet > th,
+.table > tfoot > tr.excludedSet > th {
+  background-color: #9b9b9b;
+}
+
+.uncertaintyValue {
+ font-color: #808080;
+ background-color: #DCDCDC;
+}
+
+.uncertaintyValueMinus {
+
+}
+
+div.forumlaDiv{
+    position: absolute;
+    text-align: right;
+    padding-right:20px;
+    font-size:10px;
+    right: 0;
+    top:0;
+}
+
+.showFormulasButton{
+    opacity: 0.3;
+    right:0;
+    position:absolute;
+    test-align:right;
+}

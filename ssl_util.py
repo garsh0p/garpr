@@ -1,9 +1,11 @@
 import OpenSSL
 from twisted.internet import ssl
 
-SECURE_CIPHERS = 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS'
+SECURE_CIPHERS = 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS' # noqa
+
 
 class CustomOpenSSLContextFactory(ssl.DefaultOpenSSLContextFactory):
+
     def __init__(self, privateKeyFileName, certificateChainFileName,
                  sslmethod=OpenSSL.SSL.SSLv23_METHOD):
         self.privateKeyFileName = privateKeyFileName

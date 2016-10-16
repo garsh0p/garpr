@@ -14,6 +14,3 @@ cp ./config/dev-config.ini ./config/config.ini
 
 echo "Generating javascript config file for development"
 cp ./webapp/dev-script-config.js ./webapp/script-config.js
-
-echo "Validating dev database..."
-python scripts/mongo_validation.py

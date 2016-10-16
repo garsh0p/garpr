@@ -1,0 +1,68 @@
+<div class="modal-header">
+    <h3 class="modal-title">Import Tournament</h3>
+</div>
+
+<div class="modal-body">
+    <tabset>
+        <tab heading="Tio" select="setBracketType('tio')">
+            <p><img src="images/tiobracket.png"></p>
+            <p>The <b>bracket name</b> in the above example is <i>Melee Singles</i>. Please make sure you enter the bracket name <b>EXACTLY</b> as it appears.</p>
+            <form ng-submit="submit()">
+                <div class="form-group">
+                    <label for="tioFile">Tio File</label>
+                    <input id="tioFile" type="file" class="form-control" on-read-file="loadFile($fileContent)">
+                    <label for="bracket">Bracket Name</label>
+                    <input type="bracket" class="form-control" ng-model="postParams.bracket">
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
+                <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
+            </form>
+        </tab>
+        <tab heading="Challonge" select="setBracketType('challonge')">
+            <p>A Challonge Bracket ID can be determined from your URL and has 2 forms:</p>
+            <ul>
+                <li>If the URL does not have a subdomain, the ID is simply the second part of the URL.<br>Example URL: www.challonge.com/<b>bracket</b><br>Bracket ID: <b>bracket</b></li>
+                <li>If the URL has a subdomain, the ID is the subdomain and the second part of the URL joined by a hyphen.<br>Example URL: <b>sub</b>.challonge.com/<b>bracket</b><br>Bracket ID: <b>sub-bracket</b></li>
+            </ul>
+            <form ng-submit="submit()">
+                <div class="form-group">
+                    <label for="bracket">Challonge Bracket ID</label>
+                    <input type="text" class="form-control" ng-model="postParams.data">
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
+                <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
+            </form>
+        </tab>
+        <tab heading="SmashGG" select="setBracketType('smashgg')">
+            <p>Enter the URL to your SmashGG bracket <br/>(e.g.
+                <a href = https://smash.gg/tournament/genesis-3/events/melee-singles/brackets/3860/15833>
+                    https://smash.gg/tournament/genesis-3/events/melee-singles/brackets/3860/15833
+                </a>)
+                <br/>(One bracket will suffice. You will see all the brackets from your event populate below):</p>
+            <form ng-submit="submit()">
+                <div class="form-group">
+                    <label for="bracket">SmashGG Bracket URL</label>
+                    <input type="text" class="form-control" ng-model="postParams.data" ng-change="smashGG_populateBrackets()">
+                    <br/>
+                    <p ng-model="smashGGImportMessage" id="smashGGImportMessage"></p>
+                    <ul style="list-style: none;">
+                        <li ng-repeat="bracket in smashGG_brackets" >
+                            <input type="checkbox" class="smashGG_bracket_checkbox"
+                               bracket-id="{{ bracket.id }}"
+                               ng-checked="checkSmashggBracket(bracket)"
+                               id="{{ bracket.id }}_checkbox"  >
+                            {{ bracket.name }} <i>( {{ bracket.id }} )</i>
+                        </li>
+                    </ul>
+                    <br/>
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
+                <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
+            </form>
+        </tab>
+    </tabset>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="close()" ng-disabled="disableButtons">Cancel</button>
+</div>

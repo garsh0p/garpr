@@ -1,0 +1,131 @@
+<div class="container">
+    <!-- PENDING TOURNAMENTS -->
+    <div class="row">
+        <div class="col-md-10">
+            <h1>{{tournament.date}} - {{tournament.name}}</h1>
+            <h2 ng-if="tournament.url"><a href={{tournament.url}}>{{tournament.type}} url</a></h2>
+        </div>
+        <div class="col-md-2" ng-show="sessionService.isAdmin()">
+            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="openDetailsModal()">Edit Tournament Details</button></h1>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-12">
+            <h1>This is a PENDING tournament</h1>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-12">
+            <h3>Players</h3>
+            <table class="table table-condensed">
+                <tr>
+                    <td><strong>New Player?</strong></td>
+                    <td><strong>Tag</strong></td>
+                    <td><strong>Player Details</strong></td>
+                    <td><strong>Player Search</strong></td>
+                </tr>
+                <tr ng-repeat="player in tournament.players">
+                    <td>
+                        <input type="checkbox"
+                               ng-model="playerCheckboxState[player]"
+                               ng-change="onPlayerCheckboxChange(player)">
+                    </td>
+                    <td ng-class="{'text-danger': playerCheckboxState[player], newPlayer: playerCheckboxState[player]}">{{player}}</td>
+                    <td>
+                        <div ng-hide="playerCheckboxState[player]">
+                            <div ng-show="playerData[player].hasOwnProperty('id')">
+                                <p>Regions: <strong>{{prettyPrintRegionListForPlayer(playerData[player])}}</strong></p>
+                                <a href="#/{{regionService.region.id}}/players/{{playerData[player].id}}">
+                                    View match history
+                                </a>
+                            </div>
+                            <div ng-hide="playerData[player].hasOwnProperty('id')">
+                                <p class="text-danger"><strong>Please select a valid existing player!</strong></p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="text" class="form-control" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-2 col-md-offset-10">
+            <button type="button" class="btn btn-primary pull-right" ng-click="putTournamentFromUI()">Save Alias-Player Mapping</button>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-12">
+            <h3>Matches</h3>
+            <table class="table table-condensed">
+                <tr>
+                    <td>Winner</td>
+                    <td>Loser</td>
+                </tr>
+                <tr ng-repeat="match in tournament.matches">
+                    <td class="success">{{match.winner}}</a></td>
+                    <td class="danger">{{match.loser}}</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="row" ng-show="isPendingTournament">
+        <div class="col-md-2 col-md-offset-10">
+            <button type="button" class="btn btn-primary pull-right" ng-click="openSubmitPendingTournamentModal()">Submit</button>
+        </div>
+    </div>
+
+    <!-- REAL TOURNAMENTS -->
+    <div class="row" ng-hide="isPendingTournament">
+        <div class="col-md-4">
+            <h3>Players</h3>
+            <table class="table table-condensed">
+                <tr>
+                    <td>Name</td>
+                </tr>
+                <tr ng-repeat="player in tournament.players">
+                    <td><a href="#/{{regionService.region.id}}/players/{{player.id}}">{{player.name}}</a></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-8">
+            <h3>Matches</h3>
+            <table class="table table-condensed">
+                <tr>
+                    <td>Winner</td>
+                    <td ng-show="sessionService.isAdmin()" width="7%">
+                        Swap
+                    </td>
+                    <td>Loser</td>
+                    <td ng-show="sessionService.isAdmin()">
+                       Exclude
+                    </td>
+                </tr>
+                <tr ng-repeat="match in tournament.matches">
+                    <td class="success" id="winner_{{ match.match_id }}">
+                        <a href="#/{{regionService.region.id}}/players/{{match.winner_id}}">
+                            {{match.winner_name}}
+                        </a>
+                    </td>
+                    <td ng-show="sessionService.isAdmin()" width="7%">
+                        <img src="images/light-swap-arrow.png" ng-click="swapWinnerLoser(match)" height="20" width="40" />
+                    </td>
+                    <td class="danger" id="loser_{{ match.match_id }}">
+                        <a href="#/{{regionService.region.id}}/players/{{match.loser_id}}">
+                            {{match.loser_name}}
+                        </a>
+                    </td>
+                    <td ng-show="sessionService.isAdmin()">
+                        <input type="checkbox" id="exclude_set_checkbox_{{ match.match_id }}"
+                               ng-model='matchCheckbox' ng-change="changeMatchExclusion(match)"
+                               ng-checked="isMatchCurrentlyExcluded(match)"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
