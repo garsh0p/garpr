@@ -16,7 +16,7 @@ import rankings
 from config.config import Config
 import facebook
 from datetime import datetime
-from model import MatchResult, Tournament, PendingTournament, Merge, User, Player, RegionRankingsCriteria, Region
+from model import MatchResult, Tournament, PendingTournament, Merge, User, Player, Region
 import re
 from dao import Dao
 from scraper.tio import TioScraper

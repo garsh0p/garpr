@@ -258,7 +258,10 @@ class Ranking(orm.Document):
 class Region(orm.Document):
     fields = [('id', orm.StringField(required=True, load_from=MONGO_ID_SELECTOR,
                                      dump_to=MONGO_ID_SELECTOR)),
-              ('display_name', orm.StringField(required=True))]
+              ('display_name', orm.StringField(required=True)),
+              ('ranking_num_tourneys_attended', orm.IntField(required=True)),
+              ('ranking_activity_day_limit', orm.IntField(required=True)),
+              ('tournament_qualified_day_limit', orm.IntField(require=True))]
 
 
 class User(orm.Document):
@@ -283,104 +286,3 @@ class Session(orm.Document):
     fields = [('session_id', orm.StringField(required=True)),
               ('user_id', orm.StringField(required=True))]
 
-# TODO be explicit about this being a player_id
-class RankingEntry(object):
-    def __init__(self, rank, player, rating):
-        '''
-        :param rank: TODO
-        :param player: TODO
-        :param rating: TODO
-        '''
-        self.rank = rank
-        self.player = player
-        self.rating = rating
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and \
-                self.rank == other.rank and \
-                self.player == other.player and \
-                self.rating == other.rating
-
-    def __ne__(self, other):
-        return not self == other
-
-    def get_json_dict(self):
-        json_dict = {}
-
-        json_dict['rank'] = self.rank
-        json_dict['player'] = self.player
-        json_dict['rating'] = self.rating
-
-        return json_dict
-
-    @classmethod
-    def from_json(cls, json_dict):
-        if json_dict == None:
-            return None
-
-        return cls(
-                json_dict['rank'],
-                json_dict['player'],
-                json_dict['rating'])
-
-class Region(object):
-    def __init__(self, id, display_name, rankings=None):
-        '''
-        :param id: TODO
-        :param display_name: TODO
-        '''
-        self.id = id
-        self.display_name = display_name
-
-        if rankings is not None:
-            self.rankings = rankings
-        else:
-            self.rankings = RegionRankingsCriteria()
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and \
-                self.id == other.id and \
-                self.display_name == other.display_name
-
-    def __ne__(self, other):
-        return not self == other
-
-    def get_json_dict(self):
-        json_dict = {}
-
-        json_dict['_id'] = self.id
-        json_dict['display_name'] = self.display_name
-        json_dict['rankings'] = self.rankings.get_json_dict()
-
-        return json_dict
-
-    @classmethod
-    def from_json(cls, json_dict):
-        if json_dict == None:
-            return None
-
-        return cls(
-                json_dict['_id'],
-                json_dict['display_name'])
-
-class RegionRankingsCriteria(object):
-    def __init__(self, day_limit=60, num_tourneys=2):
-        self.day_limit = day_limit
-        self.num_tourneys = num_tourneys
-
-    def get_json_dict(self):
-        json_dict = {}
-
-        json_dict['day_limit'] = self.day_limit
-        json_dict['num_tourneys'] = self.num_tourneys
-
-        return json_dict
-
-    @classmethod
-    def from_json(cls, json_dict):
-        if json_dict == None:
-            return None
-
-        return cls(
-            json_dict['day_limit'],
-            json_dict['num_tourneys'])
