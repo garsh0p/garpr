@@ -7,17 +7,19 @@
         </div>
     </div>
     <div class="row">
-        <table class="table table-striped table-condensed">
-            <tr>
-                <td>Date</td>
-                <td>Name</td>
-                <td></td>
-            </tr>
-            <tr ng-repeat="tournament in tournamentService.tournamentList">
-                <td>{{tournament.date}}</td>
-                <td ng-class="{'pending': tournament.pending}"><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
-                <td><a ng-show="sessionService.isAdminForRegion(regionService.region.id)" ng-click="openDeleteTournamentModal(tournament.id)">Delete</a></td>
-            </tr>
-        </table>
+        <div class="col-md-12">
+            <table class="table table-striped table-condensed">
+                <tr class="table-header">
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                <tr ng-repeat="tournament in tournamentService.tournamentList">
+                    <td>{{tournament.date}}</td>
+                    <td ng-class="{'pending': tournament.pending}"><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
+                    <td><a ng-show="sessionService.isAdminForRegion(regionService.region.id)" ng-click="openDeleteTournamentModal(tournament.id)">Delete</a></td>
+                </tr>
+            </table>
+        </div>     
     </div>
 </div>

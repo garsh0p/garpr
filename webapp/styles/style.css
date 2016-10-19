@@ -9,25 +9,25 @@
 	--blue-lighter:#548DC4;
 	--blue-base:#3573b1;
 	--blue-darker:#165EA4;
-	--blue-rarkest:#0B467F;
+	--blue-darkest:#0B467F;
 
 	--red-lightest:#F8BCC5;
 	--red-lighter:#F3929F;
 	--red-base:#d05d6c;
 	--red-darker:#AE3647;
-	--red-rarkest:#8A1727;
+	--red-darkest:#8A1727;
 
 	--green-lightest:#BFE9B1;
 	--green-lighter:#98D983;
 	--green-base:#6CB953;
 	--green-darker:#4A9B30;
-	--green-rarkest:#2D7B15;
+	--green-darkest:#2D7B15;
 
 	--yellow-lightest:#FFD18E;
 	--yellow-lighter:#FFBF62;
 	--yellow-base:#FFB03E;
 	--yellow-darker:#FD9D10;
-	--yellow-rarkest:#C47502;
+	--yellow-darkest:#C47502;
 }
 
 
@@ -48,19 +48,19 @@
     color: var(--yellow-base) ;
 }
 
-.btn-danger {
+.btn-danger, .btn-danger:active {
     background-color: var(--red-base) ;
 }
 
-.btn-primary {
+.btn-primary, .btn-primary:active {
     background-color: var(--blue-base) ;
 }
 
-.btn-success {
+.btn-success, .btn-success:active {
     background-color: var(--green-base) ;
 }
 
-.btn-warning {
+.btn-warning, .btn-warning:active {
     background-color: var(--yellow-base) ;
 }
 
@@ -89,7 +89,10 @@ tr.success td{
 }
 
 
-
+input[type="checkbox"]:checked:after,.checkbox input[type="checkbox"]:checked:after,.checkbox-inline input[type="checkbox"]:checked:after{
+	background-color: var(--blue-lightest);
+	border-color: var(--blue-lightest);
+}
 
 
 
@@ -97,13 +100,14 @@ tr.success td{
 html, body{
     background-image: url("bg.png") !important;
     background-repeat: repeat-y repeat-x;
-
+    height: 100%;		
 }
 
 .container{
 	background-color: rgba(53, 115, 177, 0.23);
 	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 	width: 100%;
+	min-height: 100vh;
 }
 
 .table_header {
@@ -111,10 +115,29 @@ html, body{
 }
 
 a {
-	color:var(--blue-base) ;
+	color:var(--blue-darker) ;
 }
 a:hover {
-	color:var(--blue-base) ;
+	color:var(--blue-darker) ;
+}
+
+table{
+		box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+		background-color: #fff;
+}
+
+ .table-striped>tbody>tr:nth-child(odd)>th{
+	border-bottom: 2px solid #666;
+	background-color: #fff !important;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th,.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: #eee;
+}
+
+.shadow-container{
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 /*END application-wide styling */
@@ -171,7 +194,7 @@ a:hover {
 
 .navbar{
 	margin-bottom: 0px;
-	border-bottom: 1px solid #c7c7c7;
+	border-bottom: 1px solid #666;
     -webkit-box-shadow: none;
     box-shadow: none;
 }

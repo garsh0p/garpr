@@ -24,11 +24,11 @@
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-condensed">
-                    <tr>
-                        <td>Date</td>
-                        <td>Tournament</td>
-                        <td>Opponent</td>
-                        <td>Result</td>
+                    <tr class="table_header">
+                        <th>Date</th>
+                        <th>Tournament</th>
+                        <th>Opponent</th>
+                        <th>Result</th>
                     </tr>
                     <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
                                    excludedSet: match.result == 'excluded'}" ng-repeat="match in matches">
