@@ -134,6 +134,11 @@ angular.module('app.tournaments').controller("TournamentsController", function($
             };
             $scope.disableButtons = false;
             document.getElementById('smashGGImportMessage').innerHTML = "Please choose the phases to include";
+        }).
+        failure(function(data) {
+            $scope.postParams.data = ''
+            document.getElementById('smashGGImportMessage').innerHTML = "Something went wrong. Please try again. " +
+                "\nIf the problem persists, please contact the Admins";
         });
     };
 });

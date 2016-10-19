@@ -5,8 +5,10 @@ from model import AliasMatch
 # SMASHGG URLS:
 # https://smash.gg/tournament/<tournament-name>/brackets/<event-id>/<phase-id>/<phase-group-id>/
 PHASE_URL = "https://api.smash.gg/phase/%s?expand[0]=groups"
-EVENT_URL = "https://api.smash.gg/event/%s?expand[0]=groups&expand[1]=entrants"
+EVENT_URL = "https://api.smash.gg/tournament/%s/event/%s?expand[0]=groups&expand[1]=entrants"
 GROUP_URL = "https://api.smash.gg/phase_group/%s?expand[0]=sets&expand[1]=entrants&expand[2]=matches&expand[3]=seeds" # noqa
+
+
 
 SET_TIME_PROPERTIES = ['startedAt', 'completedAt']
 
@@ -34,7 +36,9 @@ class SmashGGScraper(object):
             print p
 
         # GET IMPORTANT DATA FROM THE URL
-        self.event_id = SmashGGScraper.get_tournament_event_id_from_url(
+        self.event_name = SmashGGScraper.get_tournament_event_name_from_url(
+            self.path)
+        self.phase_name = SmashGGScraper.get_tournament_phase_name_from_url(
             self.path)
         self.name = SmashGGScraper.get_tournament_name_from_url(self.path)
 
@@ -42,7 +46,7 @@ class SmashGGScraper(object):
         # AND INSTANTIATE THE DICTIONARY THAT HOLDS THE RAW
         # JSON DUMPED FROM THE API
 
-        self.event_dict = SmashGGScraper.get_event_dict(self.event_id)
+        self.event_dict = SmashGGScraper.get_event_dict(self.event_name, self.phase_name)
 
         self.group_sets = []
         for phase in self.included_phases:
@@ -201,18 +205,33 @@ class SmashGGScraper(object):
         return list(set(group_ids))
 
     @staticmethod
-    def get_tournament_event_id_from_url(url):
+    def get_tournament_event_name_from_url(url):
         splits = url.split('/')
 
         flag = False
         for split in splits:
             # IF THIS IS TRUE WE HAVE REACHED THE EVENT ID
             if flag is True:
-                return int(split)
+                return str(split)
 
             # SET FLAG TRUE IF CURRENT WORD IS 'BRACKETS'
             # THE NEXT ELEMENT WILL BE OUR EVENT ID
-            if 'brackets' in split:
+            if 'tournament' in split:
+                flag = True
+
+    @staticmethod
+    def get_tournament_phase_name_from_url(url):
+        splits = url.split('/')
+
+        flag = False
+        for split in splits:
+            # IF THIS IS TRUE WE HAVE REACHED THE EVENT ID
+            if flag is True:
+                return str(split)
+
+            # SET FLAG TRUE IF CURRENT WORD IS 'BRACKETS'
+            # THE NEXT ELEMENT WILL BE OUR EVENT ID
+            if 'events' in split:
                 flag = True
 
     # Deprecated: now should get all phases from event
@@ -239,8 +258,8 @@ class SmashGGScraper(object):
         return name.replace('-', ' ')
 
     @staticmethod
-    def get_event_dict(event_id):
-        return check_for_200(requests.get(EVENT_URL % event_id)).json()
+    def get_event_dict(event_name, phase_name):
+        return check_for_200(requests.get(EVENT_URL % (event_name, phase_name))).json()
 
     @staticmethod
     def get_group_dict(group_id):
@@ -250,8 +269,8 @@ class SmashGGScraper(object):
             return dict
 
     @staticmethod
-    def get_event_name(event_id):
-        event_raw = check_for_200(requests.get(EVENT_URL % event_id)).json()
+    def get_event_name(event_name, phase_name):
+        event_raw = check_for_200(requests.get(EVENT_URL % (event_name, phase_name))).json()
         event_name = event_raw['entities']['event']['name']
         return event_name
 
@@ -271,9 +290,9 @@ class SmashGGScraper(object):
         return phase_ids
 
     @staticmethod
-    def get_phase_ids(event_id):
+    def get_phase_ids(event_name, phase_name):
         ids = []
-        event_raw = check_for_200(requests.get(EVENT_URL % event_id)).json()
+        event_raw = check_for_200(requests.get(EVENT_URL % (event_name, phase_name))).json()
         groups = event_raw['entities']['groups']
         for group in groups:
             ids.append(group['phaseId'])
@@ -281,9 +300,9 @@ class SmashGGScraper(object):
         return ids
 
     @staticmethod
-    def get_phasename_id_map(event_id):
+    def get_phasename_id_map(event_name, phase_name):
         map = {}
-        phase_ids = SmashGGScraper.get_phase_ids(event_id)
+        phase_ids = SmashGGScraper.get_phase_ids(event_name, phase_name)
         for phase_id in phase_ids:
             map[phase_id] = SmashGGScraper.get_phase_bracket_name(phase_id)
         return map

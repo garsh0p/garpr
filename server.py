@@ -747,7 +747,11 @@ class ExcludeTournamentMatchResource(restful.Resource):
         match_id = int(args['match_id'])
         excluded = (args['excluded_tf'].lower() == 'true')
 
-        dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
+        try:
+            dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
+        except Exception as e:
+            print e
+            return 'Match exclusion failed', 400
 
 class SwapWinnerLoserMatchResource(restful.Resource):
     def get(self, region):
@@ -767,7 +771,11 @@ class SwapWinnerLoserMatchResource(restful.Resource):
         if not is_user_admin_for_regions(user, tournament.regions):
             return 'Permission denied', 403
 
-        dao.swap_winner_loser_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id)
+        try:
+            dao.swap_winner_loser_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id)
+        except Exception as e:
+            print e
+            return 'Swap Winner Loser failed.', 400
 
 class RankingsResource(restful.Resource):
 
@@ -884,8 +892,9 @@ class SmashGGMappingResource(restful.Resource):
         args = smashGGMap_get_parser.parse_args()
         url = args['bracket_url']
 
-        event_id = SmashGGScraper.get_tournament_event_id_from_url(url)
-        id_map = SmashGGScraper.get_phasename_id_map(event_id)
+        event_name = SmashGGScraper.get_tournament_event_name_from_url(url)
+        phase_name = SmashGGScraper.get_tournament_phase_name_from_url(url)
+        id_map = SmashGGScraper.get_phasename_id_map(event_name, phase_name)
         return id_map
 
 
