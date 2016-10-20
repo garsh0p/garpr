@@ -799,6 +799,34 @@ class RankingsResource(restful.Resource):
 
         return return_dict
 
+    def put(self, region):
+        dao = Dao(region, mongo_client=mongo_client)
+        args = rankings_criteria_get_parser.parse_args()
+
+        ranking_num_tourneys_attended = args['ranking_num_tourneys_attended']
+        ranking_activity_day_limit = args['ranking_activity_day_limit']
+        tournament_qualified_day_limit = args['tournament_qualified_day_limit']
+
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_region(user, region):
+            return 'Permission denied', 403
+
+        try:
+            if ranking_num_tourneys_attended is not None and ranking_activity_day_limit is not None:
+                # TODO Update rankings and store criteria in db
+                dao.update_region_ranking_criteria(region.lower(),
+                                                   ranking_num_tourneys_attended=ranking_num_tourneys_attended,
+                                                   ranking_activity_day_limit=ranking_activity_day_limit,
+                                                   tournament_qualified_day_limit=tournament_qualified_day_limit)
+        except Exception as e:
+            print str(e)
+            return 'There was an error updating the region rankings criteria', 400
+
+
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
         args = rankings_criteria_get_parser.parse_args()
@@ -818,24 +846,28 @@ class RankingsResource(restful.Resource):
         # we pass in now so we can mock it out in tests
         now = datetime.now()
 
-        if ranking_num_tourneys_attended is not None and ranking_activity_day_limit is not None:
-            #TODO Update rankings and store criteria in db
-            rankings.generate_ranking\
-                (dao, now=now, day_limit=ranking_num_tourneys_attended, num_tourneys=ranking_activity_day_limit)
+        try:
+            if ranking_num_tourneys_attended is not None and ranking_activity_day_limit is not None:
+                #TODO Update rankings and store criteria in db
+                rankings.generate_ranking\
+                    (dao, now=now, day_limit=ranking_num_tourneys_attended, num_tourneys=ranking_activity_day_limit)
 
-            dao.update_region_ranking_criteria(region.lower(),
-                                               ranking_num_tourneys_attended=ranking_num_tourneys_attended,
-                                               ranking_activity_day_limit=ranking_activity_day_limit,
-                                               tournament_qualified_day_limit=tournament_qualified_day_limit)
+                dao.update_region_ranking_criteria(region.lower(),
+                                                   ranking_num_tourneys_attended=ranking_num_tourneys_attended,
+                                                   ranking_activity_day_limit=ranking_activity_day_limit,
+                                                   tournament_qualified_day_limit=tournament_qualified_day_limit)
 
-        else:
-            #TODO Get stored rankings from the db
-            region_rankings = dao.get_region_ranking_criteria(region_id=region.lower())
-            num_tourney = region_rankings['ranking_num_tourneys_attended']
-            day_limit = region_rankings['ranking_activity_day_limit']
-            rankings.generate_ranking(dao, now=now,
-                                      day_limit=day_limit,
-                                      num_tourneys=num_tourney)
+            else:
+                #TODO Get stored rankings from the db
+                region_rankings = dao.get_region_ranking_criteria(region_id=region.lower())
+                num_tourney = region_rankings['ranking_num_tourneys_attended']
+                day_limit = region_rankings['ranking_activity_day_limit']
+                rankings.generate_ranking(dao, now=now,
+                                          day_limit=day_limit,
+                                          num_tourneys=num_tourney)
+        except Exception as e:
+            print str(e)
+            return 'There was an error updating rankings', 400
 
         return self.get(region)
 
