@@ -527,15 +527,18 @@ class Dao(object):
         if self.regions_col.find_one({'display_name': region.display_name}):
             self.regions_col.remove(region.get_json_dict())
 
-    def update_region_ranking_criteria(self, region_id, rankings):
+    def update_region_ranking_criteria(self, region_id,
+                                       ranking_num_tourneys_attended,
+                                       ranking_activity_day_limit,
+                                       tournament_qualified_day_limit):
         if self.regions_col.find_one({'_id': region_id}):
             self.regions_col.update({'_id': region_id},
                                     {'$set':
-                                         {'rankings' :
-                                              {'day_limit': rankings.day_limit,
-                                               'num_tourneys': rankings.num_tourneys
-                                               }
-                                          }
+                                        {
+                                         'ranking_num_tourneys_attended': str(ranking_num_tourneys_attended),
+                                         'ranking_activity_day_limit': str(ranking_activity_day_limit),
+                                         'tournament_qualified_day_limit': str(tournament_qualified_day_limit)
+                                        }
                                      })
 
 
@@ -543,7 +546,13 @@ class Dao(object):
         if self.regions_col.find_one({'_id': region_id}):
             result = self.regions_col.find({'_id': region_id})
             assert result.count() == 1
-            return RegionRankingsCriteria.from_json(result[0])
+
+            region_ranking_criteria = {}
+            region_ranking_criteria['ranking_num_tourneys_attended'] = result.ranking_num_tourneys_attended
+            region_ranking_criteria['ranking_activity_day_limit'] = result.ranking_activity_day_limit
+            region_ranking_criteria['tournament_qualified_day_limit'] = result.tournament_qualified_day_limit
+
+            return region_ranking_criteria
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):

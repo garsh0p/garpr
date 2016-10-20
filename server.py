@@ -803,8 +803,9 @@ class RankingsResource(restful.Resource):
         dao = Dao(region, mongo_client=mongo_client)
         args = rankings_criteria_get_parser.parse_args()
 
-        day_limit = args['day_limit']
-        num_tourneys = args['num_tourneys']
+        ranking_num_tourneys_attended = args['ranking_num_tourneys_attended']
+        ranking_activity_day_limit = args['ranking_activity_day_limit']
+        tournament_qualified_day_limit = args['tournament_qualified_day_limit']
 
         if not dao:
             return 'Dao not found', 404
@@ -817,17 +818,24 @@ class RankingsResource(restful.Resource):
         # we pass in now so we can mock it out in tests
         now = datetime.now()
 
-        if day_limit is not None and num_tourneys is not None:
+        if ranking_num_tourneys_attended is not None and ranking_activity_day_limit is not None:
             #TODO Update rankings and store criteria in db
-            rankings.generate_ranking(dao, now=now, day_limit=day_limit, num_tourneys=num_tourneys)
-            new_rankings_criteria = RegionRankingsCriteria(day_limit=day_limit, num_tourneys=num_tourneys)
-            dao.update_region_ranking_criteria(region.lower(), rankings=new_rankings_criteria)
+            rankings.generate_ranking\
+                (dao, now=now, day_limit=ranking_num_tourneys_attended, num_tourneys=ranking_activity_day_limit)
+
+            dao.update_region_ranking_criteria(region.lower(),
+                                               ranking_num_tourneys_attended=ranking_num_tourneys_attended,
+                                               ranking_activity_day_limit=ranking_activity_day_limit,
+                                               tournament_qualified_day_limit=tournament_qualified_day_limit)
+
         else:
             #TODO Get stored rankings from the db
             region_rankings = dao.get_region_ranking_criteria(region_id=region.lower())
-            day_limit = rankings.day_limit
-            num_tourneys = rankings.num_tourneys
-            rankings.generate_ranking(dao, now=now, day_limit=day_limit, num_tourneys=num_tourneys)
+            num_tourney = region_rankings['ranking_num_tourneys_attended']
+            day_limit = region_rankings['ranking_activity_day_limit']
+            rankings.generate_ranking(dao, now=now,
+                                      day_limit=day_limit,
+                                      num_tourneys=num_tourney)
 
         return self.get(region)
 
