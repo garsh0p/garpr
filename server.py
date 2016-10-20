@@ -795,7 +795,10 @@ class RankingsResource(restful.Resource):
                 r['id'] = str(r.pop('player'))
                 ranking_list.append(r)
 
+        ranking_criteria = dao.get_region_ranking_criteria(region.lower())
+
         return_dict['ranking'] = ranking_list
+        return_dict['ranking_criteria'] = ranking_criteria
 
         return return_dict
 
