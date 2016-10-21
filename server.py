@@ -64,8 +64,9 @@ smashGGMap_get_parser = reqparse.RequestParser()
 smashGGMap_get_parser.add_argument('bracket_url', type=str)
 
 rankings_criteria_get_parser = reqparse.RequestParser()
-rankings_criteria_get_parser.add_argument('day_limit', type=str)
-rankings_criteria_get_parser.add_argument('num_tourneys', type=str)
+rankings_criteria_get_parser.add_argument('ranking_activity_day_limit', type=str)
+rankings_criteria_get_parser.add_argument('ranking_num_tourneys_attended', type=str)
+rankings_criteria_get_parser.add_argument('tournament_qualified_day_limit', type=str)
 
 merges_put_parser = reqparse.RequestParser()
 merges_put_parser.add_argument('source_player_id', type=str)
@@ -791,7 +792,8 @@ class RankingsResource(restful.Resource):
                 r['id'] = str(r.pop('player'))
                 ranking_list.append(r)
 
-        ranking_criteria = dao.get_region_ranking_criteria(region.lower())
+        ranking_criteria = dao.get_region_ranking_criteria(region)
+        print ranking_criteria
 
         return_dict['ranking'] = ranking_list
         return_dict['ranking_criteria'] = ranking_criteria

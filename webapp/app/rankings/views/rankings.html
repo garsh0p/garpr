@@ -11,11 +11,11 @@
           <div class="panel-body">
               <form id="rankingsControlPanelForm" ng-submit="saveRegionRankingsCriteria()">
                 <!-- Options to tweak rankings go here -->
-                <input type="number" id="numberDaysBackText" ng-model="rankingNumDaysBack"> Days Worth of Results.
+                <input type="number" maxlength='3' id="numberDaysBackText" ng-model="rankingNumDaysBack"> Days Worth of Results.
                 <br/><br/>
-                Tournaments Attended within <input type="number" ng-model="numberTourneysAttended" > Days.
+                Tournaments Attended within <input type="number" maxlength="3" ng-model="numberTourneysAttended" > Days.
                 </br><br/>
-                Include Tournaments <input type="number" ng-model="tourneyNumDaysBack" /> Days Back
+                Include Tournaments <input type="number" maxlength="3" ng-model="tourneyNumDaysBack" /> Days Back
                 <br/><br/>
                 <input type="submit" value="Save Changes" />
               </form>

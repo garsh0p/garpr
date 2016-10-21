@@ -254,7 +254,6 @@ class Ranking(orm.Document):
               ('time', orm.DateTimeField()),
               ('ranking', orm.ListField(orm.DocumentField(RankingEntry)))]
 
-
 class Region(orm.Document):
     fields = [('id', orm.StringField(required=True, load_from=MONGO_ID_SELECTOR,
                                      dump_to=MONGO_ID_SELECTOR)),

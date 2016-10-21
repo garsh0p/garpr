@@ -1,4 +1,4 @@
-angular.module('app.rankings').controller("RankingsController", function($scope, $routeParams, $modal, RegionService, RankingsService, SessionService) {
+angular.module('app.rankings').controller("RankingsController", function($scope, $http, $routeParams, $modal, RegionService, RankingsService, SessionService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.rankingsService = RankingsService
@@ -34,8 +34,22 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
         $scope.modalInstance.close();
     };
 
-    rankingCritera = $scope.rankingService.getRegionRankingCriteria($routeParams.region)
-    $scope.rankingNumDaysBack = rankingCritera.ranking_criteria.ranking_activity_day_limit;
-    $scope.rankingsNumTourneysAttended = rankingCritera.ranking_criteria.ranking_num_tourneys_attended;
-    $scope.tourneyNumDaysBack = rankingCritera.ranking_criteria.tournament_qualified_day_limit;
+    $scope.getRegionRankingCriteria = function(){
+        url = hostname + $routeParams.region + '/rankings';
+        $http.get({
+            url: url,
+            method: "GET"
+        })
+        .then(
+        (data) => {
+            $scope.rankingNumDaysBack = data.ranking_criteria.ranking_activity_day_limit;
+            $scope.rankingsNumTourneysAttended = data.ranking_criteria.ranking_num_tourneys_attended;
+            $scope.tourneyNumDaysBack = data.ranking_criteria.tournament_qualified_day_limit;
+        },
+        (err) => {
+            alert('There was an error getting the Ranking Criteria for the region')
+        });
+    }
+
+    var rankingCriteria = $scope.getRegionRankingCriteria()
 });

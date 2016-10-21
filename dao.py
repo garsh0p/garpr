@@ -543,11 +543,13 @@ class Dao(object):
 
 
     def get_region_ranking_criteria(self, region_id):
+        print region_id
         if self.regions_col.find_one({'_id': region_id}):
-            result = self.regions_col.find({'_id': region_id})
-            assert result.count() == 1
+            result = M.Region.load(self.regions_col.find_one({'_id': region_id}))
 
-            region_ranking_criteria = {}
+            print result
+
+            region_ranking_criteria = None
             region_ranking_criteria['ranking_num_tourneys_attended'] = result.ranking_num_tourneys_attended
             region_ranking_criteria['ranking_activity_day_limit'] = result.ranking_activity_day_limit
             region_ranking_criteria['tournament_qualified_day_limit'] = result.tournament_qualified_day_limit
