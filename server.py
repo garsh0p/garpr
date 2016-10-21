@@ -798,6 +798,8 @@ class RankingsResource(restful.Resource):
         return_dict['ranking'] = ranking_list
         return_dict['ranking_criteria'] = ranking_criteria
 
+        print return_dict['ranking_criteria']
+
         return return_dict
 
     def put(self, region):
