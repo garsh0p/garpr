@@ -1,0 +1,34 @@
+<style>
+    .input-right {
+        text-align: right;
+    }
+</style>
+
+<div class="container">
+    <div class="form-group row">
+        <div class="col-md-5 col-xs-5">
+            <input type="text" placeholder="Player name" class="form-control input-lg" ng-model="player1" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="onChange()">
+        </div>
+
+        <div class="col-md-2 col-xs-2">
+            <h1><p class="text-center">{{wins}}-{{losses}}</p></h1>
+        </div>
+
+        <div class="col-md-5 col-xs-5">
+            <input type="text" placeholder="Player name" class="form-control input-lg input-right" ng-model="player2" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="onChange()">
+        </div>
+    </div>
+    <table class="table table-condensed">
+        <tr>
+            <td>Date</td>
+            <td>Tournament</td>
+            <td>Winner</td>
+        </tr>
+        <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
+                       excludedSet: match.result == 'excluded'}" ng-repeat="match in matches">
+            <td>{{match.tournament_date}}</td>
+            <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
+            <td>{{ determineMatchStatus(match,playerName,opponentName) }}</td>
+        </tr>
+    </table>
+</div>

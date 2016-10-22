@@ -1,0 +1,67 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <h3>Suggested Seeding:</h3>
+            <h6><span class="text-warning">Yellow</span> Indicates an inactive rating for this region (when an active ranking is unavailable).</h6>
+            <h6><span class="text-danger">Red</span> Indicates an out of region ranking (when an in-region ranking is unavailable).</h6>
+        </div>
+        <div>
+            <h4 class="text-right"><button type="button" class="btn btn-info" ng-click="open()">Upload a Tournament</button></h4>
+            <h4 class="text-right"><button type="button" class="btn btn-info" ng-click="addPlayerRow()">+ Add Player</button></h4>
+            <h4 class="text-right" ng-show="seeding.players.length > 0"><button type="button" class="btn btn-success" export-to-csv> Download </button></h4>
+        </div>
+    </div>
+        <div class="row">
+        <div class="col-md-12">
+            <h3>Players</h3>
+            <table id="seed_table" class="table table-condensed">
+                <tr>
+                    <td><strong>New Player?</strong></td>
+                    <td><strong>Seed</strong></td>
+                    <td><strong>Tag</strong></td>
+                    <td><strong>Player Details</strong></td>
+                    <td><strong>Rating</strong></td>
+                    <td><strong>Player Search</strong></td> 
+                    <td><strong>Remove</strong></td> 
+                </tr>
+                <tr ng-repeat="player in seeding.players">
+                    <td>
+                        <input type="checkbox"
+                               ng-model="player.new"
+                               ng-change="setPlayerNew(player)">
+                    </td>
+                    <td>
+                        {{player.seed}}
+                    </td>
+                    <td ng-class="{'text-danger': isNewPlayer(player), newPlayer: isNewPlayer(player)}">{{player.tag}}</td>
+                    <td ng-hide="isNewPlayer(player)">
+                        <div>
+                            <div>
+                                <p>Regions: <strong>{{prettyPrintRegionListForPlayer(player)}}</strong></p>
+                            	<a ng-show="player.hasOwnProperty('id')"
+                                href="#/{{regionService.region.id}}/players/{{player.id}}">
+                                    View match history
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                    <td ng-hide="isNewPlayer(player)">
+                    	<div ng-class="{'text-warning': player.ratingType==1, 'text-danger': player.ratingType==2, newPlayer: isNewPlayer(player)}">
+                    		{{player.rating}}<span ng-if="player.ratingType>0">*</span>
+						</div>
+						<div ng-if="player.ratingType==2" class="text-danger">(Region: {{player.oorRanking}})</div>
+                    </td>
+                    <td ng-show="isNewPlayer(player)" colspan=2>
+                    	 <div class="text-danger">Player does not have any record. </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="text" class="form-control" ng-model="player.tag" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
+                        </div>
+                    </td>
+                    	<td><a ng-click="removePlayer(player.seed)">Delete</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

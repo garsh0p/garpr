@@ -1,5 +1,17 @@
+[environment]
+name=NAME
+host=HOST
+web_port=WEB_PORT
+api_port=API_PORT
+http_redirect_port=HTTP_REDIRECT_PORT
+
+[ssl]
+key_path=KEY_PATH
+cert_path=CERT_PATH
+
 [database]
 host=HOSTNAME
+db=DB
 auth_db=AUTH_DB
 user=USER
 password=PASSWORD
@@ -10,3 +22,6 @@ api_key=API_KEY
 [facebook]
 app_id=FB_APP_ID
 app_token=FB_APP_TOKEN
+
+[loaderio]
+token=LOADERIO_TOKEN
