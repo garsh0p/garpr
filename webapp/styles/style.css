@@ -114,11 +114,12 @@ html, body{
 	font-weight: bolder;
 }
 
-a {
+a,.nav-tabs>li.active>a, a:hover, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus:hover {
 	color:var(--blue-darker) ;
 }
-a:hover {
-	color:var(--blue-darker) ;
+
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus{
+	background-color:var(--blue-base) ;
 }
 
 table{
@@ -126,7 +127,7 @@ table{
 		background-color: #fff;
 }
 
- .table-striped>tbody>tr:nth-child(odd)>th{
+ .table>tbody>tr:nth-child(odd)>th{
 	border-bottom: 2px solid #666;
 	background-color: #fff !important;
 }
@@ -252,9 +253,3 @@ div.forumlaDiv{
     top:0;
 }
 
-.showFormulasButton{
-    opacity: 0.3;
-    right:0;
-    position:absolute;
-    test-align:right;
-}

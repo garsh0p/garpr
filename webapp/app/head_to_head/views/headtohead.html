@@ -5,7 +5,7 @@
 </style>
 
 <div class="container">
-    <div class="form-group row">
+    <div class="form-group row shadow-container">
         <div class="col-md-5 col-xs-5">
             <input type="text" placeholder="Player name" class="form-control input-lg" ng-model="player1" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="onChange()">
         </div>

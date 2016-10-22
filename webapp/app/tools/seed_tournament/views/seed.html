@@ -61,7 +61,11 @@
                             <input type="text" class="form-control" ng-model="player.tag" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
-                    	<td><a ng-click="removePlayer(player.seed)">Delete</a></td>
+                    <td>
+                    <button type="button" class="btn btn-danger" ng-click="removePlayer(player.seed)">
+                      <span class="glyphicon glyphicon-trash" ></span>
+                    </button>
+                    </td>
                 </tr>
             </table>
         </div>
