@@ -95,6 +95,9 @@
         <div class="col-md-8">
             <h3>Matches</h3>
             <table class="table table-condensed">
+                <tr ng-show="sessionService.isAdmin()">
+                    <td><img src='images/Anonymous_Plus_Button.png' ng-click='openAddMatchModal()' height="50" width="50" /> Add Match </td>
+                </tr>
                 <tr>
                     <td>Winner</td>
                     <td ng-show="sessionService.isAdmin()" width="7%">
@@ -125,6 +128,7 @@
                                ng-checked="isMatchCurrentlyExcluded(match)"/>
                     </td>
                 </tr>
+
             </table>
         </div>
     </div>

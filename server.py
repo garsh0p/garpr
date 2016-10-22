@@ -84,6 +84,11 @@ pending_tournament_put_parser.add_argument('matches', type=list)
 pending_tournament_put_parser.add_argument('regions', type=list)
 pending_tournament_put_parser.add_argument('alias_to_id_map', type=list)
 
+tournament_details_add_match_parser = reqparse.RequestParser()
+tournament_details_add_match_parser.add_argument('tournament_id', type=str)
+tournament_details_add_match_parser.add_argument('winner_id', type=str)
+tournament_details_add_match_parser.add_argument('loser_id', type=str)
+
 tournament_details_exclude_match_parser = reqparse.RequestParser()
 tournament_details_exclude_match_parser.add_argument('tournament_id', type=str)
 tournament_details_exclude_match_parser.add_argument('match_id', type=str)
@@ -727,6 +732,37 @@ class FinalizeTournamentResource(restful.Resource):
         except:
             return 'Dao threw an error somewhere', 400
 
+class AddTournamentMatchResource(restful.Resource):
+    def get(self, region, id):
+        pass
+
+    def put(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        user = get_user_from_request(request, dao)
+
+        args = tournament_details_add_match_parser.parse_args()
+        tournament = dao.get_tournament_by_id(ObjectId(id))
+
+        if not user:
+            return 'Permission denied', 403
+        if not is_user_admin_for_regions(user, tournament.regions):
+            return 'Permission denied', 403
+
+        winner_id = args['winner_id']
+        loser_id = args['loser_id']
+
+        if winner_id is None or loser_id is None:
+            print "winner and loser IDs not present. Cannot continue"
+            return "winner and loser IDs not present. Cannot continue", 400
+
+        try:
+            dao.add_match_by_tournament_id(ObjectId(id), ObjectId(winner_id), ObjectId(loser_id))
+            return 'Successful addition', 200
+        except Exception as e:
+            print 'error adding match to tournament: ' + str(e)
+            return 'error adding match to tournament: ' + str(e), 400
+
+
 class ExcludeTournamentMatchResource(restful.Resource):
     def get(self, region, id):
         pass
@@ -736,8 +772,10 @@ class ExcludeTournamentMatchResource(restful.Resource):
         user = get_user_from_request(request, dao)
 
         args = tournament_details_exclude_match_parser.parse_args()
-        tournament_id = args['tournament_id']
-        tournament = dao.get_tournament_by_id(ObjectId(tournament_id))
+        try:
+            tournament = dao.get_tournament_by_id(ObjectId(id))
+        except:
+            return "Casting error", 400
 
         if not user:
             return 'Permission denied', 403
@@ -748,7 +786,7 @@ class ExcludeTournamentMatchResource(restful.Resource):
         excluded = (args['excluded_tf'].lower() == 'true')
 
         try:
-            dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(tournament_id), match_id, excluded)
+            dao.set_match_exclusion_by_tournament_id_and_match_id(ObjectId(id), match_id, excluded)
         except Exception as e:
             print e
             return 'Match exclusion failed', 400
@@ -762,6 +800,7 @@ class SwapWinnerLoserMatchResource(restful.Resource):
         user = get_user_from_request(request, dao)
 
         args = tournament_details_swap_winner_loser_parser.parse_args()
+
         tournament_id = args['tournament_id']
         match_id = int(args['match_id'])
 
@@ -1146,6 +1185,8 @@ api.add_resource(ExcludeTournamentMatchResource,
                  '/<string:region>/tournaments/<string:id>/excludeMatch')
 api.add_resource(SwapWinnerLoserMatchResource,
                  '/<string:region>/tournaments/<string:id>/swapWinnerLoser')
+api.add_resource(AddTournamentMatchResource,
+                 '/<string:region>/tournaments/<string:id>/addMatch')
 
 api.add_resource(SmashGGMappingResource, '/smashGgMap')
 

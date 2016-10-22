@@ -16,6 +16,8 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
     $scope.playerCheckboxState = {};
 
     $scope.matchCheckbox = null;
+    $scope.addMatchWinner = '';
+    $scope.addMatchLoser = '';
 
     $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
@@ -44,6 +46,37 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
     $scope.closeDetailsModal = function() {
         $scope.modalInstance.close()
     };
+
+    $scope.openAddMatchModal = function(){
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'app/tournaments/views/tournament_add_match_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+    };
+
+    $scope.addMatchToTournament = function(winnerId, loserId){
+
+        var putParams = {
+            winner_id: winnerId,
+            loser_id: loserId
+        }
+
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId + '/addMatch';
+
+        $scope.sessionService.authenticatedPut(url, putParams,
+            (data) => {
+                //ON SUCCESS RELOAD THE PAGE
+                alert('Added Match Successfully!');
+                location.reload();
+            },
+            (err) => {
+                //ON ERROR INDICATE TO THE USER
+                alert('Match Addition Failed. Please try again. ' +
+                      '\nPlease check that both Winner and Loser are filled in' +
+                      '\nIf the problem persists please contact the Admins');
+            })
+    }
 
     $scope.updateTournamentDetails = function() {
         url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId;
