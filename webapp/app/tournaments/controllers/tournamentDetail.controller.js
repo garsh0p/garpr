@@ -293,6 +293,24 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
 
     };
 
+    $scope.openDeleteTournamentModal = function(tournamentId) {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'app/tournaments/views/delete_tournament_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+    $scope.tournamentId = tournamentId;
+    };
+
+    $scope.deleteTournament = function() {
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId;
+        successCallback = function(data) {
+            window.location.href = "#/" + $routeParams.region + '/tournaments' ;
+            window.location.reload();
+        };
+        $scope.sessionService.authenticatedDelete(url, successCallback);
+    };
+
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success($scope.updateData);
 });

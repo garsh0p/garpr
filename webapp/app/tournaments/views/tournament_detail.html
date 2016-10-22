@@ -7,6 +7,7 @@
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdmin()">
             <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="openDetailsModal()">Edit Tournament Details</button></h1>
+             <h1 class="text-right"><button type="button" class="btn btn-danger" ng-show="sessionService.isAdminForRegion(regionService.region.id)" ng-click="openDeleteTournamentModal(tournament.id)">Delete</a></button></h1>
         </div>
     </div>
     <div class="row" ng-show="isPendingTournament">
