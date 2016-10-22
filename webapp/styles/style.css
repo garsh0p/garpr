@@ -3,6 +3,8 @@
 
 /*BEGIN application-wide styling */
 
+
+
 /*Color Definitions*/
 :root{
 	--blue-lightest:#80AEDA;
@@ -29,6 +31,9 @@
 	--yellow-darker:#FD9D10;
 	--yellow-darkest:#C47502;
 }
+
+
+
 
 
 /*bootstrap class overrides*/
@@ -141,6 +146,8 @@ table{
     background-color: rgba(0, 0, 0, 0.3);
 }
 
+
+
 /*END application-wide styling */
 
 
@@ -206,6 +213,24 @@ table{
 }
 
 /*END Header/Nav styling */
+
+
+
+
+/*BEGIN Head to Head styling */
+
+.h2h_player_input::-webkit-input-placeholder { color: #eee; }
+.h2h_player_input:-moz-placeholder { color: #eee; }
+.h2h_player_input::-moz-placeholder { color: #eee; }
+.h2h_player_input:-ms-input-placeholder { color: #eee; }
+
+/*END Head to Head styling */
+
+
+
+
+
+/*MISC */
 
 .pending {
     font-style: italic;
