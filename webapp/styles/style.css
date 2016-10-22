@@ -223,7 +223,9 @@ table{
 .h2h_player_input:-moz-placeholder { color: #eee; }
 .h2h_player_input::-moz-placeholder { color: #eee; }
 .h2h_player_input:-ms-input-placeholder { color: #eee; }
-
+.h2h_player_input{
+	color:#444;
+}
 /*END Head to Head styling */
 
 
