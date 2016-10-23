@@ -1,28 +1,30 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-10">
-            <h3>Suggested Seeding:</h3>
-            <h6><span class="text-warning">Yellow</span> Indicates an inactive rating for this region (when an active ranking is unavailable).</h6>
-            <h6><span class="text-danger">Red</span> Indicates an out of region ranking (when an in-region ranking is unavailable).</h6>
+        <div class="col-md-12 shadow-container">
+            <div class="col-md-10">
+                <h3>Suggested Seeding:</h3>
+                <h6><span class="text-warning">Yellow</span> Indicates an inactive rating for this region (when an active ranking is unavailable).</h6>
+                <h6><span class="text-danger">Red</span> Indicates an out of region ranking (when an in-region ranking is unavailable).</h6>
+            </div>
+            <div class="col-md-2">
+                <h4 class="text-right"><button type="button" class="btn btn-primary" ng-click="open()">Upload a Tournament</button></h4>
+                <h4 class="text-right"><button type="button" class="btn btn-primary" ng-click="addPlayerRow()">+ Add Player</button></h4>
+                <h4 class="text-right" ng-show="seeding.players.length > 0"><button type="button" class="btn btn-primary" export-to-csv> Download </button></h4>
+            </div>
         </div>
-        <div>
-            <h4 class="text-right"><button type="button" class="btn btn-info" ng-click="open()">Upload a Tournament</button></h4>
-            <h4 class="text-right"><button type="button" class="btn btn-info" ng-click="addPlayerRow()">+ Add Player</button></h4>
-            <h4 class="text-right" ng-show="seeding.players.length > 0"><button type="button" class="btn btn-success" export-to-csv> Download </button></h4>
-        </div>
-    </div>
+    </div> 
         <div class="row">
         <div class="col-md-12">
             <h3>Players</h3>
             <table id="seed_table" class="table table-condensed">
                 <tr>
-                    <td><strong>New Player?</strong></td>
-                    <td><strong>Seed</strong></td>
-                    <td><strong>Tag</strong></td>
-                    <td><strong>Player Details</strong></td>
-                    <td><strong>Rating</strong></td>
-                    <td><strong>Player Search</strong></td> 
-                    <td><strong>Remove</strong></td> 
+                    <th>New Player?</th>
+                    <th>Seed</th>
+                    <th>Tag</th>
+                    <th>Player Details</th>
+                    <th>Rating</th>
+                    <th>Player Search</th> 
+                    <th>Remove</th> 
                 </tr>
                 <tr ng-repeat="player in seeding.players">
                     <td>
@@ -38,7 +40,7 @@
                         <div>
                             <div>
                                 <p>Regions: <strong>{{prettyPrintRegionListForPlayer(player)}}</strong></p>
-                            	<a ng-show="player.hasOwnProperty('id')"
+                            	<a target="_blank" ng-show="player.hasOwnProperty('id')"
                                 href="#/{{regionService.region.id}}/players/{{player.id}}">
                                     View match history
                                 </a>
@@ -59,7 +61,11 @@
                             <input type="text" class="form-control" ng-model="player.tag" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
-                    	<td><a ng-click="removePlayer(player.seed)">Delete</a></td>
+                    <td>
+                    <button type="button" class="btn btn-danger" ng-click="removePlayer(player.seed)">
+                      <span class="glyphicon glyphicon-trash" ></span>
+                    </button>
+                    </td>
                 </tr>
             </table>
         </div>

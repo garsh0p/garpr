@@ -1,63 +1,72 @@
-<div class="navbar navbar-inverse" role="navigation" ng-controller="NavbarController">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand">NOTGARPR</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li ng-class="{active: $route.current.activeTab == 'rankings'}">
-                            <a ng-href="#/{{regionService.region.id}}/rankings">Rankings</a>
+
+<div class="header vignette" ng-controller="NavbarController">
+    <div class="header-wrapper">
+        <p id="header1">{{regionService.region.id}}</p>
+        <p id="header2">GAR</p>
+        <p id="header3">PR</p>
+        <div id="beta">BETA</div>
+    </div>
+</div>
+<div class="navbar navbar-default" role="navigation" ng-controller="NavbarController">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <div class="navbar-brand">NOTGARPR</div>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li ng-class="{active: $route.current.activeTab == 'rankings'}">
+                    <a ng-href="#/{{regionService.region.id}}/rankings">Rankings</a>
+                </li>
+                <li ng-class="{active: $route.current.activeTab == 'players'}">
+                    <a ng-href="#/{{regionService.region.id}}/players">Players</a>
+                </li>
+                <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
+                    <a ng-href="#/{{regionService.region.id}}/tournaments">Tournaments</a>
+                </li>
+                <li class="dropdown" dropdown >
+                    <a class="dropdown-toggle" dropdown-toggle>
+                        Tools
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-class="{active: $route.current.activeTab == 'seed'}">
+                            <a ng-href="#/{{regionService.region.id}}/seed">Seed Tournament</a>
                         </li>
-                        <li ng-class="{active: $route.current.activeTab == 'players'}">
-                            <a ng-href="#/{{regionService.region.id}}/players">Players</a>
-                        </li>
-                        <li ng-class="{active: $route.current.activeTab == 'tournaments'}">
-                            <a ng-href="#/{{regionService.region.id}}/tournaments">Tournaments</a>
-                        </li>
-                        <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
+                         <li ng-class="{active: $route.current.activeTab == 'headtohead'}">
                             <a ng-href="#/{{regionService.region.id}}/headtohead">Head-to-Head</a>
                         </li>
-                        <li ng-class="{active: $route.current.activeTab == 'about'}">
-                            <a ng-href="#/about">About</a>
-                        </li>
-                        <li class="dropdown" dropdown >
-                            <a class="dropdown-toggle" dropdown-toggle>
-                                Tools
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li ng-class="{active: $route.current.activeTab == 'seed'}">
-                                    <a ng-href="#/{{regionService.region.id}}/seed">Seed Tournament</a>
-                                </li>
-                            </ul>
-                        </li>
                     </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown" dropdown ng-controller="AuthenticationController">
-                            <a class="dropdown-toggle" dropdown-toggle>
-                                {{sessionService.loggedIn ? sessionService.userInfo.username : "Login"}}
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                               <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
-                               <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
-                            <a class="dropdown-toggle" dropdown-toggle>
-                                {{regionService.region.display_name}}
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
-                            </ul>
-                        </li>
+                </li>
+                <li ng-class="{active: $route.current.activeTab == 'about'}">
+                    <a ng-href="#/about">About</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown" dropdown ng-controller="AuthenticationController">
+                    <a class="dropdown-toggle" dropdown-toggle>
+                        {{sessionService.loggedIn ? sessionService.userInfo.username : "Login"}}
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                       <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
+                       <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
                     </ul>
-                    <form class="nav navbar-form navbar-right" role="search">
-                        <div class="form-group">
-                            <input type="text" class="form-control" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
-                        </div>
-                    </form>
-                </div><!--/.nav-collapse -->
-            </div>
-        </div>
+                </li>
+                <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
+                    <a class="dropdown-toggle" dropdown-toggle>
+                        {{regionService.region.display_name}}
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-repeat="r in regionService.display_regions"><a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="nav navbar-form navbar-right" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
+                </div>
+            </form>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
