@@ -547,15 +547,15 @@ class Dao(object):
 
     def update_region_ranking_criteria(self, region_id,
                                        ranking_num_tourneys_attended,
-                                       ranking_activity_day_limit,
-                                       tournament_qualified_day_limit):
+                                       ranking_activity_day_limit):
+                                       #tournament_qualified_day_limit):
         if self.regions_col.find_one({'_id': region_id}):
             self.regions_col.update({'_id': region_id},
                                     {'$set':
                                         {
-                                         'ranking_num_tourneys_attended': str(ranking_num_tourneys_attended),
-                                         'ranking_activity_day_limit': str(ranking_activity_day_limit),
-                                         'tournament_qualified_day_limit': str(tournament_qualified_day_limit)
+                                         'ranking_num_tourneys_attended': int(ranking_num_tourneys_attended),
+                                         'ranking_activity_day_limit': int(ranking_activity_day_limit)
+                                         #'tournament_qualified_day_limit': int(tournament_qualified_day_limit)
                                         }
                                      })
 
