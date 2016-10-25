@@ -33,7 +33,7 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
     $scope.cancel = function() {
         $scope.modalInstance.close();
     };
-        
+
     $scope.getRegionRankingCriteria = function(){
         url = hostname + $routeParams.region + '/rankings';
         $http.get(url)
