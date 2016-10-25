@@ -27,7 +27,13 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
             $scope.modalInstance.close();
         };
 
-        $scope.sessionService.authenticatedPost(url, {}, successCallback, angular.noop);
+        var postParams = {
+            ranking_num_tourneys_attended: $scope.rankingsNumTourneysAttended,
+            ranking_activity_day_limit: $scope.rankingNumDaysBack,
+            tournament_qualified_day_limit: $scope.tourneyNumDaysBack
+        }
+
+        $scope.sessionService.authenticatedPost(url, postParams, successCallback, angular.noop);
     };
 
     $scope.cancel = function() {
@@ -61,7 +67,6 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
         $scope.sessionService.authenticatedPut(url, putParams,
         (res) => {
             alert('Successfully updated Region: ' + $routeParams.region + ' Ranking Criteria.');
-            location.reload();
         },
         (err) => {
             alert('There was an error updating the Region Ranking Criteria. Please try again.');
