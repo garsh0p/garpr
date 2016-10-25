@@ -1,25 +1,43 @@
 <div class="container">
     <div class="panel panel-default" id="rankingsControlPanel">
         <div class="panel-heading">
-          <h4 class="panel-title">
-            <a ng-click="isRankingsCollapsed = !isRankingsCollapsed">
-              Rankings Control Panel
-            </a>
-          </h4>
+            <h4 class="panel-title">
+                <a ng-click="isRankingsCollapsed = !isRankingsCollapsed">
+                    Rankings Control Panel
+                </a>
+            </h4>
         </div>
         <div collapse="isRankingsCollapsed">
-          <div class="panel-body">
-              <form id="rankingsControlPanelForm" ng-submit="saveRegionRankingsCriteria()">
+            <div class="panel-body">
+                <form id="rankingsControlPanelForm" ng-submit="saveRegionRankingsCriteria()">
                 <!-- Options to tweak rankings go here -->
-                <input type="number" maxlength='3' id="numberDaysBackText" ng-model="rankingNumDaysBack"> Days Worth of Results.
-                <br/><br/>
-                Tournaments Attended within <input type="number" maxlength="3" ng-model="numberTourneysAttended" > Days.
-                </br><br/>
-                Include Tournaments <input type="number" maxlength="3" ng-model="tourneyNumDaysBack" /> Days Back
-                <br/><br/>
-                <input type="submit" value="Save Changes" />
-              </form>
-          </div>
+                <h3>Day Inclusion:</h3>
+                <span>
+                 <input type="number" maxlength='3' id="numberDaysBackText" ng-model="rankingNumDaysBack" style="3px"/> Days Worth of Results.
+                </span>
+                    <br/><br/>
+                <span>
+                Tournaments Attended within <input type="number" maxlength="3" ng-model="rankingsNumTourneysAttended"
+                                                   style="3px"/> Days.
+                </span>
+                    </br>
+                    <hr/>
+                    <br/>
+                <span>
+                    <h3>Tournament Inclusion:</h3>
+                  Include Tournaments <input type="number" maxlength="3" ng-model="tourneyNumDaysBack" style="3px"/> Days Back
+                    <!--
+                    <br/>
+                    OR
+                    <br/>
+                    Include Tournaments From <input type="date" ng-model="tourneyNumDaysStartDate" hint="mm/dd/yyyy"/>
+                    to <input type="date" ng-model="tourneyNumDaysStartDate" hint="mm/dd/yyyy"/>
+                    -->
+                </span>
+                    <br/><br/>
+                    <input type="submit" value="Save Changes"/>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -28,7 +46,9 @@
             <h3>As of {{rankingsService.rankingsList.time.substring(0,10)}}</h3>
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdminForRegion(regionService.region.id)">
-            <h3 class="text-right"><button type="button" class="btn btn-danger" ng-click="prompt()">Regenerate rankings</button></h3>
+            <h3 class="text-right">
+                <button type="button" class="btn btn-danger" ng-click="prompt()">Regenerate rankings</button>
+            </h3>
         </div>
     </div>
     <div class="row">

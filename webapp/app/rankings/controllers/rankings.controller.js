@@ -36,19 +36,18 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
 
     $scope.getRegionRankingCriteria = function(){
         url = hostname + $routeParams.region + '/rankings';
-        $http.get({
-            url: url,
-            method: "GET"
-        })
+        $http.get(url)
         .then(
-        (data) => {
-            $scope.rankingNumDaysBack = data.ranking_criteria.ranking_activity_day_limit;
-            $scope.rankingsNumTourneysAttended = data.ranking_criteria.ranking_num_tourneys_attended;
-            $scope.tourneyNumDaysBack = data.ranking_criteria.tournament_qualified_day_limit;
+        (res) => {
+            $scope.rankingNumDaysBack = res.data.ranking_criteria.ranking_activity_day_limit;
+            $scope.rankingsNumTourneysAttended = res.data.ranking_criteria.ranking_num_tourneys_attended;
+            $scope.tourneyNumDaysBack = res.data.ranking_criteria.tournament_qualified_day_limit;
+
         },
         (err) => {
             alert('There was an error getting the Ranking Criteria for the region')
         });
+
     }
 
     var rankingCriteria = $scope.getRegionRankingCriteria()
