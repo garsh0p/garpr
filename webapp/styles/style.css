@@ -1,3 +1,239 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto Condensed:300,400,500,700");
+
+
+/*BEGIN application-wide styling */
+
+
+
+/*Color Definitions*/
+:root{
+	--blue-lightest:#80AEDA;
+	--blue-lighter:#548DC4;
+	--blue-base:#3573b1;
+	--blue-darker:#165EA4;
+	--blue-darkest:#0B467F;
+
+	--red-lightest:#F8BCC5;
+	--red-lighter:#F3929F;
+	--red-base:#d05d6c;
+	--red-darker:#AE3647;
+	--red-darkest:#8A1727;
+
+	--green-lightest:#BFE9B1;
+	--green-lighter:#98D983;
+	--green-base:#6CB953;
+	--green-darker:#4A9B30;
+	--green-darkest:#2D7B15;
+
+	--yellow-lightest:#FFD18E;
+	--yellow-lighter:#FFBF62;
+	--yellow-base:#FFB03E;
+	--yellow-darker:#FD9D10;
+	--yellow-darkest:#C47502;
+}
+
+
+
+
+
+/*bootstrap class overrides*/
+.text-danger {
+    color: var(--red-base) ;
+}
+
+.text-primary {
+    color: var(--blue-base) ;
+}
+
+.text-success {
+    color: var(--green-base) ;
+}
+
+.text-warning {
+    color: var(--yellow-base) ;
+}
+
+.btn-danger, .btn-danger:active {
+    background-color: var(--red-base) ;
+}
+
+.btn-primary, .btn-primary:active {
+    background-color: var(--blue-base) ;
+}
+
+.btn-success, .btn-success:active {
+    background-color: var(--green-base) ;
+}
+
+.btn-warning, .btn-warning:active {
+    background-color: var(--yellow-base) ;
+}
+
+.btn-danger:hover {
+    background-color: var(--red-darker) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--blue-darker) !important;
+}
+
+.btn-success:hover {
+    background-color: var(--green-darker) !important;
+}
+
+.btn-warning:hover {
+    background-color: var(--yellow-darker) !important;
+}
+
+tr.danger td{
+	background-color: var(--red-lightest) !important;
+}
+
+tr.success td{
+	background-color: var(--green-lightest) !important;
+}
+
+
+input[type="checkbox"]:checked:after,.checkbox input[type="checkbox"]:checked:after,.checkbox-inline input[type="checkbox"]:checked:after{
+	background-color: var(--blue-lightest);
+	border-color: var(--blue-lightest);
+}
+
+
+
+
+html, body{
+    background-image: url("bg.png") !important;
+    background-repeat: repeat-y repeat-x;
+    height: 100%;		
+}
+
+.container{
+	background-color: rgba(53, 115, 177, 0.23);
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+	width: 100%;
+	min-height: 100vh;
+}
+
+.table_header {
+	font-weight: bolder;
+}
+
+a,.nav-tabs>li.active>a, a:hover, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus:hover {
+	color:var(--blue-darker) ;
+}
+
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus{
+	background-color:var(--blue-base) ;
+}
+
+table{
+		box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+		background-color: #fff;
+}
+
+ .table>tbody>tr:nth-child(odd)>th{
+	border-bottom: 2px solid #666;
+	background-color: #fff !important;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th,.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: #eee;
+}
+
+.shadow-container{
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+
+
+/*END application-wide styling */
+
+
+
+
+/*BEGIN Header/Nav styling */
+
+.header{
+	text-align: center;
+    width: 100%;
+    font-family: "Roboto Condensed",Helvetica,Arial,sans-serif;
+    font-size: 72px;
+    letter-spacing: 10px;
+    height: 120px;
+    background-color: #a9a9a9 !important;
+    border-bottom: 1px solid #666;
+}
+
+.vignette {
+    
+    background: 
+      -webkit-linear-gradient(left, 
+        rgba(100,100,100,0.65) 0%, 
+        rgba(0,0,0,0) 20%,
+        rgba(0,0,0,0) 80%,
+        rgba(100,100,100,0.65) 100%
+      );
+}
+
+
+.header-wrapper{
+	display:inline-flex;
+}
+
+#header1{
+	color:var(--blue-base);
+}
+
+#header2{
+	color:var(--red-base) ;
+}
+
+#header3{
+	color:#222222;
+}
+
+#beta{
+	font-size: 12px;
+    color: white;
+    margin-top: 35px;
+}
+
+.navbar{
+	margin-bottom: 0px;
+	border-bottom: 1px solid #666;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.navbar-brand:hover{
+	cursor: default;
+	color: #666666 !important;
+}
+
+/*END Header/Nav styling */
+
+
+
+
+/*BEGIN Head to Head styling */
+
+.h2h_player_input::-webkit-input-placeholder { color: #eee; }
+.h2h_player_input:-moz-placeholder { color: #eee; }
+.h2h_player_input::-moz-placeholder { color: #eee; }
+.h2h_player_input:-ms-input-placeholder { color: #eee; }
+.h2h_player_input{
+	color:#444;
+}
+/*END Head to Head styling */
+
+
+
+
+
+/*MISC */
+
 .pending {
     font-style: italic;
 }
@@ -44,9 +280,3 @@ div.forumlaDiv{
     top:0;
 }
 
-.showFormulasButton{
-    opacity: 0.3;
-    right:0;
-    position:absolute;
-    test-align:right;
-}

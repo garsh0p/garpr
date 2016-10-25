@@ -1,0 +1,43 @@
+<div class="modal-header">
+    <h3 class="modal-title">Add Match</h3>
+</div>
+
+<div class="modal-body">
+    <h4>Add a new match to this tournament</h4>
+    <form ng-submit="addMatchToTournament(addMatchWinner.id, addMatchLoser.id)">
+        <table>
+            <tr>
+                <th>Winner</th>
+                <th>Loser</th>
+            </tr>
+            <tr>
+                <td><input type="text" class="form-control .has-success"
+                           ng-model="addMatchWinner" placeholder="Search for player..."
+                           typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)"
+                            /></td>
+                <td><input type="text" class="form-control .has-danger"
+                           ng-model="addMatchLoser" placeholder="Search for player..."
+                           typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)"
+                           /></td>
+            </tr>
+            <tr>
+                <td ng-show="addMatchWinner.hasOwnProperty('id')">
+                    <a href="#/{{regionService.region.id}}/players/{{addMatchWinner.id}}">
+                        View match history
+                    </a>
+                </td>
+                <td ng-show="addMatchLoser.hasOwnProperty('id')">
+                    <a href="#/{{regionService.region.id}}/players/{{addMatchLoser.id}}">
+                        View match history
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <p ng-model="addMatchStatusMessage"></p>
+        <input class="btn btn-success" type="submit" value="Submit" />
+    </form>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" ng-click="closeDetailsModal()">Close</button>
+</div>

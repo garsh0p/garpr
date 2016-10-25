@@ -312,6 +312,24 @@ class Dao(object):
             tourney_m.matches = new_matches
             self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
 
+    def add_match_by_tournament_id(self, tournament_id, winner_id, loser_id):
+        match_updates = False
+        tourney_m = \
+            M.Tournament.load(self.tournaments_col.find_one({'_id':tournament_id}), context='db')
+
+        new_match_id = len(tourney_m.matches)
+        new_match = M.Match(match_id=new_match_id, winner=winner_id, loser=loser_id, excluded=False)
+
+        tourney_m.matches.append(new_match)
+
+        if winner_id not in tourney_m.players:
+            tourney_m.players.append(winner_id)
+        if loser_id not in tourney_m.players:
+            tourney_m.players.append(loser_id)
+
+        self.tournaments_col.update({'_id': tournament_id}, tourney_m.dump(context='db'))
+
+
     def swap_winner_loser_by_tournament_id_and_match_id(self, tournament_id, match_id):
         new_matches = []
         tourney_m = \
