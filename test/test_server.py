@@ -842,7 +842,7 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 6)
         self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
         self.assertEquals(json_data['region'], self.norcal_dao.region_id)
@@ -875,7 +875,7 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 6)
         self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
         self.assertEquals(json_data['region'], self.norcal_dao.region_id)
