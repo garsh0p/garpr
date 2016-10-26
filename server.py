@@ -881,9 +881,6 @@ class RankingsResource(restful.Resource):
         dao = Dao(region, mongo_client=mongo_client)
         args = rankings_criteria_get_parser.parse_args()
 
-        ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
-        ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
-
         if not dao:
             return 'Dao not found', 404
         user = get_user_from_request(request, dao)
@@ -896,16 +893,22 @@ class RankingsResource(restful.Resource):
         now = datetime.now()
 
         try:
-            #TODO Get stored rankings from the db
-            dao.update_region_ranking_criteria(region.lower(),
-                                               ranking_num_tourneys_attended=ranking_num_tourneys_attended,
-                                               ranking_activity_day_limit=ranking_activity_day_limit)
-            print 'Running rankings. day_limit: ' + str(ranking_activity_day_limit) + ' and num_tourneys: ' \
-                  + str(ranking_num_tourneys_attended)
+            try:
+                ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
+                ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
 
-            rankings.generate_ranking(dao, now=now,
-                                      day_limit=int(ranking_activity_day_limit),
-                                      num_tourneys=int(ranking_num_tourneys_attended))
+                #TODO Get stored rankings from the db
+                dao.update_region_ranking_criteria(region.lower(),
+                                                   ranking_num_tourneys_attended=ranking_num_tourneys_attended,
+                                                   ranking_activity_day_limit=ranking_activity_day_limit)
+                print 'Running rankings. day_limit: ' + str(ranking_activity_day_limit) + ' and num_tourneys: ' \
+                      + str(ranking_num_tourneys_attended)
+
+                rankings.generate_ranking(dao, now=now,
+                                          day_limit=int(ranking_activity_day_limit),
+                                          num_tourneys=int(ranking_num_tourneys_attended))
+            except:
+                rankings.generate_ranking(dao, now=now)
         except Exception as e:
             print str(e)
             return 'There was an error updating rankings', 400

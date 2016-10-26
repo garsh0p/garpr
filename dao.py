@@ -506,6 +506,8 @@ class Dao(object):
     def insert_raw_file(self, raw_file):
         return self.raw_files_col.insert(raw_file.dump(context='db'))
 
+
+
     # TODO add more tests
     def is_inactive(self, player, now, day_limit, num_tourneys):
 

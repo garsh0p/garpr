@@ -577,10 +577,19 @@ class TestRegion(unittest.TestCase):
     def setUp(self):
         self.id = 'norcal'
         self.display_name = 'Norcal'
-        self.region = Region(id=self.id, display_name=self.display_name)
+        self.ranking_num_tourneys_attended=2
+        self.ranking_activity_day_limit=60
+        self.tournament_qualified_day_limit=999
+        self.region = Region(id=self.id, display_name=self.display_name,
+                             ranking_num_tourneys_attended=self.ranking_num_tourneys_attended,
+                             ranking_activity_day_limit=self.ranking_activity_day_limit,
+                             tournament_qualified_day_limit=self.tournament_qualified_day_limit)
         self.region_json_dict = {
             '_id': self.id,
-            'display_name': self.display_name
+            'display_name': self.display_name,
+            'ranking_num_tourneys_attended': self.ranking_num_tourneys_attended,
+            'ranking_activity_day_limit': self.ranking_activity_day_limit,
+            'tournament_qualified_day_limit': self.tournament_qualified_day_limit
         }
 
     def test_dump(self):

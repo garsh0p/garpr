@@ -176,8 +176,14 @@ class TestServer(unittest.TestCase):
 
         expected_region_dict = {
                 'regions': [
-                    {'id': 'norcal', 'display_name': 'Norcal'},
-                    {'id': 'texas', 'display_name': 'Texas'}
+                    {'id': 'norcal', 'display_name': 'Norcal',
+                        'ranking_num_tourneys_attended': None,
+                        'ranking_activity_day_limit': None,
+                        'tournament_qualified_day_limit': None},
+                    {'id': 'texas', 'display_name': 'Texas',
+                        'ranking_num_tourneys_attended': None,
+                        'ranking_activity_day_limit': None,
+                        'tournament_qualified_day_limit': None}
                 ]
         }
 
