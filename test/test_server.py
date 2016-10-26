@@ -177,13 +177,13 @@ class TestServer(unittest.TestCase):
         expected_region_dict = {
                 'regions': [
                     {'id': 'norcal', 'display_name': 'Norcal',
-                        'ranking_num_tourneys_attended': None,
-                        'ranking_activity_day_limit': None,
-                        'tournament_qualified_day_limit': None},
+                        'ranking_num_tourneys_attended': 2,
+                        'ranking_activity_day_limit': 60,
+                        'tournament_qualified_day_limit': 999},
                     {'id': 'texas', 'display_name': 'Texas',
-                        'ranking_num_tourneys_attended': None,
-                        'ranking_activity_day_limit': None,
-                        'tournament_qualified_day_limit': None}
+                        'ranking_num_tourneys_attended': 2,
+                        'ranking_activity_day_limit': 60,
+                        'tournament_qualified_day_limit': 999}
                 ]
         }
 
@@ -923,10 +923,64 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
 
     @patch('server.get_user_from_request')
+    @patch('server.datetime')
+    def test_post_rankings_with_params(self, mock_datetime, mock_get_user_from_request):
+        now = datetime(2014, 11, 2)
+
+        mock_datetime.now.return_value = now
+        mock_get_user_from_request.return_value = self.user
+
+        the_data = {
+            'ranking_num_tourneys_attended': 3,
+            'ranking_activity_day_limit': 1,
+            'tournament_qualified_day_limit': 999
+        }
+        data = self.app.post('/norcal/rankings', data=json.dumps(the_data), content_type='application/json').data
+        json_data = json.loads(data)
+        db_ranking = self.norcal_dao.get_latest_ranking()
+
+        self.assertEquals(now, db_ranking.time)
+        self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
+        self.assertEquals(len(json_data['ranking']), 0)
+
+    @patch('server.get_user_from_request')
     def test_post_rankings_permission_denied(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
 
         response = self.app.post('/texas/rankings')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, '"Permission denied"')
+
+    @patch('server.get_user_from_request')
+    def test_put_rankings(self, mock_get_user_from_request):
+        now = datetime(2014, 11, 2)
+
+        the_data = {
+            'ranking_num_tourneys_attended': 3,
+            'ranking_activity_day_limit': 90,
+            'tournament_qualified_day_limit': 999
+        }
+
+        mock_get_user_from_request.return_value = self.user
+
+        data = self.app.put('/norcal/rankings',data=json.dumps(the_data), content_type='application/json').data
+        json_data = json.loads(data)
+
+        self.assertEqual(json_data['ranking_num_tourneys_attended'], 3)
+        self.assertEqual(json_data['ranking_activity_day_limit'], 90)
+        self.assertEqual(json_data['tournament_qualified_day_limit'], 999)
+
+    @patch('server.get_user_from_request')
+    def test_put_rankings_permission_denied(self, mock_get_user_from_request):
+        mock_get_user_from_request.return_value = self.user
+
+        the_data = {
+            'ranking_num_tourneys_attended': 3,
+            'ranking_activity_day_limit': 90,
+            'tournament_qualified_day_limit': 999
+        }
+
+        response = self.app.put('/texas/rankings', data=json.dumps(the_data), content_type='application/json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 

@@ -876,6 +876,8 @@ class RankingsResource(restful.Resource):
             print str(e)
             return 'There was an error updating the region rankings criteria', 400
 
+        return dao.get_region_ranking_criteria(region)
+
 
     def post(self, region):
         dao = Dao(region, mongo_client=mongo_client)
