@@ -1,5 +1,5 @@
 <div class="container">
-    <div class="panel panel-default" id="rankingsControlPanel" ng-show="sessionService.isAdmin()">
+    <div class="panel panel-default" id="rankingsControlPanel" ng-show="sessionService.isAdminForRegion(regionService.region.id)">
         <div class="panel-heading">
             <h4 class="panel-title">
                 <a ng-click="isRankingsCollapsed = !isRankingsCollapsed">
