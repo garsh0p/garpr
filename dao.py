@@ -566,17 +566,7 @@ class Dao(object):
         print region_id
         if self.regions_col.find_one({'_id': region_id}):
             result = M.Region.load(self.regions_col.find_one({'_id': region_id}))
-
-            print result
-
-            print self.regions_col.find_one({'_id': region_id})
-
-            region_ranking_criteria = {}
-            region_ranking_criteria['ranking_num_tourneys_attended'] = result.ranking_num_tourneys_attended
-            region_ranking_criteria['ranking_activity_day_limit'] = result.ranking_activity_day_limit
-            region_ranking_criteria['tournament_qualified_day_limit'] = result.tournament_qualified_day_limit
-
-            return region_ranking_criteria
+            return result.dump(context='web')
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
