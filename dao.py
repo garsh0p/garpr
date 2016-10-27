@@ -168,7 +168,7 @@ class Dao(object):
         return self.players_col.update({'_id': player.id}, player.dump(context='db'))
 
     def update_region(self, region):
-        return self.regions_col.update({'_id': region.id}, region.get_json_dict())
+        return self.regions_col.update({'_id': region.id}, region.dump(context='db'))
 
     # TODO bulk update
     def update_players(self, players):
@@ -545,7 +545,7 @@ class Dao(object):
 
     def remove_region(self, region):
         if self.regions_col.find_one({'display_name': region.display_name}):
-            self.regions_col.remove(region.get_json_dict())
+            self.regions_col.remove(region.dump(context='db'))
 
     def update_region_ranking_criteria(self, region_id,
                                        ranking_num_tourneys_attended,
@@ -555,9 +555,9 @@ class Dao(object):
             self.regions_col.update({'_id': region_id},
                                     {'$set':
                                         {
-                                         'ranking_num_tourneys_attended': int(ranking_num_tourneys_attended),
-                                         'ranking_activity_day_limit': int(ranking_activity_day_limit)
-                                         #'tournament_qualified_day_limit': int(tournament_qualified_day_limit)
+                                         'ranking_num_tourneys_attended': ranking_num_tourneys_attended,
+                                         'ranking_activity_day_limit': ranking_activity_day_limit
+                                         #'tournament_qualified_day_limit': tournament_qualified_day_limit
                                         }
                                      })
 

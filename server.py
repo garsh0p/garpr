@@ -850,9 +850,12 @@ class RankingsResource(restful.Resource):
         dao = Dao(region, mongo_client=mongo_client)
         args = rankings_criteria_get_parser.parse_args()
 
-        ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
-        ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
-        #tournament_qualified_day_limit = int(args['tournament_qualified_day_limit'])
+        try:
+            ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
+            ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
+            #tournament_qualified_day_limit = int(args['tournament_qualified_day_limit'])
+        except Exception as e:
+            return 'Error parsing Ranking Criteria, please try again: ' + str(e), 400
 
         print ranking_num_tourneys_attended
         print ranking_activity_day_limit
@@ -866,12 +869,11 @@ class RankingsResource(restful.Resource):
             return 'Permission denied', 403
 
         try:
-            if ranking_num_tourneys_attended is not None and ranking_activity_day_limit is not None:
-                # TODO Update rankings and store criteria in db
-                dao.update_region_ranking_criteria(region.lower(),
-                                                   ranking_num_tourneys_attended=ranking_num_tourneys_attended,
-                                                   ranking_activity_day_limit=ranking_activity_day_limit)
-                                                   #tournament_qualified_day_limit=tournament_qualified_day_limit)
+            # TODO Update rankings and store criteria in db
+            dao.update_region_ranking_criteria(region,
+                                               ranking_num_tourneys_attended=ranking_num_tourneys_attended,
+                                               ranking_activity_day_limit=ranking_activity_day_limit)
+                                               #tournament_qualified_day_limit=tournament_qualified_day_limit)
         except Exception as e:
             print str(e)
             return 'There was an error updating the region rankings criteria', 400
@@ -907,8 +909,8 @@ class RankingsResource(restful.Resource):
                       + str(ranking_num_tourneys_attended)
 
                 rankings.generate_ranking(dao, now=now,
-                                          day_limit=int(ranking_activity_day_limit),
-                                          num_tourneys=int(ranking_num_tourneys_attended))
+                                          day_limit=ranking_activity_day_limit,
+                                          num_tourneys=ranking_num_tourneys_attended)
             except:
                 rankings.generate_ranking(dao, now=now)
         except Exception as e:
