@@ -254,11 +254,13 @@ class Ranking(orm.Document):
               ('time', orm.DateTimeField()),
               ('ranking', orm.ListField(orm.DocumentField(RankingEntry)))]
 
-
 class Region(orm.Document):
     fields = [('id', orm.StringField(required=True, load_from=MONGO_ID_SELECTOR,
                                      dump_to=MONGO_ID_SELECTOR)),
-              ('display_name', orm.StringField(required=True))]
+              ('display_name', orm.StringField(required=True)),
+              ('ranking_num_tourneys_attended', orm.IntField(required=True, default=2)),
+              ('ranking_activity_day_limit', orm.IntField(required=True, default=60)),
+              ('tournament_qualified_day_limit', orm.IntField(required=True, default=999))]
 
 
 class User(orm.Document):
@@ -282,3 +284,4 @@ class Merge(orm.Document):
 class Session(orm.Document):
     fields = [('session_id', orm.StringField(required=True)),
               ('user_id', orm.StringField(required=True))]
+

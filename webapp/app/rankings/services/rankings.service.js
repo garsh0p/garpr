@@ -1,4 +1,4 @@
-angular.module('app.rankings').service('RankingsService', function() {
+angular.module('app.rankings').service('RankingsService', function($http, SessionService) {
     var service = {
         rankingsList: null
     };

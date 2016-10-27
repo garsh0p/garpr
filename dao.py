@@ -96,6 +96,7 @@ class Dao(object):
         self.sessions_col = mongo_client[
             database_name][SESSIONS_COLLECTION_NAME]
         self.raw_files_col = mongo_client[database_name][RAW_FILES_COLLECTION_NAME]
+        self.regions_col = mongo_client[database_name][REGIONS_COLLECTION_NAME]
         self.mongo_client = mongo_client
         self.region_id = region_id
 
@@ -165,6 +166,9 @@ class Dao(object):
 
     def update_player(self, player):
         return self.players_col.update({'_id': player.id}, player.dump(context='db'))
+
+    def update_region(self, region):
+        return self.regions_col.update({'_id': region.id}, region.dump(context='db'))
 
     # TODO bulk update
     def update_players(self, players):
@@ -502,6 +506,8 @@ class Dao(object):
     def insert_raw_file(self, raw_file):
         return self.raw_files_col.insert(raw_file.dump(context='db'))
 
+
+
     # TODO add more tests
     def is_inactive(self, player, now, day_limit, num_tourneys):
 
@@ -531,14 +537,36 @@ class Dao(object):
 
     # session management
 
-    # region addition
+
+# region addition
     def create_region(self, display_name):
         the_region = M.Region(id=display_name.lower(), display_name=display_name)
         return self.insert_region(the_region, self.mongo_client, database_name=DATABASE_NAME)
 
     def remove_region(self, region):
         if self.regions_col.find_one({'display_name': region.display_name}):
-            self.regions_col.remove(region.get_json_dict())
+            self.regions_col.remove(region.dump(context='db'))
+
+    def update_region_ranking_criteria(self, region_id,
+                                       ranking_num_tourneys_attended,
+                                       ranking_activity_day_limit):
+                                       #tournament_qualified_day_limit):
+        if self.regions_col.find_one({'_id': region_id}):
+            self.regions_col.update({'_id': region_id},
+                                    {'$set':
+                                        {
+                                         'ranking_num_tourneys_attended': ranking_num_tourneys_attended,
+                                         'ranking_activity_day_limit': ranking_activity_day_limit
+                                         #'tournament_qualified_day_limit': tournament_qualified_day_limit
+                                        }
+                                     })
+
+
+    def get_region_ranking_criteria(self, region_id):
+        print region_id
+        if self.regions_col.find_one({'_id': region_id}):
+            result = M.Region.load(self.regions_col.find_one({'_id': region_id}))
+            return result.dump(context='web')
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):

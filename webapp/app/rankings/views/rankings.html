@@ -1,10 +1,60 @@
 <div class="container">
+    <div class="panel panel-default" id="rankingsControlPanel" ng-show="sessionService.isAdmin()">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a ng-click="isRankingsCollapsed = !isRankingsCollapsed">
+                    Rankings Control Panel
+                </a>
+            </h4>
+        </div>
+        <div collapse="isRankingsCollapsed">
+            <div class="panel-body">
+                <form id="rankingsControlPanelForm" ng-submit="saveRegionRankingsCriteria()">
+                <!-- Options to tweak rankings go here -->
+                <h3>Ranking Qualification:</h3>
+                <span>
+                 Span <input type="number" maxlength='3' id="numberDaysBackText" ng-model="rankingNumDaysBack" style="3px"/> Days Back.
+                </span>
+                <br/><br/>
+                <span>
+                Has Attended At Least <input type="number" maxlength="3" ng-model="rankingsNumTourneysAttended"
+                                                   style="3px"/> Tournaments
+                    <!--
+                </span>
+                    </br>
+                    <hr/>
+                    <br/>
+                <span>
+                    <h3>Tournament Inclusion:</h3>
+                  Include Tournaments <input type="number" maxlength="3" ng-model="tourneyNumDaysBack" style="3px"/> Days Back
+                    <br/>
+                    OR
+                    <br/>
+                    Include Tournaments From <input type="date" ng-model="tourneyNumDaysStartDate" hint="mm/dd/yyyy"/>
+                    to <input type="date" ng-model="tourneyNumDaysStartDate" hint="mm/dd/yyyy"/>
+                    -->
+                </span>
+                    <br/><br/>
+                    <input type="submit" value="Save Changes"/>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <div class="row">
         <div class="col-md-10">
-            <h3>As of {{rankingsService.rankingsList.time.substring(0,10)}}</h3>
+            <h3>Rankings as of {{rankingsService.rankingsList.time.substring(0,10)}}</h3>
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdminForRegion(regionService.region.id)">
-            <h3 class="text-right"><button type="button" class="btn btn-danger" ng-click="prompt()">Regenerate rankings</button></h3>
+            <h3 class="text-right">
+                <button type="button" class="btn btn-danger" ng-click="prompt()">Regenerate rankings</button>
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div ng-show="!sessionService.isAdmin()" class="col-md-10">
+            <h4> Region Qualification: Competed in {{ rankingsNumTourneysAttended }} Tournaments within {{ rankingNumDaysBack }} Days </h4>
         </div>
     </div>
     <div class="row">

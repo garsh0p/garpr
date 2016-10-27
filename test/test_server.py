@@ -176,8 +176,14 @@ class TestServer(unittest.TestCase):
 
         expected_region_dict = {
                 'regions': [
-                    {'id': 'norcal', 'display_name': 'Norcal'},
-                    {'id': 'texas', 'display_name': 'Texas'}
+                    {'id': 'norcal', 'display_name': 'Norcal',
+                        'ranking_num_tourneys_attended': 2,
+                        'ranking_activity_day_limit': 60,
+                        'tournament_qualified_day_limit': 999},
+                    {'id': 'texas', 'display_name': 'Texas',
+                        'ranking_num_tourneys_attended': 2,
+                        'ranking_activity_day_limit': 60,
+                        'tournament_qualified_day_limit': 999}
                 ]
         }
 
@@ -842,7 +848,7 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 6)
         self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
         self.assertEquals(json_data['region'], self.norcal_dao.region_id)
@@ -855,7 +861,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
-        print ranking_entry['rating']
+        #print ranking_entry['rating']
         self.assertTrue(ranking_entry['rating'] > 24.3)
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
@@ -875,7 +881,7 @@ class TestServer(unittest.TestCase):
         json_data = json.loads(data)
         db_ranking = self.norcal_dao.get_latest_ranking()
 
-        self.assertEquals(len(json_data.keys()), 5)
+        self.assertEquals(len(json_data.keys()), 6)
         self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(json_data['tournaments'], [str(t) for t in db_ranking.tournaments])
         self.assertEquals(json_data['region'], self.norcal_dao.region_id)
@@ -917,10 +923,64 @@ class TestServer(unittest.TestCase):
         self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
 
     @patch('server.get_user_from_request')
+    @patch('server.datetime')
+    def test_post_rankings_with_params(self, mock_datetime, mock_get_user_from_request):
+        now = datetime(2014, 11, 2)
+
+        mock_datetime.now.return_value = now
+        mock_get_user_from_request.return_value = self.user
+
+        the_data = {
+            'ranking_num_tourneys_attended': 3,
+            'ranking_activity_day_limit': 1,
+            'tournament_qualified_day_limit': 999
+        }
+        data = self.app.post('/norcal/rankings', data=json.dumps(the_data), content_type='application/json').data
+        json_data = json.loads(data)
+        db_ranking = self.norcal_dao.get_latest_ranking()
+
+        self.assertEquals(now, db_ranking.time)
+        self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
+        self.assertEquals(len(json_data['ranking']), 0)
+
+    @patch('server.get_user_from_request')
     def test_post_rankings_permission_denied(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
 
         response = self.app.post('/texas/rankings')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, '"Permission denied"')
+
+    @patch('server.get_user_from_request')
+    def test_put_rankings(self, mock_get_user_from_request):
+        now = datetime(2014, 11, 2)
+
+        the_data = {
+            'ranking_num_tourneys_attended': 3,
+            'ranking_activity_day_limit': 90,
+            'tournament_qualified_day_limit': 999
+        }
+
+        mock_get_user_from_request.return_value = self.user
+
+        data = self.app.put('/norcal/rankings',data=json.dumps(the_data), content_type='application/json').data
+        json_data = json.loads(data)
+
+        self.assertEqual(json_data['ranking_num_tourneys_attended'], 3)
+        self.assertEqual(json_data['ranking_activity_day_limit'], 90)
+        self.assertEqual(json_data['tournament_qualified_day_limit'], 999)
+
+    @patch('server.get_user_from_request')
+    def test_put_rankings_permission_denied(self, mock_get_user_from_request):
+        mock_get_user_from_request.return_value = self.user
+
+        the_data = {
+            'ranking_num_tourneys_attended': 3,
+            'ranking_activity_day_limit': 90,
+            'tournament_qualified_day_limit': 999
+        }
+
+        response = self.app.put('/texas/rankings', data=json.dumps(the_data), content_type='application/json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, '"Permission denied"')
 
@@ -1376,13 +1436,13 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.status, '200 OK', msg=rv.data)
-        print rv.data, rv.status
+        #print rv.data, rv.status
         data_dict = json.loads(rv.data)
         merge_id = data_dict['id']
         self.assertTrue(merge_id, msg=merge_id)
         # okay, now look in the dao and see if the merge is actually in there
         the_merge = dao.get_merge(ObjectId(merge_id))
-        print merge_id, the_merge
+        #print merge_id, the_merge
         # assert the correct player is in the correct place
         self.assertTrue(the_merge, msg=merge_id)
         self.assertEquals(the_merge.target_player_obj_id, player_one.id)
