@@ -53,7 +53,7 @@
         </div>
     </div>
     <div class="row">
-        <div ng-show="!sessionService.isAdmin()" class="col-md-10">
+        <div ng-show="!sessionService.isAdmin() && rankingsNumTourneysAttended && rankingNumDaysBack" class="col-md-10">
             <h4> Region Qualification: Competed in {{ rankingsNumTourneysAttended }} Tournaments within {{ rankingNumDaysBack }} Days </h4>
         </div>
     </div>
