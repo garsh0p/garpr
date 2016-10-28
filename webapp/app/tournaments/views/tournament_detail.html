@@ -121,7 +121,7 @@
                         </a>
                     </td>
                     <td ng-show="sessionService.isAdmin()" width="5%">
-                        <span class="glyphicon glyphicon-resize-horizontal" style="color:black; font-size:2.5em"></span>
+                        <span ng-click="swapWinnerLoser(match)"  class="glyphicon glyphicon-resize-horizontal" style="color:black; font-size:2.5em"></span>
                     </td>
                     <td class="danger" id="loser_{{ match.match_id }}">
                         <a href="#/{{regionService.region.id}}/players/{{match.loser_id}}">
