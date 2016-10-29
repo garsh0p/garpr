@@ -227,8 +227,8 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
             var winnerElement = document.getElementById(winnerHtmlId);
             var loserElement = document.getElementById(loserHtmlId);
 
-            winnerElement.className = 'excludedSet';
-            loserElement.className = 'excludedSet';
+            winnerElement.className = 'excluded';
+            loserElement.className = 'excluded';
         }
 
         return excluded;
@@ -256,8 +256,8 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
             $scope.sessionService.authenticatedPost(url, postParams,
                 (data) => {
                     // TODO gray out the row
-                    winnerElement.className = 'excludedSet';
-                    loserElement.className = 'excludedSet';
+                    winnerElement.className = 'excluded';
+                    loserElement.className = 'excluded';
                     return false;
                },
                 () => {

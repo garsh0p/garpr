@@ -247,23 +247,23 @@ table{
 }
 
 /* EXCLUDED SET STUFF */
-.table > thead > tr > td.excludedSet,
-.table > tbody > tr > td.excludedSet,
-.table > tfoot > tr > td.excludedSet,
-.table > thead > tr > th.excludedSet,
-.table > tbody > tr > th.excludedSet,
-.table > tfoot > tr > th.excludedSet,
-.table > thead > tr.excludedSet > td,
-.table > tbody > tr.excludedSet > td,
-.table > tfoot > tr.excludedSet > td,
-.table > thead > tr.excludedSet > th,
-.table > tbody > tr.excludedSet > th,
-.table > tfoot > tr.excludedSet > th {
+.table > thead > tr > td.excluded,
+.table > tbody > tr > td.excluded,
+.table > tfoot > tr > td.excluded,
+.table > thead > tr > th.excluded,
+.table > tbody > tr > th.excluded,
+.table > tfoot > tr > th.excluded,
+.table > thead > tr.excluded > td,
+.table > tbody > tr.excluded > td,
+.table > tfoot > tr.excluded > td,
+.table > thead > tr.excluded > th,
+.table > tbody > tr.excluded > th,
+.table > tfoot > tr.excluded > th {
   background-color: #9b9b9b;
 }
 
 .uncertaintyValue {
- font-color: #808080;
+ font-color: #939393;
  background-color: #DCDCDC;
 }
 

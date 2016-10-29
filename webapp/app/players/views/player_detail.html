@@ -44,7 +44,7 @@
                         <th>Result</th>
                     </tr>
                     <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
-                                   excludedSet: match.result == 'excluded'}" ng-repeat="match in matches">
+                                   excluded: match.result == 'excluded'}" ng-repeat="match in matches">
                         <td>{{match.tournament_date}}</td>
                         <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}" >{{match.tournament_name}}</a></td>
                         <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
@@ -58,7 +58,7 @@
                 <label class="control-label">Merge with player: </label>
             </div>
             <div class="col-md-8">
-                <input type="text" class="form-control" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.name for p in getMergePlayers($viewValue)">
+                <input type="text" class="form-control" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.typeahead for p in getMergePlayers($viewValue)">
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-danger"  ng-click="submitMerge()">Send Merge Request</button>

@@ -64,7 +64,7 @@
             </ul>
             <form class="nav navbar-form navbar-right" role="search">
                 <div class="form-group">
-                    <input type="text" class="form-control" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.name for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
+                    <input type="text" class="form-control" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
                 </div>
             </form>
         </div><!--/.nav-collapse -->

@@ -11,6 +11,14 @@ angular.module('app.players').service('PlayerService', function($http) {
             }
             return null;
         },
+        addTypeaheadDisplayText: function(player){
+            player.typeahead = player.name.toLowerCase();
+            try{
+                player.typeahead = player.name.toString() + ' ~ ' + player.regions[0].toString()
+            } catch(err){
+                /* FAIL GRACEFULLY */
+            }
+        },
         // local port of _player_matches_query from backend
         // now returns matchQuality instead of just a boolean
         // if match_quality > 0, consider it a match
@@ -48,6 +56,7 @@ angular.module('app.players').service('PlayerService', function($http) {
 
                 if(filter_fn == null || filter_fn(curPlayer)){
                     var matchQuality = this.playerMatchesQuery(curPlayer, query);
+                    this.addTypeaheadDisplayText(curPlayer);
                     if(matchQuality > 0){
                         filteredPlayers.push({'player': curPlayer,
                                               'quality': matchQuality});

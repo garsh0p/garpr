@@ -13,11 +13,11 @@
             <tr>
                 <td><input type="text" class="form-control .has-success"
                            ng-model="addMatchWinner" placeholder="Search for player..."
-                           typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)"
+                           typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"
                             /></td>
                 <td><input type="text" class="form-control .has-danger"
                            ng-model="addMatchLoser" placeholder="Search for player..."
-                           typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)"
+                           typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"
                            /></td>
             </tr>
             <tr>
