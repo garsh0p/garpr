@@ -325,22 +325,22 @@ class TournamentSeedResource(restful.Resource):
           parser.add_argument('data', type=unicode, location='json')
           parser.add_argument('bracket', type=str, location='json')
           args = parser.parse_args()
-  
+
           if args['data'] is None:
               return "data required", 400
-  
+
           the_bytes = bytearray(args['data'], "utf8")
-  
+
           if the_bytes[0] == 0xef:
               print "found magic numbers"
               return "magic numbers!", 503
-  
+
           type = args['type']
           data = args['data']
           pending_tournament = None
-  
+
           try:
-             
+
               if type == 'challonge':
                   scraper = ChallongeScraper(data)
               else:
@@ -348,14 +348,14 @@ class TournamentSeedResource(restful.Resource):
               pending_tournament, raw_file = M.PendingTournament.from_scraper(type, scraper, region)
           except Exception as ex:
             return 'Scraper encountered an error ' + str(ex), 400
-  
+
           if not pending_tournament or not raw_file:
               return 'Scraper encountered an error - null', 400
-  
+
           pending_tournament_json = pending_tournament.dump(context='web', exclude=('date', 'matches', 'regions', 'type'))
           return pending_tournament_json
 
-          
+
 class TournamentListResource(restful.Resource):
 
     def get(self, region):
@@ -374,9 +374,15 @@ class TournamentListResource(restful.Resource):
                            'name',
                            'date',
                            'regions')
-        all_tournament_jsons = [t.dump(context='web',
-                                       only=only_properties)
-                                for t in tournaments]
+
+        # temporary fix
+        all_tournament_jsons = []
+        for t in tournaments:
+            try:
+                all_tournament_jsons.append(t.dump(context='web',
+                                                   only=only_properties))
+            except:
+                print 'error inserting tournament', t
 
         if include_pending_tournaments:
             # add a pending field for all existing tournaments
@@ -387,10 +393,13 @@ class TournamentListResource(restful.Resource):
                                                                   region])
             if pending_tournaments:
                 for p in pending_tournaments:
-                    p = p.dump(context='web',
-                               only=only_properties)
-                    p['pending'] = True
-                    all_tournament_jsons.append(p)
+                    try:
+                        p = p.dump(context='web',
+                                   only=only_properties)
+                        p['pending'] = True
+                        all_tournament_jsons.append(p)
+                    except:
+                        print 'error inserting pending tournament', p
 
         return_dict = {}
         return_dict['tournaments'] = all_tournament_jsons
