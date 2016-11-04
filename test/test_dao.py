@@ -32,6 +32,7 @@ class TestDAO(unittest.TestCase):
         self.mongo_client.drop_database(DATABASE_NAME)
 
     def setUp(self):
+        self.mongo_client.drop_database(DATABASE_NAME)
 
         self.player_1_id = ObjectId()
         self.player_2_id = ObjectId()

@@ -548,8 +548,6 @@ class TournamentResource(restful.Resource):
         if not is_user_admin_for_regions(user, tournament.regions):
             return 'Permission denied', 403
 
-        # TODO: should we do validation that matches and players are compatible
-        # here?
         try:
             if args['name']:
                 tournament.name = args['name']
@@ -560,10 +558,12 @@ class TournamentResource(restful.Resource):
                 except:
                     return "Invalid date format", 400
             if args['players']:
+                # this should rarely be used (if it is used, players will not unmerge reliably)
                 for p in args['players']:
                     if not isinstance(p, unicode):
                         return "each player must be a string", 400
                 tournament.players = [ObjectId(i) for i in args['players']]
+                tournament.orig_ids = [pid for pid in tournament.players]
             if args['matches']:
                 for d in args['matches']:
                     if not isinstance(d, dict):
@@ -586,6 +586,7 @@ class TournamentResource(restful.Resource):
             if args['pending']:
                 dao.update_pending_tournament(tournament)
             else:
+                print tournament
                 dao.update_tournament(tournament)
         except:
             return 'Update Tournament Error', 400
@@ -1024,9 +1025,10 @@ class MergeListResource(restful.Resource):
             source_player = dao.get_player_by_id(merge['source_player_obj_id'])
             target_player = dao.get_player_by_id(merge['target_player_obj_id'])
 
-            merge['source_player_name'] = source_player.name
-            merge['target_player_name'] = target_player.name
-            merge['requester_name'] = user.username
+            if source_player is not None and target_player is not None:
+                merge['source_player_name'] = source_player.name
+                merge['target_player_name'] = target_player.name
+                merge['requester_name'] = user.username
 
         return return_dict
 

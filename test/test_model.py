@@ -191,8 +191,8 @@ class TestTournament(unittest.TestCase):
         self.player_4 = Player(name='ppu', id=self.player_4_id)
         self.player_5 = Player(name='ss', id=self.player_5_id)
         self.player_6 = Player(name='hmw', id=self.player_6_id)
-        self.match_1 = Match(winner=self.player_1_id, loser=self.player_2_id)
-        self.match_2 = Match(winner=self.player_3_id, loser=self.player_4_id)
+        self.match_1 = Match(winner=self.player_1_id, loser=self.player_2_id, match_id=1)
+        self.match_2 = Match(winner=self.player_3_id, loser=self.player_4_id, match_id=2)
 
         self.alias_to_id_map = [
             AliasMapping(player_alias=self.player_2.name,

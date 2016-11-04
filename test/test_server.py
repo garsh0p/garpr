@@ -15,10 +15,10 @@ from mock import patch, Mock
 import rankings
 import server
 
-from dao import Dao, USERS_COLLECTION_NAME, DATABASE_NAME, ITERATION_COUNT, SESSIONS_COLLECTION_NAME
+from dao import Dao, DATABASE_NAME, ITERATION_COUNT
 from scraper.tio import TioScraper
 from model import AliasMapping, AliasMatch, Match, Merge, Player, PendingTournament, \
-                 Ranking, RankingEntry, Rating, Region, Tournament, User
+                 Ranking, RankingEntry, Rating, Region, Tournament, User, Session
 
 NORCAL_FILES = [('test/data/norcal1.tio', 'Singles'), ('test/data/norcal2.tio', 'Singles Pro Bracket')]
 TEXAS_FILES = [('test/data/texas1.tio', 'singles'), ('test/data/texas2.tio', 'singles')]
@@ -85,7 +85,7 @@ class TestServer(unittest.TestCase):
             hashed_password='browns')
         norcal_dao.insert_user(user)
 
-        users_col = mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
+        users_col = mongo_client[DATABASE_NAME][User.collection_name]
         salt = base64.b64encode(os.urandom(16))
         hashed_password = base64.b64encode(hashlib.pbkdf2_hmac('sha256', 'rip', salt, ITERATION_COUNT))
 
@@ -134,8 +134,8 @@ class TestServer(unittest.TestCase):
             username=self.user_full_name,
             salt='nacl',
             hashed_password='browns')
-        self.users_col = self.mongo_client[DATABASE_NAME][USERS_COLLECTION_NAME]
-        self.sessions_col = self.mongo_client[DATABASE_NAME][SESSIONS_COLLECTION_NAME]
+        self.users_col = self.mongo_client[DATABASE_NAME][User.collection_name]
+        self.sessions_col = self.mongo_client[DATABASE_NAME][Session.collection_name]
 
 ### start of actual test cases
 
@@ -358,7 +358,7 @@ class TestServer(unittest.TestCase):
             tournament = tournaments_list[i]
             tournament_from_db = dao.get_tournament_by_id(ObjectId(tournament['id']))
             expected_keys = set(['id', 'name', 'date', 'regions', 'pending'])
-            print tournament.keys()
+
             self.assertEquals(set(tournament.keys()), expected_keys)
             self.assertEquals(tournament['id'], str(tournament_from_db.id))
             self.assertEquals(tournament['name'], tournament_from_db.name)
@@ -456,7 +456,6 @@ class TestServer(unittest.TestCase):
 
         response = self.app.post('/norcal/tournaments', data=json.dumps(data), content_type='application/json')
         json_data = json.loads(response.data)
-        print json_data
 
         mock_tio_scraper.assert_called_once_with('data', 'bracket')
 
@@ -567,7 +566,7 @@ class TestServer(unittest.TestCase):
 
         # pending tournament that can be finalized
         pending_tournament_id_1 = ObjectId()
-        pending_tournament_players_1 = [player_1_name, player_2_name, player_3_name, player_4_name]
+        pending_tournament_players_1 = [player_1_name, player_2_name, player_3_name, player_4_name, new_player_name]
         pending_tournament_matches_1 = [
                 AliasMatch(winner=player_2_name, loser=player_1_name),
                 AliasMatch(winner=player_3_name, loser=player_4_name),
@@ -706,7 +705,6 @@ class TestServer(unittest.TestCase):
         fixture_pending_tournaments = fixtures["pending_tournaments"]
         mock_get_user_from_request.return_value = self.user
 
-        print str(fixture_pending_tournaments[1])
         # finalize first pending tournament
         success_response = self.app.post(
             '/norcal/tournaments/' + str(fixture_pending_tournaments[1].id) + '/finalize')
@@ -861,7 +859,7 @@ class TestServer(unittest.TestCase):
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
-        #print ranking_entry['rating']
+
         self.assertTrue(ranking_entry['rating'] > 24.3)
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
@@ -1118,7 +1116,11 @@ class TestServer(unittest.TestCase):
         new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
         new_date = datetime.now()
         new_regions = ("norcal", "socal")
-        raw_dict = {'name': new_tourney_name, 'date': new_date.strftime("%m/%d/%y"), 'matches': new_matches_for_wire, 'regions': new_regions, 'players': [str(p) for p in new_players]}
+        raw_dict = {'name': new_tourney_name,
+                    'date': new_date.strftime("%m/%d/%y"),
+                    'matches': new_matches_for_wire,
+                    'regions': new_regions,
+                    'players': [str(p) for p in new_players]}
         test_data = json.dumps(raw_dict)
 
         # add new players to dao
@@ -1436,13 +1438,13 @@ class TestServer(unittest.TestCase):
         test_data = json.dumps(raw_dict)
         rv = self.app.put('/norcal/merges', data=str(test_data), content_type='application/json')
         self.assertEquals(rv.status, '200 OK', msg=rv.data)
-        #print rv.data, rv.status
+
         data_dict = json.loads(rv.data)
         merge_id = data_dict['id']
         self.assertTrue(merge_id, msg=merge_id)
         # okay, now look in the dao and see if the merge is actually in there
         the_merge = dao.get_merge(ObjectId(merge_id))
-        #print merge_id, the_merge
+
         # assert the correct player is in the correct place
         self.assertTrue(the_merge, msg=merge_id)
         self.assertEquals(the_merge.target_player_obj_id, player_one.id)
@@ -1502,7 +1504,7 @@ class TestServer(unittest.TestCase):
     def test_post_tournament_from_tio(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
-        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
+
         raw_dict = {}
         #then try sending a valid tio tournament and see if it works
         with open('test/data/Justice4.tio') as f:
@@ -1557,7 +1559,7 @@ class TestServer(unittest.TestCase):
                     'password': passwd}
         the_data = json.dumps(raw_dict)
         response = self.app.put('/users/session', data=the_data, content_type='application/json')
-        print response, response.status_code, response.data
+
         self.assertEquals(response.status_code, 200, msg=response.headers)
         self.assertTrue('Set-Cookie' in response.headers.keys(), msg=str(response.headers))
         cookie_string = response.headers['Set-Cookie']
@@ -1610,49 +1612,3 @@ class TestServer(unittest.TestCase):
         tournament = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
         response = self.app.delete('/norcal/tournaments/' + str(tournament.id))
         self.assertEquals(response.status_code, 403)
-
-    """
-    @patch('server.get_user_from_request')
-    def test_post_tournament_from_challonge(self, mock_get_user_from_request):
-        mock_get_user_from_request.return_value = self.user
-        dao = self.norcal_dao
-        #print "all regions:", ' '.join( x.id for x in dao.get_all_regions(self.mongo_client))
-        raw_dict = {}
-        #craft this for challonge
-        raw_dict['data'] = f.read()[3:] #weird hack, cause the first 3 bytes of a tio file are unprintable and that breaks something
-        raw_dict['type'] = "tio"
-        raw_dict['bracket'] = 'Bracket'
-        the_data = json.dumps(raw_dict)
-        response = self.app.post('/norcal/tournaments', data=the_data, content_type='application/json')
-        for x in response.data:
-            self.assertTrue(x in string.printable)
-        self.assertEquals(response.status_code, 200, msg=str(response.data) + str(response.status_code))
-        the_dict = json.loads(response.data)
-        the_tourney = dao.get_pending_tournament_by_id(ObjectId(the_dict['id']))
-
-        #all these need to be changed
-        #self.assertEqual(the_tourney.name, u'Justice 4')
-        #self.assertEqual(len(the_tourney.players), 48)
-
-        #self.assertEquals(the_dict['id'], str(the_tourney.id))
-        #self.assertEquals(the_tourney.type, 'tio')
-        #self.assertEquals(the_tourney.regions, ['norcal'])
-
-        #let's spot check and make sure hax vs armada happens twice
-        #sweden_wins_count = 0
-        #for m in the_tourney.matches:
-        #    if m.winner == "P4K | EMP | Armada" and m.loser == "VGBC | Hax":
-        #        sweden_wins_count += 1
-        #self.assertEquals(sweden_wins_count, 2, msg="armada didn't double elim hax??
-    """
-
-    '''
-    #TODOskis
-    #okay first, try sending a valid challonge tournament and seeing if it works
-        #then try type mismatch, sending challonge but give tio data
-        #then try type mismatch send tio but give challonge
-        #try tio w/o tio_file
-        #try tio w/o bracket_name
-        #try tio with invalid tio data
-        #try challonge w/o challonge_url
-    '''

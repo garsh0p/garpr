@@ -132,6 +132,11 @@ class DictField(Field):
     def __init__(self, from_field, to_field, *args, **kwargs):
         self.from_field = from_field
         self.to_field = to_field
+
+        # set default to dict instead of None if None
+        if kwargs.get('default') is None:
+            kwargs['default'] = dict
+
         super(DictField, self).__init__(*args, **kwargs)
 
     @serialize_super(none_value=dict)
@@ -222,6 +227,11 @@ class ListField(Field):
     def __init__(self, field_type, *args, **kwargs):
         self.field_type = field_type
         self.field_type.required = True  # don't allow Nones in list
+
+        # set default to list instead of None if None
+        if kwargs.get('default') is None:
+            kwargs['default'] = list
+
         super(ListField, self).__init__(*args, **kwargs)
 
     @serialize_super(none_value=list)
@@ -312,7 +322,10 @@ class Document(object):
         for field_name, field in self.fields:
             field_value = kwargs.get(field_name)
             if field_value is None:
-                self.__setattr__(field_name, field.default)
+                if callable(field.default):
+                    self.__setattr__(field_name, field.default())
+                else:
+                    self.__setattr__(field_name, field.default)
             else:
                 self.__setattr__(field_name, kwargs.get(field_name))
 
@@ -340,7 +353,7 @@ class Document(object):
     def dump(self, context=None, exclude=None, only=None, validate_on_dump=True):
         return_dict = {}
 
-        if validate_on_dump and not self.validate():
+        if validate_on_dump:
             is_valid, errors = self.validate()
             if not is_valid:
                 raise ValidationError(str(errors))
@@ -382,27 +395,34 @@ class Document(object):
 
             field_value = field.unserialize(data.get(from_name), context, data)
             if field_value is None:
-                init_args[field_name] = field.default
+                if callable(field.default):
+                    init_args[field_name] = field.default()
+                else:
+                    init_args[field_name] = field.default
             else:
                 init_args[field_name] = field_value
 
         return_document = cls(**init_args)
 
         if validate_on_load and not return_document.validate():
-            if strict:
-                raise ValidationError
-            return None
+            is_valid, errors = self.validate()
+            if not is_valid:
+                if strict:
+                    raise ValidationError(errors)
+                return None
 
         return return_document
 
     def validate(self):
-        if not self.validate_document():
-            return False, 'validate_document'
-
         for field_name, field in self.fields:
             field_value = self.__getattribute__(field_name)
             if not field.validate(field_value):
                 return False, 'validate_field ({})'.format(field_name)
+
+        # validate document as a whole
+        valid_document, errors = self.validate_document()
+        if not valid_document:
+            return False, errors
 
         return True, None
 
@@ -412,4 +432,4 @@ class Document(object):
 
     # override for document-wide validation
     def validate_document(self):
-        return True
+        return True, None

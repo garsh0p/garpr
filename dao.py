@@ -15,15 +15,6 @@ config = Config()
 ITERATION_COUNT = 100000
 
 DATABASE_NAME = config.get_db_name()
-PLAYERS_COLLECTION_NAME = 'players'
-TOURNAMENTS_COLLECTION_NAME = 'tournaments'
-RANKINGS_COLLECTION_NAME = 'rankings'
-REGIONS_COLLECTION_NAME = 'regions'
-USERS_COLLECTION_NAME = 'users'
-PENDING_TOURNAMENTS_COLLECTION_NAME = 'pending_tournaments'
-MERGES_COLLECTION_NAME = 'merges'
-SESSIONS_COLLECTION_NAME = 'sessions'
-RAW_FILES_COLLECTION_NAME = 'raw_files'
 
 special_chars = re.compile("[^\w\s]*")
 
@@ -84,31 +75,30 @@ class Dao(object):
         return super(Dao, cls).__new__(cls, region_id, mongo_client, database_name)
 
     def __init__(self, region_id, mongo_client, database_name=DATABASE_NAME):
-        self.players_col = mongo_client[database_name][PLAYERS_COLLECTION_NAME]
+        self.players_col = mongo_client[database_name][M.Player.collection_name]
         self.tournaments_col = mongo_client[
-            database_name][TOURNAMENTS_COLLECTION_NAME]
+            database_name][M.Tournament.collection_name]
         self.rankings_col = mongo_client[
-            database_name][RANKINGS_COLLECTION_NAME]
-        self.users_col = mongo_client[database_name][USERS_COLLECTION_NAME]
+            database_name][M.Ranking.collection_name]
+        self.users_col = mongo_client[database_name][M.User.collection_name]
         self.pending_tournaments_col = mongo_client[
-            database_name][PENDING_TOURNAMENTS_COLLECTION_NAME]
-        self.merges_col = mongo_client[database_name][MERGES_COLLECTION_NAME]
-        self.sessions_col = mongo_client[
-            database_name][SESSIONS_COLLECTION_NAME]
-        self.raw_files_col = mongo_client[database_name][RAW_FILES_COLLECTION_NAME]
-        self.regions_col = mongo_client[database_name][REGIONS_COLLECTION_NAME]
+            database_name][M.PendingTournament.collection_name]
+        self.merges_col = mongo_client[database_name][M.Merge.collection_name]
+        self.sessions_col = mongo_client[database_name][M.Session.collection_name]
+        self.raw_files_col = mongo_client[database_name][M.RawFile.collection_name]
+        self.regions_col = mongo_client[database_name][M.Region.collection_name]
         self.mongo_client = mongo_client
         self.region_id = region_id
 
     @classmethod
     def insert_region(cls, region, mongo_client, database_name=DATABASE_NAME):
-        return mongo_client[database_name][REGIONS_COLLECTION_NAME].insert(region.dump(context='db'))
+        return mongo_client[database_name][M.Region.collection_name].insert(region.dump(context='db'))
 
     # sorted by display name
     @classmethod
     def get_all_regions(cls, mongo_client, database_name=DATABASE_NAME):
         regions = [M.Region.load(r, context='db') for r in mongo_client[
-            database_name][REGIONS_COLLECTION_NAME].find()]
+            database_name][M.Region.collection_name].find()]
         return sorted(regions, key=lambda r: r.display_name)
 
     def get_player_by_id(self, id):
@@ -446,6 +436,9 @@ class Dao(object):
         source.merge_parent = target.id
         source.merged = True
 
+        print 'source:', source
+        print 'target:', target
+
         self.update_player(source)
         self.update_player(target)
 
@@ -563,10 +556,10 @@ class Dao(object):
 
 
     def get_region_ranking_criteria(self, region_id):
-        print region_id
-        if self.regions_col.find_one({'_id': region_id}):
-            result = M.Region.load(self.regions_col.find_one({'_id': region_id}))
-            return result.dump(context='web')
+        result = self.regions_col.find_one({'_id': region_id})
+        if result:
+            region = M.Region.load(result, context='db')
+            return region.dump(context='web')
 
     # throws an exception, which is okay because this is called from just create_user
     def insert_user(self, user):
