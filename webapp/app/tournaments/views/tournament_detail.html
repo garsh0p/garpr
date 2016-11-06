@@ -47,7 +47,7 @@
                     </td>
                     <td>
                         <div class="form-group">
-                            <input type="text" class="form-control" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.name for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
+                            <input type="text" class="form-control" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
                 </tr>
