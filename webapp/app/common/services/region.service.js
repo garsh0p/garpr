@@ -71,12 +71,11 @@ angular.module('app.common').service('RegionService', function ($http, PlayerSer
 
     service.display_regions = [{"id": "newjersey", "display_name": "New Jersey"},
                                {"id": "nyc", "display_name": "NYC Metro Area"},
+                               {"id": "li", "display_name": "Long Island"},
                                {"id": "chicago", "display_name": "Chicago"},
                                {"id": "georgia", "display_name": "Georgia"},
-                               {"id": "northcarolina", "display_name": "North Carolina"},
-                               {"id": "southcarolina", "display_name": "South Carolina"},
                                {"id": "alabama", "display_name": "Alabama"},
-                               {"id": "li", "display_name": "Long Island"}];
-
+                               {"id": "tennessee", "display_name": "Tennessee"},
+                               {"id": "southcarolina", "display_name": "South Carolina"}];
     return service;
 });
