@@ -204,6 +204,7 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
                         // able to do this with one giant request.
                         $http.get(hostname + $routeParams.region + '/players/' + id).
                             success(function(data) {
+                                $scope.playerService.addTypeaheadDisplayText(data);
                                 $scope.playerData[player] = data;
                             });
 
