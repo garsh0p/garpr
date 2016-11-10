@@ -140,11 +140,8 @@ class Tournament(orm.Document):
         matches_ids = {match.winner for match in self.matches} | \
                       {match.loser for match in self.matches}
 
-        # TODO THIS BREAKS SOME CHALLONGE AND SMASHGG
-        # TODO: CHALLONGE RtSMelee1
-        # TODO: SMASHGG https://smash.gg/tournament/the-lab-gaming-presents-nacl-october-2016-north-atlanta-championship/events/melee-singles/brackets/83126
-        #if players_ids != matches_ids:
-        #    return False, "set of players in players differs from set of players in matches"
+        if players_ids != matches_ids:
+            return False, "set of players in players differs from set of players in matches"
 
         # check: no one plays themselves
         for match in self.matches:
@@ -251,11 +248,8 @@ class PendingTournament(orm.Document):
                           {match.loser for match in self.matches}
         mapping_aliases = {mapping.player_alias for mapping in self.alias_to_id_map}
 
-        # TODO THIS BREAKS SOME CHALLONGE AND SMASHGG
-        # TODO: CHALLONGE RtSMelee1
-        # TODO: SMASHGG https://smash.gg/tournament/the-lab-gaming-presents-nacl-october-2016-north-atlanta-championship/events/melee-singles/brackets/83126
-        #if players_aliases != matches_aliases:
-        #    return False, "set of players in players differs from set of players in matches"
+        if players_aliases != matches_aliases:
+            return False, "set of players in players differs from set of players in matches"
 
         # check: set of aliases in mapping is subset of player aliases
         if not mapping_aliases.issubset(players_aliases):
@@ -304,6 +298,19 @@ class PendingTournament(orm.Document):
             raw_id=raw_file.id,
             players=scraper.get_players(),
             matches=scraper.get_matches())
+
+        # check if scraper returned valid pending tournament:
+        valid, errors = pending_tournament.validate()
+        if not valid:
+            print "ERROR:", errors
+            print pending_tournament.url
+
+            # for scrapers that may return some extra players not in matches
+            # remove these players:
+            pending_tournament.players = list(
+                {match.winner for match in pending_tournament.matches} | \
+                {match.loser for match in pending_tournament.matches})
+
         return pending_tournament, raw_file
 
 # used to store large blobs of data (e.g. raw tournament data) so we don't

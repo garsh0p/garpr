@@ -490,6 +490,7 @@ class TestPendingTournament(unittest.TestCase):
         mock_scraper.get_raw.return_value = ''
         mock_scraper.get_date.return_value = self.date
         mock_scraper.get_name.return_value = self.name
+        mock_scraper.get_url.return_value = ''
 
         pending_tournament, _ = PendingTournament.from_scraper(
             self.type, mock_scraper, 'norcal')
