@@ -28,7 +28,6 @@ TEST_PLAYER_SMASHGGID_3 = 13932
 
 # TO ACCESS THE SMASHGG DUMPS USED HERE, THE FOLLOWING LINKS WILL GET YOU THERE
 # https://api.smash.gg/phase_group/11226?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches TEST API
-
 # https://api.smash.gg/phase_group/6529?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches
 # https://api.smash.gg/phase_group/70949?expand[0]=sets&expand[1]=seeds&expand[2]=entrants&expand[3]=matches
 

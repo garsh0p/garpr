@@ -140,8 +140,11 @@ class Tournament(orm.Document):
         matches_ids = {match.winner for match in self.matches} | \
                       {match.loser for match in self.matches}
 
-        if players_ids != matches_ids:
-            return False, "set of players in players differs from set of players in matches"
+        # TODO THIS BREAKS SOME CHALLONGE AND SMASHGG
+        # TODO: CHALLONGE RtSMelee1
+        # TODO: SMASHGG https://smash.gg/tournament/the-lab-gaming-presents-nacl-october-2016-north-atlanta-championship/events/melee-singles/brackets/83126
+        #if players_ids != matches_ids:
+        #    return False, "set of players in players differs from set of players in matches"
 
         # check: no one plays themselves
         for match in self.matches:
@@ -248,8 +251,11 @@ class PendingTournament(orm.Document):
                           {match.loser for match in self.matches}
         mapping_aliases = {mapping.player_alias for mapping in self.alias_to_id_map}
 
-        if players_aliases != matches_aliases:
-            return False, "set of players in players differs from set of players in matches"
+        # TODO THIS BREAKS SOME CHALLONGE AND SMASHGG
+        # TODO: CHALLONGE RtSMelee1
+        # TODO: SMASHGG https://smash.gg/tournament/the-lab-gaming-presents-nacl-october-2016-north-atlanta-championship/events/melee-singles/brackets/83126
+        #if players_aliases != matches_aliases:
+        #    return False, "set of players in players differs from set of players in matches"
 
         # check: set of aliases in mapping is subset of player aliases
         if not mapping_aliases.issubset(players_aliases):

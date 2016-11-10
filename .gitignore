@@ -78,3 +78,7 @@ webapp/script-config.js
 
 #cookiE's Server py file
 server_cookiE_edit.py
+db_key
+db_key.pub
+db_key1
+db_key1.pub
