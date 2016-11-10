@@ -160,8 +160,6 @@ class Tournament(orm.Document):
             self.orig_ids = [player for player in self.players]
 
     def replace_player(self, player_to_remove=None, player_to_add=None):
-        # TODO edge cases with this
-        # TODO the player being added cannot play himself in any match
         if player_to_remove is None or player_to_add is None:
             raise TypeError(
                 "player_to_remove and player_to_add cannot be None!")
@@ -360,4 +358,3 @@ class Session(orm.Document):
     collection_name = 'sessions'
     fields = [('session_id', orm.StringField(required=True)),
               ('user_id', orm.StringField(required=True))]
-

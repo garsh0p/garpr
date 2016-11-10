@@ -49,6 +49,11 @@ def validate(fix=False):
         error_header = '[ERROR player "{}" ({})]'.format(player.id, player.name)
         modified = False
 
+        # check: player valid
+        valid, validate_errors = player.validate()
+        if not valid:
+            print error_header, validate_errors
+
         # check: player regions are all valid regions
         for r in player.regions:
             if r not in region_ids:
@@ -99,6 +104,17 @@ def validate(fix=False):
         error_header = '[ERROR tournament "{}" ({})]'.format(tournament.id, tournament.name)
         modified = False
 
+        # check: tournament valid
+        valid, validate_errors = tournament.validate()
+        if not valid:
+            print error_header, validate_errors
+            if fix:
+                # fix: set players equal to set of players in matches
+                modified = True
+                tournament.players = list({match.winner for match in tournament.matches} | \
+                              {match.loser for match in tournament.matches})
+                tournament.orig_ids = list(tournament.players)
+
         # check: tournament empty
         if len(tournament.matches)==0 or len(tournament.players)==0:
             print error_header, 'tournament empty'
@@ -135,12 +151,22 @@ def validate(fix=False):
             if p not in player_ids:
                 print error_header, 'invalid orig_id {}'.format(p)
 
-        # TODO: check that orig_ids end up mapping to players?
+        # TODO: check that orig_ids end up merging to players?
+
+        if fix and modified:
+            print error_header, 'fixing tournament..'
+            tournaments_col.update({'_id': tournament.id}, tournament.dump(context='db'))
+
 
     # Pending Tournament checks
     for pt in pending_tournaments_col.find():
         tournament = M.PendingTournament.load(pt, context='db')
         error_header = '[ERROR pending_tournament "{}" ({})]'.format(tournament.id, tournament.name)
+
+        # check: pt valid
+        valid, validate_errors = tournament.validate()
+        if not valid:
+            print error_header, validate_errors
 
         # check: tournament empty
         if len(tournament.matches)==0 or len(tournament.players)==0:
@@ -156,12 +182,22 @@ def validate(fix=False):
             if tournament.raw_id not in raw_file_ids:
                 print error_header, 'invalid raw_file_id {}'.format(tournament.raw_id)
 
+        if fix and modified:
+            print error_header, 'fixing ranking..'
+            rankings_col.update({'_id': ranking.id}, ranking.dump(context='db'))
+
+
 
     # Ranking checks
     for r in rankings_col.find():
         ranking = M.Ranking.load(r, context='db')
         error_header = '[ERROR ranking ({})]'.format(ranking.id)
         modified = False
+
+        # check: ranking valid
+        valid, validate_errors = ranking.validate()
+        if not valid:
+            print error_header, validate_errors
 
         # check: ranking region is valid region
         if ranking.region not in region_ids:
@@ -191,6 +227,11 @@ def validate(fix=False):
         error_header = '[ERROR user "{}" ({})]'.format(user.username, user.id)
         modified = False
 
+        # check: user valid
+        valid, validate_errors = user.validate()
+        if not valid:
+            print error_header, validate_errors
+
         # check: admin_regions are valid regions
         for r in user.admin_regions:
             if r not in region_ids:
@@ -210,6 +251,11 @@ def validate(fix=False):
         session = M.Session.load(s, context='db')
         error_header = '[ERROR session ({})]'.format(session.session_id)
 
+        # check: session valid
+        valid, validate_errors = session.validate()
+        if not valid:
+            print error_header, validate_errors
+
         # check: session user is valid user
         if session.user_id not in user_ids:
             print error_header, 'invalid user_id {}'.format(session.user_id)
@@ -223,6 +269,11 @@ def validate(fix=False):
         merge = M.Merge.load(m, context='db')
         error_header = '[ERROR merge ({})]'.format(merge.id)
         modified = False
+
+        # check: merge valid
+        valid, validate_errors = merge.validate()
+        if not valid:
+            print error_header, validate_errors
 
         # check: requester is a valid user
         if merge.requester_user_id is not None and merge.requester_user_id not in user_ids:

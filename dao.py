@@ -446,9 +446,14 @@ class Dao(object):
         # TODO: reduce db calls for this (index tournaments by players)
         for tournament_id in self.get_all_tournament_ids():
             tournament = self.get_tournament_by_id(tournament_id)
-            tournament.replace_player(
-                player_to_remove=source, player_to_add=target)
-            self.update_tournament(tournament)
+            if source.id in tournament.players:
+                try:
+                    tournament.replace_player(
+                        player_to_remove=source, player_to_add=target)
+                    self.update_tournament(tournament)
+                except Exception as e:
+                    print "error replacing source with target in tournament", tournament
+                    print e
 
     def unmerge_players(self, merge):
         source = self.get_player_by_id(merge.source_player_obj_id)
