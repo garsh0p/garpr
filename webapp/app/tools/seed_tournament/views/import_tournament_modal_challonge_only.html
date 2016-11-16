@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <h3 class="modal-title">Import Tournament</h3>
+</div>
+
+<div class="modal-body">
+    <tabset>
+        <tab heading="Challonge" select="setBracketType('challonge')">
+            <p>A Challonge Bracket ID can be determined from your URL and has 2 forms:</p>
+            <ul>
+                <li>If the URL does not have a subdomain, the ID is simply the second part of the URL.<br>Example URL: www.challonge.com/<b>bracket</b><br>Bracket ID: <b>bracket</b></li>
+                <li>If the URL has a subdomain, the ID is the subdomain and the second part of the URL joined by a hyphen.<br>Example URL: <b>sub</b>.challonge.com/<b>bracket</b><br>Bracket ID: <b>sub-bracket</b></li>
+            </ul>
+            <form ng-submit="submit()">
+                <div class="form-group">
+                    <label for="bracket">Challonge Bracket ID</label>
+                    <input type="text" class="form-control" ng-model="postParams.data">
+                </div>
+                <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
+                <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
+            </form>
+        </tab>
+    </tabset>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="close()" ng-disabled="disableButtons">Cancel</button>
+</div>

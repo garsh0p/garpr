@@ -1,7 +1,7 @@
 import unittest
 from scraper.tio import TioScraper
 from datetime import datetime
-from model import MatchResult
+from model import AliasMatch
 
 # SFAT and Silentwolf have spaces before and after
 FILEPATH = "test/test_scraper/data/1.tio"
@@ -24,16 +24,16 @@ class TestTioScraper(unittest.TestCase):
         matches = self.scraper.get_matches()
         self.assertEquals(len(matches), 117)
 
-        self.assertEquals(matches[0], MatchResult(winner='spookyman', loser='razr'))
+        self.assertEquals(matches[0], AliasMatch(winner='spookyman', loser='razr'))
 
         # grand finals set 2
-        self.assertEquals(matches[-1], MatchResult(winner='GC|silent wolf', loser='MIOM|SFAT'))
+        self.assertEquals(matches[-1], AliasMatch(winner='GC|silent wolf', loser='MIOM|SFAT'))
 
         # grand finals set 1
-        self.assertEquals(matches[-2], MatchResult(winner='MIOM|SFAT', loser='GC|silent wolf'))
-    
+        self.assertEquals(matches[-2], AliasMatch(winner='MIOM|SFAT', loser='GC|silent wolf'))
+
         # losers finals
-        self.assertEquals(matches[-3], MatchResult(winner='MIOM|SFAT', loser='shroomed'))
+        self.assertEquals(matches[-3], AliasMatch(winner='MIOM|SFAT', loser='shroomed'))
 
     def test_get_matches_invalid_bracket_name(self):
         with self.assertRaises(ValueError):
@@ -46,13 +46,13 @@ class TestTioScraper(unittest.TestCase):
 
         self.assertEquals(len(matches), 116)
 
-        self.assertEquals(matches[0], MatchResult(winner='spookyman', loser='razr'))
+        self.assertEquals(matches[0], AliasMatch(winner='spookyman', loser='razr'))
 
         # grand finals set 1
-        self.assertEquals(matches[-1], MatchResult(winner='GC|silent wolf', loser='MIOM|SFAT'))
-    
+        self.assertEquals(matches[-1], AliasMatch(winner='GC|silent wolf', loser='MIOM|SFAT'))
+
         # losers finals
-        self.assertEquals(matches[-2], MatchResult(winner='MIOM|SFAT', loser='shroomed'))
+        self.assertEquals(matches[-2], AliasMatch(winner='MIOM|SFAT', loser='shroomed'))
 
     def test_get_players(self):
         self.assertIsNone(self.scraper.players)
