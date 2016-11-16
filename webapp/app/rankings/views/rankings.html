@@ -21,20 +21,20 @@
                                                    style="3px"/> Tournaments
 
                 </span>
-                <!--
+                
                     </br>
                     <hr/>
                     <br/>
                 <span>
                     <h3>Tournament Inclusion:</h3>
                     Include Tournaments <input type="number" maxlength="3" ng-model="tourneyNumDaysBack" style="3px"/> Days Back
+                <!--
                     <br/>
                     OR
                     <br/>
                     Include Tournaments From <input type="date" ng-model="tournamentsBackStartDate" hint="mm/dd/yyyy"/>
-
-                </span>
                 -->
+                </span>
                     <br/><br/>
                     <input type="submit" value="Save Changes"/>
                 </form>
@@ -56,6 +56,7 @@
     <div class="row">
         <div ng-show="!sessionService.isAdmin() && rankingsNumTourneysAttended && rankingNumDaysBack" class="col-md-10">
             <h4> Region Qualification: Competed in {{ rankingsNumTourneysAttended }} Tournaments within {{ rankingNumDaysBack }} Days </h4>
+            <h4> Tournaments From the Past {{ tourneyNumDaysBack }} Days Used in Calculation. </h4>
         </div>
     </div>
     <div class="row">

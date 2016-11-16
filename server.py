@@ -863,7 +863,7 @@ class RankingsResource(restful.Resource):
         try:
             ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
             ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
-            #tournament_qualified_day_limit = int(args['tournament_qualified_day_limit'])
+            tournament_qualified_day_limit = int(args['tournament_qualified_day_limit'])
         except Exception as e:
             return 'Error parsing Ranking Criteria, please try again: ' + str(e), 400
 
@@ -882,8 +882,8 @@ class RankingsResource(restful.Resource):
             # TODO Update rankings and store criteria in db
             dao.update_region_ranking_criteria(region,
                                                ranking_num_tourneys_attended=ranking_num_tourneys_attended,
-                                               ranking_activity_day_limit=ranking_activity_day_limit)
-                                               #tournament_qualified_day_limit=tournament_qualified_day_limit)
+                                               ranking_activity_day_limit=ranking_activity_day_limit,
+                                               tournament_qualified_day_limit=tournament_qualified_day_limit)
         except Exception as e:
             print str(e)
             return 'There was an error updating the region rankings criteria', 400
@@ -910,17 +910,20 @@ class RankingsResource(restful.Resource):
             try:
                 ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
                 ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
+                tournament_qualified_day_limit = int(args['tournament_qualified_day_limit'])
 
                 #TODO Get stored rankings from the db
                 dao.update_region_ranking_criteria(region.lower(),
                                                    ranking_num_tourneys_attended=ranking_num_tourneys_attended,
-                                                   ranking_activity_day_limit=ranking_activity_day_limit)
+                                                   ranking_activity_day_limit=ranking_activity_day_limit,
+                                                   tournament_qualified_day_limit=tournament_qualified_day_limit)
                 print 'Running rankings. day_limit: ' + str(ranking_activity_day_limit) + ' and num_tourneys: ' \
-                      + str(ranking_num_tourneys_attended)
+                      + str(ranking_num_tourneys_attended) + ' and tournament_qualified_day_limit: ' + str(tournament_qualified_day_limit)
 
                 rankings.generate_ranking(dao, now=now,
                                           day_limit=ranking_activity_day_limit,
-                                          num_tourneys=ranking_num_tourneys_attended)
+                                          num_tourneys=ranking_num_tourneys_attended,
+                                          tournament_qualified_day_limit=tournament_qualified_day_limit)
             except:
                 rankings.generate_ranking(dao, now=now)
         except Exception as e:

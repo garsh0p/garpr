@@ -509,24 +509,6 @@ class Dao(object):
     # TODO add more tests
     def is_inactive(self, player, now, day_limit, num_tourneys):
 
-        # TODO: handle special cases somewhere properly
-        #       (probably in rankings.generate_ranking)
-
-        # special case for Westchester
-        if self.region_id == "westchester":
-            day_limit = 1500
-            num_tourneys = 1
-
-        # special case for NYC
-        if self.region_id == "nyc":
-            day_limit = 90
-            num_tourneys = 6
-
-        # special case for LI
-        if self.region_id == "li":
-            day_limit = 90
-            num_tourneys = 6
-
         qualifying_tournaments = [x for x in self.get_all_tournaments(
             players=[player], regions=[self.region_id]) if x.date >= (now - timedelta(days=day_limit))]
         if len(qualifying_tournaments) >= num_tourneys:
@@ -547,15 +529,15 @@ class Dao(object):
 
     def update_region_ranking_criteria(self, region_id,
                                        ranking_num_tourneys_attended,
-                                       ranking_activity_day_limit):
-                                       #tournament_qualified_day_limit):
+                                       ranking_activity_day_limit,
+                                       tournament_qualified_day_limit):
         if self.regions_col.find_one({'_id': region_id}):
             self.regions_col.update({'_id': region_id},
                                     {'$set':
                                         {
                                          'ranking_num_tourneys_attended': ranking_num_tourneys_attended,
-                                         'ranking_activity_day_limit': ranking_activity_day_limit
-                                         #'tournament_qualified_day_limit': tournament_qualified_day_limit
+                                         'ranking_activity_day_limit': ranking_activity_day_limit,
+                                         'tournament_qualified_day_limit': tournament_qualified_day_limit
                                         }
                                      })
 

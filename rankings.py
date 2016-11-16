@@ -1,5 +1,5 @@
 from bson.objectid import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import trueskill
 
@@ -7,49 +7,53 @@ import model
 import rating_calculators
 
 
-def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2):
+def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2, tournament_qualified_day_limit=999):
     player_date_map = {}
     player_id_to_player_map = {}
 
+    tournament_qualified_date = (now - timedelta(days=tournament_qualified_day_limit))
+    print('Qualified Date: ' + str(tournament_qualified_date))
+
     tournaments = dao.get_all_tournaments(regions=[dao.region_id])
     for tournament in tournaments:
-        print 'Processing:', tournament.name.encode('utf-8')
 
-        for player_id in tournament.players:
-            player_date_map[player_id] = tournament.date
+        if tournament_qualified_date <= tournament.date:
+            print 'Processing:', tournament.name.encode('utf-8'), str(tournament.date)
+            for player_id in tournament.players:
+                player_date_map[player_id] = tournament.date
 
-        # TODO add a default rating entry when we add it to the map
-        for match in tournament.matches:
-            if match.excluded is True:
-                print('match excluded:')
-                print('Tournament: ' + str(tournament.name))
-                print(str(match))
-                continue
+            # TODO add a default rating entry when we add it to the map
+            for match in tournament.matches:
+                if match.excluded is True:
+                    print('match excluded:')
+                    print('Tournament: ' + str(tournament.name))
+                    print(str(match))
+                    continue
 
-            # don't count matches where either player is OOR
-            winner = dao.get_player_by_id(match.winner)
-            if dao.region_id not in winner.regions:
-                continue
-            loser = dao.get_player_by_id(match.loser)
-            if dao.region_id not in loser.regions:
-                continue
+                # don't count matches where either player is OOR
+                winner = dao.get_player_by_id(match.winner)
+                if dao.region_id not in winner.regions:
+                    continue
+                loser = dao.get_player_by_id(match.loser)
+                if dao.region_id not in loser.regions:
+                    continue
 
-            if match.winner not in player_id_to_player_map:
-                db_player = dao.get_player_by_id(match.winner)
-                db_player.ratings[dao.region_id] = model.Rating()
-                player_id_to_player_map[match.winner] = db_player
+                if match.winner not in player_id_to_player_map:
+                    db_player = dao.get_player_by_id(match.winner)
+                    db_player.ratings[dao.region_id] = model.Rating()
+                    player_id_to_player_map[match.winner] = db_player
 
-            if match.loser not in player_id_to_player_map:
-                db_player = dao.get_player_by_id(match.loser)
-                db_player.ratings[dao.region_id] = model.Rating()
-                player_id_to_player_map[match.loser] = db_player
+                if match.loser not in player_id_to_player_map:
+                    db_player = dao.get_player_by_id(match.loser)
+                    db_player.ratings[dao.region_id] = model.Rating()
+                    player_id_to_player_map[match.loser] = db_player
 
-            winner = player_id_to_player_map[match.winner]
-            loser = player_id_to_player_map[match.loser]
+                winner = player_id_to_player_map[match.winner]
+                loser = player_id_to_player_map[match.loser]
 
 
-            rating_calculators.update_trueskill_ratings(
-                dao.region_id, winner=winner, loser=loser)
+                rating_calculators.update_trueskill_ratings(
+                    dao.region_id, winner=winner, loser=loser)
 
     print 'Checking for player inactivity...'
     rank = 1
