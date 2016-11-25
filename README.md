@@ -32,7 +32,7 @@ Local Development Using Vagrant
 	cd garpr
 	```
 
-3. Run the Vagrantfile to setup the environment
+3. Run the Vagrantfile to setup the environment. Note that if your Vagrant version is too old, you may get an error, so make sure you get the latest version from their website.
 	```
 	vagrant up
 	```
