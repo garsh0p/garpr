@@ -60,3 +60,9 @@ To pull in any changes made to the project on the host into the VM, use the comm
 4. (Host): Visit 192.168.33.10:8000 to view the new changes.
 
 If stuff goes very wrong (or you would like to restore the initial copy of your db), you can restore the initial state of the Vagrant VM by typing `vagrant destroy` followed by `vagrant up`.
+
+### Running tests
+To run all tests:
+  ```
+  nosetests
+  ```
