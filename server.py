@@ -126,7 +126,7 @@ class InvalidAccessToken(Exception):
 
 
 def is_allowed_origin(origin):
-    dragon = r"http(s)?:\/\/(stage\.|www\.)?(notgarpr\.com|192\.168\..+\..+?|njssbm\.com)(\:[\d]*)?$"
+    dragon = r"http(s)?:\/\/(stage\.|www\.)?(notgarpr\.com|192\.168\..+\..+?|njssbm\.com|garpr\.com)(\:[\d]*)?$"
     return re.match(dragon, origin)
 
 
