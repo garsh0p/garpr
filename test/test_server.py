@@ -162,7 +162,6 @@ class TestServer(unittest.TestCase):
         self.assertTrue(server.is_allowed_origin("https://www.notgarpr.com"))
         self.assertTrue(server.is_allowed_origin("http://stage.notgarpr.com:44"))
         self.assertTrue(server.is_allowed_origin("http://www.notgarpr.com:919"))
-        self.assertFalse(server.is_allowed_origin("http://garpr.com"))
         self.assertFalse(server.is_allowed_origin("http://notgarpr.com.evil.com"))
         self.assertFalse(server.is_allowed_origin("http://192.168.33.1.evil.com"))
         self.assertFalse(server.is_allowed_origin("http://192.168.33.1:445.evil.com"))
