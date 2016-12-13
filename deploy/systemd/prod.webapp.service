@@ -5,13 +5,13 @@ Description=GarPr Prod Webapp service
 ExecStart=/usr/local/bin/twistd \
     --nodaemon \
     --pidfile= \
-    --logfile="logs/webapp.log"
+    --logfile="logs/webapp.log" \
     -oy webapp/serve_webapp.tac
 
 WorkingDirectory=/home/deploy/prod/garpr
 
-User=nobody
-Group=nobody
+User=root
+Group=root
 
 Restart=always
 

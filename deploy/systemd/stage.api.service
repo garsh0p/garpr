@@ -5,13 +5,13 @@ Description=GarPr Stage API service
 ExecStart=/usr/local/bin/twistd \
     --nodaemon \
     --pidfile= \
-    --logfile="logs/api.log"
+    --logfile="logs/api.log" \
     -oy serve_api.tac
 
 WorkingDirectory=/home/deploy/stage/garpr
 
-User=nobody
-Group=nobody
+User=root
+Group=root
 
 Restart=always
 
