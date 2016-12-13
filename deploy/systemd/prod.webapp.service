@@ -1,5 +1,3 @@
-# system.d supervisor scripts (currently unused, but can use if we switch to newer version of Ubuntu/Debian
-
 [Unit]
 Description=GarPr Prod Webapp service
 
@@ -7,7 +5,7 @@ Description=GarPr Prod Webapp service
 ExecStart=/usr/local/bin/twistd \
     --nodaemon \
     --pidfile= \
-    --logfile="webapp.log"
+    --logfile="logs/webapp.log"
     -oy webapp/serve_webapp.tac
 
 WorkingDirectory=/home/deploy/prod/garpr
