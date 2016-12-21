@@ -1,6 +1,6 @@
 cd /home/deploy/prod/garpr
-sudo stop prod-webapp
-sudo stop prod-api
+sudo systemctl stop prod.webapp.service
+sudo systemctl stop prod.api.service
 sudo git pull
-sudo start prod-api
-sudo start prod-webapp
+sudo systemctl start prod.api.service
+sudo systemctl start prod.webapp.service
