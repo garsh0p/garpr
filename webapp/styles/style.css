@@ -280,3 +280,283 @@ div.forumlaDiv{
     top:0;
 }
 
+input[type="number"].mobile{
+    width: 50px;
+    color:red;
+}
+
+/* MOBILE FIRST BOOTSTRAP STUFF */
+@media screen and (max-width: 64em){
+    tr.table_header,
+    tr.table-header{
+        height: 50px;
+        font-size: 24pt;
+    }
+
+    tr.table_header_center > th,
+    tr.table_header_center > td{
+        text-align:center;
+        align:center;
+    }
+
+    tr.table_line{
+        height: 50px;
+        font-size: 24pt;
+    }
+
+    tr.player_line{
+        height: 50px;
+        font-size: 24pt;
+    }
+
+    tr.player_line_center{
+        text-align: center
+    }
+
+    tr.tournament_line{
+        height: 50px;
+        font-size: 24pt;
+    }
+
+    tr.tournament_match_line{
+        height: 50px;
+        font-size: 24pt;
+    }
+
+    tr.pending_tournament_line{
+        height: 50px;
+        font-size: 16pt;
+    }
+
+    tr.tournament_line_center{
+        text-align:center;
+    }
+
+    td.tournament{
+        font-size: 18pt;
+    }
+
+    button.mobile{
+        height: 100px;
+        width: 300px;
+        font-size: 18pt;
+        font-weight:bold;
+    }
+
+    button.mobile_small{
+        height:100px;
+        width:200px;
+        font-size: 18pt;
+        font-weight:bold;
+    }
+
+    button.mobile_xs{
+        height:100px;
+        width:100px;
+        font-size: 18pt;
+        font-weight:bold;
+    }
+
+    button.mobile_xxs{
+        height:50px;
+        width:50px;
+        font-size: 18pt;
+        font-weight:bold;
+    }
+
+    button.mobile_small_text{
+        font-size:14pt;
+    }
+
+    input[type="checkbox"].mobile{
+        transform: scale(2);
+    }
+
+    input[type="text"].mobile{
+        font-size:35px;
+        color: darkblue;
+    }
+
+    input[type="text"].mobile_small{
+        font-size:25px;
+        color: darkblue;
+    }
+
+    input[type="number"].mobile{
+        font-size: 35px;
+        width: 100px;
+        color:red;
+    }
+
+    input[type="submit"].mobile{
+        height:100px;
+        width:200px;
+        font-size: 18pt;
+        font-weight:bold;
+    }
+
+    .modal-body{
+        font-size:12pt;
+    }
+
+    .modal-body{
+    }
+
+    div.about{
+        font-size: 18pt;
+    }
+
+    div.about>h4{
+        font-size: 24pt;
+        font-weight: bold;
+    }
+
+    .navbar-toggle {
+        z-index:3;
+    }
+
+    p{
+        font-size:20pt;
+    }
+
+    label{
+        font-size:24pt;
+    }
+
+
+
+}
+
+.pull-right{
+    float:right;
+}
+
+/* THIS CHANGES THE SIZE WHEN NAVBAR COLLAPSES */
+@media (max-width: 64em) {
+    .navbar-header {
+        float: none;
+    }
+    .navbar-left,.navbar-right {
+        float: none !important;
+    }
+    .navbar-toggle {
+        display: block;
+    }
+    .navbar-collapse {
+        border-top: 1px solid transparent;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .navbar-fixed-top {
+        top: 0;
+        border-width: 0 0 1px;
+    }
+    .navbar-collapse.collapse {
+        display: none!important;
+    }
+    .navbar-nav {
+        float: none!important;
+        margin-top: 7.5px;
+    }
+    .navbar-nav>li {
+        float: none;
+    }
+    .navbar-nav>li>a {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .collapse.in{
+        display:block !important;
+    }
+    .navbar-brand{
+        padding-top:35px;
+        font-size:40pt;
+    }
+    .navbar-toggle .icon-bar {
+        height:12px;
+        width:50px;
+    }
+
+    ul.nav, ul.dropdown-menu{
+        font-size:30pt;
+    }
+
+    li.nav_item{
+        font-size:32pt;
+    }
+
+    .navbar-right{
+        display:inline-block;
+        float:right;
+    }
+
+
+    /*BEGIN Header/Nav styling */
+
+    .header{
+        text-align: center;
+        width: 100%;
+        font-family: "Roboto Condensed",Helvetica,Arial,sans-serif;
+        font-size: 72px;
+        letter-spacing: 10px;
+        height: 120px;
+        background-color: #a9a9a9 !important;
+        border-bottom: 1px solid #666;
+    }
+
+    .header-wrapper>p{
+        font-family: "Roboto Condensed",Helvetica,Arial,sans-serif;
+        font-size: 72px;
+        letter-spacing: 10px;
+        height: 120px;
+    }
+
+    .vignette {
+
+        background:
+                -webkit-linear-gradient(left,
+                rgba(100,100,100,0.65) 0%,
+                rgba(0,0,0,0) 20%,
+                rgba(0,0,0,0) 80%,
+                rgba(100,100,100,0.65) 100%
+                );
+    }
+
+
+    .header-wrapper{
+        display:inline-flex;
+    }
+
+    #header1{
+        color:var(--blue-base);
+    }
+
+    #header2{
+        color:var(--red-base) ;
+    }
+
+    #header3{
+        color:#222222;
+    }
+
+    #beta{
+        font-size: 12px;
+        color: white;
+        margin-top: 35px;
+    }
+
+    .navbar{
+        margin-bottom: 0px;
+        border-bottom: 1px solid #666;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+    }
+
+    .navbar-brand:hover{
+        cursor: default;
+        color: #666666 !important;
+    }
+
+
+
+    /*END Header/Nav styling */
+}

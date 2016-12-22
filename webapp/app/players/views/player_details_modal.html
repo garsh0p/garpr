@@ -6,13 +6,14 @@
     <form ng-submit="updatePlayerDetails()">
         <div class="form-group">
             <label for="name">Name:</label>
-            <input id="name" type="text" class="form-control" ng-model="postParams.name">
+            <input id="name" type="text" class="form-control mobile" ng-model="postParams.name">
             <label>Regions:</label>
             <p>Checking a region will cause player to be included in rankings for that region.</p>
             <div class="checkbox" ng-repeat="regionId in sessionService.getAdminRegions()">
                 <h4>
                     <label>
                         <input type="checkbox"
+                               class="mobile"
                                ng-model="playerRegionCheckbox[regionId]"
                                ng-true-value="IN_REGION"
                                ng-false-value="NOT_IN_REGION">
@@ -21,12 +22,12 @@
                 </h4>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary" ng-disabled="disableButtons">Submit</button>
+        <button type="submit" class="btn btn-primary mobile_small" ng-disabled="disableButtons">Submit</button>
         <p class="text-danger" ng-show="errorMessage"><strong>There was an error. Please make sure everything is spelled correctly and try again.</strong></p>
     </form>
 
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" ng-click="closeDetailsModal()">Close</button>
+    <button type="button" class="btn btn-default mobile_xs" ng-click="closeDetailsModal()">Close</button>
 </div>

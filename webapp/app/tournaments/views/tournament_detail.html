@@ -6,8 +6,15 @@
             <h3 ng-if="tournament.url"><a href={{tournament.url}}>{{tournament.type}} url</a></h3>
         </div>
         <div class="col-md-4" ng-show="sessionService.isAdmin()">
-            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="openDetailsModal()">Edit Tournament Details</button></h1>
-             <h1 class="text-right"><button type="button" class="btn btn-danger" ng-show="sessionService.isAdminForRegion(regionService.region.id)" ng-click="openDeleteTournamentModal(tournament.id)">Delete</a></button></h1>
+            <h1 class="text-right">
+                <button type="button" class="btn btn-danger mobile mobile_small_text"
+                        ng-click="openDetailsModal()">Edit Tournament Details</button>
+            </h1>
+             <h1 class="text-right">
+                 <button type="button" class="btn btn-danger mobile"
+                         ng-show="sessionService.isAdminForRegion(regionService.region.id)"
+                         ng-click="openDeleteTournamentModal(tournament.id)">Delete</a></button>
+             </h1>
         </div>
     </div>
     <div class="row" ng-show="isPendingTournament">
@@ -19,15 +26,15 @@
         <div class="col-md-12">
             <h3>Players</h3>
             <table class="table table-condensed table-striped">
-                <tr>
+                <tr class="table_header">
                     <th><strong>New Player?</strong></th>
                     <th><strong>Tag</strong></th>
                     <th><strong>Player Details</strong></th>
                     <th><strong>Player Search</strong></th>
                 </tr>
-                <tr ng-repeat="player in tournament.players">
+                <tr ng-repeat="player in tournament.players" class="pending_tournament_line tournament_line_center">
                     <td>
-                        <input type="checkbox"
+                        <input type="checkbox" class="mobile"
                                ng-model="playerCheckboxState[player]"
                                ng-change="onPlayerCheckboxChange(player)">
                     </td>
@@ -47,7 +54,7 @@
                     </td>
                     <td>
                         <div class="form-group">
-                            <input type="text" class="form-control" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
+                            <input type="text" class="form-control mobile_small" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
                 </tr>
@@ -56,18 +63,18 @@
     </div>
     <div class="row" ng-show="isPendingTournament">
         <div class="col-md-2 col-md-offset-10">
-            <button type="button" class="btn btn-primary pull-right" ng-click="putTournamentFromUI()">Save Alias-Player Mapping</button>
+            <button type="button" class="btn btn-primary pull-right mobile mobile_small_text" ng-click="putTournamentFromUI()">Save Alias-Player Mapping</button>
         </div>
     </div>
     <div class="row" ng-show="isPendingTournament">
         <div class="col-md-12">
             <h3>Matches</h3>
             <table class="table table-condensed">
-                <tr>
+                <tr class="table_header">
                     <th>Winner</th>
                     <th>Loser</th>
                 </tr>
-                <tr ng-repeat="match in tournament.matches">
+                <tr ng-repeat="match in tournament.matches" class="tournament_match_line">
                     <td class="success">{{match.winner}}</a></td>
                     <td class="danger">{{match.loser}}</a></td>
                 </tr>
@@ -76,7 +83,7 @@
     </div>
     <div class="row" ng-show="isPendingTournament">
         <div class="col-md-2 col-md-offset-10">
-            <button type="button" class="btn btn-primary pull-right" ng-click="openSubmitPendingTournamentModal()">Submit</button>
+            <button type="button" class="btn btn-primary pull-right mobile" ng-click="openSubmitPendingTournamentModal()">Submit</button>
         </div>
     </div>
 
@@ -85,10 +92,10 @@
         <div class="col-md-4">
             <h3>Players</h3>
             <table class="table table-condensed table-striped">
-                <tr>
+                <tr class="table_header">
                     <th>Name</th>
                 </tr>
-                <tr ng-repeat="player in tournament.players">
+                <tr ng-repeat="player in tournament.players" class="player_line">
                     <td><a href="#/{{regionService.region.id}}/players/{{player.id}}">{{player.name}}</a></td>
                 </tr>
             </table>
@@ -98,13 +105,13 @@
             <table class="table table-condensed">
                     <tr ng-show="sessionService.isAdmin()">
                     <td>
-                        <button type="button" class="btn btn-primary" ng-click='openAddMatchModal()'>
+                        <button type="button" class="btn btn-primary mobile" ng-click='openAddMatchModal()'>
                               <span class="glyphicon glyphicon-plus"></span>Add Match
                         </button>
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="table_header">
                     <th>Winner</th>
                     <th ng-show="sessionService.isAdmin()" width="5%">
                         Swap
@@ -114,7 +121,7 @@
                        Exclude
                     </th>
                 </tr>
-                <tr ng-repeat="match in tournament.matches">
+                <tr ng-repeat="match in tournament.matches" class="tournament_match_line">
                     <td class="success" id="winner_{{ match.match_id }}">
                         <a href="#/{{regionService.region.id}}/players/{{match.winner_id}}">
                             {{match.winner_name}}
@@ -128,10 +135,11 @@
                             {{match.loser_name}}
                         </a>
                     </td>
-                    <td ng-show="sessionService.isAdmin()">
+                    <td ng-show="sessionService.isAdmin()" style="text-align:center">
                         <input type="checkbox" id="exclude_set_checkbox_{{ match.match_id }}"
                                ng-model='matchCheckbox' ng-change="changeMatchExclusion(match)"
-                               ng-checked="isMatchCurrentlyExcluded(match)"/>
+                               ng-checked="isMatchCurrentlyExcluded(match)"
+                               class="mobile"/>
                     </td>
                 </tr>
             </table>

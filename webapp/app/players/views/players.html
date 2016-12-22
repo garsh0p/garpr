@@ -13,7 +13,7 @@
 		        <tr class="table-header">
 		            <th>Name</th>
 		        </tr>
-		        <tr ng-repeat="line in playerService.playerList.players">
+		        <tr ng-repeat="line in playerService.playerList.players" class="player_line">
 		            <td><a href="#/{{regionService.region.id}}/players/{{line.id}}">{{line.name}}</a></td>
 		        </tr>
 		    </table>

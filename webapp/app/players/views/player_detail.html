@@ -4,7 +4,7 @@
             <h1>{{player.name}}</h1>
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdmin()">
-            <h1 class="text-right"><button type="button" class="btn btn-danger" ng-click="openDetailsModal()">Edit Player Details</button></h1>
+            <h1 class="text-right"><button type="button" class="btn btn-danger mobile" ng-click="openDetailsModal()">Edit Player Details</button></h1>
         </div>
     </div>
     <div class="row" ng-show="player.merged">
@@ -22,7 +22,7 @@
                 </h2>
                 <span>
                     <h4>Unadjusted: {{player.ratings[regionService.region.id].mu | number:3}} (+/- {{player.ratings[regionService.region.id].sigma | number:3}})
-                    <button type="button" class="btn btn-primary btn-sm" ng-click="showFormulasFcn()">?</button></h4>
+                    <button type="button" class="btn btn-primary btn-sm mobile_xxs" ng-click="showFormulasFcn()">?</button></h4>
                 </span>
             </div>
         </div>
@@ -37,16 +37,17 @@
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-condensed">
-                    <tr class="table_header">
+                    <tr class="table_header table_header_center">
                         <th>Date</th>
                         <th>Tournament</th>
                         <th>Opponent</th>
                         <th>Result</th>
                     </tr>
                     <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
-                                   excluded: match.result == 'excluded'}" ng-repeat="match in matches">
+                                   excluded: match.result == 'excluded'}" ng-repeat="match in matches"
+                                   class="player_line player_line_center">
                         <td>{{match.tournament_date}}</td>
-                        <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}" >{{match.tournament_name}}</a></td>
+                        <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
                         <td><a href="#/{{regionService.region.id}}/players/{{match.opponent_id}}">{{match.opponent_name}}</a></td>
                         <td>{{ determineMatchStatus(match) }}</td>
                     </tr>
@@ -58,10 +59,10 @@
                 <label class="control-label">Merge with player: </label>
             </div>
             <div class="col-md-8">
-                <input type="text" class="form-control" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.typeahead for p in getMergePlayers($viewValue)">
+                <input type="text" class="form-control mobile" ng-model="mergePlayer" placeholder="Search for player..." typeahead="p as p.typeahead for p in getMergePlayers($viewValue)">
             </div>
             <div class="col-md-2">
-                <button type="button" class="btn btn-danger"  ng-click="submitMerge()">Send Merge Request</button>
+                <button type="button" class="btn btn-danger mobile"  ng-click="submitMerge()">Send Merge Request</button>
             </div>
         </div>
     </div>

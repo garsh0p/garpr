@@ -1,18 +1,34 @@
 
 <div class="header vignette" ng-controller="NavbarController">
-    <div class="header-wrapper">
-        <p id="header1">{{regionService.region.id}}</p>
-        <p id="header2">GAR</p>
-        <p id="header3">PR</p>
-        <div id="beta">BETA</div>
-    </div>
+
+    <a ng-href="#/{{regionService.region.id}}/rankings">
+        <button style="background:none !important;border:none !important">
+            <div class="header-wrapper">
+                <p id="header1">{{regionService.region.id}}</p>
+                <p id="header2">GAR</p>
+                <p id="header3">PR</p>
+                <div id="beta">BETA</div>
+            </div>
+        </button>
+    </a>
 </div>
+
 <div class="navbar navbar-default" role="navigation" ng-controller="NavbarController">
     <div class="container-fluid">
         <div class="navbar-header">
             <div class="navbar-brand">NOTGARPR</div>
+
+
+            <button class="navbar-toggle" data-toggle="collapse" data-target="#garpr_collapse">
+                <span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </span>
+            </button>
         </div>
-        <div class="collapse navbar-collapse">
+
+        <div class="collapse navbar-collapse navbar-left" role="navigation" id="garpr_collapse">
             <ul class="nav navbar-nav">
                 <li ng-class="{active: $route.current.activeTab == 'rankings'}">
                     <a ng-href="#/{{regionService.region.id}}/rankings">Rankings</a>
@@ -48,11 +64,13 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu">
-                       <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
-                       <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
+                        <li ng-hide="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="openLoginModal()">Login</a></li>
+                        <li ng-show="sessionService.loggedIn"><a href="javascript:void(0)" ng-click="logout()">Logout</a></li>
                     </ul>
                 </li>
-                <li class="dropdown" dropdown ng-hide="$route.current.activeTab == 'about'">
+            </ul>
+            <ul class="nav navbar-nav navbar-right" style="float:right">
+                <li class="dropdown " dropdown ng-hide="$route.current.activeTab == 'about'">
                     <a class="dropdown-toggle" dropdown-toggle>
                         {{regionService.region.display_name}}
                         <span class="caret"></span>
@@ -64,9 +82,10 @@
             </ul>
             <form class="nav navbar-form navbar-right" role="search">
                 <div class="form-group">
-                    <input type="text" class="form-control" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
+                    <input type="text" class="form-control mobile" ng-model="selectedPlayer" placeholder="Search for player" typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected($item)">
                 </div>
             </form>
         </div><!--/.nav-collapse -->
+
     </div>
 </div>

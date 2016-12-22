@@ -4,7 +4,7 @@
             <h3>Tournaments</h3>
         </div>
         <div class="col-md-2" ng-show="sessionService.isAdminForRegion(regionService.region.id)">
-            <h4 class="text-right"><button type="button" class="btn btn-danger" ng-click="open()">Upload a Tournament</button></h4>
+            <h4 class="text-right"><button type="button" class="btn btn-danger mobile mobile_small_text" ng-click="open()">Upload a Tournament</button></h4>
         </div>
     </div>
     <div class="row">
@@ -15,7 +15,7 @@
                     <th>Name</th>
                     <th></th>
                 </tr>
-                <tr ng-repeat="tournament in tournamentService.tournamentList">
+                <tr ng-repeat="tournament in tournamentService.tournamentList" class="tournament_line">
                     <td>{{tournament.date}}</td>
                     <td ng-class="{'pending': tournament.pending}"><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
                     <td>
