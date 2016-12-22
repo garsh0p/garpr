@@ -336,35 +336,40 @@ input[type="number"].mobile{
         font-size: 18pt;
     }
 
-    button.mobile{
+    button.mobile,
+    input[type="submit"].mobile{
         height: 100px;
         width: 300px;
         font-size: 18pt;
         font-weight:bold;
     }
 
-    button.mobile_small{
+    button.mobile_small,
+    input[type="submit"].mobile_small{
         height:100px;
         width:200px;
         font-size: 18pt;
         font-weight:bold;
     }
 
-    button.mobile_xs{
+    button.mobile_xs,
+    input[type="submit"].mobile_xs{
         height:100px;
         width:100px;
         font-size: 18pt;
         font-weight:bold;
     }
 
-    button.mobile_xxs{
+    button.mobile_xxs,
+    input[type="submit"].mobile_xxs{
         height:50px;
         width:50px;
         font-size: 18pt;
         font-weight:bold;
     }
 
-    button.mobile_small_text{
+    button.mobile_small_text,
+    input[type="submit"].mobile_small_text{
         font-size:14pt;
     }
 
@@ -372,12 +377,14 @@ input[type="number"].mobile{
         transform: scale(2);
     }
 
-    input[type="text"].mobile{
+    input[type="text"].mobile,
+    input[type="password"].mobile{
         font-size:35px;
         color: darkblue;
     }
 
-    input[type="text"].mobile_small{
+    input[type="text"].mobile_small
+    input[type="password"].mobile_small{
         font-size:25px;
         color: darkblue;
     }

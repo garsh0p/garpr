@@ -6,7 +6,7 @@
         <div class="panel-heading">
           <h4 class="panel-title">
             <a ng-click="isRegionCollapsed = !isRegionCollapsed">
-              Regions
+              <label>Regions</label>
             </a>
           </h4>
         </div>
@@ -16,9 +16,9 @@
                   <h4>Add New Region</h4>
 
                   <p ng-model="regionStatusMessage" id="regionStatusMessage"></p>
-                  Name: <input type="text" id="region_name_text" class="form-control" ng-model="postParams.new_region"><br/>
+                  <label>Name:</label> <input type="text" id="region_name_text" class="form-control mobile" ng-model="postParams.new_region"><br/>
 
-                  <input class="btn btn-success" type="submit" id="submit_new_region_btn" value="submit">
+                  <input class="btn btn-success mobile_small" type="submit" id="submit_new_region_btn" value="submit">
               </form>
           </div>
         </div>
@@ -28,7 +28,7 @@
         <div class="panel-heading">
           <h4 class="panel-title">
             <a ng-click="isUserCollapsed = !isUserCollapsed">
-              Users
+              <label>Users</label>
             </a>
           </h4>
         </div>
@@ -37,8 +37,8 @@
               <form ng-submit="submitNewUser()" id="newUserForm">
                 <h4>Add New Admin</h4>
                 <p ng-model="userStatusMessage" id="userStatusMessage"></p>
-                Username: <input type="text" id="new_user_name" class="form-control" ng-model="postParams.new_user_name"> <br/>
-                Password: <input type="password" id="new_user_pass" class="form-control" ng-model="postParams.new_user_pass"> <br/>
+                <label>Username:</label> <input type="text" id="new_user_name" class="form-control mobile" ng-model="postParams.new_user_name"> <br/>
+                <label>Password:</label> <input type="password" id="new_user_pass" class="form-control" ng-model="postParams.new_user_pass"> <br/>
                 <!--
                 Permission Level:
                 <select ng-model="postParams.new_user_permissions">
@@ -47,16 +47,16 @@
                 </select>
                 <br />
                 -->
-                Regions:
+                <p>Regions:</p>
                 <ul style="list-style: none;">
                     <li ng-repeat="r in regions">
-                        <input type="checkbox" class="admin_region_checkbox" id="{{r.display_name}}_checkbox"
+                        <input type="checkbox" class="admin_region_checkbox mobile" id="{{r.display_name}}_checkbox"
                             region="{{r.display_name}}" ng-change="checkRegionBox(r)" ng-model="foo"/>
-                        <a ng-href="#/{{r.id}}/{{$route.current.activeTab}}">{{r.display_name}}</a>
+                        <a ng-href="#/{{r.id}}/{{$route.current.activeTab}}"><label>{{r.display_name}}</label></a>
                     </li>
                 </ul>
                 <br />
-                <input class="btn btn-success" type="submit" id="submit_new_user_btn" value="submit">
+                <input class="btn btn-success mobile" type="submit" id="submit_new_user_btn" value="submit">
             </form>
           </div>
         </div>

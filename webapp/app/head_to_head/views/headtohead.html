@@ -7,25 +7,32 @@
 <div class="container">
     <div class="form-group row shadow-container">
         <div class="col-md-5 col-xs-5">
-            <input type="text" placeholder="Player Name" class="form-control input-lg h2h_player_input" ng-model="player1" typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="onChange()">
+            <input type="text" placeholder="Player Name" class="form-control input-lg h2h_player_input mobile"
+                   ng-model="player1"
+                   typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)"
+                   typeahead-on-select="onChange()">
         </div>
 
         <div class="col-md-2 col-xs-2">
-            <h1><p class="text-center">{{wins}}-{{losses}}</p></h1>
+            <h1><p class="text-center"><label>{{wins}}-{{losses}}</label></p></h1>
         </div>
 
         <div class="col-md-5 col-xs-5">
-            <input type="text" placeholder="Player Name" class="form-control input-lg h2h_player_input input-right" ng-model="player2" typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="onChange()">
+            <input type="text" placeholder="Player Name" class="form-control input-lg h2h_player_input input-right mobile"
+                   ng-model="player2"
+                   typeahead="player as player.typeahead for player in playerService.getPlayerListFromQuery($viewValue)"
+                   typeahead-on-select="onChange()">
         </div>
     </div>
     <table class="table table-condensed">
-        <tr>
+        <tr class="player-line">
             <th>Date</th>
             <th>Tournament</th>
             <th>Winner</th>
         </tr>
         <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
-                       excluded: match.result == 'excluded'}" ng-repeat="match in matches">
+                       excluded: match.result == 'excluded'}" ng-repeat="match in matches"
+                        class="player_line">
             <td>{{match.tournament_date}}</td>
             <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
             <td>{{ determineMatchStatus(match,playerName,opponentName) }}</td>

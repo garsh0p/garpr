@@ -7,37 +7,35 @@
     <form ng-submit="addMatchToTournament(addMatchWinner.id, addMatchLoser.id)">
         <table>
             <tr>
-                <th>Winner</th>
-                <th>Loser</th>
+                <th><label>Winner</label></th>
+                <th><label>Loser</label></th>
             </tr>
             <tr>
-                <td><input type="text" class="form-control .has-success"
+                <td><input type="text" class="form-control has-success mobile"
                            ng-model="addMatchWinner" placeholder="Search for player..."
-                           typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"
-                            /></td>
-                <td><input type="text" class="form-control .has-danger"
+                           typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"/></td>
+                <td><input type="text" class="form-control has-danger mobile"
                            ng-model="addMatchLoser" placeholder="Search for player..."
-                           typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"
-                           /></td>
+                           typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"/></td>
             </tr>
             <tr>
                 <td ng-show="addMatchWinner.hasOwnProperty('id')">
                     <a href="#/{{regionService.region.id}}/players/{{addMatchWinner.id}}">
-                        View match history
+                        <p>View match history</p>
                     </a>
                 </td>
                 <td ng-show="addMatchLoser.hasOwnProperty('id')">
                     <a href="#/{{regionService.region.id}}/players/{{addMatchLoser.id}}">
-                        View match history
+                        <p>View match history</p>
                     </a>
                 </td>
             </tr>
         </table>
         <p ng-model="addMatchStatusMessage"></p>
-        <input class="btn btn-success" type="submit" value="Submit" />
+        <input class="btn btn-success mobile_small" type="submit" value="Submit" />
     </form>
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-primary" ng-click="closeDetailsModal()">Close</button>
+    <button type="button" class="btn btn-primary mobile_xs" ng-click="closeDetailsModal()">Close</button>
 </div>
