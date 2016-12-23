@@ -326,6 +326,24 @@ input[type="number"].mobile{
     tr.pending_tournament_line{
         height: 50px;
         font-size: 16pt;
+        text-align:left;
+    }
+
+    tr.pending_tournament_line>td.new_player_col{
+        width:100px;
+    }
+
+    tr.pending_tournament_line>td.player_name_col{
+        width:150px;
+        text-align:left;
+    }
+
+    tr.pending_tournament_line>td.player_region_col{
+        width:200px;
+    }
+
+    tr.pending_tournament_line>td.search_player_col{
+        padding-left:10px;
     }
 
     tr.tournament_line_center{
@@ -383,9 +401,15 @@ input[type="number"].mobile{
         color: darkblue;
     }
 
-    input[type="text"].mobile_small
+    input[type="text"].mobile_small,
     input[type="password"].mobile_small{
         font-size:25px;
+        color: darkblue;
+    }
+
+    input[type="text"].mobile_xs,
+    input[type="password"].mobile_xs{
+        font-size:20px;
         color: darkblue;
     }
 

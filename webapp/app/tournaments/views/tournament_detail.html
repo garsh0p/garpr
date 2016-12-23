@@ -33,18 +33,19 @@
                     <th><strong>Player Search</strong></th>
                 </tr>
                 <tr ng-repeat="player in tournament.players" class="pending_tournament_line tournament_line_center">
-                    <td>
+                    <td class="new_player_col">
                         <input type="checkbox" class="mobile"
                                ng-model="playerCheckboxState[player]"
                                ng-change="onPlayerCheckboxChange(player)">
                     </td>
-                    <td ng-class="{'text-danger': playerCheckboxState[player], newPlayer: playerCheckboxState[player]}">{{player}}</td>
-                    <td>
+                    <td ng-class="{'text-danger': playerCheckboxState[player], newPlayer: playerCheckboxState[player]}"
+                        class="player_name_col"><label>{{player}}</label></td>
+                    <td class="player_region_col">
                         <div ng-hide="playerCheckboxState[player]">
                             <div ng-show="playerData[player].hasOwnProperty('id')">
                                 <p>Regions: <strong>{{prettyPrintRegionListForPlayer(playerData[player])}}</strong></p>
                                 <a href="#/{{regionService.region.id}}/players/{{playerData[player].id}}">
-                                    View match history
+                                    <p>View match history</p>
                                 </a>
                             </div>
                             <div ng-hide="playerData[player].hasOwnProperty('id')">
@@ -52,9 +53,9 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td class="search_player_col">
                         <div class="form-group">
-                            <input type="text" class="form-control mobile_small" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
+                            <input type="text" class="form-control mobile" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
                 </tr>
