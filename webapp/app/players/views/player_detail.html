@@ -44,7 +44,8 @@
                         <th>Result</th>
                     </tr>
                     <tr ng-class="{success: match.result == 'win', danger: match.result == 'lose',
-                                   excluded: match.result == 'excluded'}" ng-repeat="match in matches"
+                                   excluded: match.result == 'excluded'}"
+                                   ng-repeat="match in matches.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage))"
                                    class="player_line player_line_center">
                         <td>{{match.tournament_date}}</td>
                         <td><a href="#/{{regionService.region.id}}/tournaments/{{match.tournament_id}}">{{match.tournament_name}}</a></td>
@@ -52,6 +53,11 @@
                         <td>{{ determineMatchStatus(match) }}</td>
                     </tr>
                 </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                    <pagination  total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" class="pagination-sm" items-per-page="itemsPerPage"></pagination >
             </div>
         </div>
         <div class="row" ng-show="sessionService.isAdmin()">

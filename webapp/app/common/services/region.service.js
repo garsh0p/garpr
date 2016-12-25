@@ -7,10 +7,10 @@ angular.module('app.common').service('RegionService', function ($http, PlayerSer
             if (!this.region || newRegionId != this.region.id) {
                 this.regionsPromise.then(function(response) {
                     service.region = service.getRegionFromRegionId(newRegionId);
-                    PlayerService.playerList = null;
-                    TournamentService.tournamentList = null;
-                    RankingsService.rankingsList = null;
-                    MergeService.mergeList = null;
+                    PlayerService.playerList = [];
+                    TournamentService.tournamentList = [];
+                    RankingsService.rankingsList = [];
+                    MergeService.mergeList = [];
                     service.populateDataForCurrentRegion();
                 });
             }
@@ -37,16 +37,16 @@ angular.module('app.common').service('RegionService', function ($http, PlayerSer
 
                     // filter players for this region
                     PlayerService.playerList = {
-                        'players': data.players.filter(
-                            function(player){
-                                return player.regions.some(
-                                    function(region){
-                                        if(region==null) return false;
-                                        return region === curRegion.id;
-                                    });
-                            })
-                    };
-                });
+                            'players': data.players.filter(
+                                function(player){
+                                    return player.regions.some(
+                                        function(region){
+                                            if(region==null) return false;
+                                            return region === curRegion.id;
+                                        });
+                                })
+                        };
+                    });
 
             SessionService.authenticatedGet(hostname + this.region.id + '/tournaments?includePending=true',
                 function(data) {
