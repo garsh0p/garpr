@@ -1,5 +1,5 @@
-var app = angular.module('app', 
-    ['ngRoute', 'ui.bootstrap', 'angulartics', 'angulartics.google.analytics', 'facebook',
+var app = angular.module('app',
+    ['ngRoute', 'ui.bootstrap', 
         'app.common',
         'app.headToHead',
         'app.players',
@@ -73,7 +73,3 @@ app.config(['$routeProvider', function($routeProvider) {
         redirectTo: '/' + defaultRegion + '/rankings'
     });
 }]);
-
-
-
-

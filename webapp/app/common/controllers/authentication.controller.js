@@ -1,4 +1,4 @@
-angular.module('app.common').controller("AuthenticationController", function($scope, $modal, Facebook, SessionService, RegionService) {
+angular.module('app.common').controller("AuthenticationController", function($scope, $modal, SessionService, RegionService) {
     $scope.sessionService = SessionService;
     $scope.regionService = RegionService;
     $scope.postParams = {};
