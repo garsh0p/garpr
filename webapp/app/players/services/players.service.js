@@ -13,8 +13,21 @@ angular.module('app.players').service('PlayerService', function($http) {
         },
         addTypeaheadDisplayText: function(player){
             player.typeahead = player.name.toLowerCase();
-            try{
-                player.typeahead = player.name.toString() + ' ~ ' + player.regions[0].toString()
+            try{ 
+                var minSig = 100;
+                var mainRegion = "";
+                player.regions.forEach(function(region)
+                {
+                    if(ratings[region] !== undefined && ratings[region].sigma < minSig)
+                    {
+                        minSig = ratings[region].sigma;
+                        mainRegion = region;
+                    }
+                });
+                if(mainRegion != "")
+                    player.typeahead = player.name.toString() + ' ~ ' + mainRegion;
+                else
+                    player.typeahead = player.name.toString() + ' ~ ' + player.regions[0].toString();
             } catch(err){
                 /* FAIL GRACEFULLY */
             }
