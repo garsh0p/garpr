@@ -29,6 +29,9 @@ class Config(object):
     def get_environment_http_redirect_port(self):
         return self.config.get('environment', 'http_redirect_port')
 
+    def get_environment_backups_directory(self):
+        return self.config.get('environment', 'backups_directory')
+
     def get_ssl_key_path(self):
         return self.config.get('ssl', 'key_path')
 
@@ -61,3 +64,12 @@ class Config(object):
 
     def get_loaderio_token(self):
         return self.config.get('loaderio', 'token')
+
+    def get_dropbox_app_key(self):
+        return self.config.get('dropbox', 'app_key')
+
+    def get_dropbox_app_secret(self):
+        return self.config.get('dropbox', 'app_secret')
+
+    def get_dropbox_access_token(self):
+        return self.config.get('dropbox', 'access_token')
