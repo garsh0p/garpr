@@ -21,7 +21,7 @@ The recommended way to stage/deploy new builds is via Slack commands on our Slac
 1. Open branch "featurename" for your new feature.
 2. Code your feature in this branch.
 3. When the feature is ready, push this branch to GH and open a PR for this feature.
-4. Stage this branch on the staging copy by typing "/stage featurename". 
+4. Stage this branch on the staging copy by typing "/stage featurename".
 5. If step 4 is successful and the feature works fine on stage, merge your PR.
 6. Stage the merged copy of master by typing "/stage master".
 7. If the staged copy of master looks fine, deploy to prod by typing "/deploy".
@@ -31,11 +31,18 @@ Starting builds through Jenkins
 
 Currently the Jenkins web interface is being served at www.notgarpr.com:8080. You will need a username and password to log in: ask in Slack for the appropriate credentials.
 
-There are currently two projects in Jenkins, "garpr_stage" and "garpr_prod", corresponding to updating the stage and prod environment. In a project, click "Build Now" on the left menu to manually trigger a build. You can see the currently active builds in the "Build Queue" on the left (or by clicking "Builds"). On the page for any given build, you can see whether it failed or succeeded, along with any console output it may have generated.
+There are currently two projects in Jenkins, "stage" and "prod", corresponding to updating the stage and prod environment. In a project, click "Build Now" on the left menu to manually trigger a build. You can see the currently active builds in the "Build Queue" on the left (or by clicking "Builds"). On the page for any given build, you can see whether it failed or succeeded, along with any console output it may have generated.
 
 Backups
 =======
 
-Backups of the database are taken daily, are labeled by date (e.g. "2016-06-20.zip") and can be found at /home/deploy/dumps on the production server. For access, ask on Slack. (TODO: store backups somewhere else, e.g. AWS or Dropbox).
+Backups of the database are taken daily, are labeled by date (e.g. "2016-06-20.zip") and can be found at /home/deploy/backups on the production server. Backups are also automatically transferred and stored on a GarPR dropbox account. For access, ask on Slack.
 
 To manually take a backup, you can build the "backup" project in Jenkins (in much the same way as described above).
+
+DB Validation
+=============
+
+MongoDB is an inherently unstructured database, yet we expect some of the data we put in it to have certain structure (for instance, tournaments should belong to valid regions and contain valid players). To ensure this, we run a variety of validation checks on data we insert into the DB. Most of these checks occur at runtime, but some of these checks (e.g. checking if a player no longer belongs to any tournaments) require large in-memory joins, and are prohibitive to do at runtime. Instead, these checks are performed by a script which runs daily (validate_db.py). As with backups, there is a corresponding Jenkins job for this ("validate_db") that can be run manually, and results of these checks are posted to the #announcements channel in Slack.
+
+For now (to avoid the script possibly running amok), the script simply diagnoses ill-formed data. Many of the problems the script diagnoses can be resolved automatically by running the script manually with the --fix flag.

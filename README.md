@@ -1,6 +1,6 @@
 Welcome to GarPR Development
 
-Our dev environment uses vagrant. 
+Our dev environment uses vagrant.
 We have a CI cycle, with a big test suite, and auto-push to
 production based on jenkins when we push to master and pass all tests
 
@@ -10,7 +10,7 @@ Developers should make changes in a branch, and then make a pull request (also s
 
 Admins or users, submit bug reports on the [issues page](https://github.com/ripgarpr/garpr/issues).
 
-Interested in getting GarPR in your region? Contact one of the devs. 
+Interested in getting GarPR in your region? Contact one of the devs.
 
 Interested in being a dev? Also contact one of us. We have an active slack channel :D
 
@@ -45,7 +45,7 @@ Local Development Using Vagrant
 ### Use
 The vagrant user home directory of the VM will mirror the project directory on the host. It will also contain the project's dependencies.
 
-To start the server run 
+To start the server run
 	```
 	bash start.sh
 	```
@@ -56,7 +56,7 @@ To pull in any changes made to the project on the host into the VM, use the comm
 
 1. (Host): Make edits to some files.
 2. (VM): Run the command: `sync_vm`
-3. (VM): Restart the system (often the system will auto-restart; to force restart, type `bash stop.sh` followed by `bash start.sh`). 
+3. (VM): Restart the system (often the system will auto-restart; to force restart, type `bash stop.sh` followed by `bash start.sh`).
 4. (Host): Visit 192.168.33.10:8000 to view the new changes.
 
 If stuff goes very wrong (or you would like to restore the initial copy of your db), you can restore the initial state of the Vagrant VM by typing `vagrant destroy` followed by `vagrant up`.
@@ -66,3 +66,19 @@ To run all tests:
   ```
   nosetests
   ```
+
+### Accessing the database
+The local copy of the development database can be accessed through the following mongo command:
+
+  ```
+  mongo admin -u devuser -p devpass01
+  ```
+
+This authenticates you to the authentication database 'admin'. Once mongo has started,
+type ```use garpr``` to switch to the primary database 'garpr'. Alternatively, you can run
+
+  ```
+  mongo garpr -u devuser -p devpass01 --authenticationDatabase admin
+  ```
+
+to directly connect to the primary database.
