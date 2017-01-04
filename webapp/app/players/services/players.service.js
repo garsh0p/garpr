@@ -18,9 +18,9 @@ angular.module('app.players').service('PlayerService', function($http) {
                 var mainRegion = "";
                 player.regions.forEach(function(region)
                 {
-                    if(ratings[region] !== undefined && ratings[region].sigma < minSig)
+                    if(player.ratings[region] !== undefined && player.ratings[region].sigma < minSig)
                     {
-                        minSig = ratings[region].sigma;
+                        minSig = player.ratings[region].sigma;
                         mainRegion = region;
                     }
                 });
