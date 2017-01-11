@@ -82,3 +82,6 @@ db_key
 db_key.pub
 db_key1
 db_key1.pub
+
+# local folder for files you don't want to commit
+/local
