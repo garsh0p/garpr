@@ -24,7 +24,7 @@ Local Development Using Vagrant
 ### Setup Steps
 1. Clone the repository
 	```
-	git clone https://github.com/yedi/garpr.git
+	git clone https://github.com/ripgarpr/garpr.git
 	```
 
 2. Navigate to the project directory
