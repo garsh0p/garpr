@@ -8,7 +8,7 @@ ExecStart=/usr/local/bin/twistd \
     --logfile="logs/api.log" \
     -oy serve_api.tac
 
-WorkingDirectory=/home/deploy/prod/garpr
+WorkingDirectory=/home/ivan/garpr
 
 User=root
 Group=root
