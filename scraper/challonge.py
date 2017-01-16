@@ -74,15 +74,6 @@ class ChallongeScraper(object):
             m = m['match']
 
             set_count = m['scores_csv']
-
-            try:
-                score1, score2 = parse.parse("{:d}-{:d}", set_count)
-                if int(score1) == -1 or int(score2) == -1:
-                    print('dq match skipped')
-                    continue
-            except Exception as ex:
-                print('could not parse score : ' + str(set_count))
-
             winner_id = m['winner_id']
             loser_id = m['loser_id']
             if winner_id is not None and loser_id is not None:
