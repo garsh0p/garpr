@@ -135,13 +135,13 @@ class TestRankings(unittest.TestCase):
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_2_id).ratings['norcal'].sigma,
                                 6.464, delta=delta)
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_3_id).ratings['norcal'].mu,
-                                2, delta=delta) #changing this b/c of new in regionon only stuff, lol
+                                31.230, delta=delta)
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_3_id).ratings['norcal'].sigma,
-                                3, delta=delta)
+                                6.523, delta=delta)
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_4_id).ratings['norcal'].mu,
-                                25, delta=delta)
+                                18.770, delta=delta)
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_4_id).ratings['norcal'].sigma,
-                                8.333, delta=delta)
+                                6.523, delta=delta)
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_5_id).ratings['norcal'].mu,
                                 29.396, delta=delta)
         self.assertAlmostEquals(self.dao.get_player_by_id(self.player_5_id).ratings['norcal'].sigma,
@@ -161,8 +161,7 @@ class TestRankings(unittest.TestCase):
         ranking_list = ranking.ranking
 
         # the ranking should not have any excluded players
-        self.assertEquals(len(ranking_list), 3)
-
+        self.assertEquals(len(ranking_list), 4)
 
         entry = ranking_list[0]
         self.assertEquals(entry.rank, 1)
@@ -176,15 +175,13 @@ class TestRankings(unittest.TestCase):
 
         entry = ranking_list[2]
         self.assertEquals(entry.rank, 3)
-        self.assertEquals(entry.player, self.player_2_id)
-        self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
+        self.assertEquals(entry.player, self.player_4_id)
+        self.assertAlmostEquals(entry.rating, -.800, delta=delta)
 
-        '''
         entry = ranking_list[3]
         self.assertEquals(entry.rank, 4)
-        self.assertEquals(entry.player, self.player_3_id)
+        self.assertEquals(entry.player, self.player_2_id)
         self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
-        '''
 
     # players that only played in the first tournament will be excluded for inactivity
     def test_generate_rankings_excluded_for_inactivity(self):
@@ -195,21 +192,19 @@ class TestRankings(unittest.TestCase):
         ranking = self.dao.get_latest_ranking()
 
         ranking_list = ranking.ranking
-        self.assertEquals(len(ranking_list), 2)
+        self.assertEquals(len(ranking_list), 3)
 
         entry = ranking_list[0]
         self.assertEquals(entry.rank, 1)
         self.assertEquals(entry.player, self.player_1_id)
         self.assertAlmostEquals(entry.rating, 6.857, delta=delta)
 
-        '''
         entry = ranking_list[1]
         self.assertEquals(entry.rank, 2)
-        self.assertEquals(entry.player, self.player_5_id)
+        self.assertEquals(entry.player, self.player_4_id)
         self.assertAlmostEquals(entry.rating, -.800, delta=delta, msg="" + str(entry.player))
-        '''
 
-        entry = ranking_list[1]
-        self.assertEquals(entry.rank, 2)
+        entry = ranking_list[2]
+        self.assertEquals(entry.rank, 3)
         self.assertEquals(entry.player, self.player_2_id)
         self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
