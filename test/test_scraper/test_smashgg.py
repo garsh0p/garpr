@@ -109,7 +109,7 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEquals(len(self.tournament2.get_players()), 75)
 
     def test_get_matches(self):
-        self.assertEqual(len(self.tournament1.get_matches()), 731)
+        self.assertEqual(len(self.tournament1.get_matches()), 770)
         # spot check that mang0 got double elim'd
         mango_count = 0
         for m in self.tournament1.get_matches():

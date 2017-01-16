@@ -173,15 +173,6 @@ class SmashGGScraper(object):
                 if loser_id is None:
                     continue
 
-                # CHECK FOR A BYE OR A DQ
-                if loser_id is None:
-                    continue
-                else:
-                    entrant1_score = match.get('entrant1Score', None)
-                    entrant2_score = match.get('entrant2Score', None)
-                    if entrant1_score == -1 or entrant2_score == -1:
-                        continue
-
                 for prop in SET_TIME_PROPERTIES:
                     cur_time = match.get(prop, None)
                     if cur_time:
