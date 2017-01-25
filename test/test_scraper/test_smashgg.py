@@ -109,23 +109,34 @@ class TestSmashGGScraper(unittest.TestCase):
         self.assertEquals(len(self.tournament2.get_players()), 75)
 
     def test_get_matches(self):
-        self.assertEqual(len(self.tournament1.get_matches()), 731)
+        tournament_1_matches = self.tournament1.get_matches()
+        self.assertEqual(len(tournament_1_matches), 731)
         # spot check that mang0 got double elim'd
         mango_count = 0
-        for m in self.tournament1.get_matches():
+        for m in tournament_1_matches:
             if m.loser == 'C9 | Mango':
                 mango_count += 1
-        print mango_count
         self.assertEqual(2, mango_count, msg="mango didnt get double elim'd?")
 
-        self.assertEquals(len(self.tournament2.get_matches()), 361)
+        # Make sure grand finals is at the end
+        grand_finals = tournament_1_matches[-1]
+        self.assertEqual('TSM | Leffen', grand_finals.winner)
+        self.assertEqual('Liquid` | Hungrybox', grand_finals.loser)
+
+        tournament_2_matches = self.tournament2.get_matches()
+        self.assertEquals(len(tournament_2_matches), 361)
         # spot check that Druggedfox was only in 5 matches, and that he won all of them
         sami_count = 0
-        for m in self.tournament2.get_matches():
+        for m in tournament_2_matches:
             if m.winner == 'Druggedfox':
                 sami_count += 1
             self.assertFalse(m.loser == 'Druggedfox')
         self.assertEqual(14, sami_count)
+
+        # Make sure grand finals is at the end
+        grand_finals = tournament_2_matches[-1]
+        self.assertEqual('Druggedfox', grand_finals.winner)
+        self.assertEqual('PG | ESAM', grand_finals.loser)
 
     def test_get_date(self):
         date = self.tournament1.get_date()

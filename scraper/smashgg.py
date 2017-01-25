@@ -48,15 +48,7 @@ class SmashGGScraper(object):
 
         self.event_dict = SmashGGScraper.get_event_dict(self.event_name, self.phase_name)
 
-        self.group_sets = []
-        for phase in self.included_phases:
-            self.group_sets.append(
-                SmashGGScraper.get_group_ids_from_phase(phase))
-
-        self.group_ids = []
-        for group_set in self.group_sets:
-            for group_id in group_set:
-                self.group_ids.append(group_id)
+        self.group_ids = SmashGGScraper.get_group_ids_from_phase_ids(self.included_phases)
 
         self.group_dicts = [SmashGGScraper.get_group_dict(
             group_id) for group_id in self.group_ids]
@@ -165,6 +157,7 @@ class SmashGGScraper(object):
         like how far into the tournament or how many matches were played.
         """
         self.matches = []
+        grand_finals_matches = []
         for group_dict in self.group_dicts:
             for match in group_dict['entities']['sets']:
                 winner_id = match['winnerId']
@@ -197,7 +190,13 @@ class SmashGGScraper(object):
 
                 smashgg_match = SmashGGMatch(
                     round_name, winner_id, loser_id, round_num, best_of)
-                self.matches.append(smashgg_match)
+
+                if match['isGF']:
+                    grand_finals_matches.append(smashgg_match)
+                else:
+                    self.matches.append(smashgg_match)
+
+        self.matches.extend(grand_finals_matches)
 
     def get_group_ids(self):
         group_ids = [str(group['id']).strip()
@@ -288,6 +287,22 @@ class SmashGGScraper(object):
         for group in groups:
             phase_ids.append(group['id'])
         return phase_ids
+
+    @staticmethod
+    def get_group_ids_from_phase_ids(phase_ids):
+        phase_raw_dict = {}
+        for phase_id in phase_ids:
+            phase_raw_dict[phase_id] = check_for_200(requests.get(PHASE_URL % phase_id)).json()
+
+        ordered_phase_ids = phase_raw_dict.keys()
+        ordered_phase_ids.sort(key=lambda phase_id: phase_raw_dict[phase_id]['entities']['phase']['phaseOrder'])
+
+        group_ids = []
+        for phase_id in ordered_phase_ids:
+            groups = phase_raw_dict[phase_id]['entities']['groups']
+            for group in groups:
+                group_ids.append(group['id'])
+        return group_ids
 
     @staticmethod
     def get_phase_ids(event_name, phase_name):
