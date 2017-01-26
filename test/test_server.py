@@ -630,18 +630,39 @@ class TestServer(unittest.TestCase):
         pending_tournament_3.set_alias_id_mapping(player_2_name, player_2_id)
         # Note that Hungrybox and Zhu are unmapped
 
+        # pending tournament with multiple players mapping to a single player id
+        pending_tournament_id_4 = ObjectId()
+        pending_tournament_players_4 = [player_1_name, player_2_name]
+        pending_tournament_matches_4 = [
+                AliasMatch(winner=player_2_name, loser=player_1_name),
+        ]
+
+        pending_tournament_4 = PendingTournament(
+                                    name='Genesis top 5',
+                                    type='tio',
+                                    regions=['norcal'],
+                                    date=datetime(2011, 7, 10),
+                                    raw='raw',
+                                    players=pending_tournament_players_4,
+                                    matches=pending_tournament_matches_4,
+                                    id=pending_tournament_id_4)
+
+        pending_tournament_4.set_alias_id_mapping(player_1_name, player_1_id)
+        pending_tournament_4.set_alias_id_mapping(player_2_name, player_1_id)
+
         for player in players:
             self.norcal_dao.insert_player(player)
 
         self.norcal_dao.insert_pending_tournament(pending_tournament_1)
         self.norcal_dao.insert_pending_tournament(pending_tournament_3)
         self.texas_dao.insert_pending_tournament(pending_tournament_2)
+        self.norcal_dao.insert_pending_tournament(pending_tournament_4)
 
         # return players and pending tournaments for test use and cleanup
         # pending tournaments are padded by 0 so indices work out nicely
         return {
             "players": players,
-            "pending_tournaments": (0, pending_tournament_1, pending_tournament_2, pending_tournament_3)
+            "pending_tournaments": (0, pending_tournament_1, pending_tournament_2, pending_tournament_3, pending_tournament_4)
         }
 
     def cleanup_finalize_tournament_fixtures(self, fixtures):
@@ -650,11 +671,12 @@ class TestServer(unittest.TestCase):
         new_player = self.norcal_dao.get_player_by_alias('Scar')
         if new_player:
             self.norcal_dao.delete_player(new_player)
-        tmp, pending_tournament_1, pending_tournament_2, pending_tournament_3 = fixtures["pending_tournaments"]
+        tmp, pending_tournament_1, pending_tournament_2, pending_tournament_3, pending_tournament_4 = fixtures["pending_tournaments"]
 
         self.norcal_dao.delete_pending_tournament(pending_tournament_1)
         self.norcal_dao.delete_pending_tournament(pending_tournament_3)
         self.texas_dao.delete_pending_tournament(pending_tournament_2)
+        self.norcal_dao.delete_pending_tournament(pending_tournament_4)
 
     @patch('server.get_user_from_request')
     def test_finalize_tournament_incorrect_region(self, mock_get_user_from_request):
@@ -695,6 +717,22 @@ class TestServer(unittest.TestCase):
         self.assertEquals(incomplete_response.status_code, 400, msg=str(incomplete_response.data))
         self.assertEquals(incomplete_response.data,
             '"Not all player aliases in this pending tournament have been mapped to player ids."')
+
+        self.cleanup_finalize_tournament_fixtures(fixtures)
+
+    @patch('server.get_user_from_request')
+    def test_finalize_tournament_with_double_mapping(self, mock_get_user_from_request):
+        """Multiple aliases are mapped to the same player id."""
+        mock_get_user_from_request.return_value = self.user
+        fixtures = self.setup_finalize_tournament_fixtures()
+        fixture_pending_tournaments = fixtures["pending_tournaments"]
+
+        # alias_to_id_map doesn't map each alias
+        incomplete_response = self.app.post(
+            '/norcal/tournaments/' + str(fixture_pending_tournaments[4].id) + '/finalize')
+        self.assertEquals(incomplete_response.status_code, 400, msg=str(incomplete_response.data))
+        self.assertEquals(incomplete_response.data,
+            '"Player id %s is already mapped"' % fixtures["players"][0].id)
 
         self.cleanup_finalize_tournament_fixtures(fixtures)
 
