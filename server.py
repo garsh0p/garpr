@@ -713,6 +713,15 @@ class FinalizeTournamentResource(restful.Resource):
         if not is_user_admin_for_regions(user, pending_tournament.regions):
             return 'Permission denied', 403
 
+        # Make sure multiple player aliases don't map to a single player ID.
+        player_ids = set()
+        for mapping in pending_tournament.alias_to_id_map:
+            if mapping.player_id is not None:
+                if mapping.player_id in player_ids:
+                    return "Player id %s is already mapped" % mapping.player_id, 400
+                else:
+                    player_ids.add(mapping.player_id)
+
         new_player_names = []
         for mapping in pending_tournament.alias_to_id_map:
             if mapping.player_id is None:
