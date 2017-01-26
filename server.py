@@ -465,8 +465,17 @@ class TournamentListResource(restful.Resource):
         except:
             return 'Alias service encountered an error', 400
 
+        # If the tournament is too large, don't insert the raw file into the db.
+        if len(pending_tournament.players) < 1000:
+            try:
+                raw_file = dao.insert_raw_file(raw_file)
+            except Exception as ex:
+                print ex
+                return 'Dao insert_raw_file encountered an error', 400
+        else:
+            print 'Skipping inserting raw file for tournament because it is too large'
+
         try:
-            raw_file = dao.insert_raw_file(raw_file)
             new_id = dao.insert_pending_tournament(pending_tournament)
             return_dict = {
                 'id': str(new_id)
