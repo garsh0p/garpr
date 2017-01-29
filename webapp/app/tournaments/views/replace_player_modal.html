@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <h3 class="modal-title">Replace Player</h3>
+</div>
+
+<div class="modal-body">
+    Replace <a href="#/{{regionService.region.id}}/players/{{playerToRemove.id}}">{{playerToRemove.name}}</a> with:
+    <input type="text" class="form-control has-success mobile" ng-model="playerToAdd" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)"/>
+    <div ng-show="playerToAdd.hasOwnProperty('id')">
+        <a href="#/{{regionService.region.id}}/players/{{playerToAdd.id}}" target="_blank">
+          <p>View match history for {{playerToAdd.name}}</p>
+        </a>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary mobile_xs" ng-click="replacePlayer(playerToRemove, playerToAdd)" ng-disabled="disableButtons">OK</button>
+    <button type="button" class="btn btn-default mobile_small" ng-click="closeModal()" ng-disabled="disableButtons">Cancel</button>
+</div>

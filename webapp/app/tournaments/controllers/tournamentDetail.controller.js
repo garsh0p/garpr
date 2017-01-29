@@ -19,6 +19,13 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
     $scope.addMatchWinner = '';
     $scope.addMatchLoser = '';
 
+    $scope.playerToRemove = null;
+    $scope.playerToAdd = null;
+
+    $scope.closeModal = function() {
+        $scope.modalInstance.close()
+    };
+
     $scope.openDetailsModal = function() {
         $scope.modalInstance = $modal.open({
             templateUrl: 'app/tournaments/views/tournament_details_modal.html',
@@ -333,7 +340,7 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
             scope: $scope,
             size: 'lg'
         });
-    $scope.tournamentId = tournamentId;
+        $scope.tournamentId = tournamentId;
     };
 
     $scope.deleteTournament = function() {
@@ -344,6 +351,78 @@ angular.module('app.tournaments').controller("TournamentDetailController", funct
         };
         $scope.sessionService.authenticatedDelete(url, successCallback);
     };
+
+    $scope.openReplacePlayerModal = function(playerToRemove) {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'app/tournaments/views/replace_player_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.playerToRemove = playerToRemove;
+        $scope.playerToAdd = null;
+    };
+
+    $scope.replacePlayer = function(playerToRemove, playerToAdd) {
+        $scope.disableButtons = true;
+
+        postParams = {
+            players: [],
+            matches: [],
+        }
+
+        $scope.tournament.players.forEach(
+            function(player) {
+                if (player.id === playerToRemove.id) {
+                    var p = {
+                        id: playerToAdd.id,
+                        name: playerToAdd.name
+                    };
+                } else {
+                    var p = player;
+                }
+
+                postParams.players.push(p);
+        });
+
+        $scope.tournament.matches.forEach(
+            function(match) {
+                if (match.loser_id === playerToRemove.id) {
+                    var m = {
+                        match_id: match.match_id,
+                        excluded: match.excluded,
+                        loser_id: playerToAdd.id,
+                        loser_name: playerToAdd.name,
+                        winner_id: match.winner_id,
+                        winner_name: match.winner_name,
+                    };
+                } else if (match.winner_id === playerToRemove.id) {
+                    var m = {
+                        match_id: match.match_id,
+                        excluded: match.excluded,
+                        loser_id: match.loser_id,
+                        loser_name: match.loser_name,
+                        winner_id: playerToAdd.id,
+                        winner_name: playerToAdd.name,
+                    };
+                } else {
+                    var m = match;
+                }
+
+                postParams.matches.push(m);
+        });
+
+        url = hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId;
+        $scope.sessionService.authenticatedPut(
+            url, postParams,
+            function(data) {
+                $scope.tournament = data;
+                $scope.closeModal();
+            },
+            function(data) {
+                $scope.disableButtons = false;
+            });
+    };
+
 
     $http.get(hostname + $routeParams.region + '/tournaments/' + $scope.tournamentId).
         success($scope.updateData);

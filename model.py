@@ -140,6 +140,10 @@ class Tournament(orm.Document):
         matches_ids = {match.winner for match in self.matches} | \
                       {match.loser for match in self.matches}
 
+        # Check for duplicate players
+        if len(players_ids) != len(self.players):
+            return False, "Tournament contains duplicate players"
+
         if players_ids != matches_ids:
             return False, "set of players in players differs from set of players in matches"
 

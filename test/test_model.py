@@ -304,6 +304,17 @@ class TestTournament(unittest.TestCase):
         self.assertEqual(tournament.players, self.player_ids)
         self.assertEqual(tournament.regions, self.regions)
 
+    def test_validate_document(self):
+        result, msg = self.tournament.validate_document()
+        self.assertTrue(result)
+
+    def test_validate_document_duplicate_players(self):
+        self.tournament.players = [
+            self.player_1_id, self.player_2_id,
+            self.player_3_id, self.player_3_id]
+        result, msg = self.tournament.validate_document()
+        self.assertFalse(result)
+
     def test_from_pending_tournament(self):
         # we need MatchResults with aliases (instead of IDs)
         match_1 = AliasMatch(winner=self.player_1.name,

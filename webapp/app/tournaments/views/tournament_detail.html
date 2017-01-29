@@ -97,7 +97,14 @@
                     <th>Name</th>
                 </tr>
                 <tr ng-repeat="player in tournament.players" class="player_line">
-                    <td><a href="#/{{regionService.region.id}}/players/{{player.id}}">{{player.name}}</a></td>
+                    <td>
+                        <div class="col-md-8">
+                            <a href="#/{{regionService.region.id}}/players/{{player.id}}">{{player.name}}</a>
+                        </div>
+                        <div class="col-md-4" ng-show="sessionService.isAdmin()">
+                            <button type="button" class="btn btn-danger mobile mobile_small_text pull-right" ng-click="openReplacePlayerModal(player)">Replace</button>
+                        </div>
+                    </td>
                 </tr>
             </table>
         </div>

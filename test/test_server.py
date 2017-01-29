@@ -1144,21 +1144,6 @@ class TestServer(unittest.TestCase):
         new_tourney_name = "jessesGodlikeTourney"
         old_type = the_tourney.type
         #setup for test 2
-        player1 = ObjectId()
-        player2 = ObjectId()
-        new_players = (player1, player2)
-        new_matches = (Match(winner=player1, loser=player2),
-                       Match(winner=player2, loser=player1))
-
-        new_matches_for_wire = ({'winner': str(player1), 'loser': str(player2) }, {'winner': str(player2), 'loser': str(player1)})
-        new_date = datetime.now()
-        new_regions = ("norcal", "socal")
-        raw_dict = {'name': new_tourney_name,
-                    'date': new_date.strftime("%m/%d/%y"),
-                    'matches': new_matches_for_wire,
-                    'regions': new_regions,
-                    'players': [str(p) for p in new_players]}
-        test_data = json.dumps(raw_dict)
 
         # add new players to dao
         player1_obj = Player(
@@ -1166,15 +1151,47 @@ class TestServer(unittest.TestCase):
             aliases=['testshroomed'],
             ratings={'norcal': Rating()},
             regions=['norcal'],
-            id=player1)
+            id=ObjectId())
         player2_obj = Player(
             name='testpewpewu',
             aliases=['testpewpewu'],
             ratings={'norcal': Rating()},
             regions=['norcal', 'socal'],
-            id=player2)
+            id=ObjectId())
         dao.insert_player(player1_obj)
         dao.insert_player(player2_obj)
+
+
+        player1_dict = {'id': str(player1_obj.id), 'name': player1_obj.name}
+        player2_dict = {'id': str(player2_obj.id), 'name': player2_obj.name}
+        match1_dict = {
+            'winner_id': player1_dict['id'],
+            'winner_name': player1_dict['name'],
+            'loser_id': player2_dict['id'],
+            'loser_name': player2_dict['name'],
+            'excluded': False,
+            'match_id': 0,
+        }
+        match2_dict = {
+            'winner_id': player2_dict['id'],
+            'winner_name': player2_dict['name'],
+            'loser_id': player1_dict['id'],
+            'loser_name': player1_dict['name'],
+            'excluded': True,
+            'match_id': 1,
+        }
+
+        new_players = [player1_dict, player2_dict]
+        new_matches = [match1_dict, match2_dict]
+
+        new_date = datetime.now()
+        new_regions = ("norcal", "socal")
+        raw_dict = {'name': new_tourney_name,
+                    'date': new_date.strftime("%m/%d/%y"),
+                    'matches': new_matches,
+                    'regions': new_regions,
+                    'players': new_players}
+        test_data = json.dumps(raw_dict)
 
         # try overwriting all its writeable attributes: date players matches regions
         rv = self.app.put('/norcal/tournaments/' + str(tourney_id), data=test_data, content_type='application/json')
@@ -1185,20 +1202,27 @@ class TestServer(unittest.TestCase):
         self.assertEquals(json_data['name'], new_tourney_name)
         self.assertEquals(json_data['date'], new_date.strftime('%m/%d/%y'))
         for m1, m2 in zip(json_data['matches'], new_matches):
-            self.assertEqual(m1['winner_id'], str(m2.winner))
-            self.assertEqual(m1['loser_id'], str(m2.loser))
+            self.assertEqual(m1['winner_id'], m2['winner_id'])
+            self.assertEqual(m1['winner_name'], m2['winner_name'])
+            self.assertEqual(m1['loser_id'], m2['loser_id'])
+            self.assertEqual(m1['loser_name'], m2['loser_name'])
+            self.assertEqual(m1['excluded'], m2['excluded'])
+            self.assertEqual(m1['match_id'], m2['match_id'])
         for p1, p2 in zip(json_data['players'], new_players):
-            self.assertEqual(p1['id'], str(p2))
+            self.assertEqual(p1['id'], p2['id'])
+            self.assertEqual(p1['name'], p2['name'])
         self.assertEquals(set(json_data['regions']), set(new_regions))
 
         the_tourney = dao.get_tournament_by_id(tourney_id)
         self.assertEquals(new_tourney_name, the_tourney.name)
         self.assertEquals(new_date.toordinal(), the_tourney.date.toordinal())
         for m1, m2 in zip(new_matches, the_tourney.matches):
-            self.assertEqual(m1.winner, m2.winner)
-            self.assertEqual(m1.loser, m2.loser)
+            self.assertEqual(m1['winner_id'], str(m2.winner))
+            self.assertEqual(m1['loser_id'], str(m2.loser))
 
-        self.assertEquals(set(new_players), set(the_tourney.players))
+        self.assertEquals(
+            set([player1_obj.id, player2_obj.id]),
+            set(the_tourney.players))
         self.assertEquals(set(new_regions), set(the_tourney.regions))
         self.assertEquals(old_type, the_tourney.type)
 

@@ -566,48 +566,52 @@ class TournamentResource(restful.Resource):
         if not is_user_admin_for_regions(user, tournament.regions):
             return 'Permission denied', 403
 
-        try:
-            if args['name']:
-                tournament.name = args['name']
-            if args['date']:
-                try:
-                    tournament.date = datetime.strptime(
-                        args['date'].strip(), '%m/%d/%y')
-                except:
-                    return "Invalid date format", 400
-            if args['players']:
-                # this should rarely be used (if it is used, players will not unmerge reliably)
-                for p in args['players']:
-                    if not isinstance(p, unicode):
-                        return "each player must be a string", 400
-                tournament.players = [ObjectId(i) for i in args['players']]
-                tournament.orig_ids = [pid for pid in tournament.players]
-            if args['matches']:
-                for d in args['matches']:
-                    if not isinstance(d, dict):
-                        return "matches must be a dict", 400
-                    if (not isinstance(d['winner'], unicode)) or (not isinstance(d['loser'], unicode)):
-                        return "winner and loser must be strings", 400
-                # turn the list of dicts into list of matchresults
-                matches = [M.Match(winner=ObjectId(m['winner']), loser=ObjectId(
-                    m['loser'])) for m in args['matches']]
-                tournament.matches = matches
-            if args['regions']:
-                for p in args['regions']:
-                    if not isinstance(p, unicode):
-                        return "each region must be a string", 400
-                tournament.regions = args['regions']
-        except:
-            return 'Invalid ObjectID', 400
+        if args['name']:
+            tournament.name = args['name']
+        if args['date']:
+            try:
+                tournament.date = datetime.strptime(
+                    args['date'].strip(), '%m/%d/%y')
+            except:
+                return "Invalid date format", 400
+        if args['players']:
+            # this should rarely be used (if it is used, players will not unmerge reliably)
+            for p in args['players']:
+                if not isinstance(p, dict):
+                    return "each player must be a dict", 400
+            tournament.players = [ObjectId(p['id']) for p in args['players']]
+            tournament.orig_ids = [pid for pid in tournament.players]
+        if args['matches']:
+            for m in args['matches']:
+                if not isinstance(m, dict):
+                    return "matches must be a dict", 400
+                if (not isinstance(m['winner_id'], unicode) or
+                    not isinstance(m['winner_name'], unicode) or
+                    not isinstance(m['loser_id'], unicode) or
+                    not isinstance(m['loser_name'], unicode) or
+                    not isinstance(m['excluded'], bool) or
+                    not isinstance(m['match_id'], int)):
+                    return "invalid arguments for match", 400
+            # turn the list of dicts into list of matchresults
+            matches = [
+                M.Match(
+                    winner=ObjectId(m['winner_id']),
+                    loser=ObjectId(m['loser_id']),
+                    match_id=m['match_id'],
+                    excluded=m['excluded'])
+                for m in args['matches']]
+            tournament.matches = matches
+        if args['regions']:
+            for p in args['regions']:
+                if not isinstance(p, unicode):
+                    return "each region must be a string", 400
+            tournament.regions = args['regions']
 
-        try:
-            if args['pending']:
-                dao.update_pending_tournament(tournament)
-            else:
-                print tournament
-                dao.update_tournament(tournament)
-        except:
-            return 'Update Tournament Error', 400
+        if args['pending']:
+            dao.update_pending_tournament(tournament)
+        else:
+            print tournament
+            dao.update_tournament(tournament)
 
         if args['pending']:
             return dao.get_pending_tournament_by_id(tournament.id).dump(context='web')
