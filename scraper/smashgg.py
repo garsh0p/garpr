@@ -156,8 +156,12 @@ class SmashGGScraper(object):
         than just the winner and loser. Could be useful for additional ranking metrics
         like how far into the tournament or how many matches were played.
         """
+        # Sort all matches by time.
+        for group_dict in self.group_dicts:
+            group_dict['entities']['sets'].sort(
+                    key=lambda m: m.get('completedAt', None))
+
         self.matches = []
-        grand_finals_matches = []
         for group_dict in self.group_dicts:
             for match in group_dict['entities']['sets']:
                 winner_id = match['winnerId']
@@ -182,12 +186,7 @@ class SmashGGScraper(object):
                 smashgg_match = SmashGGMatch(
                     round_name, winner_id, loser_id, round_num, best_of)
 
-                if match['isGF']:
-                    grand_finals_matches.append(smashgg_match)
-                else:
-                    self.matches.append(smashgg_match)
-
-        self.matches.extend(grand_finals_matches)
+                self.matches.append(smashgg_match)
 
     def get_group_ids(self):
         group_ids = [str(group['id']).strip()
@@ -253,7 +252,8 @@ class SmashGGScraper(object):
 
     @staticmethod
     def get_group_dict(group_id):
-        dict = check_for_200(requests.get(GROUP_URL % group_id)).json()
+        url = GROUP_URL % group_id
+        dict = check_for_200(requests.get(url)).json()
         hasSets = dict['entities']['groups']['hasSets']
         if hasSets is True:
             return dict
