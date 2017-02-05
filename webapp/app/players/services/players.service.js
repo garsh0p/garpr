@@ -12,25 +12,7 @@ angular.module('app.players').service('PlayerService', function($http) {
             return null;
         },
         addTypeaheadDisplayText: function(player){
-            player.typeahead = player.name.toLowerCase();
-            try{ 
-                var minSig = 100;
-                var mainRegion = "";
-                player.regions.forEach(function(region)
-                {
-                    if(player.ratings[region] !== undefined && player.ratings[region].sigma < minSig)
-                    {
-                        minSig = player.ratings[region].sigma;
-                        mainRegion = region;
-                    }
-                });
-                if(mainRegion != "")
-                    player.typeahead = player.name.toString() + ' ~ ' + mainRegion;
-                else
-                    player.typeahead = player.name.toString() + ' ~ ' + player.regions[0].toString();
-            } catch(err){
-                /* FAIL GRACEFULLY */
-            }
+            player.typeahead = player.name.toString();
         },
         // local port of _player_matches_query from backend
         // now returns matchQuality instead of just a boolean
