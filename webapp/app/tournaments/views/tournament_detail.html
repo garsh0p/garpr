@@ -29,8 +29,8 @@
                 <tr class="table_header">
                     <th><strong>New Player?</strong></th>
                     <th><strong>Tag</strong></th>
-                    <th><strong>Player Details</strong></th>
                     <th><strong>Player Search</strong></th>
+                    <th><strong>Player Details</strong></th>
                 </tr>
                 <tr ng-repeat="player in tournament.players" class="pending_tournament_line tournament_line_center">
                     <td class="new_player_col">
@@ -40,6 +40,11 @@
                     </td>
                     <td ng-class="{'text-danger': playerCheckboxState[player], newPlayer: playerCheckboxState[player]}"
                         class="player_name_col"><label>{{player}}</label></td>
+                    <td class="search_player_col">
+                        <div class="form-group">
+                            <input type="text" class="form-control mobile" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
+                        </div>
+                    </td>
                     <td class="player_region_col">
                         <div ng-hide="playerCheckboxState[player]">
                             <div ng-show="playerData[player].hasOwnProperty('id')">
@@ -51,11 +56,6 @@
                             <div ng-hide="playerData[player].hasOwnProperty('id')">
                                 <p class="text-danger"><strong>Please select a valid existing player!</strong></p>
                             </div>
-                        </div>
-                    </td>
-                    <td class="search_player_col">
-                        <div class="form-group">
-                            <input type="text" class="form-control mobile" ng-model="playerData[player]" placeholder="Search for player..." typeahead="p as p.typeahead for p in playerService.getPlayerListFromQuery($viewValue)" typeahead-on-select="playerSelected(player, $item)">
                         </div>
                     </td>
                 </tr>
