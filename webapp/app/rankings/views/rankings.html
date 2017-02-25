@@ -50,24 +50,31 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-2" ng-show="sessionService.isAdmin()">
+            <button type="button" class="btn btn-danger mobile" ng-click="prompt()">Regenerate rankings</button>
+        </div>
+    </div>
 
     <div class="row">
-        <div class="col-md-10">
-            <h3>Rankings as of {{rankingsService.rankingsList.time.substring(0,10)}}</h3>
-        </div>
-        <div class="col-md-2" ng-show="sessionService.isAdmin()">
-            <h3 class="text-right">
-                <button type="button" class="btn btn-danger mobile" ng-click="prompt()">Regenerate rankings</button>
-            </h3>
+        <div class="col-md-6">
+            <div ng-show="rankingsNumTourneysAttended && rankingNumDaysBack">
+              <h5>Activity requirement: {{ rankingsNumTourneysAttended }} Tournaments within {{ rankingNumDaysBack }} Days</h5>
+            </div>
         </div>
     </div>
+
     <div class="row">
-        <div ng-show="!sessionService.isAdmin() && rankingsNumTourneysAttended && rankingNumDaysBack" class="col-md-10">
-            <h4> Region Qualification: Competed in {{ rankingsNumTourneysAttended }} Tournaments within {{ rankingNumDaysBack }} Days </h4>
+        <div class="col-md-6">
+            <h4>Rankings as of {{rankingsService.rankingsList.time.substring(0,10)}}</h4>
+        </div>
+        <div class="col-md-6">
+            <h4>Tournaments</h4>
         </div>
     </div>
+
     <div class="row">
-        <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3">
+        <div class="col-md-6">
             <table class="table table-striped table-condensed">
                 <tr class="table_header">
                     <th>Rank</th>
@@ -78,6 +85,18 @@
                     <td><b>{{line.rank}}</b></td>
                     <td><a href="#/{{regionService.region.id}}/players/{{line.id}}">{{line.name}}</a></td>
                     <td>{{line.rating | number:3}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <table class="table table-striped table-condensed">
+                <tr class="table-header">
+                    <th>Date</th>
+                    <th>Name</th>
+                </tr>
+                <tr ng-repeat="tournament in tournamentService.tournamentList" class="tournament_line">
+                    <td>{{tournament.date}}</td>
+                    <td ng-class="{'pending': tournament.pending}"><a href="#/{{regionService.region.id}}/tournaments/{{tournament.id}}">{{tournament.name}}</a></td>
                 </tr>
             </table>
         </div>

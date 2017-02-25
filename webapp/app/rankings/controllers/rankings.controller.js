@@ -1,8 +1,9 @@
-angular.module('app.rankings').controller("RankingsController", function($scope, $http, $routeParams, $modal, RegionService, RankingsService, SessionService) {
+angular.module('app.rankings').controller("RankingsController", function($scope, $http, $routeParams, $modal, RegionService, RankingsService, SessionService, TournamentService) {
     RegionService.setRegion($routeParams.region);
     $scope.regionService = RegionService;
     $scope.rankingsService = RankingsService
     $scope.sessionService = SessionService
+    $scope.tournamentService = TournamentService
 
     $scope.modalInstance = null;
     $scope.disableButtons = false;
