@@ -313,6 +313,30 @@ class PlayerResource(restful.Resource):
 
         return player.dump(context='web')
 
+    def delete(self, region, id):
+        dao = Dao(region, mongo_client=mongo_client)
+        if not dao:
+            return 'Dao not found', 404
+        user = get_user_from_request(request, dao)
+        if not user:
+            return 'Permission denied', 403
+
+        try:
+            player = dao.get_player_by_id(ObjectId(id))
+        except:
+            return 'Invalid ObjectID', 400
+        if not player:
+            return "No player found with that region/id.", 404
+
+        if not is_user_admin_for_regions(user, player.regions):
+            return 'Permission denied', 403
+
+        if dao.get_all_tournaments(players=[player]):
+            return 'Player still has matches', 400
+
+        dao.delete_player(player)
+        return {"success": True}
+
 
 class TournamentSeedResource(restful.Resource):
       def post(self, region):

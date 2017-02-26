@@ -1480,6 +1480,45 @@ class TestServer(unittest.TestCase):
         self.assertEquals(rv.status, '400 BAD REQUEST')
 
     @patch('server.get_user_from_request')
+    def test_delete_player(self, mock_get_user_from_request):
+        mock_get_user_from_request.return_value = self.user
+
+        # Add a new player to delete (because it won't have any matches).
+        player_id = self.norcal_dao.insert_player(
+            Player.create_with_default_values('new player', 'norcal'))
+        self.assertIsNotNone(self.norcal_dao.get_player_by_id(player_id))
+
+        response = self.app.delete('/norcal/players/' + str(player_id))
+
+        self.assertEquals(response.status_code, 200)
+        self.assertIsNone(self.norcal_dao.get_player_by_id(player_id))
+
+    @patch('server.get_user_from_request')
+    def test_delete_player_still_has_matches(self, mock_get_user_from_request):
+        mock_get_user_from_request.return_value = self.user
+
+        player_id  = self.norcal_dao.get_player_by_alias('gar').id
+
+        response = self.app.delete('/norcal/players/' + str(player_id))
+
+        self.assertEquals(response.status_code, 400)
+        self.assertIsNotNone(self.norcal_dao.get_player_by_id(player_id))
+
+    @patch('server.get_user_from_request')
+    def test_delete_player_wrong_region_admin(self, mock_get_user_from_request):
+        mock_get_user_from_request.return_value = self.user
+        player_id = self.norcal_dao.insert_player(
+            Player.create_with_default_values('new player', 'texas'))
+        response = self.app.delete('/texas/players/' + str(player_id))
+        self.assertEquals(response.status_code, 403, msg=response.status_code)
+
+    def test_delete_player_unauth(self):
+        player_id = self.norcal_dao.insert_player(
+            Player.create_with_default_values('new player', 'norcal'))
+        response = self.app.delete('/norcal/players/' + str(player_id))
+        self.assertEquals(response.status_code, 403, msg=response.status_code)
+
+    @patch('server.get_user_from_request')
     def test_put_merge(self, mock_get_user_from_request):
         mock_get_user_from_request.return_value = self.user
         dao = self.norcal_dao
