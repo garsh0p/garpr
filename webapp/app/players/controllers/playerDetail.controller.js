@@ -130,6 +130,24 @@ angular.module('app.players').controller("PlayerDetailController", function($sco
             $scope.showFormulas = true
     }
 
+    $scope.openDeletePlayerModal = function(playerId) {
+        $scope.modalInstance = $modal.open({
+            templateUrl: 'app/players/views/delete_player_modal.html',
+            scope: $scope,
+            size: 'lg'
+        });
+        $scope.playerId = playerId;
+    };
+
+    $scope.deletePlayer = function() {
+        url = hostname + $routeParams.region + '/players/' + $scope.playerId;
+        successCallback = function(data) {
+            window.location.href = "#/" + $routeParams.region + '/rankings' ;
+            window.location.reload();
+        };
+        $scope.sessionService.authenticatedDelete(url, successCallback);
+    };
+
     $http.get(hostname + $routeParams.region + '/players/' + $routeParams.playerId).
         success(function(data) {
             $scope.player = data;

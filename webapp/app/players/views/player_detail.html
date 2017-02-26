@@ -14,7 +14,7 @@
     </div>
     <div ng-show="!player.merged">
         <div class="row">
-            <div class="player-rating col-md-12">
+            <div class="player-rating col-md-8">
                 <h2><span tooltip-placement="right"
                           tooltip-html-unsafe="Skill: {{player.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{player.ratings[regionService.region.id].sigma | number:3}}">
                     Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
@@ -24,6 +24,13 @@
                     <h4>Unadjusted: {{player.ratings[regionService.region.id].mu | number:3}} (+/- {{player.ratings[regionService.region.id].sigma | number:3}})
                     <button type="button" class="btn btn-primary btn-sm mobile_xxs" ng-click="showFormulasFcn()">?</button></h4>
                 </span>
+            </div>
+            <div class="col-md-4">
+                 <h1 class="text-right">
+                     <button type="button" class="btn btn-danger mobile"
+                             ng-show="sessionService.isAdmin()"
+                             ng-click="openDeletePlayerModal(player.id)">Delete</a></button>
+                 </h1>
             </div>
         </div>
         <div class="formulaDiv" ng-show="showFormulas">
