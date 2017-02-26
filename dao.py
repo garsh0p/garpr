@@ -377,8 +377,10 @@ class Dao(object):
         # uniqify
         similar_aliases = list(set(similar_aliases))
 
-        ret = self.players_col.find({'aliases': {'$in': similar_aliases},
-                                     'merged': False})
+        ret = self.players_col.find({
+            '$or': [
+                {'aliases': {'$in': similar_aliases}, 'merged': False},
+                {'name': {'$in': similar_aliases}, 'merged': False}]})
         return [M.Player.load(p, context='db') for p in ret]
 
     # inserts and merges players!

@@ -727,6 +727,17 @@ class TestDAO(unittest.TestCase):
         self.assertTrue(any(player.name == "gaR" for player in dao.get_players_with_similar_alias(
             "garpr goog youtube gar")))
 
+    def test_get_players_with_similar_alias_match_name(self):
+        player = Player(
+            name='ivanvan',
+            aliases=['asdf'],
+            ratings={'norcal': Rating(), 'texas': Rating()},
+            regions=['norcal', 'texas'],
+            id=ObjectId())
+        self.norcal_dao.insert_player(player)
+        self.assertEquals(self.norcal_dao.get_players_with_similar_alias(
+            'ivanvan'), [player])
+
     # TODO: add more tests for merging players
     # this is currently covered by test_get_and_insert_merge
     # def test_merge_players(self):
