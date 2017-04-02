@@ -36,6 +36,7 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
         successCallback = function(data) {
             $scope.rankingsService.rankingsList = data;
             $scope.modalInstance.close();
+            $scope.disableButtons = false;
         };
 
         var postParams = {
@@ -50,6 +51,7 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
 
     $scope.cancel = function() {
         $scope.modalInstance.close();
+        $scope.disableButtons = false;
     };
 
     $scope.getRegionRankingCriteria = function(){
