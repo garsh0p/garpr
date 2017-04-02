@@ -1,6 +1,9 @@
-angular.module('app.tournaments').service('TournamentService', function() {
+angular.module('app.tournaments').service('TournamentService', function($filter) {
     var service = {
-        tournamentList: null
+        tournamentList: null,
+        getFinalizedTournaments: function() {
+            return $filter('filter')(this.tournamentList, {pending: false});
+        }
     };
     return service;
 });

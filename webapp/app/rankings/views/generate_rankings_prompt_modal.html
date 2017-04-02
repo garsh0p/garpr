@@ -7,6 +7,8 @@
     <p>Manual regeneration is necessary whenever a player or tournament is added or removed from this region.</p>
     <p>Ranking generation may take a long time, so please be patient!</p>
     <p class="danger">IMPORTANT: Any changes made to the Ranking Criteria will be SAVED!</p>
+    <h4>Select the last tournament to compare the new ranking against:</h4>
+    <select ng-options="tournament.date + ' - ' + tournament.name for tournament in tournamentService.getFinalizedTournaments() track by tournament.id" ng-model="postData.tournamentToDiff" ng-change="printDiff()"/>
 </div>
 
 <div class="modal-footer">

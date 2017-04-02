@@ -12,7 +12,17 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
     $scope.rankingsNumTourneysAttended = 0;
     $scope.tourneyNumDaysBack = 999;
 
+    $scope.postData = {};
+
     $scope.prompt = function() {
+        var selectedTournament = null;
+        var finalizedTournaments = $scope.tournamentService.getFinalizedTournaments();
+        if (finalizedTournaments.length == 1) {
+            selectedTournament = finalizedTournaments[0];
+        } else if (finalizedTournaments.length > 1) {
+            selectedTournament = finalizedTournaments[1];
+        }
+        $scope.postData = {tournamentToDiff: selectedTournament};
         $scope.modalInstance = $modal.open({
             templateUrl: 'app/rankings/views/generate_rankings_prompt_modal.html',
             scope: $scope,
@@ -31,7 +41,8 @@ angular.module('app.rankings').controller("RankingsController", function($scope,
         var postParams = {
             ranking_num_tourneys_attended: $scope.rankingsNumTourneysAttended,
             ranking_activity_day_limit: $scope.rankingNumDaysBack,
-            tournament_qualified_day_limit: $scope.tourneyNumDaysBack
+            tournament_qualified_day_limit: $scope.tourneyNumDaysBack,
+            tournament_id_to_diff: $scope.postData.tournamentToDiff.id
         }
 
         $scope.sessionService.authenticatedPost(url, postParams, successCallback, angular.noop);
