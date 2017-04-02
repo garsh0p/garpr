@@ -79,8 +79,8 @@
                         <p class="text-center">
                           <span ng-show="line.previous_rank == null">*</span>
                           <span ng-show="line.rank == line.previous_rank">-</span>
-                          <span class="glyphicon glyphicon-arrow-up text-success" ng-show="(line.previous_rank != null) && (line.rank > line.previous_rank)"></span>
-                          <span class="glyphicon glyphicon-arrow-down text-danger" ng-show="(line.previous_rank != null) && (line.rank < line.previous_rank)"></span>
+                          <span class="glyphicon glyphicon-arrow-up text-success" ng-show="(line.previous_rank != null) && (line.rank < line.previous_rank)"></span>
+                          <span class="glyphicon glyphicon-arrow-down text-danger" ng-show="(line.previous_rank != null) && (line.rank > line.previous_rank)"></span>
                         </p>
                     </td>
                     <td><b>{{line.rank}}</b></td>
