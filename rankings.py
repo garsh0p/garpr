@@ -85,9 +85,7 @@ def _create_ranking_from_tournament_list(
     ranking = []
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
-        if player_last_active_date is None or \
-                dao.is_inactive(player, now, day_limit, num_tourneys) or \
-                dao.region_id not in player.regions:
+        if _is_player_inactive(dao, player, tournaments, player_last_active_date, now, day_limit, num_tourneys):
             pass  # do nothing, skip this player
         else:
             ranking.append(model.RankingEntry(
@@ -111,3 +109,14 @@ def _create_ranking_from_tournament_list(
         tournaments=[t.id for t in tournaments],
         ranking=ranking)
 
+
+def _is_player_inactive(dao, player, tournaments, player_last_active_date, now, day_limit, num_tourneys):
+    if (player_last_active_date is None or
+        dao.region_id not in player.regions):
+      return True
+
+    tournaments_for_player = [
+        tournament for tournament in tournaments if
+        tournament.contains_player(player) and tournament.date >= (now - timedelta(days=day_limit))]
+
+    return len(tournaments_for_player) < num_tourneys

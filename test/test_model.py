@@ -289,6 +289,15 @@ class TestTournament(unittest.TestCase):
         self.assertTrue(self.player_4_id in self.tournament.players)
         self.assertEqual(len(self.tournament.players), 4)
 
+    def test_contains_player(self):
+        self.assertTrue(self.tournament.contains_player(self.player_1))
+        self.assertTrue(self.tournament.contains_player(self.player_2))
+        self.assertTrue(self.tournament.contains_player(self.player_3))
+        self.assertTrue(self.tournament.contains_player(self.player_4))
+
+    def test_does_not_contain_player(self):
+        self.assertFalse(self.tournament.contains_player(self.player_5))
+
     def test_dump(self):
         self.assertEqual(self.tournament.dump(
             context='db'), self.tournament_json_dict)

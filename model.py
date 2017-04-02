@@ -186,6 +186,9 @@ class Tournament(orm.Document):
             if match.loser == player_to_remove_id:
                 match.loser = player_to_add_id
 
+    def contains_player(self, player):
+      return player.id in self.players
+
     @classmethod
     def from_pending_tournament(cls, pending_tournament):
         # takes a real alias to id map instead of a list of objects
