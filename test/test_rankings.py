@@ -208,3 +208,31 @@ class TestRankings(unittest.TestCase):
         self.assertEquals(entry.rank, 3)
         self.assertEquals(entry.player, self.player_2_id)
         self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
+
+    def test_generate_rankings_diff_against_tournament(self):
+        now = datetime(2013, 11, 25)
+
+        rankings.generate_ranking(self.dao, now=now, day_limit=45, num_tourneys=1, tournament_to_diff=self.tournament_2)
+
+        ranking = self.dao.get_latest_ranking()
+
+        ranking_list = ranking.ranking
+        self.assertEquals(len(ranking_list), 3)
+
+        entry = ranking_list[0]
+        self.assertEquals(entry.rank, 1)
+        self.assertEquals(entry.player, self.player_1_id)
+        self.assertAlmostEquals(entry.rating, 6.857, delta=delta)
+        self.assertEquals(entry.previous_rank, None)
+
+        entry = ranking_list[1]
+        self.assertEquals(entry.rank, 2)
+        self.assertEquals(entry.player, self.player_4_id)
+        self.assertAlmostEquals(entry.rating, -.800, delta=delta, msg="" + str(entry.player))
+        self.assertEquals(entry.previous_rank, 2)
+
+        entry = ranking_list[2]
+        self.assertEquals(entry.rank, 3)
+        self.assertEquals(entry.player, self.player_2_id)
+        self.assertAlmostEquals(entry.rating, -1.349, delta=delta)
+        self.assertEquals(entry.previous_rank, 3)

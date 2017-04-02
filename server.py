@@ -67,6 +67,7 @@ rankings_criteria_get_parser = reqparse.RequestParser()
 rankings_criteria_get_parser.add_argument('ranking_activity_day_limit', type=str)
 rankings_criteria_get_parser.add_argument('ranking_num_tourneys_attended', type=str)
 rankings_criteria_get_parser.add_argument('tournament_qualified_day_limit', type=str)
+rankings_criteria_get_parser.add_argument('tournament_id_to_diff', type=str)
 
 merges_put_parser = reqparse.RequestParser()
 merges_put_parser.add_argument('source_player_id', type=str)
@@ -957,6 +958,7 @@ class RankingsResource(restful.Resource):
                 ranking_num_tourneys_attended = int(args['ranking_num_tourneys_attended'])
                 ranking_activity_day_limit = int(args['ranking_activity_day_limit'])
                 tournament_qualified_day_limit = int(args['tournament_qualified_day_limit'])
+                tournament_id_to_diff = ObjectId(args['tournament_id_to_diff'])
 
                 #TODO Get stored rankings from the db
                 dao.update_region_ranking_criteria(region.lower(),
@@ -966,10 +968,13 @@ class RankingsResource(restful.Resource):
                 print 'Running rankings. day_limit: ' + str(ranking_activity_day_limit) + ' and num_tourneys: ' \
                       + str(ranking_num_tourneys_attended) + ' and tournament_qualified_day_limit: ' + str(tournament_qualified_day_limit)
 
+                tournament_to_diff = dao.get_tournament_by_id(tournament_id_to_diff)
+
                 rankings.generate_ranking(dao, now=now,
                                           day_limit=ranking_activity_day_limit,
                                           num_tourneys=ranking_num_tourneys_attended,
-                                          tournament_qualified_day_limit=tournament_qualified_day_limit)
+                                          tournament_qualified_day_limit=tournament_qualified_day_limit,
+                                          tournament_to_diff=tournament_to_diff)
             except:
                 rankings.generate_ranking(dao, now=now)
         except Exception as e:

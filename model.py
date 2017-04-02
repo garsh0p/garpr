@@ -54,7 +54,8 @@ class RankingEntry(orm.Document):
     collection_name = None
     fields = [('player', orm.ObjectIDField(required=True)),
               ('rank', orm.IntField(required=True)),
-              ('rating', orm.FloatField(required=True))]
+              ('rating', orm.FloatField(required=True)),
+              ('previous_rank', orm.IntField())]
 
 
 class Rating(orm.Document):
@@ -334,6 +335,12 @@ class Ranking(orm.Document):
               ('tournaments', orm.ListField(orm.ObjectIDField())),
               ('time', orm.DateTimeField()),
               ('ranking', orm.ListField(orm.DocumentField(RankingEntry)))]
+
+    def get_ranking_for_player_id(self, player_id):
+        for entry in self.ranking:
+            if entry.player == player_id:
+                return entry.rank
+        return None
 
 class Region(orm.Document):
     collection_name = 'regions'

@@ -892,19 +892,21 @@ class TestServer(unittest.TestCase):
         # spot check first and last ranking entries
         ranking_entry = json_data['ranking'][0]
         db_ranking_entry = db_ranking.ranking[0]
-        self.assertEquals(len(ranking_entry.keys()), 4)
+        self.assertEquals(len(ranking_entry.keys()), 5)
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
-
         self.assertTrue(ranking_entry['rating'] > 24.3)
+        self.assertEquals(ranking_entry['previous_rank'], db_ranking_entry.previous_rank)
+
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
-        self.assertEquals(len(ranking_entry.keys()), 4)
+        self.assertEquals(len(ranking_entry.keys()), 5)
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
         self.assertTrue(ranking_entry['rating'] > -3.86)
+        self.assertEquals(ranking_entry['previous_rank'], db_ranking_entry.previous_rank)
 
     def test_get_rankings_ignore_invalid_player_id(self):
         # delete a player that exists in the rankings
@@ -927,19 +929,21 @@ class TestServer(unittest.TestCase):
         # spot check first and last ranking entries
         ranking_entry = json_data['ranking'][0]
         db_ranking_entry = db_ranking.ranking[0]
-        self.assertEquals(len(ranking_entry.keys()), 4)
+        self.assertEquals(len(ranking_entry.keys()), 5)
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
         self.assertTrue(ranking_entry['rating'] > 24.3)
+        self.assertEquals(ranking_entry['previous_rank'], db_ranking_entry.previous_rank)
 
         ranking_entry = json_data['ranking'][-1]
         db_ranking_entry = db_ranking.ranking[-1]
-        self.assertEquals(len(ranking_entry.keys()), 4)
+        self.assertEquals(len(ranking_entry.keys()), 5)
         self.assertEquals(ranking_entry['rank'], db_ranking_entry.rank)
         self.assertEquals(ranking_entry['id'], str(db_ranking_entry.player))
         self.assertEquals(ranking_entry['name'], self.norcal_dao.get_player_by_id(db_ranking_entry.player).name)
         self.assertTrue(ranking_entry['rating'] > -3.86)
+        self.assertEquals(ranking_entry['previous_rank'], db_ranking_entry.previous_rank)
 
     @patch('server.get_user_from_request')
     @patch('server.datetime')
@@ -977,6 +981,34 @@ class TestServer(unittest.TestCase):
         self.assertEquals(now, db_ranking.time)
         self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
         self.assertEquals(len(json_data['ranking']), 0)
+
+
+    @patch('server.get_user_from_request')
+    @patch('server.datetime')
+    def test_post_rankings_with_diff(self, mock_datetime, mock_get_user_from_request):
+        now = datetime(2014, 11, 2)
+
+        mock_datetime.now.return_value = now
+        mock_get_user_from_request.return_value = self.user
+
+        tournament_to_diff = self.norcal_dao.get_all_tournaments(regions=['norcal'])[0]
+
+        the_data = {
+            'ranking_num_tourneys_attended': 1,
+            'ranking_activity_day_limit': 10000,
+            'tournament_qualified_day_limit': 10000,
+            'tournament_id_to_diff': str(tournament_to_diff.id),
+        }
+        data = self.app.post('/norcal/rankings', data=json.dumps(the_data), content_type='application/json').data
+        json_data = json.loads(data)
+        db_ranking = self.norcal_dao.get_latest_ranking()
+
+        self.assertEquals(now, db_ranking.time)
+        self.assertEquals(json_data['time'], db_ranking.time.strftime("%x"))
+        self.assertEquals(len(json_data['ranking']), len(db_ranking.ranking))
+
+        # Spot check to see that we calculated a previous rank.
+        self.assertIsNotNone(json_data['ranking'][1])
 
     @patch('server.get_user_from_request')
     def test_post_rankings_permission_denied(self, mock_get_user_from_request):

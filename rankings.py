@@ -7,16 +7,45 @@ import model
 import rating_calculators
 
 
-def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2, tournament_qualified_day_limit=999):
+def generate_ranking(
+        dao,
+        now=datetime.now(),
+        day_limit=60,
+        num_tourneys=2,
+        tournament_qualified_day_limit=999,
+        tournament_to_diff=None):
+    tournaments = dao.get_all_tournaments(regions=[dao.region_id])
+    ranking_to_diff_against = None
+    if tournament_to_diff:
+        tournaments_for_diff = []
+        for tournament in tournaments:
+            tournaments_for_diff.append(tournament)
+            if tournament.id == tournament_to_diff.id:
+                break
+
+        ranking_to_diff_against = _create_ranking_from_tournament_list(
+            dao, tournaments_for_diff, tournament_to_diff.date, day_limit, num_tourneys, tournament_qualified_day_limit, None)
+
+
+    dao.insert_ranking(_create_ranking_from_tournament_list(
+        dao, tournaments, now, day_limit, num_tourneys, tournament_qualified_day_limit, ranking_to_diff_against))
+
+
+def _create_ranking_from_tournament_list(
+        dao,
+        tournaments,
+        now,
+        day_limit,
+        num_tourneys,
+        tournament_qualified_day_limit,
+        ranking_to_diff_against):
     player_date_map = {}
     player_id_to_player_map = {}
 
     tournament_qualified_date = (now - timedelta(days=tournament_qualified_day_limit))
     print('Qualified Date: ' + str(tournament_qualified_date))
 
-    tournaments = dao.get_all_tournaments(regions=[dao.region_id])
     for tournament in tournaments:
-
         if tournament_qualified_date <= tournament.date:
             print 'Processing:', tournament.name.encode('utf-8'), str(tournament.date)
             for player_id in tournament.players:
@@ -51,7 +80,8 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2, tour
     players = player_id_to_player_map.values()
     sorted_players = sorted(
         players,
-        key=lambda player: trueskill.expose(player.ratings[dao.region_id].trueskill_rating()), reverse=True)
+        key=lambda player: (trueskill.expose(player.ratings[dao.region_id].trueskill_rating()), player.name),
+        reverse=True)
     ranking = []
     for player in sorted_players:
         player_last_active_date = player_date_map.get(player.id)
@@ -62,7 +92,9 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2, tour
         else:
             ranking.append(model.RankingEntry(
                 rank=rank,
-                player=player.id, rating=trueskill.expose(player.ratings[dao.region_id].trueskill_rating())))
+                player=player.id,
+                rating=trueskill.expose(player.ratings[dao.region_id].trueskill_rating()),
+                previous_rank=ranking_to_diff_against.get_ranking_for_player_id(player.id) if ranking_to_diff_against else None))
             rank += 1
 
     print 'Updating players...'
@@ -71,12 +103,11 @@ def generate_ranking(dao, now=datetime.now(), day_limit=60, num_tourneys=2, tour
         # TODO: log somewhere later
         # print 'Updated player %d of %d' % (i, len(players))
 
-    print 'Inserting new ranking...'
-    dao.insert_ranking(model.Ranking(
+    print 'Returning new ranking...'
+    return model.Ranking(
         id=ObjectId(),
         region=dao.region_id,
         time=now,
         tournaments=[t.id for t in tournaments],
-        ranking=ranking))
+        ranking=ranking)
 
-    print 'Done!'

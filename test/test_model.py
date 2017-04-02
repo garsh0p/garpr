@@ -557,6 +557,17 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(ranking.tournaments, self.ranking.tournaments)
         self.assertEqual(ranking.ranking, self.ranking.ranking)
 
+    def test_get_ranking_for_player_id(self):
+      self.assertEqual(
+          self.ranking_entry_1.rank,
+          self.ranking.get_ranking_for_player_id(self.ranking_entry_1.player))
+      self.assertEqual(
+          self.ranking_entry_2.rank,
+          self.ranking.get_ranking_for_player_id(self.ranking_entry_2.player))
+
+    def test_get_ranking_for_player_id_not_found(self):
+      self.assertIsNone(self.ranking.get_ranking_for_player_id(ObjectId()))
+
 
 class TestRankingEntry(unittest.TestCase):
 
@@ -565,11 +576,13 @@ class TestRankingEntry(unittest.TestCase):
         self.ranking_entry = RankingEntry(
             rank=1,
             player=self.id_1,
-            rating=20.5)
+            rating=20.5,
+            previous_rank=2)
         self.ranking_entry_json_dict = {
             'rank': 1,
             'player': self.id_1,
-            'rating': 20.5
+            'rating': 20.5,
+            'previous_rank': 2
         }
 
     def test_dump(self):
@@ -582,6 +595,7 @@ class TestRankingEntry(unittest.TestCase):
         self.assertEqual(ranking_entry.rank, self.ranking_entry.rank)
         self.assertEqual(ranking_entry.player, self.ranking_entry.player)
         self.assertEqual(ranking_entry.rating, self.ranking_entry.rating)
+        self.assertEqual(ranking_entry.previous_rank, self.ranking_entry.previous_rank)
 
 
 class TestRegion(unittest.TestCase):
