@@ -20,7 +20,7 @@
                     Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
                     </span>
                 </h2>
-                <span>
+                <span ng-show="sessionService.isAdmin()">
                     <h4>Unadjusted: {{player.ratings[regionService.region.id].mu | number:3}} (+/- {{player.ratings[regionService.region.id].sigma | number:3}})
                     <button type="button" class="btn btn-primary btn-sm mobile_xxs" ng-click="showFormulasFcn()">?</button></h4>
                 </span>
