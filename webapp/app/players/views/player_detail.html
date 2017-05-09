@@ -15,11 +15,7 @@
     <div ng-show="!player.merged">
         <div class="row">
             <div class="player-rating col-md-8">
-                <h2><span tooltip-placement="right"
-                          tooltip-html-unsafe="Skill: {{player.ratings[regionService.region.id].mu | number:3}}<br>Uncertainty: {{player.ratings[regionService.region.id].sigma | number:3}}">
-                    Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}
-                    </span>
-                </h2>
+                <h2>Rating: {{player.ratings[regionService.region.id].mu - 3*player.ratings[regionService.region.id].sigma | number:3}}</h2>
                 <span ng-show="sessionService.isAdmin()">
                     <h4>Unadjusted: {{player.ratings[regionService.region.id].mu | number:3}} (+/- {{player.ratings[regionService.region.id].sigma | number:3}})
                     <button type="button" class="btn btn-primary btn-sm mobile_xxs" ng-click="showFormulasFcn()">?</button></h4>
